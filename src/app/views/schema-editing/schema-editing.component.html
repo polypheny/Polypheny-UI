@@ -3,7 +3,7 @@
     <app-edit-entity [currentRoute]="currentRoute"></app-edit-entity>
 </div>
 
-<c-container class="pt-3 px-3" *ngIf="currentRoute()?.trim() === ''">
+<ng-container *ngIf="currentRoute()?.trim() === ''">
     <c-row>
         <h1>Namespaces</h1>
         <p>Select an item from the left sidebar to edit its entities.</p>
@@ -12,7 +12,7 @@
 
 
     <c-row>
-        <c-col lg="6" class="fixed-width">
+        <c-col [lg]="6" class="fixed-width">
             <c-card>
                 <c-card-header>
                     <span class="mb-0">Create Namespace</span>
@@ -56,7 +56,7 @@
             </c-card>
         </c-col>
 
-        <c-col lg="6" class="fixed-width">
+        <c-col [lg]="6" class="fixed-width">
             <c-card>
                 <c-card-header>
                     <span class="mb-0">Drop Namespace</span>
@@ -87,4 +87,4 @@
             </c-card>
         </c-col>
     </c-row>
-</c-container>
+</ng-container>

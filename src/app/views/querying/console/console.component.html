@@ -1,173 +1,171 @@
-<c-container>
-    <c-row class="mb-3 gy-3" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)"
-           (keyup.alt.shift)="revertCache()"
-           (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()"
-           (keydown.alt.enter)="submitQuery()">
-        <c-col class="col-lg-8 col-md-8 col-sm-12">
-            <div class="list-group grey-border mb-3" id="console">
-                <div id="console-item-head" *ngIf="usesAdvancedConsole()"
-                     class="list-group-item header grey-bg px-3 border-bottom">
-                    <div class="advanced-console-db-info">
-                        <span>Namespace: </span>
-                        <select class="form-control form-control-sm advanced-console-db-info ms-3"
-                                [ngModel]="activeNamespace()"
-                                (ngModelChange)="changedDefaultDB($event)">
-                            <option *ngFor="let namespace of namespaces()"
-                                    [ngValue]="namespace.name">{{ namespace.name }}
-                            </option>
-                        </select>
-                        <span class="ms-3 text-danger" *ngIf="!activeNamespaceExists()"> '{{ activeNamespace() }}' does not exist.</span>
-                    </div>
-                </div>
-                <div class="form-group"
-                     [ngClass]="usesAdvancedConsole() ? 'advanced-console': 'simple-console'">
-                    <app-editor [language]="language()" #editor id="query-editor"></app-editor>
+<c-row class="mb-3 gy-3" [hidden]="showingAnalysis" (keydown.alt.shift)="toggleCache(false)"
+       (keyup.alt.shift)="revertCache()"
+       (keyup.shift.alt)="revertCache()" (keydown.alt.shift.enter)="submitQuery()"
+       (keydown.alt.enter)="submitQuery()">
+    <c-col class="col-lg-8 col-md-8 col-sm-12">
+        <div class="list-group grey-border mb-3" id="console">
+            <div id="console-item-head" *ngIf="usesAdvancedConsole()"
+                 class="list-group-item header grey-bg px-3 border-bottom">
+                <div class="advanced-console-db-info">
+                    <span>Namespace: </span>
+                    <select class="form-control form-control-sm advanced-console-db-info ms-3"
+                            [ngModel]="activeNamespace()"
+                            (ngModelChange)="changedDefaultDB($event)">
+                        <option *ngFor="let namespace of namespaces()"
+                                [ngValue]="namespace.name">{{ namespace.name }}
+                        </option>
+                    </select>
+                    <span class="ms-3 text-danger" *ngIf="!activeNamespaceExists()"> '{{ activeNamespace() }}' does not exist.</span>
                 </div>
             </div>
-
-            <c-row class="gy-1">
-                <c-col>
-                    <c-form-check>
-                        <input cFormCheckInput type="checkbox" id="checkbox1" [(ngModel)]="analyzeQuery">
-                        <label cFormCheckLabel for="checkbox1">analyze query</label>
-                    </c-form-check>
-                </c-col>
-                <c-col class="ps-sm-0">
-                    <c-form-check>
-                        <input cFormCheckInput type="checkbox" id="checkbox3" [(ngModel)]="useCache">
-                        <label cFormCheckLabel for="checkbox3">use cache</label>
-                    </c-form-check>
-                </c-col>
-                <c-col class="ps-sm-0">
-                    <c-form-check>
-                        <input cFormCheckInput type="checkbox" id="checkbox2" [(ngModel)]="saveInHistory">
-                        <label cFormCheckLabel for="checkbox2">save in history</label>
-                    </c-form-check>
-                </c-col>
-
-                <c-col [xs]="6">
-                    <c-input-group>
-                        <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language()"
-                                (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
-                            <option value="cypher">CYPHER</option>
-                            <option value="sql">SQL</option>
-                            <option value="mql">MQL</option>
-                            <option value="cql">CQL</option>
-                            <option value="pig">PIG</option>
-                        </select>
-                        <button *ngIf="!loading()" cButton type="submit" color="primary" (click)="submitQuery()">Execute
-                        </button>
-                        <button *ngIf="loading()" type="submit" cButton color="primary"
-                                class="progress-bar-striped progress-bar-animated align-self-end" disabled>Loading
-                        </button>
-                    </c-input-group>
-                </c-col>
-            </c-row>
-        </c-col>
-        <c-col class="col-lg-4 col-md-4 col-sm-12">
-            <ul class="list-group" id="history-header">
-                <li id="history-item-head" class="list-group-item header px-3">
-                    <div>
-                        <span class="me-1">History</span>
-                        <app-delete-confirm (delete)="clearHistory()"></app-delete-confirm>
-                    </div>
-                    <div>
-                        <button cButton color="primary" size="sm" (click)="openHistorySearch()"
-                                [hidden]="showSearch">
-                            <i class="fa fa-search"></i>
-                        </button>
-                        <input #historySearchInput type='text'
-                               class='form-control form-control-sm'
-                               [(ngModel)]="historySearchQuery"
-                               (keydown.esc)="closeHistorySearch()"
-                               [hidden]="!showSearch"/>
-                        <i class="fa fa-times text-muted search-close"
-                           (click)="closeHistorySearch()"
-                           [hidden]="!showSearch"></i>
-                    </div>
-                </li>
-            </ul>
-            <ul class="list-group" id="history">
-                <li class="list-group-item empty"
-                    *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)
-                </li>
-                <li class="list-group-item history-item p-1 border-top-0"
-                    *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
-                    (click)="applyHistory( h.value.query, h.value.lang, h.value.namespace, false )"
-                    (dblclick)="applyHistory( h.value.query, h.value.lang, h.value.namespace, true)">
-                    <div class="history-time-wrapper">
-                        <small class="time" style="text-transform: uppercase;">{{ h.value.lang }}</small>
-                        <small class="time">{{ h.value.displayTime() }}</small>
-                        <small class="time">{{ h.value.fromNow() }}</small>
-                    </div>
-                    <div class="flex-grow-1">
-                        <small>{{ _util.limitedString( h.value.query ) }}</small>
-                    </div>
-                    <app-delete-confirm class="del-hist-item" (delete)="deleteHistoryItem(h.key)"></app-delete-confirm>
-                </li>
-            </ul>
-        </c-col>
-    </c-row>
-
-
-    <c-row [hidden]="showingAnalysis || loading()">
-        <c-col class="col-lg-12 mb-3" *ngIf="results().length > 1"
-               style="display: flex; justify-content: space-between">
-            <span style="padding-top: 0.25em">Click on a query to view its result and additional information.</span>
-            <div id="collapse-btn-wrapper">
-                <button cButton color="light" size="sm" (click)="collapseAll(true)" tooltip="expand all"
-                        container="body" *ngIf="someCollapsed()"
-                        placement="top" delay="500"><i class="fa fa-expand"></i></button>
-                <button cButton color="light" size="sm" class="ms-1" (click)="collapseAll(false)" tooltip="collapse all"
-                        container="body" *ngIf="someExpanded()"
-                        placement="top" delay="500"><i class="fa fa-compress"></i></button>
+            <div class="form-group"
+                 [ngClass]="usesAdvancedConsole() ? 'advanced-console': 'simple-console'">
+                <app-editor [language]="language()" #editor id="query-editor"></app-editor>
             </div>
-        </c-col>
-        <c-col class="col-lg-12 mb-3" [ngClass]="{'accordion': results() && results().length > 1}" id="results">
-            <c-card class="mb-3" *ngFor="let result of results(); let i = index;">
-                <c-card-header
-                        [ngClass]="{'pointer': results().length > 1, 'open': collapsed() !== undefined && collapsed()[i]}"
-                        (click)="toggleCollapsed(i)">
-                    <span>{{ result.query }}</span>
-                    <div>
-                        <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
-                            <ng-container *ngIf="!result.error">{{ result.affectedTuples }}</ng-container>
-                            <ng-container *ngIf="result.error">!</ng-container>
-                        </c-badge>
-                    </div>
-                </c-card-header>
+        </div>
+
+        <c-row class="gy-1">
+            <c-col>
+                <c-form-check>
+                    <input cFormCheckInput type="checkbox" id="checkbox1" [(ngModel)]="analyzeQuery">
+                    <label cFormCheckLabel for="checkbox1">analyze query</label>
+                </c-form-check>
+            </c-col>
+            <c-col class="ps-sm-0">
+                <c-form-check>
+                    <input cFormCheckInput type="checkbox" id="checkbox3" [(ngModel)]="useCache">
+                    <label cFormCheckLabel for="checkbox3">use cache</label>
+                </c-form-check>
+            </c-col>
+            <c-col class="ps-sm-0">
+                <c-form-check>
+                    <input cFormCheckInput type="checkbox" id="checkbox2" [(ngModel)]="saveInHistory">
+                    <label cFormCheckLabel for="checkbox2">save in history</label>
+                </c-form-check>
+            </c-col>
+
+            <c-col [xs]="6">
+                <c-input-group>
+                    <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language()"
+                            (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
+                        <option value="cypher">CYPHER</option>
+                        <option value="sql">SQL</option>
+                        <option value="mql">MQL</option>
+                        <option value="cql">CQL</option>
+                        <option value="pig">PIG</option>
+                    </select>
+                    <button *ngIf="!loading()" cButton type="submit" color="primary" (click)="submitQuery()">Execute
+                    </button>
+                    <button *ngIf="loading()" type="submit" cButton color="primary"
+                            class="progress-bar-striped progress-bar-animated align-self-end" disabled>Loading
+                    </button>
+                </c-input-group>
+            </c-col>
+        </c-row>
+    </c-col>
+    <c-col class="col-lg-4 col-md-4 col-sm-12">
+        <ul class="list-group" id="history-header">
+            <li id="history-item-head" class="list-group-item header px-3">
+                <div>
+                    <span class="me-1">History</span>
+                    <app-delete-confirm (delete)="clearHistory()"></app-delete-confirm>
+                </div>
+                <div>
+                    <button cButton color="primary" size="sm" (click)="openHistorySearch()"
+                            [hidden]="showSearch">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <input #historySearchInput type='text'
+                           class='form-control form-control-sm'
+                           [(ngModel)]="historySearchQuery"
+                           (keydown.esc)="closeHistorySearch()"
+                           [hidden]="!showSearch"/>
+                    <i class="fa fa-times text-muted search-close"
+                       (click)="closeHistorySearch()"
+                       [hidden]="!showSearch"></i>
+                </div>
+            </li>
+        </ul>
+        <ul class="list-group" id="history">
+            <li class="list-group-item empty"
+                *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)
+            </li>
+            <li class="list-group-item history-item p-1 border-top-0"
+                *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
+                (click)="applyHistory( h.value.query, h.value.lang, h.value.namespace, false )"
+                (dblclick)="applyHistory( h.value.query, h.value.lang, h.value.namespace, true)">
+                <div class="history-time-wrapper">
+                    <small class="time" style="text-transform: uppercase;">{{ h.value.lang }}</small>
+                    <small class="time">{{ h.value.displayTime() }}</small>
+                    <small class="time">{{ h.value.fromNow() }}</small>
+                </div>
+                <div class="flex-grow-1">
+                    <small>{{ _util.limitedString( h.value.query ) }}</small>
+                </div>
+                <app-delete-confirm class="del-hist-item" (delete)="deleteHistoryItem(h.key)"></app-delete-confirm>
+            </li>
+        </ul>
+    </c-col>
+</c-row>
 
 
-                <c-card-body [visible]="!(collapsed() !== undefined && !collapsed()[i] && results().length !== 1)"
-                             cCollapse>
-                    <div class="text-danger" *ngIf="result && result.error">
-                        <strong>Error:</strong>
-                        <p class="mb-3">{{ result.error }}</p>
-                    </div>
+<c-row [hidden]="showingAnalysis || loading()">
+    <c-col class="col-lg-12 mb-3" *ngIf="results().length > 1"
+           style="display: flex; justify-content: space-between">
+        <span style="padding-top: 0.25em">Click on a query to view its result and additional information.</span>
+        <div id="collapse-btn-wrapper">
+            <button cButton color="light" size="sm" (click)="collapseAll(true)" tooltip="expand all"
+                    container="body" *ngIf="someCollapsed()"
+                    placement="top" delay="500"><i class="fa fa-expand"></i></button>
+            <button cButton color="light" size="sm" class="ms-1" (click)="collapseAll(false)" tooltip="collapse all"
+                    container="body" *ngIf="someExpanded()"
+                    placement="top" delay="500"><i class="fa fa-compress"></i></button>
+        </div>
+    </c-col>
+    <c-col class="col-lg-12 mb-3" [ngClass]="{'accordion': results() && results().length > 1}" id="results">
+        <c-card class="mb-3" *ngFor="let result of results(); let i = index;">
+            <c-card-header
+                    [ngClass]="{'pointer': results().length > 1, 'open': collapsed() !== undefined && collapsed()[i]}"
+                    (click)="toggleCollapsed(i)">
+                <span>{{ result.query }}</span>
+                <div>
+                    <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
+                        <ng-container *ngIf="!result.error">{{ result.affectedTuples }}</ng-container>
+                        <ng-container *ngIf="result.error">!</ng-container>
+                    </c-badge>
+                </div>
+            </c-card-header>
 
-                    <div class="query-info">
-                        <p *ngIf="result && !result.data && !result.error" class="mb-3">
-                            <i>Successfully executed</i>
-                        </p>
-                    </div>
+
+            <c-card-body [visible]="!(collapsed() !== undefined && !collapsed()[i] && results().length !== 1)"
+                         cCollapse>
+                <div class="text-danger" *ngIf="result && result.error">
+                    <strong>Error:</strong>
+                    <p class="mb-3">{{ result.error }}</p>
+                </div>
+
+                <div class="query-info">
+                    <p *ngIf="result && !result.data && !result.error" class="mb-3">
+                        <i>Successfully executed</i>
+                    </p>
+                </div>
 
 
-                    <c-row class="col-lg-12 result-wrapper" *ngIf="result && result.data">
-                        <app-data-view [result]="result"
-                                       [config]="entityConfig"
-                                       [loading]="loading()"
-                                       (viewQueryConsumer)="createView($event)"></app-data-view>
-                        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="result.hasMore">
-                            Only {{ result.data.length }} rows are being displayed. To fetch more rows, please specify
-                            a LIMIT clause.</p>
-                    </c-row>
-                </c-card-body>
-            </c-card>
-        </c-col>
-    </c-row>
+                <c-row class="col-lg-12 result-wrapper" *ngIf="result && result.data">
+                    <app-data-view [result]="result"
+                                   [config]="entityConfig"
+                                   [loading]="loading()"
+                                   (viewQueryConsumer)="createView($event)"></app-data-view>
+                    <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="result.hasMore">
+                        Only {{ result.data.length }} rows are being displayed. To fetch more rows, please specify
+                        a LIMIT clause.</p>
+                </c-row>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
 
-    <app-information-manager
-            *ngIf="queryAnalysis && showingAnalysis"
-            [data]="queryAnalysis"></app-information-manager>
-</c-container>
+<app-information-manager
+        *ngIf="queryAnalysis && showingAnalysis"
+        [data]="queryAnalysis"></app-information-manager>
 

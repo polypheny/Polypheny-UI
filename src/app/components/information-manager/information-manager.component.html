@@ -1,4 +1,4 @@
-<ng-container *ngIf="$data()">
+<div *ngIf="$data()" class="mb-3">
     <c-row *ngIf="$data().name || $data().description">
         <c-col class="col-md-12">
             <h1 *ngIf="$data().name">{{ $data().name }}</h1>
@@ -28,4 +28,4 @@
             </c-col>
         </ng-container>
     </c-row>
-</ng-container>
+</div>

@@ -5,9 +5,9 @@
   margin-left: -30px;
   margin-right: -30px;
   border-bottom: 1px solid #c8ced3;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 5px -4px rgba(0, 0, 0, 0.2);
   position: relative;
-  z-index: 5; // make shadow appear above editor
+  z-index: 2; // make shadow appear above editor
 }
 
 .nb-scroll {

@@ -1,7 +1,7 @@
-<c-container class="px-3" *ngIf="fullName()">
+<div class="px-3" *ngIf="fullName()">
     <h5>{{ fullName() }}</h5>
     <br>
-</c-container>
+</div>
 <app-reload-button [loading]="loading()" [condition]="entity()" [action]="this.reload"></app-reload-button>
 <div class="w-100 px-3" *ngIf="entity()">
     <app-data-view class="w-100 overflow-x-auto" [result]="$result()" [loading]="loading()" [config]="entityConfig()"

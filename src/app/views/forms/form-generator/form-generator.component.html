@@ -1,6 +1,6 @@
 <!--<a href="https://juristr.com/blog/2017/10/demystify-dynamic-angular-forms/">tutorial1</a>,
 <a href="http://jasonwatmore.com/post/2018/05/10/angular-6-reactive-forms-validation-example">tutorial2</a>-->
-<c-container *ngIf="formObj && form && !pageNotFound" xmlns="http://www.w3.org/1999/html">
+<div *ngIf="formObj && form && !pageNotFound" xmlns="http://www.w3.org/1999/html">
     <form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement cForm>
         <c-row id="form-generator-main">
             <c-col md="12">
@@ -226,12 +226,12 @@
 
         </c-row>
     </form>
-</c-container>
+</div>
 
-<c-container *ngIf="pageNotFound">
+<ng-container *ngIf="pageNotFound">
     <p class="text-danger">Page with id "{{ pageId }}" does not exist or could not be loaded.</p>
-</c-container>
-<c-container *ngIf="!formObj && !form && pageList">
+</ng-container>
+<ng-container *ngIf="!formObj && !form && pageList">
     Choose a page to display configs:<br><br>
     <c-row>
         <c-col>
@@ -240,12 +240,12 @@
             </button>
         </c-col>
     </c-row>
-</c-container>
-<c-container *ngIf="serverError">
+</ng-container>
+<ng-container *ngIf="serverError">
     <p class="text-danger">
         Server not responding:<br>
         {{ serverError.name }}: {{ serverError.message }}
     </p>
-</c-container>
+</ng-container>
 
 
