@@ -1,4 +1,4 @@
-<ng-container [ngSwitch]="currentRoute()">
+<div [ngSwitch]="currentRoute()" class="mb-3">
 
     <!-- availableAdapters -->
     <c-row *ngSwitchCase="['addStore','addSource'].includes(currentRoute()) ? currentRoute() : ''">
@@ -118,9 +118,8 @@
             <ng-container
                     *ngTemplateOutlet="adapterTemplate; context:{adapters: sources(), type: 'source'}"></ng-container>
         </c-row>
-        <br>
     </div>
-</ng-container>
+</div>
 
 
 <c-modal class="fade" role="dialog" *ngIf="modalActive" [visible]="modalActive" aria-labelledby="myModalLabel"

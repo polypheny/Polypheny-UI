@@ -72,8 +72,8 @@
 
             </div>
 
-            <div cCollapse [visible]="visibleGroups[group.groupName]()">
-                <c-accordion class="mb-5">
+            <div cCollapse [visible]="visibleGroups[group.groupName]()" class="mb-3">
+                <c-accordion>
                     @for (def of group.defs; track def.id) {
                         <c-accordion-item #item="cAccordionItem" [visible]="false">
                             <ng-template cTemplateId="accordionHeaderTemplate">
@@ -197,7 +197,7 @@
     }
     @case ('sessions') {
         <h1 class="mb-4">Active Sessions</h1>
-        <ul cListGroup *ngIf="workflowDefs" class="mb-5">
+        <ul cListGroup *ngIf="workflowDefs" class="mb-3">
             @for (session of userSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
             }
@@ -313,7 +313,7 @@
         </c-accordion>
 
         <h2>API Sessions</h2>
-        <ul cListGroup class="mb-5">
+        <ul cListGroup class="mb-3">
             @for (session of apiSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
             }
