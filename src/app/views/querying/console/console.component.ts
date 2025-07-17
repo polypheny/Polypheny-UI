@@ -57,9 +57,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     saveInHistory = true;
     showSearch = false;
     historySearchQuery = '';
-    confirmDeletingHistory;
     readonly activeNamespace: WritableSignal<string> = signal(null);
     readonly namespaces: Signal<NamespaceModel[]> = computed(() => Array.from(this._catalog.namespaces().values()));
+    readonly activeNamespaceExists: Signal<boolean> = computed(() => this.namespaces().some(v => v.name === this.activeNamespace()));
     readonly usesAdvancedConsole: Signal<boolean> = computed(() => this.language() === 'mql' || this.language() === 'cypher');
     readonly someExpanded: Signal<boolean> = computed(() => this.collapsed().some(v => v));
     readonly someCollapsed: Signal<boolean> = computed(() => this.collapsed().some(v => !v));
@@ -207,14 +207,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
     }
 
-    deleteHistoryItem(key: string, e: MouseEvent) {
-        if (this.confirmDeletingHistory === key) {
-            this.history.delete(key);
-            localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
-        } else {
-            this.confirmDeletingHistory = key;
-        }
-        e.stopPropagation();
+    deleteHistoryItem(key: string) {
+        this.history.delete(key);
+        localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
     }
 
     //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order

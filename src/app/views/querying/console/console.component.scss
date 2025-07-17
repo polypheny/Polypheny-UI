@@ -136,10 +136,6 @@ select {
 }
 
 .del-hist-item {
-  position: absolute;
-  left: 1em;
-  top: 50%;
-  margin-top: -1em;
   display: none;
 }
 
@@ -182,7 +178,6 @@ select {
 .grey-bg {
   background-color: #f0f3f5;
   border: none;
-  border-bottom: 1px white solid;
 }
 
 .grey-border {

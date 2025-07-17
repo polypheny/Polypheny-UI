@@ -6,7 +6,7 @@
         <c-col class="col-lg-8 col-md-8 col-sm-12">
             <div class="list-group grey-border mb-3" id="console">
                 <div id="console-item-head" *ngIf="usesAdvancedConsole()"
-                     class="list-group-item header grey-bg px-3">
+                     class="list-group-item header grey-bg px-3 border-bottom">
                     <div class="advanced-console-db-info">
                         <span>Namespace: </span>
                         <select class="form-control form-control-sm advanced-console-db-info ms-3"
@@ -16,6 +16,7 @@
                                     [ngValue]="namespace.name">{{ namespace.name }}
                             </option>
                         </select>
+                        <span class="ms-3 text-danger" *ngIf="!activeNamespaceExists()"> '{{ activeNamespace() }}' does not exist.</span>
                     </div>
                 </div>
                 <div class="form-group"
@@ -90,7 +91,7 @@
                 <li class="list-group-item empty"
                     *ngIf="(history | searchFilter:historySearchQuery).size == 0">(empty)
                 </li>
-                <li class="list-group-item history-item p-1"
+                <li class="list-group-item history-item p-1 border-top-0"
                     *ngFor="let h of (history | searchFilter:historySearchQuery) | keyvalue:orderHistory"
                     (click)="applyHistory( h.value.query, h.value.lang, h.value.namespace, false )"
                     (dblclick)="applyHistory( h.value.query, h.value.lang, h.value.namespace, true)">
@@ -99,16 +100,10 @@
                         <small class="time">{{ h.value.displayTime() }}</small>
                         <small class="time">{{ h.value.fromNow() }}</small>
                     </div>
-                    <div>
+                    <div class="flex-grow-1">
                         <small>{{ _util.limitedString( h.value.query ) }}</small>
                     </div>
-
-                    <button cButton color="light" size="sm" class="del-hist-item text-danger"
-                            [ngClass]="confirmDeletingHistory === h.key ? 'cil-warning' : 'cil-trash'"
-                            (mouseout)="confirmDeletingHistory = null"
-                            (click)="deleteHistoryItem(h.key, $event)"></button>
-                    <!-- see https://stackoverflow.com/questions/44669340/how-to-truncate-text-in-angular2 -->
-                    <!--{{h.value.query}}-->
+                    <app-delete-confirm class="del-hist-item" (delete)="deleteHistoryItem(h.key)"></app-delete-confirm>
                 </li>
             </ul>
         </c-col>
