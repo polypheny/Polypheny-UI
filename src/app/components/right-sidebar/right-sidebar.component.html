@@ -1,32 +1,26 @@
-<c-nav variant="underline">
-    <c-nav-item>
-        <a [active]="true" [cTabContent]="tabContent" [routerLink] [tabPaneIdx]="0" cNavLink>
-            Host Parameters
-        </a>
-    </c-nav-item>
-</c-nav>
-<c-tab-content #tabContent="cTabContent" [activeTabPaneIdx]="1">
-    <c-tab-pane class="p-3">
-        <form [formGroup]="form" (ngSubmit)="saveSettings()">
+@if (_crud.connected) {
+    <c-alert [color]="latencyColor()">Latency: <span class="fw-bold">{{ this.formattedLatency() }}</span></c-alert>
+} @else {
+    <c-alert color="warning">Disconnected</c-alert>
+}
+<form [formGroup]="form" (ngSubmit)="saveSettings()">
 
-            <div class="aside-options">
-                <div class="form-group" *ngFor="let s of settings | keyvalue">
-                    <label [for]="s.key">{{s.key}}</label>
-                    <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value.value"
-                           [formControlName]="s.key">
-                </div>
-            </div>
+    <div class="aside-options">
+        <div class="form-group mb-3" *ngFor="let s of settings | keyvalue">
+            <label [for]="s.key">{{ s.value.displayName }}</label>
+            <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value.value"
+                   [formControlName]="s.key">
+        </div>
+    </div>
 
-            <div class="aside-options">
-                <small>saving and resetting will reload the page</small>
-            </div>
-            <div class="aside-options">
-                <button cButton color="primary" type="submit">save</button>
-                <button cButton color="danger" class="float-right ms-2" (click)="resetSettings()">reset</button>
-                <button cButton color="primary" class="ms-2" (click)="reload()">reload</button>
-            </div>
+    <div class="aside-options">
+        <small>Saving or resetting will reload the UI.</small>
+    </div>
+    <div class="aside-options">
+        <button cButton color="primary" type="submit">Save</button>
+        <button cButton color="danger" class="float-right ms-2" (click)="resetSettings()">Reset</button>
+        <button cButton color="primary" class="ms-2" (click)="reload()">Reload</button>
+    </div>
 
-        </form>
-    </c-tab-pane>
-</c-tab-content>
+</form>
 

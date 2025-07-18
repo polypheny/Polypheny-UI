@@ -1,27 +1,20 @@
 import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel,
-    RelationalResult
-} from '../components/data-view/models/result-set.model';
+import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel, RelationalResult} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
 import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
-import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse,
-    DockerInstanceInfo,
-    DockerSettings,
-    HandshakeInfo,
-    InstancesAndAutoDocker,
-    UpdateDockerResponse
-} from '../models/docker.model';
+import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
 import {AdapterModel} from '../views/adapters/adapter.model';
 import {QueryInterface, QueryInterfaceTemplate} from '../views/query-interfaces/query-interfaces.model';
 import {WebSocket} from './webSocket';
-import {Observable} from 'rxjs';
+import {catchError, Observable, of, timeout} from 'rxjs';
 import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
 import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
 import {PlanType} from '../models/information-page.model';
+import {map} from 'rxjs/operators';
 
 
 @Injectable({
@@ -709,6 +702,19 @@ export class CrudService {
         });
 
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
+    }
+
+    isReady() {
+        return this._http.get<boolean>(`${this.httpUrl}/isReady`);
+    }
+
+    measureLatency(): Observable<number> {
+        const start = performance.now();
+        return this.isReady().pipe(
+            timeout(5000),
+            map(() => performance.now() - start),
+            catchError(() => of(-1))
+        );
     }
 
 }

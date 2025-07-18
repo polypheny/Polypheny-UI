@@ -7,6 +7,7 @@ import {
     AccordionButtonDirective,
     AccordionComponent,
     AccordionItemComponent,
+    AlertComponent,
     BadgeComponent,
     BgColorDirective,
     BreadcrumbComponent as BreadCrumb,
@@ -220,7 +221,8 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         PopoverModule,
         ButtonToolbarComponent,
         BadgeComponent,
-        FormCheckComponent
+        FormCheckComponent,
+        AlertComponent
     ],
     declarations: [
         BreadcrumbComponent,

@@ -148,17 +148,20 @@
     </div>
 </div>
 
-<c-modal [visible]="modal()"
-         [keyboard]="true"
-         [transition]="true"
-         (visibleChange)="handleModalChange($event)"
-         id="modalStatic">
-    <c-modal-header>
-        <h5 cModalTitle>Connection Settings</h5>
-        <button (click)="modal.set(false)" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>
-        <app-right-sidebar [reload]="reconnect"></app-right-sidebar>
-    </c-modal-body>
+@if (modal()) {
+    <!--Destroy the modal when closed to avoid sending unnecessary latency requests-->
+    <c-modal [visible]="modal()"
+             [keyboard]="true"
+             [transition]="true"
+             (visibleChange)="handleModalChange($event)"
+             id="modalStatic">
+        <c-modal-header>
+            <h5 cModalTitle>UI Settings</h5>
+            <button (click)="modal.set(false)" cButtonClose></button>
+        </c-modal-header>
+        <c-modal-body>
+            <app-right-sidebar [reload]="reconnect"></app-right-sidebar>
+        </c-modal-body>
 
-</c-modal>
+    </c-modal>
+}
