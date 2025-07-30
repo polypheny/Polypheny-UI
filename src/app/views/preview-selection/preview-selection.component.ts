@@ -70,8 +70,7 @@ export class PreviewSelectionComponent {
     changeLog: ChangeLogEntry[] = [];
     readonly ChangeStatus = ChangeStatus;
 
-
-
+    showSaveButton = false;
     ready = false;
 
     ngOnInit() {
@@ -156,6 +155,7 @@ export class PreviewSelectionComponent {
     }
 
     close(): void {
+        this.showSaveButton = false;
         this._router.navigate(['/views/adapters']);
     }
 
@@ -196,6 +196,7 @@ export class PreviewSelectionComponent {
     }
 
     onColumnToggle(e: ColumnToggleEvent) {
+        this.makeSaveButtonVisible();
         console.log(e.diff);
         if (e.diff === 'ADDED') {
             e.checked ? this.added.add(e.fullKey) : this.added.delete(e.fullKey);
@@ -284,6 +285,12 @@ export class PreviewSelectionComponent {
                 this.close();
             }
         });
+    }
+
+    makeSaveButtonVisible(): void {
+        if (this.showSaveButton === false) {
+            this.showSaveButton = true;
+        }
     }
 
     get isDocumentAdapter(): boolean {

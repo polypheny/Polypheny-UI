@@ -3,6 +3,9 @@
         <i class="fa fa-close"></i>
     </button>
     <h2 class="page-title">Preview Selection</h2>
+    <button *ngIf="mode === 'config' && showSaveButton" type="submit" class="btn btn-primary btn-circle mt-2" (click)="sendConfigChange()">
+        <i class="fa fa-save"></i>
+    </button>
 </div>
 
 
@@ -108,12 +111,9 @@
 <!-- Action-Buttons am Seitenende -->
 <div class="action-buttons">
     <button *ngIf="mode === 'deploy'" cButton color="primary" (click)="sendMetadata()">
-        Send Metadata!
+        Deploy Adapter!
     </button>
     <button *ngIf="mode === 'change'" cButton color="primary" (click)="sendAck()">
-        Send Changes!
-    </button>
-    <button *ngIf="mode === 'config'" cButton color="primary" (click)="sendConfigChange()">
-        Send Config!
+        Apply Change!
     </button>
 </div>
