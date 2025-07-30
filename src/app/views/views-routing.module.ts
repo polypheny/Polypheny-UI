@@ -178,7 +178,8 @@ const routes: Routes = [
                 path: '**',
                 component: NotebooksComponent,
                 data: {
-                    title: 'Notebooks'
+                    title: 'Notebooks',
+                    isFullWidth: true
                 },
                 canDeactivate: [UnsavedChangesGuard]
             }

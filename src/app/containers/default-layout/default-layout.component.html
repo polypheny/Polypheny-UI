@@ -1,6 +1,6 @@
 <div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden w-100">
     <c-navbar class="position-sticky w-100 z-3 border-bottom" expand="lg">
-        <c-container fluid>
+        <c-container [fluid]="true">
             <a [routerLink]="'/'" cNavbarBrand>
                 <img ngSrc="assets/img/brand/logo.svg" priority alt="Polypheny Logo" height="50" width="200">
             </a>
@@ -133,7 +133,7 @@
 
             <!-- Main content -->
             <div class="overflow-y-auto flex-grow-1 d-flex flex-column bg-body">
-                <c-container fluid="{{isFluid()}}" [ngClass]="{'gx-0': isFluid()}" class="flex-grow-1 gy-2">
+                <c-container fluid="{{isFluid()}}" [ngClass]="{'gx-0': isFluid(), 'mt-3': !isFluid()}" class="flex-grow-1 gy-2">
                     <c-row class="h-100 align-content-start" [gutter]="isFluid() ? 0: 2">
                         <c-col class="h-100">
                             <router-outlet></router-outlet>

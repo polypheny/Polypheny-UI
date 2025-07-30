@@ -9,7 +9,6 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
-import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
@@ -250,10 +249,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                         console.log(res);
                         this.queryAnalysis = <InformationPage>res;
                         this.showingAnalysis = true;
-                        this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
-                        if (this.queryAnalysis.fullWidth) {
-                            this._breadcrumb.hideZoom();
-                        }
                         node.setIsActive(true);
                     }, error: err => {
                         console.log(err);

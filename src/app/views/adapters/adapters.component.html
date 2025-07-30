@@ -163,7 +163,6 @@
                         </div>
                         <c-input-group
                                 *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
-                            test
                             <span cInputGroupText cTooltipPlacement="left"
                                   [cTooltip]="getAdapterSetting(control.key).template.description">{{ control.key }}</span>
                             <span cFormText *ngIf="!getAdapterSetting(control.key).template.modifiable" disabled></span>
@@ -184,7 +183,7 @@
         <!-- Form for deploying -->
         <c-modal-body *ngIf="adapter() && !editingAdapterForm">
             <div *ngIf="!activeMode(); else options" cRow [gutter]="3">
-                <c-col *ngFor="let mode of adapter().modes.sort()" xs="12" class="text-center">
+                <c-col *ngFor="let mode of adapter().modes.sort()" [xs]="12" class="text-center">
                     <button cButton size="lg" color="primary" class="btn-block"
                             (click)="setMode(mode)">{{ mode | titlecase }}
                     </button>
@@ -200,7 +199,7 @@
                             <input cFormControl type="text" id="adapterUniqueName"
                                    formControlName="uniqueName"
                                    [ngClass]="validate(editingAvailableAdapterForm.controls['uniqueName'].value, 'uniqueName')">
-                            <c-form-feedback>{{ getFeedback(editingAvailableAdapterForm) }}</c-form-feedback>
+                            <c-form-feedback>{{ getFeedback( editingAvailableAdapterForm ) }}</c-form-feedback>
                         </c-input-group>
                         <ng-container
                                 *ngFor="let control of editingAvailableAdapterForm.controls | keyvalue: positionOrder()">
@@ -213,7 +212,7 @@
                                     <input cFormControl type="text" [id]="control.key"
                                            [formControlName]="control.key"
                                            [ngClass]="validate(control.value, control.key)">
-                                    <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
+                                    <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                 </c-input-group>
                                 <ng-container *ngIf="getAdapterSetting(control.key).template.options">
                                     <c-input-group class="has-validation">
@@ -229,17 +228,17 @@
                                                 [formControlName]="control.key"
                                                 (change)="onChange(control.key,control.value)">
                                             <option *ngFor="let option of getAdapterSetting(control.key).template.options"
-                                                    [value]="option">{{ getAdapterSetting(control.key).template?.alias?.[option] ? getAdapterSetting(control.key).template?.alias?.[option] : option }}
+                                                    [value]="option">{{ getAdapterSetting( control.key ).template?.alias?.[option] ? getAdapterSetting( control.key ).template?.alias?.[option] : option }}
                                             </option>
                                         </select>
-                                        <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
+                                        <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                     </c-input-group>
                                 </ng-container>
                                 <c-input-group
                                         *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
                                     <label cInputGroupText>{{ control.key }}</label>
                                     <input cFormControl type="file" (change)="onFileChange($event, control.key)"/>
-                                    <c-form-feedback>{{ getGenericFeedback(control.key) }}</c-form-feedback>
+                                    <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                 </c-input-group>
                             </ng-container>
                         </ng-container>

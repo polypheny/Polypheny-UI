@@ -1,22 +1,35 @@
 .nb-toolbar {
   background: white;
   padding: 5px 16px;
-  margin-top: -24px;
-  margin-left: -30px;
-  margin-right: -30px;
+  margin-top: -20px;
   border-bottom: 1px solid #c8ced3;
   box-shadow: 0 5px 5px -4px rgba(0, 0, 0, 0.2);
   position: relative;
   z-index: 2; // make shadow appear above editor
 }
 
+
+/* Toolbar takes up 3 or more rows */
 .nb-scroll {
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - 245px);
-  padding-right: 30px;
-  margin-right: -30px;
+  height: calc(100vh - 330px); /*Subtract height of toolbar*/
   outline-style: none;
+}
+
+
+/* Toolbar takes up 2 rows */
+@media (min-width: 992px) {
+  .nb-scroll {
+    height: calc(100vh - 285px);
+  }
+}
+
+/* Toolbar takes up 1 row */
+@media (min-width: 1264px) { /* Must be adjusted if toolbar buttons change size*/
+  .nb-scroll {
+    height: calc(100vh - 235px);
+  }
 }
 
 .nb-background {

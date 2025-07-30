@@ -14,7 +14,7 @@ export class BreadcrumbComponent implements OnInit {
 
     routerId;
 
-    private readonly _breadcrumb = inject(BreadcrumbService);
+    readonly _breadcrumb = inject(BreadcrumbService);
 
     constructor() {
     }

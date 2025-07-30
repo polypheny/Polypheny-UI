@@ -1,5 +1,5 @@
-<div class="bg-footer mb-3 border-bottom mb-3" *ngIf="!hidden()">
-    <c-row class="no-gutters">
+<div class="bg-footer border-bottom" *ngIf="!hidden()">
+    <c-row class="no-gutters align-items-center">
 
         <c-col md="6" class="d-flex align-items-center">
             <c-breadcrumb
@@ -23,7 +23,6 @@
                             [routerLink]=" '/views/schema-editing/' + _breadcrumb.getTableId() + '/statistics-column'">
                         Statistics
                     </button>
-
                 </div>
                 <div class="custom-control"
                      *ngIf="_breadcrumb.getNamespaceName() && _breadcrumb.isRelational() && !_breadcrumb.getTableId()">
@@ -35,4 +34,3 @@
         </c-col>
     </c-row>
 </div>
-<div class="w-100 mb-3" *ngIf="hidden"></div>

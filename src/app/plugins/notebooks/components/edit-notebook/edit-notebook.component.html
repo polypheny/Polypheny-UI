@@ -1,7 +1,7 @@
-<div class="mt-3 pt-1 px-3">
-    <c-row class="no-gutters nb-toolbar">
-        <c-col md="9">
-            <c-button-toolbar role="group" aria-label="Toolbar with button groups">
+<c-container class="mt-3 pt-1" [fluid]="true">
+    <c-row class="no-gutters nb-toolbar row-gap-2">
+        <c-col [lg]="9">
+            <c-button-toolbar role="group" aria-label="Toolbar with button groups" class="row-gap-2">
                 <button cButton color="danger" variant="outline" class="me-4 flex-grow-0"
                         (click)="closeNotebookModal.show()">Close
                 </button>
@@ -144,7 +144,7 @@
                     </button>
                 </c-button-group>
                 <div class="btn-group" role="group">
-                    <select cButton class="form-select me-1 bg-light text-black px-2" aria-label="Select Cell Type"
+                    <select cButton class="form-select me-1 bg-light text-black pe-5" aria-label="Select Cell Type"
                             (change)="onTypeChange($event)"
                             [(ngModel)]="selectedCellType">
                         <option value="code">Code</option>
@@ -155,7 +155,7 @@
                 </div>
             </c-button-toolbar>
         </c-col>
-        <c-col md="3" class="col-md-3 d-flex justify-content-end">
+        <c-col [lg]="3" class="d-flex justify-content-end">
             <button cButton color="light" type="button" style="white-space: nowrap"
                     (click)="openChangeSessionModal.emit({name: name, path: path})">
                 <span class="me-2">{{ kernelSpec?.spec?.display_name || 'No kernel' }}</span>
@@ -166,11 +166,10 @@
             </button>
         </c-col>
     </c-row>
-</div>
-
+</c-container>
 <div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
-    <h1 class="nb-title">{{name}}</h1>
-    <div class="nb-background mt-4 pt-4">
+    <h1 class="nb-title mx-4">{{ name }}</h1>
+    <div class="nb-background mt-4 mx-3 pt-4">
         <ng-container *ngIf="nb">
             <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
                 <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
@@ -197,7 +196,7 @@
                     </app-nb-cell>
                     <div *cdkDragPreview class="drop-preview">
                         <span class="text-secondary me-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
-                        <span>{{ getPreviewText(cell) }}</span>
+                        <span>{{ getPreviewText( cell ) }}</span>
                     </div>
                     <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
                 </div>
@@ -207,16 +206,19 @@
     </div>
 </div>
 <ng-template #elseNoSession>
-    <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
-    <p>You can either close the notebook (you can save your changes if you want), or start a new kernel</p>
-    <button cButton color="primary" type="button" style="white-space: nowrap"
-            (click)="openChangeSessionModal.emit({name: name, path: path})">
-        Create New Kernel
-    </button>
-    <button cButton color="primary" type="button" class="ms-4" style="white-space: nowrap"
-            (click)="closeNotebookModal.show()">
-        Close Notebook
-    </button>
+    <c-container>
+        <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
+        <p>You can either close the notebook (you can save your changes if you want), or start a new kernel</p>
+        <button cButton color="primary" type="button" style="white-space: nowrap"
+                (click)="openChangeSessionModal.emit({name: name, path: path})">
+            Create New Kernel
+        </button>
+        <button cButton color="primary" type="button" class="ms-4" style="white-space: nowrap"
+                (click)="closeNotebookModal.show()">
+            Close Notebook
+        </button>
+
+    </c-container>
 </ng-template>
 
 
@@ -348,7 +350,7 @@
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="closeNotebookCancelled()">Cancel</button>
             <button cButton color="primary" type="submit" (click)="closeNotebookSubmitted()" [disabled]="deleting">
-                {{ closeNotebookForm.get("shutDown").value && session ? 'Close & Shut Down' : 'Close' }}
+                {{ closeNotebookForm.get( "shutDown" ).value && session ? 'Close & Shut Down' : 'Close' }}
             </button>
         </c-modal-footer>
     </c-modal-content>
