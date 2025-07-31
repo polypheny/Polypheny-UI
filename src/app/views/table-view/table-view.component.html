@@ -1,10 +1,10 @@
-<div class="px-3" *ngIf="fullName()">
+<div *ngIf="fullName()">
     <h5>{{ fullName() }}</h5>
     <br>
 </div>
 <app-reload-button [loading]="loading()" [condition]="entity()" [action]="this.reload"></app-reload-button>
-<div class="w-100 px-3" *ngIf="entity()">
+<div class="w-100" *ngIf="entity()">
     <app-data-view class="w-100 overflow-x-auto" [result]="$result()" [loading]="loading()" [config]="entityConfig()"
                    [$entity]="entity"></app-data-view>
 </div>
-<p class="pt-3 px-3" *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>
+<p class="mt-3" *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>

@@ -64,6 +64,16 @@ export class SidebarNode {
         return sidebarNode;
     }
 
+    static sortNodes(a: SidebarNode, b: SidebarNode) {
+        if (a.name < b.name) {
+            return -1;
+        }
+        if (a.name > b.name) {
+            return 1;
+        }
+        return 0;
+    }
+
     setChildren(children: SidebarNode[]) {
         this.children = children;
     }

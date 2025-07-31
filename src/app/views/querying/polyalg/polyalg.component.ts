@@ -193,7 +193,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
                     const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
                     const sidebarNodes: SidebarNode[] = [];
                     const labels = new Set();
-                    sidebarNodesTemp.sort(this._leftSidebar.sortNodes).forEach((s) => {
+                    sidebarNodesTemp.sort(SidebarNode.sortNodes).forEach((s) => {
                         if (s.label) {
                             labels.add(s.label);
                         } else {
@@ -202,7 +202,7 @@ export class PolyalgComponent implements OnInit, OnDestroy {
                     });
                     for (const l of [...labels].sort()) {
                         sidebarNodes.push(new SidebarNode(l, l).asSeparator());
-                        sidebarNodesTemp.filter((n) => n.label === l).sort(this._leftSidebar.sortNodes).forEach((n) => {
+                        sidebarNodesTemp.filter((n) => n.label === l).sort(SidebarNode.sortNodes).forEach((n) => {
                             sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
                         });
                     }
