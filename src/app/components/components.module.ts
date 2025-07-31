@@ -34,6 +34,7 @@ import {
     FormDirective,
     FormFeedbackComponent,
     FormSelectDirective,
+    FormTextDirective,
     GutterDirective,
     InputGroupComponent,
     InputGroupTextDirective,
@@ -222,7 +223,7 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         ButtonToolbarComponent,
         BadgeComponent,
         FormCheckComponent,
-        AlertComponent
+        AlertComponent, FormTextDirective
     ],
     declarations: [
         BreadcrumbComponent,

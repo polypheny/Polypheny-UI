@@ -75,6 +75,6 @@
     <app-dockerinstance [id]="modalInstanceId" [handshake]="modalHandshake" [visible]="activeModal === 'add_edit'" (done)="closeModal($event)"></app-dockerinstance>
 </c-modal>
 
-<c-modal class="fade" role="dialog" [visible]="activeModal === 'settings'" aria-labelledby="Edit global Docker settings" aria-hidden="true" id="dockerSettings">
+<c-modal class="fade" role="dialog" [visible]="activeModal === 'settings'" aria-labelledby="Edit global Docker settings" aria-hidden="true" id="dockerSettings" (visibleChange)="onVisibleChange($event)">
     <app-dockersettings (done)="closeSettingsModal()"></app-dockersettings>
 </c-modal>

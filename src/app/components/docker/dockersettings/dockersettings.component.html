@@ -11,10 +11,13 @@
                 </span>
                 <input cFormControl type="text" id="defaultRegistryField" name="id" (input)="modified = true" [(ngModel)]="defaultRegistry">
             </c-input-group>
+            <div cFormText>
+                These settings may be overwritten on a per-instance basis.
+            </div>
         </form>
     </c-modal-body>
     <c-modal-footer>
-        <button cButton color="success" class="me-2" (click)="saveSettings()" [disabled]="!modified">Save</button>
         <button cButton color="secondary" (click)="close()">Close</button>
+        <button cButton color="primary" class="me-2" (click)="saveSettings()" [disabled]="!modified">Save</button>
     </c-modal-footer>
 </c-modal-content>
