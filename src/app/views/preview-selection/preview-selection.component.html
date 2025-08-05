@@ -1,119 +1,84 @@
-<div class="preview-wrapper">
-    <button cButton color="primary" class="btn-circle topRight" (click)="close()">
-        <i class="fa fa-close"></i>
-    </button>
-    <h2 class="page-title">Preview Selection</h2>
-    <button *ngIf="mode === 'config' && showSaveButton" type="submit" class="btn btn-primary btn-circle mt-2" (click)="sendConfigChange()">
-        <i class="fa fa-save"></i>
-    </button>
-</div>
+<div class="preview-container">
+    <!-- Header -->
+    <header class="header">
+        <h2>Preview Selection</h2>
+        <div>
+            <button *ngIf="mode === 'config' && showSaveButton" class="btn-circle" (click)="sendConfigChange()">
+                <i class="fa fa-save"></i>
+            </button>
+            <button class="btn-circle" (click)="close()">
+                <i class="fa fa-close"></i>
+            </button>
+        </div>
+    </header>
 
+    <!-- Hauptbereich -->
+    <div class="main-wrapper">
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar" [ngClass]="{ 'collapsed': !showMetadata }">
+                <mat-card class="meta-card">
+                    <mat-card-header><mat-card-title>Metadata</mat-card-title></mat-card-header>
+                    <mat-card-content>
+                        <app-metadata-tree
+                                [node]="metadata"
+                                (columnToggle)="onColumnToggle($event)"
+                                (autoSelectRemoved)="onAutoSelect($event)">
+                        </app-metadata-tree>
+                    </mat-card-content>
+                </mat-card>
+            </aside>
 
-<ng-container *ngIf="ready">
-    <!-- Grid-Layout für Metadata & Preview -->
-    <div class="wrapper">
-        <!-- Metadata Card -->
-        <mat-card class="meta-card">
-            <mat-card-header>
-                <mat-card-title>Metadata</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <app-metadata-tree
-                        [node]="metadata"
-                        (columnToggle)="onColumnToggle($event)"
-                        (autoSelectRemoved)="onAutoSelect($event)">
-                </app-metadata-tree>
-            </mat-card-content>
-        </mat-card>
-
-        <!-- Data Preview Card -->
-        <mat-card class="preview-card">
-            <mat-card-header>
-                <mat-card-title>Preview</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <ng-container *ngIf="!isDocumentAdapter; else docPreview">
-                    <div class="preview-container">
-                        <div class="table-wrapper" *ngFor="let tableName of getPreviewKeys()">
-                            <h4>{{ tableName }}</h4>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead>
-                                    <tr>
-                                        <th *ngFor="let col of getPreviewColumns(tableName)">{{ col }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr *ngFor="let row of preview[tableName]">
-                                        <td *ngFor="let col of getPreviewColumns(tableName)">{{ row[col] }}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </ng-container>
-
-                <!-- Document-Preview (falls Dokumentadapter) -->
-                <ng-template #docPreview>
-                    <div class="doc-wrapper">
-                        <!-- Document Cards -->
-                        <mat-card class="doc-card-group">
-                            <mat-card-header>
-                                <mat-card-title>Documents</mat-card-title>
-                            </mat-card-header>
-                            <mat-card-content>
-                                <div class="cardGrid">
-                                    <app-doc-card
-                                            *ngFor="let c of cards"
-                                            [node]="c"
-                                            (toggle)="onCardToggle($event)">
-                                    </app-doc-card>
+            <!-- Preview + Logs -->
+            <section class="preview">
+                <mat-card class="preview-card">
+                    <mat-card-header><mat-card-title>Preview</mat-card-title></mat-card-header>
+                    <mat-card-content class="preview-table-area">
+                        <ng-container *ngIf="!isDocumentAdapter; else docPreview">
+                            <div class="table-wrapper" *ngFor="let tableName of getPreviewKeys()">
+                                <h4>{{ tableName }}</h4>
+                                <div class="table-scroll">
+                                    <table>
+                                        <thead>
+                                        <tr><th *ngFor="let col of getPreviewColumns(tableName)">{{ col }}</th></tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr *ngFor="let row of preview[tableName]">
+                                            <td *ngFor="let col of getPreviewColumns(tableName)">{{ row[col] }}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </mat-card-content>
-                        </mat-card>
+                            </div>
+                        </ng-container>
+                        <ng-template #docPreview><!-- doc cards --></ng-template>
+                    </mat-card-content>
+                </mat-card>
 
-                        <!-- Metadata unter Dokumenten -->
-                        <mat-card class="meta-card">
-                            <mat-card-header>
-                                <mat-card-title>Metadata</mat-card-title>
-                            </mat-card-header>
-                            <mat-card-content>
-                                <app-metadata-tree
-                                        [node]="metadata"
-                                        (autoSelectRemoved)="onAutoSelect($event)">
-                                </app-metadata-tree>
-                            </mat-card-content>
-                        </mat-card>
-                    </div>
-                </ng-template>
-            </mat-card-content>
-        </mat-card>
+                <!-- Logs -->
+                <div class="log-toggle" [ngClass]="{ 'expanded': showLogs }"
+                     (mouseenter)="showLogs = true" (mouseleave)="showLogs = false">
+                    <mat-accordion multi>
+                        <mat-expansion-panel *ngFor="let entry of changeLog">
+                            <mat-expansion-panel-header [ngClass]="getSeverityClass(entry.severity)">
+                                <mat-panel-title>
+                                    {{ entry.timestamp | date:'short' }} — <strong>{{ entry.severity }}</strong>
+                                </mat-panel-title>
+                                <mat-panel-description class="msg-preview">
+                                    {{ entry.messages[0] || '' }}
+                                </mat-panel-description>
+                            </mat-expansion-panel-header>
+                            <pre class="log-details">{{ entry.messages | json }}</pre>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </div>
+            </section>
+        </div>
     </div>
 
-    <!-- Logs als Accordion -->
-    <mat-accordion multi class="log-accordion">
-        <mat-expansion-panel *ngFor="let entry of changeLog">
-            <mat-expansion-panel-header [ngClass]="getSeverityClass(entry.severity)">
-                <mat-panel-title>
-                    {{ entry.timestamp | date:'short' }} — <strong> {{ entry.severity + ':' }} </strong>
-                </mat-panel-title>
-                <mat-panel-description class="msg-preview">
-                    {{ entry.messages[0] || '' }}
-                </mat-panel-description>
-            </mat-expansion-panel-header>
-            <!-- Body -->
-            <pre class="log-details">{{ entry.messages | json }}</pre>
-        </mat-expansion-panel>
-    </mat-accordion>
-</ng-container>
-
-<!-- Action-Buttons am Seitenende -->
-<div class="action-buttons">
-    <button *ngIf="mode === 'deploy'" cButton color="primary" (click)="sendMetadata()">
-        Deploy Adapter!
-    </button>
-    <button *ngIf="mode === 'change'" cButton color="primary" (click)="sendAck()">
-        Apply Change!
-    </button>
+    <!-- Footer-Buttons -->
+    <footer class="actions">
+        <button *ngIf="mode === 'deploy'" cButton color="primary" (click)="sendMetadata()">Deploy Adapter!</button>
+        <button *ngIf="mode === 'change'" cButton color="primary" (click)="sendAck()">Apply Change!</button>
+    </footer>
 </div>

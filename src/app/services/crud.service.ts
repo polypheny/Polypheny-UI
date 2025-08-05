@@ -547,6 +547,11 @@ export class CrudService {
         return this._http.post<RelationalResult>(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 
+    updateAdapterSettingsForm(fd: FormData) {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/updateAdapterSettingsForm`, fd);
+    }
+
+
     getSources() {
         return this._http.get(`${this.httpUrl}/getSources`);
     }

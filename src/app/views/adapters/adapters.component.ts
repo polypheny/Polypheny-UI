@@ -222,6 +222,17 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
     }
 
+    changeAdapterSettings(adapter: AdapterModel) {
+        const allSettings = this._catalog.getAdapterTemplate(adapter.adapterName, adapter.type);
+
+        const current = Adapter.from(allSettings, adapter, Task.CHANGE);
+        this.adapter.set(current);
+        this.activeMode.set(current.modes[0]);
+
+        this.handshaking = false;
+        this.modalActive = true;
+    }
+
     private getMetaConfiguration(uniqueName: string) {
         this._crud.metadataConfiguration(uniqueName).subscribe({
                 next: (preview: PreviewResult) => {
@@ -263,7 +274,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             persistent: boolean;
         }>,
         changeLog?: ChangeLogEntry[]
-        ) {
+    ) {
         this.nav.setContext({
             mode: mode,
             adapter,
@@ -443,6 +454,134 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             }
         });
     }
+
+    /*updateAdapterSettings() {
+        console.log('Rein da – Settings sammeln');
+
+        const form = this.editingAdapterForm;
+        if (!form) {
+            this._toast.error('No editing adapter form available!');
+            return;
+        }
+
+        const newSettings: Record<string, string> = {};
+        for (const [key, ctrl] of Object.entries(form.controls)) {
+            if (key === 'uniqueName') {
+                continue;
+            }
+            newSettings[key] = (ctrl as AbstractControl).value ?? '';
+            console.log(`[Take] ${key} =`, newSettings[key]);
+        }
+
+        const adapter = this.adapter();
+
+        const oldSettings = Object.fromEntries(adapter.settings ?? []);
+        const merged = {...oldSettings, ...newSettings};
+
+        Object.entries(newSettings).forEach(([k, v]) => {
+            const merged = adapter.settings.get(k);
+            if (merged) {
+                merged.current = v as string;
+            } else {
+
+            }
+        });
+
+
+        const poly = new PolyMap<string, string>(
+            Object.entries(merged) as [string, string][]
+        );
+
+        const updated = new AdapterModel(
+            adapter.uniqueName,
+            adapter.adapterName,
+            poly,
+            adapter.persistent,
+            adapter.type,
+            adapter.mode
+        );
+
+        console.log(updated);
+        this._crud.updateAdapterSettings(updated).subscribe({
+            next: res => {
+                res.error
+                    ? this._toast.exception(res)
+                    : this._toast.success('Updated adapter settings');
+                this.modalActive = false;
+            },
+            error: err => {
+                this._toast.error('Could not update adapter settings');
+                console.error(err);
+            }
+        });
+    }*/
+
+    updateAdapterSettings() {
+
+        const adapter   = this.adapter();
+        const form      = this.editingAdapterForm;
+        const fd        = new FormData();
+        let   hasUpload = false;
+
+        for (const [key, ctrl] of Object.entries(form.controls)) {
+            if (key === 'uniqueName') { continue; }
+
+            const val  = (ctrl as AbstractControl).value ?? '';
+            const meta = this.getAdapterSetting(key);
+
+            if (meta?.template?.type?.toLowerCase() === 'directory') {
+                const first = meta.template.fileNames?.[0];
+                if (first) {
+                    hasUpload = true;
+                    adapter.settings[key] = JSON.stringify(first);
+                    fd.append(first, this.files.get(first));
+                }
+            } else {
+                adapter.settings[key] = val;
+            }
+        }
+
+        const newSettings = new AdapterModel(
+            adapter.uniqueName,
+            adapter.adapterName,
+            null,
+            adapter.persistent,
+            adapter.type,
+            adapter.mode
+        );
+
+        if (hasUpload) {
+            fd.set('body', JSON.stringify(newSettings));
+
+            this._crud.updateAdapterSettingsForm(fd).subscribe({
+                next: res => {
+                    res.error
+                        ? this._toast.exception(res)
+                        : this._toast.success('Adapter settings updated');
+                    this.modalActive = false;
+                },
+                error: err => {
+                    this._toast.error('Could not update adapter settings');
+                    console.error(err);
+                }
+            });
+        } else {
+            this._crud.updateAdapterSettings(newSettings).subscribe({
+                next: res => {
+                    res.error
+                        ? this._toast.exception(res)
+                        : this._toast.success('Adapter settings updated');
+                    this.modalActive = false;
+                },
+                error: err => {
+                    this._toast.error('Could not update adapter settings');
+                    console.error(err);
+                }
+            });
+        }
+    }
+
+
 
     getDefaultUniqueName(): string {
         if (this.adapter !== undefined) {

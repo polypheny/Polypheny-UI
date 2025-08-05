@@ -9,7 +9,7 @@ import {DeployMode} from '../../models/catalog.model';
 import {CrudService} from '../../services/crud.service';
 import {PreviewNavigationService} from '../../services/preview-navigation.service';
 import {DocCardComponent} from '../doc-card/doc-card.component';
-import {MatCard, MatCardContent, MatCardHeader} from '@angular/material/card';
+import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {MatIcon} from '@angular/material/icon';
 import {
@@ -31,6 +31,7 @@ import {
         DocCardComponent,
         MatCard,
         MatCardHeader,
+        MatCardTitle,
         MatCardContent,
         MatTabGroup,
         MatIcon,
@@ -71,6 +72,8 @@ export class PreviewSelectionComponent {
     readonly ChangeStatus = ChangeStatus;
 
     showSaveButton = false;
+    showMetadata = true;
+    showLogs = false;
     ready = false;
 
     ngOnInit() {

@@ -83,6 +83,10 @@
                         (click)="previewAndChange(adapter.name)">❗
                     </c-badge>
                     <button cButton color="primary" class="pull-right"
+                            (click)="changeAdapterSettings(adapter)">
+                        Credentials
+                    </button>
+                    <button cButton color="primary" class="pull-right"
                             (click)="initAdapterSettingsConfigureModal(adapter)">
                         Configure
                     </button>
@@ -172,18 +176,11 @@
                         </div>
                         <c-input-group
                                 *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
-                            test
-                            <span cInputGroupText cTooltipPlacement="left"
-                                  [cTooltip]="getAdapterSetting(control.key).template.description">{{ control.key }}</span>
-                            <span cFormText *ngIf="!getAdapterSetting(control.key).template.modifiable" disabled></span>
-                            <span cFormText *ngIf="getAdapterSetting(control.key).template.modifiable"
-                                  style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
-                                    {{ fileLabel }}
-                                </span>
-                            <input cFormControl type="file" multiple style="display: none" [id]="control.key"
-                                   [ngClass]="validate(editingAdapterForm, control.key)"
-                                   (change)="onFileChange($event, control.key)">
-                            <c-form-feedback>required</c-form-feedback>
+
+                            <label cInputGroupText>{{ control.key }}</label>
+                            <input cFormControl type="file"
+                                   (change)="onFileChange($event, control.key)"
+                                   [ngClass]="validate(editingAdapterForm, control.key)">
                         </c-input-group>
                     </ng-container>
                 </div>
@@ -277,7 +274,7 @@
             <button cButton color="secondary" (click)="modalActive = false">
                 Close
             </button>
-            <button cButton color="primary" *ngIf="editingAdapterForm" type="submit" (click)="saveAdapterSettings()"
+            <button cButton color="primary" *ngIf="editingAdapterForm" type="submit" (click)="updateAdapterSettings()"
                     [disabled]="!editingAdapterForm?.valid">
                 Save
             </button>
