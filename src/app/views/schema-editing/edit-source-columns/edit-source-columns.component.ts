@@ -2,22 +2,14 @@ import {Component, computed, inject, Input, OnDestroy, OnInit, Signal, signal, W
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest} from '../../../models/ui-request.model';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {ForeignKey} from '../../../views/uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    EntityType,
-    ForeignKeyModel,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, ForeignKeyModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
 @Component({
@@ -29,6 +21,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     private readonly _crud = inject(CrudService);
     private readonly _route = inject(ActivatedRoute);
+    private readonly _router = inject(Router);
     private readonly _toast = inject(ToasterService);
     public readonly _types = inject(DbmsTypesService);
     public readonly _catalog = inject(CatalogService);
@@ -204,5 +197,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     getAdapters(): Signal<AdapterModel[]> {
         return computed(() => this.placements()?.map(a => this._catalog.getAdapter(a.adapterId)).filter(a => a));
+    }
+
+    openDataView() {
+        this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
     }
 }

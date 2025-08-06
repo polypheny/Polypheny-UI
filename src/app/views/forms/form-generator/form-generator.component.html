@@ -174,7 +174,7 @@
                                                     [value]="config.value.value" class="form-control"
                                                     [ngClass]="inputValidation(config.value.key)">
                                                 <option *ngFor="let c of config.value.values"
-                                                        [value]="c">{{ classOrEnumName(c) }}
+                                                        [value]="c">{{ classOrEnumName( c ) }}
                                                 </option>
                                             </select>
                                             <small id="help-enum"
@@ -188,10 +188,10 @@
                                         <ng-container *ngSwitchCase="'CHECKBOXES'">
                                             <div class="form-control" style="height:auto">
                                                 <div *ngFor="let c of config.value.values">
-                                                    <label><input type="checkbox"
+                                                    <label><input type="checkbox" cFormCheckInput
                                                                   [checked]="config.value.value.includes(c)"
                                                                   style="margin-right:0.5em" #cb
-                                                                  (change)="handleClassList(config.value.key, c, cb.checked)">{{ classOrEnumName(c) }}
+                                                                  (change)="handleClassList(config.value.key, c, cb.checked)">{{ classOrEnumName( c ) }}
                                                     </label>
                                                 </div>
                                                 <small id="help-checkboxes"

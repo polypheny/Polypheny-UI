@@ -1,5 +1,6 @@
 import {Component, computed, effect, OnDestroy, OnInit, Signal, untracked} from '@angular/core';
 import {DataTemplateComponent} from '../../components/data-view/data-template/data-template.component';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-table-view',
@@ -17,7 +18,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.getEntityData();
     }
 
-    constructor() {
+    constructor(readonly _router: Router) {
         super();
         this.fullName = computed(() => <string>this.routeParams()['id']);
 
@@ -60,4 +61,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.webSocket.close();
     }
 
+    openSchemaView() {
+        this._router.navigate(['/views/schema-editing/' + this.fullName()]).then();
+    }
 }

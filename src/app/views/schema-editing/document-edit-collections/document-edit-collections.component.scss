@@ -59,11 +59,11 @@ label.disabled {
   color: black;
 }
 
-tr .edit-table-name {
+tr .show-on-hover {
   visibility: hidden;
 }
 
-tr:hover .edit-table-name {
+tr:hover .show-on-hover {
   visibility: visible;
   cursor: pointer;
 }

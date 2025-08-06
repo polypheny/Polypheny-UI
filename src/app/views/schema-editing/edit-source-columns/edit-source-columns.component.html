@@ -1,7 +1,13 @@
 <c-row class="row">
 
     <c-col class="col-lg-12">
-        <h5>{{ getTitle() }}</h5>
+        <div class="d-flex align-items-center">
+            <h1 class="flex-grow-1">{{ entity()?.name }}</h1>
+
+            <div>
+                <button cButton color="light" (click)="openDataView()">Show Data</button>
+            </div>
+        </div>
     </c-col>
 
     <c-col class="col-lg-12">
@@ -44,7 +50,7 @@
                         <td>{{ col.dataType }}</td>
                         <td>{{ col.collectionsType }}</td>
                         <td>
-                    <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder(col.dataType) }}
+                    <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder( col.dataType ) }}
                         : {{ col.precision }}</span>
                             <span class="parameter" *ngIf="col.scale">scale: {{ col.scale }}</span>
                             <span class="parameter" *ngIf="col.dimension !== -1">dimension: {{ col.dimension }}</span>
@@ -66,7 +72,7 @@
                             <td>{{ col.dataType }}</td>
                             <td>{{ col.collectionsType }}</td>
                             <td>
-                        <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder(col.dataType) }}
+                        <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder( col.dataType ) }}
                             : {{ col.precision }}</span>
                                 <span class="parameter" *ngIf="col.scale">scale: {{ col.scale }}</span>
                                 <span class="parameter" *ngIf="col.dimension">dimension: {{ col.dimension }}</span>
@@ -87,7 +93,7 @@
                             <td>{{ col.dataType }}</td>
                             <td>{{ col.collectionsType }}</td>
                             <td>
-                        <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder(col.dataType) }}
+                        <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder( col.dataType ) }}
                             : {{ col.precision }}</span>
                                 <span class="parameter" *ngIf="col.scale">scale: {{ col.scale }}</span>
                                 <span class="parameter" *ngIf="col.dimension">dimension: {{ col.dimension }}</span>
@@ -175,7 +181,7 @@
                 <tbody>
                 <tr *ngFor="let table of underlyingTables() | keyvalue">
                     <td>{{ table.key }}</td>
-                    <td>{{ table.value.join(", ") }}</td>
+                    <td>{{ table.value.join( ", " ) }}</td>
                 </tr>
                 </tbody>
             </table>

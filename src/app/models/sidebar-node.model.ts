@@ -16,7 +16,6 @@ export class SidebarNode {
     allowDropTo = false;
     children: SidebarNode[] = [];
     isSeparator = false;
-    dataModel: string;
     action: (tree, node, $event) => any = null;
     private dropAction: (tree: TreeModel, node: TreeNode, $event: any, {from, to}: {
         from: any;

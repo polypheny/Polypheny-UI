@@ -10,13 +10,8 @@ import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-document-edit-collection',
@@ -26,14 +21,15 @@ import {
 
 export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
+    constructor() {
+
+    }
+
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
     public readonly _catalog = inject(CatalogService);
     private readonly _toast = inject(ToasterService);
-
-    constructor() {
-
-    }
+    private readonly _router = inject(Router);
 
     @Input()
     readonly entity: Signal<TableModel>;
@@ -74,6 +70,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     @ViewChild('partitionFunctionModal', {static: false}) public partitionFunctionModal: ModalDirective;
 
     protected readonly Method = Method;
+
+    protected readonly EntityType = EntityType;
 
     ngOnInit() {
 
@@ -139,5 +137,9 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         } else {
             return 'is-valid';
         }
+    }
+
+    openDataView() {
+        this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
     }
 }

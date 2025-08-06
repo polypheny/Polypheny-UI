@@ -1,1 +1,7 @@
-
+@media (max-width: 1780px) { /*Prevent overlapping with reload button*/
+  .show-schema-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 5em;
+  }
+}

@@ -1,16 +1,4 @@
-import {
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    QueryList,
-    Renderer2,
-    Signal,
-    ViewChildren
-} from '@angular/core';
+import {Component, computed, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, Renderer2, Signal, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {Method, QueryRequest} from '../../../models/ui-request.model';
 import {Router} from '@angular/router';
@@ -20,15 +8,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    CollectionModel,
-    EntityType,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, CollectionModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 
@@ -105,7 +85,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     readonly collections: Signal<Collection[]>;
 
     newCollectionName: string;
-    selectedStore;
+    selectedStore: AdapterModel;
     creatingCollection = false;
 
     private subscriptions = new Subscription();
@@ -134,24 +114,18 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * get the right class for the 'drop' and 'truncate' buttons
-     * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
+     * Enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
      */
-    dropTruncateClass(action: Method, table: Collection) {
-        if (action === Method.DROP && (table.drop === table.name || table.drop === 'drop ' + table.name)) {
-            return 'btn-danger';
-        } else if (action === Method.TRUNCATE && (table.truncate === table.name || table.truncate === 'truncate ' + table.name)) {
-            return 'btn-danger';
-        }
-        return 'btn-light disabled';
+    isDropTruncateEnabled(action: Method, coll: Collection) {
+        return action === Method.DROP && (coll.drop === coll.name || coll.drop === 'drop ' + coll.name) ||
+            action === Method.TRUNCATE && (coll.truncate === coll.name || coll.truncate === 'truncate ' + coll.name);
     }
 
     /**
      * send a request to either drop or truncate a table
      */
     sendRequest(action: Method, collection: Collection) {
-        console.log('trunc');
-        if (this.dropTruncateClass(action, collection) !== 'btn-danger') {
+        if (!this.isDropTruncateEnabled(action, collection)) {
             return;
         }
 
@@ -180,6 +154,8 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                         toastAction = 'Dropped';
                         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                     }
+                    collection.drop = '';
+                    collection.truncate = '';
                     this._toast.success(toastAction + ' collection ' + collection.name);
                 }
 
@@ -267,6 +243,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         }
     }
 
+    openDetails(collection: Collection) {
+        this._router.navigate(['/views/schema-editing/' + this.namespace().name + '.' + collection.name]).then();
+
+    }
 }
 
 class Collection {

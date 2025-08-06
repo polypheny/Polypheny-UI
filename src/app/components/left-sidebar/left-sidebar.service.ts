@@ -9,6 +9,10 @@ import {BreadcrumbItem} from '../breadcrumb/breadcrumb-item';
 import {BreadcrumbService} from '../breadcrumb/breadcrumb.service';
 import {SidebarButton} from '../../models/sidebar-button.model';
 import {CatalogService} from '../../services/catalog.service';
+import {TreeNode} from '@ali-hm/angular-tree-component';
+
+
+type SidebarTreeNode = Omit<TreeNode, 'data'> & { data: SidebarNode };
 
 @Injectable({
     providedIn: 'root'
@@ -171,11 +175,11 @@ export class LeftSidebarService {
 
         if (this.router.url.startsWith('/views/schema-editing/')) {
             //function to define node behavior
-            const nodeBehavior = (tree, node, $event) => {
+            const nodeBehavior = (tree, node: SidebarTreeNode, $event) => {
                 if (node.data.routerLink !== '') {
                     const rLink = [node.data.routerLink];
                     const rname = [node.data.id];
-                    if (node.data.children.length === 0 && node.data.dataModel !== DataModel.GRAPH) {
+                    if (node.parent.parent) { // implies depth 2
                         const url = ['/views/schema-editing/'];
                         const fullChildLink = (url.concat(rname));
                         this._breadcrumb.setBreadcrumbsSchema([

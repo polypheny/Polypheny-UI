@@ -1,67 +1,77 @@
-<ng-container>
-    <ng-container
-            *ngIf="currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.RELATIONAL && !isStatistic()">
-        <app-edit-columns
-                *ngIf="entity()?.entityType !== EntityType.SOURCE"
-                [route]="currentRoute()"
-                [namespace]="namespace"
-                [entityIn]="entity()"
-                [stores]="stores"
-                [addableStores]="addableStores"
-                [placements]="placements"
-                [partitions]="partitions"
-                [allocations]="allocations"></app-edit-columns>
-        <app-edit-source-columns
-                *ngIf="entity()?.entityType === EntityType.SOURCE"
-                [currentRoute]="currentRoute"
-                [namespace]="namespace"
-                [entity]="entity"
-                [stores]="stores"
-                [addableStores]="addableStores"
-                [placements]="placements"
-                [partitions]="partitions"
-                [allocations]="allocations"></app-edit-source-columns>
-    </ng-container>
+@if (currentRoute().includes( '.' )) {
+    @switch (namespace()?.dataModel) {
+        @case (NamespaceType.RELATIONAL) {
+            @if (entity()?.entityType === EntityType.SOURCE) {
+                <app-edit-source-columns
+                        [currentRoute]="currentRoute"
+                        [namespace]="namespace"
+                        [entity]="entity"
+                        [stores]="stores"
+                        [addableStores]="addableStores"
+                        [placements]="placements"
+                        [partitions]="partitions"
+                        [allocations]="allocations"></app-edit-source-columns>
+            } @else {
+                <app-edit-columns
+                        [route]="currentRoute()"
+                        [namespace]="namespace"
+                        [entityIn]="entity()"
+                        [stores]="stores"
+                        [addableStores]="addableStores"
+                        [placements]="placements"
+                        [partitions]="partitions"
+                        [allocations]="allocations"></app-edit-columns>
+            }
 
-    <app-edit-tables
-            [currentRoute]="currentRoute"
-            [namespace]="namespace"
-            [entity]="entity"
-            [stores]="stores"
-            [addableStores]="addableStores"
-            [placements]="placements"
-            [partitions]="partitions"
-            [allocations]="allocations"
-            *ngIf="!currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.RELATIONAL && !isStatistic()"></app-edit-tables>
-    <app-document-edit-collections
-            [currentRoute]="currentRoute"
-            [namespace]="namespace"
-            [entity]="entity"
-            [stores]="stores"
-            [addableStores]="addableStores"
-            [placements]="placements"
-            [partitions]="partitions"
-            [allocations]="allocations"
-            *ngIf="!currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.DOCUMENT && !isStatistic()"></app-document-edit-collections>
-    <app-document-edit-collection
-            [currentRoute]="currentRoute"
-            [namespace]="namespace"
-            [entity]="entity"
-            [stores]="stores"
-            [addableStores]="addableStores"
-            [placements]="placements"
-            [partitions]="partitions"
-            [allocations]="allocations"
-            *ngIf="currentRoute().includes('.') && namespace()?.dataModel === NamespaceType.DOCUMENT && !isStatistic() "></app-document-edit-collection>
-    <app-graph-edit
-            [currentRoute]="currentRoute"
-            [namespace]="namespace"
-            [entity]="entity"
-            [stores]="stores"
-            [addableStores]="addableStores"
-            [placements]="placements"
-            [partitions]="partitions"
-            [allocations]="allocations"
-            *ngIf="namespace()?.dataModel === NamespaceType.GRAPH  && !isStatistic()"></app-graph-edit>
-</ng-container>
+        }
+        @case (NamespaceType.DOCUMENT) {
+            <app-document-edit-collection
+                    [currentRoute]="currentRoute"
+                    [namespace]="namespace"
+                    [entity]="entity"
+                    [stores]="stores"
+                    [addableStores]="addableStores"
+                    [placements]="placements"
+                    [partitions]="partitions"
+                    [allocations]="allocations"></app-document-edit-collection>
+        }
+    }
+} @else {
+    @switch (namespace()?.dataModel) {
+        @case (NamespaceType.RELATIONAL) {
+            <app-edit-tables
+                    [currentRoute]="currentRoute"
+                    [namespace]="namespace"
+                    [entity]="entity"
+                    [stores]="stores"
+                    [addableStores]="addableStores"
+                    [placements]="placements"
+                    [partitions]="partitions"
+                    [allocations]="allocations"></app-edit-tables>
 
+        }
+        @case (NamespaceType.DOCUMENT) {
+            <app-document-edit-collections
+                    [currentRoute]="currentRoute"
+                    [namespace]="namespace"
+                    [entity]="entity"
+                    [stores]="stores"
+                    [addableStores]="addableStores"
+                    [placements]="placements"
+                    [partitions]="partitions"
+                    [allocations]="allocations"></app-document-edit-collections>
+
+        }
+        @case (NamespaceType.GRAPH) {
+            <app-graph-edit
+                    [currentRoute]="currentRoute"
+                    [namespace]="namespace"
+                    [entity]="entity"
+                    [stores]="stores"
+                    [addableStores]="addableStores"
+                    [placements]="placements"
+                    [partitions]="partitions"
+                    [allocations]="allocations"></app-graph-edit>
+        }
+    }
+}

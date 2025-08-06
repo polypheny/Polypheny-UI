@@ -10,6 +10,7 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 import {Method} from '../../../models/ui-request.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {CatalogService} from '../../../services/catalog.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-graph-edit',
@@ -23,6 +24,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     public readonly _types = inject(DbmsTypesService);
     private readonly _toast = inject(ToasterService);
     private readonly _catalog = inject(CatalogService);
+    private readonly _router = inject(Router);
 
     constructor() {
 
@@ -119,4 +121,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         }
     }
 
+    openDataView() {
+        this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
 }

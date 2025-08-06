@@ -2,14 +2,7 @@ import {Component, computed, inject, Input, Signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    EntityModel,
-    EntityType,
-    NamespaceModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityModel, EntityType, NamespaceModel} from '../../../models/catalog.model';
 import {DataModel} from '../../../models/ui-request.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
@@ -110,10 +103,5 @@ export class EditEntityComponent {
             }
             return this._catalog.getAllocations(this.entity().id);
         });
-    }
-
-
-    isStatistic() {
-        return this._router.url.includes('statistics');
     }
 }
