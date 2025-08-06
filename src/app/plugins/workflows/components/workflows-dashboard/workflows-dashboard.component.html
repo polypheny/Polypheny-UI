@@ -200,6 +200,8 @@
         <ul cListGroup *ngIf="workflowDefs" class="mb-3">
             @for (session of userSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+            } @empty {
+                <p>There are currently no active user sessions.</p>
             }
         </ul>
     }
@@ -316,6 +318,8 @@
         <ul cListGroup class="mb-3">
             @for (session of apiSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+            } @empty {
+                <p>There are currently no active API sessions.</p>
             }
         </ul>
     }

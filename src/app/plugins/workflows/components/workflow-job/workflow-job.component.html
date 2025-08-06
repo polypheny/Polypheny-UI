@@ -42,7 +42,7 @@
                     </c-row>
                     <c-row>
                         <c-col [xs]="6"><small><strong>Enabled on Startup:</strong></small></c-col>
-                        <c-col [xs]="6"><small> {{ job().enableOnStartup }} </small></c-col>
+                        <c-col [xs]="6"><small> {{ job().enableOnStartup ? 'Yes' : 'No' }} </small></c-col>
                     </c-row>
                     <c-row>
                         <c-col [xs]="6"><small><strong>Retries:</strong></small></c-col>
@@ -50,11 +50,11 @@
                     </c-row>
                     <c-row>
                         <c-col [xs]="6"><small><strong>Optimizations:</strong></small></c-col>
-                        <c-col [xs]="6"><small> {{ job().performance }} </small></c-col>
+                        <c-col [xs]="6"><small> {{ job().performance ? 'Enforced' : 'Not Enforced' }} </small></c-col>
                     </c-row>
                     <c-row>
                         <c-col [xs]="6"><small><strong>Overwrites Variables:</strong></small></c-col>
-                        <c-col [xs]="6"><small> {{ Object.keys( job().variables || {} ).length > 0 }} </small></c-col>
+                        <c-col [xs]="6"><small> {{ Object.keys( job().variables || {} ).length > 0 ? 'Yes' : 'No' }} </small></c-col>
                     </c-row>
                     @if (job().type === 'SCHEDULED') {
                         <c-row>
