@@ -11,6 +11,8 @@ import 'ace-builds/src-noconflict/mode-plain_text';
 import 'ace-builds/src-noconflict/mode-sh';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
+import '../../../assets/ace/mode-cypher.js'; // custom highlighter for cypher
+import '../../../assets/ace/mode-mql.js'; // custom highlighter for Mongo Query Language
 import {SidebarNode} from '../../models/sidebar-node.model';
 import {CatalogService} from '../../services/catalog.service';
 
@@ -37,7 +39,8 @@ export class EditorComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() code ?;
 
     suggestions: string[] = [];
-    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig', 'json', 'plain_text', 'sh'];
+    private readonly supportedLanguages = ['pgsql', 'sql', 'java', 'python', 'markdown', 'pig', 'json', 'plain_text',
+        'sh', 'cypher', 'mql'];
 
     constructor() {
         effect(() => {

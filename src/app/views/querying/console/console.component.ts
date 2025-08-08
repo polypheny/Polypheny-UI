@@ -295,7 +295,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                     this.delayedNamespace = null;
 
                     this.loading.set(false);
-                    this.results.set(<Result<any, any>[]>msg);
+
+                    const filteredResults = (msg as Result<any, any>[]).filter(r =>
+                        !(r.queryType === 'DDL' && r.query.toLowerCase().trim().startsWith('use ')) // do not show use statements
+                    );
+                    filteredResults.filter(r => r.language === 'cypher').forEach(r => r.query = this.removeComments(r.query));
+
+                    this.results.set(filteredResults);
                     this.resetCollapsed();
 
                 } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
@@ -371,5 +377,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     clearHistory() {
         this.history.clear();
         localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
+    }
+
+    private removeComments(query: string) {
+        // Regex based simplified removal of comments. Correct removal would require a lexer.
+        if (query === null) {
+            return query;
+        }
+        return query
+        .replace(/\/\*[\s\S]*?\*\//g, '') // multi-line comments
+        .replace(/(^|[^:])\/\/.*$/gm, ''); // single-line comments, not prepended by ':' to avoid removing URLs -> covers most cases where '//' appears in a string
     }
 }
