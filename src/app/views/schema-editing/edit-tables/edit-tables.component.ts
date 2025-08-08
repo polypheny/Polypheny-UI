@@ -350,6 +350,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
 
     openDetails(table: Table) {
         this._router.navigate(['/views/schema-editing/' + this.namespace().name + '.' + table.name]).then();
+        this._leftSidebar.reset(false);
     }
 }
 

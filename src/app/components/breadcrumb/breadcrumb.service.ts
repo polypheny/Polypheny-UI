@@ -1,5 +1,5 @@
 import {Injectable, OnDestroy, OnInit} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import {BreadcrumbItem} from './breadcrumb-item';
 
 @Injectable({
@@ -14,6 +14,7 @@ export class BreadcrumbService implements OnInit, OnDestroy {
     _showZoom = true;
     tableName = null;
     dataModel = null;
+    onClickSubject = new Subject<BreadcrumbItem>();
 
     routerId;
 
@@ -108,6 +109,10 @@ export class BreadcrumbService implements OnInit, OnDestroy {
 
     isRelational() {
         return this.dataModel != null && this.dataModel === 'relational';
+    }
+
+    onBreadCrumbClicked() {
+        return this.onClickSubject.asObservable();
     }
 
     setNamespaceType(dataModel: string) {

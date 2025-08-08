@@ -1,15 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    OnDestroy,
-    OnInit,
-    signal,
-    Signal,
-    untracked,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, inject, OnDestroy, OnInit, signal, Signal, untracked, WritableSignal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
@@ -96,13 +85,17 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         this._route.params.subscribe((ev) => {
             this.setBreadCrumb();
         });
+
         const sub = this._crud.onReconnection().subscribe(
             b => {
                 this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
             }
         );
-
         this.subscriptions.add(sub);
+
+        this.subscriptions.add(
+            this._breadcrumb.onBreadCrumbClicked().subscribe(b => this._leftSidebar.reset(false))
+        );
     }
 
 

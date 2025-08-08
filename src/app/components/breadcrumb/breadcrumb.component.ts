@@ -38,6 +38,9 @@ export class BreadcrumbComponent implements OnInit {
         this.zoom = this._breadcrumb.zoomOut();
     }
 
+    onBreadcrumbClick(b: BreadcrumbItem) {
+        this._breadcrumb.onClickSubject.next(b);
+    }
 }
 
 class BreadcrumbItem {

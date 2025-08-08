@@ -245,7 +245,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
     openDetails(collection: Collection) {
         this._router.navigate(['/views/schema-editing/' + this.namespace().name + '.' + collection.name]).then();
-
+        this._leftSidebar.reset(false);
     }
 }
 
