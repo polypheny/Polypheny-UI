@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Node} from '../preview-selection.component';
 import {FormsModule} from '@angular/forms';
-import { AbstractNode } from '../../../components/data-view/models/result-set.model';
+import {AbstractNode} from '../../../components/data-view/models/result-set.model';
 
 @Component({
     selector: 'app-metadata-tree',
@@ -29,11 +29,8 @@ export class MetadataTreeComponent {
         }
     }
 
-    private collectRemoved(n: AbstractNode,
-                           path: string[],
-                           out: Set<string>): void {
-
-        const next  = [...path, n.name];
+    private collectRemoved(n: AbstractNode, path: string[], out: Set<string>): void {
+        const next = [...path, n.name];
         const isLeaf = !n.children || n.children.length === 0;
         const isGhost = n.type === 'ghost';
 
@@ -45,14 +42,11 @@ export class MetadataTreeComponent {
     }
 
 
-
-
-
-
     toggleColumn(fullKey: string, checked: boolean, diff, type) {
         this.columnToggle.emit({fullKey, checked, diff, type});
     }
 
+    // TODO Aliase may be shown with the physical name.
     getAlias(node: AbstractNode): string {
         return (node.properties && typeof node.properties === 'object')
             ? (node.properties['alias'] ?? '')
@@ -86,7 +80,6 @@ export class MetadataTreeComponent {
         }
 
     }
-
 
 
 }

@@ -1,10 +1,10 @@
 // src/app/services/metadata-polling.service.ts
 import {inject, Injectable} from '@angular/core';
-import { CrudService } from './crud.service';
+import {CrudService} from './crud.service';
 import {timer, Subscription, of, switchMap} from 'rxjs';
 
-import { CatalogService } from './catalog.service';
-import { AdapterModel } from '../views/adapters/adapter.model';
+import {CatalogService} from './catalog.service';
+import {AdapterModel} from '../views/adapters/adapter.model';
 
 export interface MetadataStatusResponse {
     changed: 'OK' | 'WARNING' | 'CRITICAL' | null;

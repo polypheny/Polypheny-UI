@@ -86,10 +86,10 @@ export class DashboardSet {
 export class PreviewResult {
     metadata: string;
     preview: any[];
-    history?: ChangeLogEntry[];
+    history?: ChangeLogView[];
 }
 
-export interface ChangeLogEntry {
+export interface ChangeLogView {
     adapterName: string;
     timestamp: string;
     severity: ChangeStatus;
@@ -100,12 +100,6 @@ export enum ChangeStatus {
     CRITICAL = 'CRITICAL',
     WARNING = 'WARNING',
     OK = 'OK'
-}
-
-export interface DiffResult {
-    added: string[];
-    removed: string[];
-    changed: string[];
 }
 
 

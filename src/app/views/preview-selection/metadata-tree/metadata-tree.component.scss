@@ -2,5 +2,12 @@
   margin-left: 30px;
 }
 
-.node-added   { color: #1a7f37; font-weight: 600; }
-.node-removed { color: #c62828; text-decoration: line-through; }
+.node-added {
+  color: #7FFF00;
+  font-weight: 600;
+}
+
+.node-removed {
+  color: #FF2400;
+  text-decoration: line-through;
+}

@@ -25,7 +25,7 @@ import {
     Validators
 } from '@angular/forms';
 import {
-    AbstractNode, ChangeLogEntry,
+    AbstractNode, ChangeLogView,
     PathAccessRequest,
     PreviewResult,
     RelationalResult
@@ -273,7 +273,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             mode: DeployMode;
             persistent: boolean;
         }>,
-        changeLog?: ChangeLogEntry[]
+        changeLog?: ChangeLogView[]
     ) {
         this.nav.setContext({
             mode: mode,

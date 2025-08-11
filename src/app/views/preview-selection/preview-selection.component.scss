@@ -1,11 +1,12 @@
-/* Browser-Abstände global nullen, falls nicht schon vorhanden */
-html, body { margin: 0; padding: 0; }
+html, body {
+  margin: 0;
+  padding: 0;
+}
 
-/* Hauptcontainer */
 .preview-container {
   position: fixed;
-  top:   64px;
-  left:    0;
+  top: 64px;
+  left: 0;
   width: 100vw;
   height: calc(100vh - 130px);
   margin: 0;
@@ -15,7 +16,6 @@ html, body { margin: 0; padding: 0; }
   overflow: hidden;
 }
 
-/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -23,41 +23,69 @@ html, body { margin: 0; padding: 0; }
   width: 100%;
   background: #fff;
   padding: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
   z-index: 2;
 
-  h2 { margin: 0; }
+  h2 {
+    margin: 0;
+  }
 
   .btn-circle {
-    width: 2.5rem; height: 2.5rem; border-radius: 50%;
-    background: #1976d2; color: #fff; border: none; cursor: pointer;
-    &:hover { background: #0d47a1; }
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background: #0d47a1;
+    }
   }
 }
 
-/* Wrapper + Hauptcontent */
-.main-wrapper { flex: 1; width: 100%; display: flex; overflow: hidden; }
-.main-content { display: flex; width: 100%; height: 100%; overflow: hidden; }
+.main-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+}
 
-/* Sidebar */
+.main-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 .sidebar {
   width: 280px;
-  background: #1565c0;
+  background: #022E3D;
   color: #fff;
   padding: .5rem;
   overflow-y: auto;
   transition: width .3s ease;
 
-  &.collapsed { width: 0; padding: 0; overflow: hidden; }
+  &.collapsed {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
 
   ::ng-deep .mat-card-title,
   ::ng-deep .mat-card-content,
-  ::ng-deep .mat-checkbox-label { color: #fff !important; }
+  ::ng-deep .mat-checkbox-label {
+    color: #fff !important;
+  }
 
-  .meta-card { background: transparent; box-shadow: none; height: 100%; }
+  .meta-card {
+    background: transparent;
+    box-shadow: none;
+    height: 100%;
+  }
 }
 
-/* Preview-Bereich */
 .preview {
   flex: 1;
   background: #fff;
@@ -66,23 +94,38 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
 
-  .preview-card { margin-bottom: .5rem; box-shadow: none; }
-  .preview-table-area { flex: 1; overflow-y: auto; }
+  .preview-card {
+    margin-bottom: .5rem;
+    box-shadow: none;
+  }
+
+  .preview-table-area {
+    flex: 1;
+    overflow-y: auto;
+  }
 
   .log-toggle {
     max-height: 40px;
     overflow: hidden;
     transition: max-height .3s ease;
-    &.expanded { max-height: 250px; }
-    mat-expansion-panel { background: #f9f9f9; }
+
+    &.expanded {
+      max-height: 250px;
+    }
+
+    mat-expansion-panel {
+      background: #f9f9f9;
+    }
   }
 }
 
-/* Footer-Buttons */
 .actions {
   width: 100%;
   background: #fff;
   padding: .5rem 1rem;
   text-align: right;
-  button { margin-left: .5rem; }
+
+  button {
+    margin-left: .5rem;
+  }
 }

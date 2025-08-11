@@ -12,7 +12,7 @@
         </div>
     </header>
 
-    <!-- Hauptbereich -->
+    <!-- Main area -->
     <div class="main-wrapper">
         <div class="main-content">
             <!-- Sidebar -->
@@ -62,7 +62,7 @@
                         <mat-expansion-panel *ngFor="let entry of changeLog">
                             <mat-expansion-panel-header [ngClass]="getSeverityClass(entry.severity)">
                                 <mat-panel-title>
-                                    {{ entry.timestamp | date:'short' }} — <strong>{{ entry.severity }}</strong>
+                                    {{ entry.timestamp }} — <strong>{{ entry.severity }}</strong>
                                 </mat-panel-title>
                                 <mat-panel-description class="msg-preview">
                                     {{ entry.messages[0] || '' }}

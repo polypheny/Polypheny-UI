@@ -1,7 +1,7 @@
 import {Component, inject} from '@angular/core';
 import {ButtonCloseDirective, ButtonDirective, ColComponent, RowComponent} from '@coreui/angular';
 import {Router, RouterLink} from '@angular/router';
-import {AbstractNode, ChangeLogEntry, ChangeStatus} from '../../components/data-view/models/result-set.model';
+import {AbstractNode, ChangeLogView, ChangeStatus} from '../../components/data-view/models/result-set.model';
 import {CommonModule} from '@angular/common';
 import {MetadataTreeComponent} from './metadata-tree/metadata-tree.component';
 import {AdapterModel, AdapterType, PolyMap} from '../adapters/adapter.model';
@@ -15,31 +15,27 @@ import {MatIcon} from '@angular/material/icon';
 import {
     MatAccordion,
     MatExpansionPanel,
-    MatExpansionPanelDescription,
+    MatExpansionPanelDescription, MatExpansionPanelHeader,
     MatExpansionPanelTitle
 } from '@angular/material/expansion';
+import {ToasterService} from '../../components/toast-exposer/toaster.service';
 
 @Component({
     selector: 'app-preview-selection',
     standalone: true,
     imports: [
         ButtonDirective,
-        RowComponent,
-        ColComponent,
         CommonModule,
         MetadataTreeComponent,
-        DocCardComponent,
         MatCard,
         MatCardHeader,
         MatCardTitle,
         MatCardContent,
-        MatTabGroup,
-        MatIcon,
-        MatTab,
         MatAccordion,
         MatExpansionPanel,
         MatExpansionPanelTitle,
-        MatExpansionPanelDescription
+        MatExpansionPanelDescription,
+        MatExpansionPanelHeader
     ],
     templateUrl: './preview-selection.component.html',
     styleUrl: './preview-selection.component.scss'
@@ -49,6 +45,7 @@ export class PreviewSelectionComponent {
     private readonly _nav = inject(PreviewNavigationService);
     private readonly _crud = inject(CrudService);
     private readonly _router = inject(Router);
+    private readonly _toast = inject(ToasterService);
 
     private ctx = null;
     mode!: null;
@@ -68,7 +65,7 @@ export class PreviewSelectionComponent {
 
     added: Set<string> = new Set();
     removed: Set<string> = new Set();
-    changeLog: ChangeLogEntry[] = [];
+    changeLog: ChangeLogView[] = [];
     readonly ChangeStatus = ChangeStatus;
 
     showSaveButton = false;
@@ -78,7 +75,6 @@ export class PreviewSelectionComponent {
 
     ngOnInit() {
         this.ctx = this._nav.context;
-
 
         if (!this.ctx) {
             console.error('Preview-context not found !');
@@ -111,47 +107,6 @@ export class PreviewSelectionComponent {
             this.cards = this.findCards(this.metadata);
         }
 
-        /*const opener = (window.opener as any);
-        this.formData = opener?.pendingFormData;
-        this.pendingFiles = opener.pendingFiles as Map<string, File>;
-
-
-        let metaRaw = localStorage.getItem('metaRoot');
-        metaRaw = JSON.parse(metaRaw);
-        this.metadata = this.deserializeNode(metaRaw);
-
-        const previewRaw = localStorage.getItem('preview');
-        this.preview = previewRaw ? JSON.parse(previewRaw) : {};
-
-        console.log(this.metadata);
-
-
-        const rawSettings = localStorage.getItem('adapterSettings');
-        const settingsObj = rawSettings ? JSON.parse(rawSettings) as Record<string, string> : {};
-        const adapterSettings = new PolyMap<string, string>();
-        for (const [k, v] of Object.entries(settingsObj)) {
-            adapterSettings.set(k, v as string);
-        }
-
-
-        const infoRaw = localStorage.getItem('adapterInfo');
-        const info = infoRaw ? JSON.parse(infoRaw) as Partial<{
-            uniqueName: string;
-            adapterName: string;
-            type: AdapterType;
-            mode: DeployMode;
-            persistent: boolean;
-        }> : {};
-
-        this.adapter = new AdapterModel(
-            info.uniqueName ?? adapterSettings.get('uniqueName') ?? 'adapter_' + Date.now(),
-            info.adapterName ?? 'UNKNOWN',
-            adapterSettings,
-            info.persistent ?? true,
-            info.type ?? AdapterType.SOURCE,
-            info.mode ?? DeployMode.REMOTE
-        );*/
-
 
         this.ready = true;
 
@@ -162,24 +117,6 @@ export class PreviewSelectionComponent {
         this._router.navigate(['/views/adapters']);
     }
 
-    deserializeNode(obj: any): Node {
-        const node = new Node(obj.type, obj.name);
-
-        if (obj.properties) {
-            for (const [key, value] of Object.entries(obj.properties)) {
-                node.addProperty(key, value);
-            }
-        }
-
-        if (obj.children && Array.isArray(obj.children)) {
-            for (const child of obj.children) {
-                node.addChild(this.deserializeNode(child));
-            }
-        }
-
-
-        return node;
-    }
 
     collectSelected(node: AbstractNode, path: string[] = []) {
         const fullPath = [...path, node.name];
@@ -224,22 +161,6 @@ export class PreviewSelectionComponent {
     }
 
 
-    /*sendMetadata() {
-        (this.adapter as any).metadata = Array.from(this.selected);
-
-
-        this._crud.createAdapter(this.adapter, this.formData).subscribe({
-            next: (res) => {
-                console.log('Adapter + Metadaten erfolgreich gesendet', res);
-                alert('Daten erfolgreich gesendet.');
-            },
-            error: (err) => {
-                console.error(err);
-                alert('Fehler beim Senden!');
-            }
-        });
-    }*/
-
     sendAck(): void {
         const addedPaths: string[] = Array.from(this.added);
         const removedPaths: string[] = Array.from(this.removed);
@@ -257,11 +178,11 @@ export class PreviewSelectionComponent {
         this._crud.metadataAck(payload).subscribe(
             {
                 next: () => {
-                    alert('Acknowledgement was sent.');
+                    this._toast.success('Successfully acknowledged!');
                     this.close();
                 },
                 error: err => {
-                    alert('Acknowledgement was sent.');
+                    this._toast.error('Error during acknowledgement!');
                     this.close();
                 }
             }
@@ -280,11 +201,11 @@ export class PreviewSelectionComponent {
         console.log(selected);
         this._crud.setMetaConfiguration(payload).subscribe({
             next: () => {
-                alert('Config changed successfully!');
+                this._toast.success('Config changed successfully!');
                 this.close();
             },
             error: err => {
-                alert('Config changed failed!');
+                this._toast.error('Config changed failed!');
                 this.close();
             }
         });
@@ -315,9 +236,9 @@ export class PreviewSelectionComponent {
         const out: AbstractNode[] = [];
 
         function walk(n: AbstractNode) {
-            if ((n as any).cardCandidate) {               // Ebene-0-Objekt
+            if ((n as any).cardCandidate) {
                 out.push(n as AbstractNode);
-                return;                                     // nicht tiefer bohren
+                return;
             }
             n.children?.forEach(walk);
         }
@@ -360,12 +281,12 @@ export class PreviewSelectionComponent {
 
         this._crud.createAdapter(this.adapter, newFormData).subscribe({
             next: res => {
-                alert('Adapter + Metadata sent successfully.');
+                this._toast.success('Adapter deployed!');
                 this.close();
             },
             error: err => {
                 console.error(err);
-                alert('Fail to send metadata!');
+                this._toast.error('Failed to deploy adapter!');
             }
         });
 
@@ -385,9 +306,12 @@ export class PreviewSelectionComponent {
 
     getSeverityClass(sev: ChangeStatus): string {
         switch (sev) {
-            case ChangeStatus.CRITICAL: return 'log-critical';
-            case ChangeStatus.WARNING:  return 'log-warning';
-            default:                    return 'log-ok';
+            case ChangeStatus.CRITICAL:
+                return 'log-critical';
+            case ChangeStatus.WARNING:
+                return 'log-warning';
+            default:
+                return 'log-ok';
         }
     }
 
@@ -423,33 +347,6 @@ export class Node implements AbstractNode {
     }
 }
 
-/*export class DocumentObjectNode extends Node implements AbstractNode {
-    readonly jsonPath!: string;
-    readonly cardCandidate!: boolean;
-}
-
-export class DocumentArrayNode extends Node implements AbstractNode {
-    readonly jsonPath!: string;
-}
-
-export class DocumentValueNode extends Node implements AbstractNode {
-    readonly jsonPath!: string;
-    readonly valueType!: string;
-    readonly sample!: any;
-}
-
-export function nodeFactory(raw: any): Node {
-    switch (raw.type) {
-        case 'object':
-            return Object.assign(new DocumentObjectNode(raw.type, raw.name), raw);
-        case 'array':
-            return Object.assign(new DocumentArrayNode(raw.type, raw.name), raw);
-        case 'value':
-            return Object.assign(new DocumentValueNode(raw.type, raw.name), raw);
-        default:
-            return Object.assign(new Node(raw.type, raw.name), raw);
-    }
-}*/
 
 export function reviveTree(raw: any): AbstractNode {
     if (raw.children) {
