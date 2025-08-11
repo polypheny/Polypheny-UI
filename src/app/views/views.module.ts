@@ -38,6 +38,7 @@ import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-e
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
 import {
+    AlertComponent,
     BadgeComponent,
     BorderDirective,
     ButtonCloseDirective,
@@ -158,7 +159,8 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         ProgressComponent,
         ProgressBarComponent,
         CollapseDirective,
-        ButtonToolbarComponent
+        ButtonToolbarComponent,
+        AlertComponent
     ],
     declarations: [
         EditColumnsComponent,

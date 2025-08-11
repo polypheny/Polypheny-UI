@@ -76,7 +76,6 @@ export class CatalogService {
 
     getSnapshot(): Observable<CatalogService> {
         return this._http.post(`${this.httpUrl}/getSnapshot`, this.snapshot ? this.snapshot.id : -1).pipe(map((snapshot: LogicalSnapshotModel) => {
-            console.log(snapshot);
             if (snapshot) {
                 this.updateSnapshot(snapshot);
             }
@@ -86,7 +85,8 @@ export class CatalogService {
     }
 
     private updateSnapshot(snapshot: LogicalSnapshotModel) {
-        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id)) {
+        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id &&
+            this.snapshot.constraints.length === snapshot.constraints.length)) { // adding a constraint does not always increase the id for some reason
             return;
         }
 

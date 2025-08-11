@@ -15,7 +15,7 @@
         </c-row>
         <c-row class="card-columns" [xs]="_breadcrumb.getMasonryZoom()">
             <ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
-                <div>
+                <div [id]="group.key | lowercase"> <!--unique id for navigation-->
                     <c-card class="form-group">
                         <c-header [ngClass]="{'card-header': !formObj.fullWidth}">
                             <div style="width: 100%;">

@@ -7,7 +7,6 @@ import {ToastDuration, ToasterService} from '../../../components/toast-exposer/t
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
-import {DbTable} from '../../uml/uml.model';
 import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, CollectionModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {AdapterModel} from '../../adapters/adapter.model';
@@ -144,7 +143,8 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         const request = new QueryRequest(query, false, true, 'mql', this.namespace().name);
 
         this._crud.anyQueryBlocking(request).subscribe({
-            next: (result: Result<any, any>) => {
+            next: (results: Result<any, any>[]) => {
+                const result = results[0];
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
                 } else {
@@ -185,7 +185,8 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         //const request = new EditCollectionRequest(this.namespace.value.id, this.newCollectionName, null, 'create', this.selectedStore);
         this.creatingCollection = true;
         this._crud.anyQueryBlocking(new QueryRequest(query, false, true, 'mql', this.namespace().name)).subscribe({
-            next: (result: Result<any, any>) => {
+            next: (results: Result<any, any>[]) => {
+                const result = results[0];
                 if (result.error) {
                     this._toast.exception(result, 'Could not generate collection:');
                 } else {
@@ -202,20 +203,20 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         }).add(() => this.creatingCollection = false);
     }
 
-    rename(table: Collection) {
-        const t = new EntityMeta(this.namespace().id, table.id, table.newName, []);
-        this._crud.renameTable(t).subscribe({
+    rename(collection: Collection) {
+        const t = new EntityMeta(this.namespace().id, collection.id, collection.newName, []);
+        this._crud.renameCollection(t).subscribe({
             next: res => {
                 const r = <RelationalResult>res;
-                if (r.exception) {
+                if (r.error) {
                     this._toast.exception(r);
                 } else {
-                    this._toast.success('Renamed table ' + table.name + ' to ' + table.newName);
+                    this._toast.success('Renamed collection ' + collection.name + ' to ' + collection.newName);
                     //this._catalog.updateIfNecessary();
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
                 }
             }, error: err => {
-                this._toast.error('Could not rename the collection ' + table.name);
+                this._toast.error('Could not rename the collection ' + collection.name);
                 console.log(err);
             }
 
@@ -260,18 +261,15 @@ class Collection {
     modifiable: boolean;
     tableType: EntityType;
 
-    constructor(name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+    constructor(id: number, name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+        this.id = id;
         this.name = name;
         this.newName = newName;
         this.modifiable = modifiable;
         this.tableType = entityType;
     }
 
-    static fromDB(collection: DbTable) {
-        return new Collection(collection.tableName, collection.tableName, collection.modifiable, collection.tableType);
-    }
-
     static fromModel(collection: CollectionModel) {
-        return new Collection(collection.name, collection.name, collection.modifiable, collection.entityType);
+        return new Collection(collection.id, collection.name, collection.name, collection.modifiable, collection.entityType);
     }
 }

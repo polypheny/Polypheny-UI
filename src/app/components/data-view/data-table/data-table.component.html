@@ -103,9 +103,7 @@
                         </ng-container>
                     </td>
                     <td class="delete" *ngIf="entityConfig().update || entityConfig().delete">
-                        <button cButton color="danger" size="sm" cTextColor="white" *ngIf="entityConfig().delete"
-                                [ngClass]="{ 'cil-trash': i !== confirm, 'cil-warning': i === confirm }"
-                                (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"></button>
+                        <app-delete-confirm (delete)="deleteRow(d1, null)"></app-delete-confirm>
                     </td>
                 </ng-container>
             </tr>

@@ -13,6 +13,7 @@ import {CatalogService} from '../../../services/catalog.service';
 import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, ConstraintType, DeployMode, EntityModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {map} from 'rxjs/operators';
 import {Router} from '@angular/router';
+import {ConfigService} from '../../../services/config.service';
 
 const INITIAL_TYPE = 'BIGINT';
 type Tabs = 'column' | 'constraint' | 'foreign' | 'fresh' | 'index' | 'placement';
@@ -39,6 +40,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     public readonly _catalog = inject(CatalogService);
     private readonly _toast = inject(ToasterService);
     private readonly _router = inject(Router);
+    private readonly _config = inject(ConfigService);
 
     readonly entity: WritableSignal<TableModel> = signal(null);
 
@@ -77,6 +79,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     uniqueConstraintName = '';
     proposedConstraintName = 'constraintName';
+    isUniqueConstraintEnforced = false;
+    isForeignKeyEnforced = false;
 
     readonly indexHeaders: WritableSignal<string[]> = signal([]);
     readonly indexDefinitions: WritableSignal<string[][]> = signal([]);
@@ -236,6 +240,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             }
         }, {injector: this.injector});
 
+        this._config.getConfig('runtime/uniqueConstraintEnforcement').subscribe(res => {
+            this.isUniqueConstraintEnforced = res.value;
+        });
+        this._config.getConfig('runtime/foreignKeyEnforcement').subscribe(res => {
+            this.isForeignKeyEnforced = res.value;
+        });
+
     }
 
     ngOnInit() {
@@ -310,7 +321,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
         this._crud.getMaterializedInfo(new EditTableRequest(this.namespace().id, this.entity().id)).subscribe(
             res => this.materializedInfo = res
-        )
+        );
     }
 
     updateMaterialized() {

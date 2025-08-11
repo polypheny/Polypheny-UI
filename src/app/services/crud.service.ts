@@ -442,6 +442,11 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/renameTable`, meta, this.httpOptions);
     }
 
+
+    renameCollection(meta: EntityMeta) {
+        return this._http.post(`${this.httpUrl}/renameCollection`, meta, this.httpOptions);
+    }
+
     /**
      * Send a request to either create or drop a schema
      */

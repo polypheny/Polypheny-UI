@@ -250,7 +250,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
         this._crud.renameTable(meta).subscribe({
             next: (r: RelationalResult) => {
-                if (r.exception) {
+                if (r.error) {
                     this._toast.exception(r);
                 } else {
                     this._toast.success('Renamed' + type + table.name + ' to ' + table.newName);
@@ -258,7 +258,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
             }, error: err => {
-                this._toast.error('Could not rename the' + type + table.name);
+                this._toast.error('Could not rename the ' + type + table.name);
                 console.log(err);
             }
         });
