@@ -7,18 +7,14 @@ import {AbstractNode} from '../../../components/data-view/models/result-set.mode
 @Component({
     selector: 'app-metadata-tree',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule
-    ],
+    imports: [CommonModule, FormsModule],
     templateUrl: './metadata-tree.component.html',
     styleUrl: './metadata-tree.component.scss'
 })
-
 export class MetadataTreeComponent {
-    @Input() node!: Node;
+    @Input() node!: AbstractNode;
     @Input() path = '';
-    @Output() columnToggle = new EventEmitter<{ fullKey: string, checked: boolean, diff?, type? }>();
+    @Output() columnToggle = new EventEmitter<{ fullKey: string; checked: boolean; diff?; type? }>();
     @Output() autoSelectRemoved = new EventEmitter<string[]>();
 
     ngOnInit(): void {
@@ -31,55 +27,60 @@ export class MetadataTreeComponent {
 
     private collectRemoved(n: AbstractNode, path: string[], out: Set<string>): void {
         const next = [...path, n.name];
-        const isLeaf = !n.children || n.children.length === 0;
-        const isGhost = n.type === 'ghost';
-
-        if (isGhost) {
+        if ((n as any).type === 'ghost') {
             out.add(next.join('.'));
         }
-
         n.children?.forEach(c => this.collectRemoved(c, next, out));
     }
 
-
-    toggleColumn(fullKey: string, checked: boolean, diff, type) {
+    toggleColumn(fullKey: string, checked: boolean, diff?: any, type?: any) {
         this.columnToggle.emit({fullKey, checked, diff, type});
     }
 
-    // TODO Aliase may be shown with the physical name.
+    onNodeToggle(checked: boolean): void {
+        const parts = this.path ? this.path.split('.') : [];
+        this.toggleRecursive(this.node, parts, checked);
+    }
+
+    private toggleRecursive(n: AbstractNode, pathParts: string[], checked: boolean): void {
+        (n as any).isSelected = checked;
+
+        const next = [...pathParts, n.name];
+        const isLeaf = !n.children || n.children.length === 0;
+
+        if (isLeaf && (n as any).type === 'column') {
+            const fullKey = next.join('.');
+            const diff = (n as any).properties?.['diff'];
+            this.columnToggle.emit({fullKey, checked, diff, type: 'column'});
+            return;
+        }
+        n.children?.forEach(c => this.toggleRecursive(c, next, checked));
+    }
+
     getAlias(node: AbstractNode): string {
-        return (node.properties && typeof node.properties === 'object')
-            ? (node.properties['alias'] ?? '')
-            : '';
+        return (node as any).properties?.['alias'] ?? '';
     }
 
     setAlias(node: AbstractNode, value: string): void {
-        const trimmed = value.trim();
-
+        const trimmed = (value ?? '').trim();
         if (!trimmed) {
-            if (node.properties) {
-                delete node.properties['alias'];
+            if ((node as any).properties) {
+                delete (node as any).properties['alias'];
             }
             return;
         }
-
-        if (!node.properties || typeof node.properties !== 'object') {
-            node.properties = {};
-        }
-
-        node.properties['alias'] = trimmed;
+        (node as any).properties = (node as any).properties ?? {};
+        (node as any).properties['alias'] = trimmed;
     }
 
     getNodeClass(node: AbstractNode): string {
-        if (node.properties?.['diff'] === 'ADDED') {
+        const props = (node as any).properties || {};
+        if (props['diff'] === 'ADDED') {
             return 'node-added';
-        } else if (node.properties?.['diff'] === 'REMOVED' || node.type === 'ghost') {
-            return 'node-removed';
-        } else {
-            return '';
         }
-
+        if (props['diff'] === 'REMOVED' || (node as any).type === 'ghost') {
+            return 'node-removed';
+        }
+        return '';
     }
-
-
 }
