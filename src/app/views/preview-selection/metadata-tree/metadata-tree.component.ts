@@ -38,11 +38,20 @@ export class MetadataTreeComponent {
     }
 
     onNodeToggle(checked: boolean): void {
+        if (this.isRemovedOrGhost(this.node)) {
+            (this.node as any).isSelected = false;
+            return;
+        }
         const parts = this.path ? this.path.split('.') : [];
         this.toggleRecursive(this.node, parts, checked);
     }
 
     private toggleRecursive(n: AbstractNode, pathParts: string[], checked: boolean): void {
+        if (this.isRemovedOrGhost(n)) {
+            (n as any).isSelected = false;
+            return;
+        }
+
         (n as any).isSelected = checked;
 
         const next = [...pathParts, n.name];
@@ -82,5 +91,12 @@ export class MetadataTreeComponent {
             return 'node-removed';
         }
         return '';
+    }
+
+    get isRemovedOrGhost() {
+        return (node: AbstractNode) => {
+            const props = (node as any).properties || {};
+            return props['diff'] === 'REMOVED' || (node as any).type === 'ghost';
+        };
     }
 }

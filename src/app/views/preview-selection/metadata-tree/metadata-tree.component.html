@@ -1,15 +1,24 @@
 <ul class="tree">
     <li [ngClass]="getNodeClass(node)">
     <span *ngIf="node.type !== 'column'">
-      <input #cb2 type="checkbox" [(ngModel)]="node.isSelected" (change)="onNodeToggle(cb2.checked)">
+      <input
+          #cb2
+          type="checkbox"
+          [(ngModel)]="node.isSelected"
+          [disabled]="node.properties?.diff === 'REMOVED' || node.type === 'ghost'"
+          (change)="onNodeToggle(cb2.checked)">
         {{ node.name }}
         <ng-container *ngIf="!node.children?.length && node.properties?.sample !== undefined">
         : {{ node.properties.sample }}
       </ng-container>
     </span>
         <span *ngIf="node.type === 'column'">
-        <input #cb type="checkbox" [(ngModel)]="node.isSelected"
-               (change)="toggleColumn(path + '.' + node.name, cb.checked, node.properties?.diff, node.type)">
+      <input
+          #cb
+          type="checkbox"
+          [(ngModel)]="node.isSelected"
+          [disabled]="node.properties?.diff === 'REMOVED' || node.type === 'ghost'"
+          (change)="toggleColumn(path + '.' + node.name, cb.checked, node.properties?.diff, node.type)">
             {{ node.name }}
             <!--<input class="aliases"
                 type="text"
@@ -17,7 +26,7 @@
                 placeholder="Alias"
                 [value]="getAlias(node)"
                 (blur)="setAlias(node, alias.value)">-->
-        </span>
+    </span>
         <ng-container *ngIf="node.children?.length">
             <app-metadata-tree
                     *ngFor="let child of node.children"
@@ -28,3 +37,9 @@
         </ng-container>
     </li>
 </ul>
+
+
+
+
+
+
