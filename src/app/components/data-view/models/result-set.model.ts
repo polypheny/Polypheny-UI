@@ -81,29 +81,6 @@ export class DashboardSet {
 }
 
 /**
- * model for handling preview data
- */
-export class PreviewResult {
-    metadata: string;
-    preview: any[];
-    history?: ChangeLogView[];
-}
-
-export interface ChangeLogView {
-    adapterName: string;
-    timestamp: string;
-    severity: ChangeStatus;
-    messages: string[];
-}
-
-export enum ChangeStatus {
-    CRITICAL = 'CRITICAL',
-    WARNING = 'WARNING',
-    OK = 'OK'
-}
-
-
-/**
  * model for statistics coming from the server
  */
 export class StatisticSet {
@@ -405,23 +382,6 @@ export class PartitionFunctionColumn {
     modifiable: boolean;
     value: string;
     options: string[];
-}
-
-export interface AbstractNode {
-    type: string;
-    name: string;
-    children?: AbstractNode[];
-    properties?: { [key: string]: any };
-    isSelected?: boolean;
-    jsonPath?: string;
-    cardCandidate?: boolean;
-    valueType?: string;
-
-    addChild(node: AbstractNode): void;
-
-    addProperty(key: string, value: any): void;
-
-    getProperty(key: string): string | null;
 }
 
 /**

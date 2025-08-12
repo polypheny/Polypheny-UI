@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {AbstractNode, ChangeLogView} from '../components/data-view/models/result-set.model';
+import {AbstractNode, ChangeLogView} from '../views/preview-selection/models/metadataTree.model';
 import {AdapterModel, AdapterType, PolyMap} from '../views/adapters/adapter.model';
 import {DeployMode} from '../models/catalog.model';
 

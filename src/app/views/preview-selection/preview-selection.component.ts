@@ -1,7 +1,8 @@
 import {Component, inject} from '@angular/core';
 import {ButtonCloseDirective, ButtonDirective, ColComponent, RowComponent} from '@coreui/angular';
 import {Router, RouterLink} from '@angular/router';
-import {AbstractNode, ChangeLogView, ChangeStatus} from '../../components/data-view/models/result-set.model';
+import {AbstractNode, ChangeLogView, ChangeStatus} from './models/metadataTree.model';
+import {ColumnToggleEvent} from './models/metadataTree.model';
 import {CommonModule} from '@angular/common';
 import {MetadataTreeComponent} from './metadata-tree/metadata-tree.component';
 import {AdapterModel, AdapterType, PolyMap} from '../adapters/adapter.model';
@@ -317,6 +318,8 @@ export class PreviewSelectionComponent {
 
 }
 
+
+
 export class Node implements AbstractNode {
     type: string;
     name: string;
@@ -353,13 +356,6 @@ export function reviveTree(raw: any): AbstractNode {
         raw.children = raw.children.map(reviveTree);
     }
     return raw as AbstractNode;
-}
-
-interface ColumnToggleEvent {
-    fullKey: string;
-    checked: boolean;
-    diff?: 'ADDED' | 'REMOVED';
-    type?: 'ghost' | 'table' | 'column';
 }
 
 

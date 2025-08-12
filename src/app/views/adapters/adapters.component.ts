@@ -25,11 +25,10 @@ import {
     Validators
 } from '@angular/forms';
 import {
-    AbstractNode, ChangeLogView,
     PathAccessRequest,
-    PreviewResult,
     RelationalResult
 } from '../../components/data-view/models/result-set.model';
+import {AbstractNode, ChangeLogView, PreviewResult} from '../preview-selection/models/metadataTree.model';
 import {PreviewRequest} from '../../models/ui-request.model';
 import {Node, reviveTree} from '../preview-selection/preview-selection.component';
 import {Subscription} from 'rxjs';
@@ -292,6 +291,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     previewAndDeploy(): void {
 
+        // Create AdapterModel and use it later for deploy.
         const deploy = new AdapterModel(
             this.editingAvailableAdapterForm.controls['uniqueName'].value,
             this.adapter().adapterName,
@@ -300,6 +300,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             this.adapter().type,
             this.activeMode()
         );
+
+        // If settings consists directory, append InpuStream
         const fd = new FormData();
 
         for (const [k, v] of Object.entries(this.editingAvailableAdapterForm.controls)) {
@@ -322,6 +324,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         }
         fd.set('body', JSON.stringify(deploy));
 
+        // Preview-Request for temporal adapter deploy.
         const previewReq = new PreviewRequest(
             deploy.adapterName,
             deploy.type,
@@ -332,46 +335,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
         this._crud.previewTableForm(previewReq, fd).subscribe({
             next: (preview: PreviewResult) => {
-
-                console.log('Preview geladen', preview);
-
                 const settingsObj = Object.fromEntries(
                     Object.entries(this.editingAvailableAdapterForm.controls)
                         .map(([key, ctrl]) => [key, (ctrl as AbstractControl).value])
                 );
 
-
-                /* localStorage.setItem('adapterSettings', JSON.stringify(settingsObj));
-                localStorage.setItem('adapterInfo', JSON.stringify({
-                    uniqueName: deploy.name,
-                    adapterName: deploy.adapterName,
-                    type: deploy.type,
-                    mode: deploy.mode,
-                    persistent: deploy.persistent
-                }));
-
-
-                localStorage.setItem(
-                    'metaRoot',
-                    typeof preview.metadata === 'string'
-                        ? preview.metadata
-                        : JSON.stringify(preview.metadata)
-                );
-
-                localStorage.setItem('preview', JSON.stringify(preview.preview));
-                console.log(JSON.stringify(preview.metadata));
-                console.log(JSON.stringify(preview.preview));
-
-
-                (window as any).pendingDeploy = deploy;
-                (window as any).pendingFormData = fd;
-                (window as any).pendingFiles = this.files;
-                this.metadataSelection = true;
-
-                this.modalActive = false;
-                const win = window.open('/#/preview-selection',
-                    'popup',
-                    'width=1000,height=700');*/
                 const metaRoot = reviveTree(
                     typeof preview.metadata === 'string'
                         ? JSON.parse(preview.metadata)
@@ -395,11 +363,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                     }
                 );
 
-                this._toast.success('Preview erfolgreich geladen');
+                this._toast.success('Preview loaded successfully.');
             },
             error: (err) => {
-                console.error('Preview fehlgeschlagen', err);
-                this._toast.error('Preview fehlgeschlagen');
+                this._toast.error('Error getting preview!');
             }
         });
     }
@@ -455,89 +422,30 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         });
     }
 
-    /*updateAdapterSettings() {
-        console.log('Rein da – Settings sammeln');
 
+    updateAdapterSettings() {
         const form = this.editingAdapterForm;
         if (!form) {
             this._toast.error('No editing adapter form available!');
             return;
         }
 
-        const newSettings: Record<string, string> = {};
+        const adapter = this.adapter();
+        const fd = new FormData();
+        let hasUpload = false;
+
+        // Collect new settings.
+        const mergedObj: Record<string, string> = {};
+        adapter.settings.forEach((ms, key) => {
+            mergedObj[key] = ms.current ?? '';
+        });
+
         for (const [key, ctrl] of Object.entries(form.controls)) {
             if (key === 'uniqueName') {
                 continue;
             }
-            newSettings[key] = (ctrl as AbstractControl).value ?? '';
-            console.log(`[Take] ${key} =`, newSettings[key]);
-        }
 
-        const adapter = this.adapter();
-
-        const oldSettings = Object.fromEntries(adapter.settings ?? []);
-        const merged = {...oldSettings, ...newSettings};
-
-        Object.entries(newSettings).forEach(([k, v]) => {
-            const merged = adapter.settings.get(k);
-            if (merged) {
-                merged.current = v as string;
-            } else {
-
-            }
-        });
-
-
-        const poly = new PolyMap<string, string>(
-            Object.entries(merged) as [string, string][]
-        );
-
-        const updated = new AdapterModel(
-            adapter.uniqueName,
-            adapter.adapterName,
-            poly,
-            adapter.persistent,
-            adapter.type,
-            adapter.mode
-        );
-
-        console.log(updated);
-        this._crud.updateAdapterSettings(updated).subscribe({
-            next: res => {
-                res.error
-                    ? this._toast.exception(res)
-                    : this._toast.success('Updated adapter settings');
-                this.modalActive = false;
-            },
-            error: err => {
-                this._toast.error('Could not update adapter settings');
-                console.error(err);
-            }
-        });
-    }*/
-
-    updateAdapterSettings() {
-        console.log('Rein da – Settings sammeln');
-
-        const form = this.editingAdapterForm;
-        if (!form) {
-            this._toast.error('No editing adapter form available!');
-            return;
-        }
-
-        const adapter = this.adapter();
-        const fd      = new FormData();
-        let   hasUpload = false;
-
-        const mergedObj: Record<string, string> = {};
-        adapter.settings.forEach((ms, key) => {
-            mergedObj[key] = ms.current ?? '';          // MergedSetting → String
-        });
-
-        for (const [key, ctrl] of Object.entries(form.controls)) {
-            if (key === 'uniqueName') { continue; }
-
-            const val  = (ctrl as AbstractControl).value ?? '';
+            const val = (ctrl as AbstractControl).value ?? '';
             const meta = this.getAdapterSetting(key);
 
             if (meta?.template?.type?.toLowerCase() === 'directory') {
@@ -550,13 +458,12 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             } else {
                 mergedObj[key] = val;
             }
-            console.log('[Take] ${key} =', mergedObj[key]);
         }
 
-        const poly = new PolyMap<string,string>(
-            Object.entries(mergedObj) as [string,string][]
-        );
+        const poly = new PolyMap<string, string>(Object.entries(mergedObj) as [string, string][]);
 
+
+        // Create AdapterModel and PreviewRequest depending on if settings changes or reupload.
         const updated = new AdapterModel(
             adapter.uniqueName,
             adapter.adapterName,
@@ -567,8 +474,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         );
 
 
-
-        const updated2 = new PreviewRequest(
+        const updatedForm = new PreviewRequest(
             adapter.adapterName,
             adapter.type,
             mergedObj,
@@ -577,7 +483,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         );
 
         if (hasUpload) {
-            fd.set('body', JSON.stringify(updated2));
+            fd.set('body', JSON.stringify(updatedForm));
             this._crud.updateAdapterSettingsForm(fd).subscribe(this.handleResult);
         } else {
             this._crud.updateAdapterSettings(updated).subscribe(this.handleResult);
@@ -596,7 +502,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             console.error(err);
         }
     };
-
 
 
     getDefaultUniqueName(): string {

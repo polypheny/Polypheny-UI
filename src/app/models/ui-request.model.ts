@@ -231,19 +231,6 @@ export class PreviewRequest {
     }
 }
 
-/**
- * Request used for checking for available metadata changes.
- */
-export class MetadataChangeRequest {
-    adapterName: string;
-    uniqueName: string;
-
-    constructor(adapterName: string, uniqueName: string) {
-        this.adapterName = adapterName;
-        this.uniqueName = uniqueName;
-    }
-}
-
 
 /**
  * Request to drop or create a constraint of a table

@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {MatCheckbox, MatCheckboxModule} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
 import {MatCard, MatCardContent, MatCardModule, MatCardTitle} from '@angular/material/card';
-import {AbstractNode} from '../../components/data-view/models/result-set.model';
+import {AbstractNode} from '../preview-selection/models/metadataTree.model';
 import {NgIf, NgForOf} from '@angular/common';
 
 

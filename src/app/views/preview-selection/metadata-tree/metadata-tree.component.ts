@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Node} from '../preview-selection.component';
 import {FormsModule} from '@angular/forms';
-import {AbstractNode} from '../../../components/data-view/models/result-set.model';
+import {AbstractNode} from '../models/metadataTree.model';
 
 @Component({
     selector: 'app-metadata-tree',
@@ -25,6 +25,7 @@ export class MetadataTreeComponent {
         }
     }
 
+    // Automatically collect removed metadata.
     private collectRemoved(n: AbstractNode, path: string[], out: Set<string>): void {
         const next = [...path, n.name];
         if ((n as any).type === 'ghost') {
@@ -33,6 +34,7 @@ export class MetadataTreeComponent {
         n.children?.forEach(c => this.collectRemoved(c, next, out));
     }
 
+    // (Un)selecting metadata.
     toggleColumn(fullKey: string, checked: boolean, diff?: any, type?: any) {
         this.columnToggle.emit({fullKey, checked, diff, type});
     }
@@ -66,6 +68,7 @@ export class MetadataTreeComponent {
         n.children?.forEach(c => this.toggleRecursive(c, next, checked));
     }
 
+    // TODO Alias names could be display with the physical name
     getAlias(node: AbstractNode): string {
         return (node as any).properties?.['alias'] ?? '';
     }
@@ -82,6 +85,8 @@ export class MetadataTreeComponent {
         (node as any).properties['alias'] = trimmed;
     }
 
+    // In case when a metadata tree occurs from the observer.
+    // Correctly displaying added or removed metadata.
     getNodeClass(node: AbstractNode): string {
         const props = (node as any).properties || {};
         if (props['diff'] === 'ADDED') {
