@@ -23,7 +23,7 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
     private readonly _toast = inject(ToasterService);
-    private readonly _catalog = inject(CatalogService);
+    protected readonly _catalog = inject(CatalogService);
     private readonly _router = inject(Router);
 
     constructor() {

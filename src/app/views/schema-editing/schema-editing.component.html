@@ -72,7 +72,7 @@
                         <c-input-group class="mb-0 justify-content-end">
                             <button color="danger" type="submit"
                                     [ngClass]="{'progress-bar-striped progress-bar-animated': dropSubmitted}"
-                                    [disabled]="dropSubmitted"
+                                    [disabled]="dropSubmitted || !canDrop()"
                                     cButton>Drop
                             </button>
                         </c-input-group>

@@ -176,7 +176,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
 
     dropNamespace() {
-        if (this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid') {
+        if (this.canDrop()) {
             const val = this.dropForm.value;
             this.dropSubmitted = true;
             this._crud.createOrDropNamespace(new Namespace(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe({
@@ -194,6 +194,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         } else {
             this._toast.warn('This namespace does not exist', 'cannot drop');
         }
+    }
+
+    canDrop() {
+        return this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid';
     }
 
     getValidationClass(val) {

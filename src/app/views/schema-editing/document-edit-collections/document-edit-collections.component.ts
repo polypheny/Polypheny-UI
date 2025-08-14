@@ -134,7 +134,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                 query = `db.${collection.name}.drop()`;
                 break;
             case Method.TRUNCATE:
-                query = `db.${collection.name}.remove({})`;
+                query = `db.${collection.name}.deleteMany({})`;
                 break;
             default:
                 return;
@@ -180,7 +180,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
             this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
             return;
         }
-        const query = 'db.createCollection(' + this.newCollectionName + ')';
+        const query = `db.createCollection(${this.newCollectionName}).store(${this.selectedStore.name})`;
         const entityName = this.newCollectionName;
         //const request = new EditCollectionRequest(this.namespace.value.id, this.newCollectionName, null, 'create', this.selectedStore);
         this.creatingCollection = true;
