@@ -84,12 +84,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     readonly indexHeaders: WritableSignal<string[]> = signal([]);
     readonly indexDefinitions: WritableSignal<string[][]> = signal([]);
+    readonly hasPolyIndex = computed(() => this.indexDefinitions().some(idx => idx[2] === 'Polypheny-DB'));
     newIndexCols = new Map<string, boolean>();
     selectedStoreForIndex: AdapterModel;
     newIndexForm: UntypedFormGroup;
     indexSubmitted = false;
     proposedIndexName = 'indexName';
     addingIndex = false;
+    isPolyIndexEnabled = signal(false);
 
     materializedInfo: any;
 
@@ -201,9 +203,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 return [];
             }
             let locations = Array.from(stores).filter(store => placements.includes(store.id));
-            const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL);
-            adapterModel.indexMethods = [new IndexMethodModel('hash', 'Hash')];
-            locations = [adapterModel, ...locations];
+            if (this.isPolyIndexEnabled()) {
+                const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL);
+                adapterModel.indexMethods = [new IndexMethodModel('hash', 'Hash')];
+                locations = [adapterModel, ...locations];
+            }
             return locations;
         });
 
@@ -234,7 +238,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
             if (stores?.length > 0) {
                 this.selectedStoreForIndex = stores[0];
-                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0]);
+                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0].name);
             } else {
                 this.selectedStoreForIndex = null;
             }
@@ -245,6 +249,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         });
         this._config.getConfig('runtime/foreignKeyEnforcement').subscribe(res => {
             this.isForeignKeyEnforced = res.value;
+        });
+        this._config.getConfig('runtime/polystoreIndexesEnabled').subscribe(res => {
+            this.isPolyIndexEnabled.set(res.value);
         });
 
     }
@@ -664,7 +671,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     onSelectingIndexStore(store: AdapterModel) {
         this.selectedStoreForIndex = store;
-        this.newIndexForm.controls['method'].setValue(store.indexMethods[0]);
+        this.newIndexForm.controls['method'].setValue(store.indexMethods[0].name);
     }
 
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
@@ -917,6 +924,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                         this._toast.exception(res, 'Could not create index:');
                     }
                 }, error: err => {
+                    this._toast.exception(err.error, 'Could not create index:');
                     console.log(err);
                 }
             }).add(() => this.addingIndex = false);
