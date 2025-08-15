@@ -1,7 +1,7 @@
 import {Component, computed, inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
-import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
+import {Result} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
 import {QueryRequest} from '../../../models/ui-request.model';
@@ -17,6 +17,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
+import {DataResultItem, InfoResultItem} from './result-item.model';
 
 @Component({
     selector: 'app-console',
@@ -42,7 +43,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-    results: WritableSignal<Result<any, any>[]> = signal([]);
+    results: WritableSignal<(DataResultItem | InfoResultItem)[]> = signal([]);
     collapsed: WritableSignal<boolean[]> = signal([]);
     queryAnalysis: InformationPage;
     analyzeQuery = true;
@@ -60,9 +61,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     readonly namespaces: Signal<NamespaceModel[]> = computed(() => Array.from(this._catalog.namespaces().values()));
     readonly activeNamespaceExists: Signal<boolean> = computed(() => this.namespaces().some(v => v.name === this.activeNamespace()));
     readonly usesAdvancedConsole: Signal<boolean> = computed(() => this.language() === 'mql' || this.language() === 'cypher');
-    readonly someExpanded: Signal<boolean> = computed(() => this.collapsed().some(v => v));
-    readonly someCollapsed: Signal<boolean> = computed(() => this.collapsed().some(v => !v));
+    readonly someExpanded: Signal<boolean> = computed(() => this.collapsed().some((v, i) => v && this.results()[i].itemType === 'data'));
+    readonly someCollapsed: Signal<boolean> = computed(() => this.collapsed().some((v, i) => !v && this.results()[i].itemType === 'data'));
     delayedNamespace: string = null;
+    readonly onlyUseStmts = signal(false);
 
     entityConfig: EntityConfig = {
         create: false,
@@ -149,6 +151,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 }
             });
 
+            const usePattern = /^\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?(?:\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?)*\s*$/i;
+            this.onlyUseStmts.set(usePattern.test(code));
+
+
 
             if (code.match('show db')) {
                 this._catalog.updateIfNecessary().subscribe(catalog => {
@@ -170,7 +176,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace()))) {
             this.loading.set(false);
-            this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
+            this.results.set([new InfoResultItem('Could not establish a connection with the server.', 'warning')]);
             this.resetCollapsed();
         }
     }
@@ -246,7 +252,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             if (analyzerId && analyzerPage) {
                 this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
                     next: res => {
-                        console.log(res);
                         this.queryAnalysis = <InformationPage>res;
                         this.showingAnalysis = true;
                         node.setIsActive(true);
@@ -261,57 +266,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             next: msg => {
                 //if msg contains nodes of the sidebar
                 if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
-                    const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
-                    const sidebarNodes: SidebarNode[] = [];
-                    const labels = new Set();
-                    sidebarNodesTemp.sort(SidebarNode.sortNodes).forEach((s) => {
-                        if (s.label) {
-                            labels.add(s.label);
-                        } else {
-                            sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
-                        }
-                    });
-                    for (const l of [...labels].sort()) {
-                        sidebarNodes.push(new SidebarNode(l, l).asSeparator());
-                        sidebarNodesTemp.filter((n) => n.label === l).sort(SidebarNode.sortNodes).forEach((n) => {
-                            sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
-                        });
-                    }
-
-                    sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
-
-                    this._leftSidebar.setNodes(sidebarNodes);
-                    if (sidebarNodes.length > 0) {
-                        this._leftSidebar.open();
-                    } else {
-                        this._leftSidebar.close();
-                    }
-
+                    this.handleSidebarMsg(msg as SidebarNode[], nodeBehavior);
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
-                    if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
-                        this.activeNamespace.set(this.delayedNamespace);
-                        this.storeNamespace(this.delayedNamespace);
-                    }
-                    this.delayedNamespace = null;
-
-                    this.loading.set(false);
-
-                    const filteredResults = (msg as Result<any, any>[]).filter(r =>
-                        !(r.queryType === 'DDL' && r.query.toLowerCase().trim().startsWith('use ')) // do not show use statements
-                    );
-                    filteredResults.filter(r => r.language === 'cypher').forEach(r => r.query = this.removeComments(r.query));
-
-                    this.results.set(filteredResults);
-                    this.resetCollapsed();
-
+                    this.handleDataMsg(msg as Result<any, any>[]);
                 } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
-                    const iObj = <InformationObject>msg;
-                    if (this.queryAnalysis) {
-                        const group = this.queryAnalysis.groups[iObj.groupId];
-                        if (group != null) {
-                            group.informationObjects[iObj.id] = iObj;
-                        }
-                    }
+                    this.handleInfoChangeMsg(msg as InformationObject);
                 }
             },
             error: err => {
@@ -322,6 +281,106 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             }
         });
         this.subscriptions.add(sub);
+    }
+
+    private handleSidebarMsg(msg: SidebarNode[], nodeBehavior: (tree: any, node: any, $event: any) => void) {
+        if (this.onlyUseStmts()) {
+            this._leftSidebar.close();
+            return;
+        }
+        const sidebarNodes: SidebarNode[] = [];
+        const labels = new Set<string>();
+        msg.sort(SidebarNode.sortNodes).forEach((s) => {
+            if (s.label) {
+                labels.add(s.label);
+            } else {
+                sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
+            }
+        });
+        let queryCount = 0;
+        for (const l of [...labels].sort()) {
+            const displayLabel = l.includes('Query ') ? `Query ${(++queryCount)}` : l;
+            sidebarNodes.push(new SidebarNode(l, displayLabel).asSeparator());
+            msg.filter((n) => n.label === l).sort(SidebarNode.sortNodes).forEach((n) => {
+                sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
+            });
+        }
+
+        sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
+        this._leftSidebar.setNodes(sidebarNodes);
+        if (sidebarNodes.length > 0) {
+            this._leftSidebar.open();
+        } else {
+            this._leftSidebar.close();
+        }
+    }
+
+    private handleDataMsg(msg: Result<any, any>[]) {
+        if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
+            this.activeNamespace.set(this.delayedNamespace);
+            this.storeNamespace(this.delayedNamespace);
+        }
+        this.delayedNamespace = null;
+        this.loading.set(false);
+
+        const items = [];
+        let queryCount = 0;
+        for (const r of msg) {
+            if (this.isUseStmt(r)) {
+                items.push(new InfoResultItem(r.query, 'success'));
+            } else {
+                if (r.language === 'cypher') {
+                    r.query = this.removeComments(r.query);
+                }
+                items.push(new DataResultItem(r, ++queryCount));
+            }
+        }
+        this.removeUseStmtsFromSidebar(msg);
+        this.results.set(items);
+
+        this.resetCollapsed();
+    }
+
+    private handleInfoChangeMsg(iObj: InformationObject) {
+        if (this.queryAnalysis) {
+            const group = this.queryAnalysis.groups[iObj.groupId];
+            if (group != null) {
+                group.informationObjects[iObj.id] = iObj;
+            }
+        }
+    }
+
+    private removeUseStmtsFromSidebar(msg: Result<any, any>[]) {
+        const useIdxs = msg.map(
+            (r, i) => this.isUseStmt(r) ? i : -1
+        ).filter(i => i >= 0);
+        // using the results, we can determine which queries can be removed
+        const nodes = this._leftSidebar.getNodes().value;
+
+        const filteredNodes = [];
+        let queryIdx = -1;
+        let queryCount = 0;
+        for (const node of nodes) {
+            if (node.isSeparator && node.id.startsWith('Query ')) {
+                queryIdx++;
+                if (!useIdxs.includes(queryIdx)) {
+                    node.name = `Query ${++queryCount}`;
+                }
+            }
+            if (!useIdxs.includes(queryIdx)) {
+                filteredNodes.push(node);
+            }
+        }
+        if (queryIdx >= useIdxs.length) {
+            // at least 1 non-use query exists
+            this._leftSidebar.setNodes(filteredNodes);
+        } else {
+            this._leftSidebar.close();
+        }
+    }
+
+    private isUseStmt(r: Result<any, any>): boolean {
+        return r.queryType === 'DDL' && r.query.toLowerCase().trim().startsWith('use ');
     }
 
     createView(info: ViewInformation) {
@@ -361,7 +420,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     revertCache() {
-        console.log('revert');
         this.useCache = this.originalCache;
         this.originalCache = null;
     }
