@@ -58,11 +58,11 @@ export class WorkflowsWebSocketService {
         });
 
         this.keepalive = setInterval(() => {
-            if (this.connected) {
+            if (this.connected()) {
                 // @ts-ignore
                 this.sendMessage({type: 'KEEPALIVE', msgId: uuid.v4()});
             }
-        }, +this._settings.getSetting('reconnection.timeout'));
+        }, +this._settings.getSetting('websocket.keepalive'));
     }
 
     private sendMessage(obj: Request) {

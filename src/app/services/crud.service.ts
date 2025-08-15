@@ -31,7 +31,7 @@ export class CrudService {
 
     constructor() {
         this.initWebSocket();
-        setInterval(() => this.socket.next('keepalive'), 10_000);
+        setInterval(() => this.socket.next('keepalive'), +this._settings.getSetting('websocket.keepalive'));
     }
 
     public connected = false;
@@ -391,6 +391,7 @@ export class CrudService {
      * Initialize the websocket for the queryAnalyzer
      */
     private initWebSocket() {
+        console.log('initializing crud socket');
         this.socket = webSocket({
             url: this._settings.getConnection('crud.socket'),
             openObserver: {

@@ -9,7 +9,6 @@ import {DataModel} from '../../models/ui-request.model';
 import * as Plyr from 'plyr';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
-import {WebSocket} from '../../services/webSocket';
 
 import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
@@ -45,7 +44,6 @@ export class DataViewComponent implements OnDestroy {
 
 
     constructor() {
-        this.webSocket = new WebSocket();
 
         this.$tables = computed(() => {
             const catalog = this._catalog.listener();
@@ -133,7 +131,6 @@ export class DataViewComponent implements OnDestroy {
     presentationTypes: typeof DataPresentationType = DataPresentationType;
 
     player: Plyr;
-    webSocket: WebSocket;
     subscriptions = new Subscription();
 
     query: string;
@@ -152,7 +149,6 @@ export class DataViewComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
-        this.webSocket.close();
     }
 
 
