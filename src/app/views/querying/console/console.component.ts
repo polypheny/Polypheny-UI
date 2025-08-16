@@ -151,10 +151,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 }
             });
 
-            const usePattern = /^\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?(?:\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?)*\s*$/i;
-            this.onlyUseStmts.set(usePattern.test(code));
-
-
 
             if (code.match('show db')) {
                 this._catalog.updateIfNecessary().subscribe(catalog => {
@@ -162,11 +158,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 });
                 return;
             }
-
+            const usePattern = /^\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?(?:\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?)*\s*$/i;
+            this.onlyUseStmts.set(usePattern.test(code));
+        } else {
+            this.onlyUseStmts.set(false);
         }
 
         this._leftSidebar.setNodes([]);
-        if (this.analyzeQuery) {
+        if (this.analyzeQuery && !this.onlyUseStmts()) {
             this._leftSidebar.open();
         } else {
             this._leftSidebar.close();
