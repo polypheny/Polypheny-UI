@@ -481,7 +481,7 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
     }
 
-    updateAdapterSettings(adapter: AdapterModel): Observable<RelationalResult> {
+    updateAdapterSettings(adapter: { uniqueName: string, settings: Record<string, string> }): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 

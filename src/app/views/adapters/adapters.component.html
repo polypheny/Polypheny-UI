@@ -136,12 +136,10 @@
                   [gutter]="{gy:2}">
                 <div class="form-group" *ngFor="let control of editingAdapterForm.controls | keyvalue">
                     <ng-container *ngIf="getAdapterSetting(control.key)">
-                        <c-input-group
-                                *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
-                            <span cInputGroupText cTooltipPlacement="left"
-                                  [cTooltip]="getAdapterSetting(control.key).template.description">
-                                {{ control.key }}
-                            </span>
+                        <c-input-group class="has-validation"
+                                       *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
+                            <ng-container *ngTemplateOutlet="tooltipText;
+                                context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
                             <input cFormControl type="text" [id]="control.key"
                                    [formControlName]="control.key"
                                    [ngClass]="validate(editingAdapterForm, control.key)">
@@ -149,10 +147,8 @@
                         </c-input-group>
                         <div class="form-group" *ngIf="getAdapterSetting(control.key).template.options">
                             <c-input-group class="select-wrapper">
-                                        <span cInputGroupText cTooltipPlacement="left"
-                                              [cTooltip]="getAdapterSetting(control.key).template.description">
-                                            {{ control.key }}
-                                        </span>
+                                <ng-container *ngTemplateOutlet="tooltipText;
+                                    context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
                                 <select cSelect [id]="control.key" [formControlName]="control.key">
                                     <option *ngFor="let option of getAdapterSetting( control.key).template.options"
                                             [value]="option">
@@ -161,18 +157,19 @@
                                 </select>
                             </c-input-group>
                         </div>
-                        <c-input-group
-                                *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
-                            <span cInputGroupText cTooltipPlacement="left"
-                                  [cTooltip]="getAdapterSetting(control.key).template.description">{{ control.key }}</span>
+                        <c-input-group class="has-validation"
+                                       *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
+                            <ng-container *ngTemplateOutlet="tooltipText;
+                                context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
                             <span cFormText *ngIf="!getAdapterSetting(control.key).template.modifiable" disabled></span>
                             <span cFormText *ngIf="getAdapterSetting(control.key).template.modifiable"
                                   style="position: relative; text-align: left; white-space: nowrap; overflow: hidden">
                                     {{ fileLabel }}
                                 </span>
-                            <input cFormControl type="file" multiple style="display: none" [id]="control.key"
+                            <input cFormControl type="file" multiple [id]="control.key"
                                    [ngClass]="validate(editingAdapterForm, control.key)"
-                                   (change)="onFileChange($event, control.key)">
+                                   (change)="onFileChange($event, control.key)"
+                                   [disabled]="!getAdapterSetting(control.key).template.modifiable">
                             <c-form-feedback>required</c-form-feedback>
                         </c-input-group>
                     </ng-container>
@@ -206,9 +203,8 @@
                             <ng-container *ngIf=" control.key !== 'uniqueName' && isSettingDisplayed(control.key)">
                                 <c-input-group class="has-validation"
                                                *ngIf="!getAdapterSetting(control.key).template.options && getAdapterSetting(control.key).template.type.toLowerCase() !== 'directory'">
-                                    <span cInputGroupText
-                                          [cTooltip]="getAdapterSetting(control.key).template.description"
-                                          cTooltipPlacement="left">{{ control.key }}</span>
+                                    <ng-container *ngTemplateOutlet="tooltipText;
+                                        context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
                                     <input cFormControl type="text" [id]="control.key"
                                            [formControlName]="control.key"
                                            [ngClass]="validate(control.value, control.key)">
@@ -216,13 +212,8 @@
                                 </c-input-group>
                                 <ng-container *ngIf="getAdapterSetting(control.key).template.options">
                                     <c-input-group class="has-validation">
-                                            <span cInputGroupText
-                                                  [cTooltip]="getAdapterSetting(control.key).template.description"
-                                                  [cTooltipVisible]="!!getAdapterSetting(control.key).template.description"
-                                                  cTooltipPlacement="left">
-                                                {{ control.key }}
-                                            </span>
-
+                                        <ng-container *ngTemplateOutlet="tooltipText;
+                                            context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
                                         <select cSelect [id]="control.key"
                                                 [ngClass]="validate(control.value, control.key)"
                                                 [formControlName]="control.key"
@@ -234,9 +225,10 @@
                                         <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                     </c-input-group>
                                 </ng-container>
-                                <c-input-group
-                                        *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
-                                    <label cInputGroupText>{{ control.key }}</label>
+                                <c-input-group class="has-validation"
+                                               *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
+                                    <ng-container *ngTemplateOutlet="tooltipText;
+                                        context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
                                     <input cFormControl type="file" (change)="onFileChange($event, control.key)"/>
                                     <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                 </c-input-group>
@@ -268,7 +260,7 @@
                 Close
             </button>
             <button cButton color="primary" *ngIf="editingAdapterForm" type="submit" (click)="saveAdapterSettings()"
-                    [disabled]="!editingAdapterForm?.valid">
+                    [disabled]="!editingAdapterForm?.valid || !hasModifiableSettings()">
                 Save
             </button>
             <button cButton color="primary" *ngIf="activeMode() && !handshaking && adapter().task != Task.CHANGE"
@@ -283,3 +275,15 @@
         </c-modal-footer>
     </c-modal-content><!-- /.modal-content -->
 </c-modal>
+
+<ng-template #tooltipText let-key="key" let-description="description">
+    @if (description) {
+        <span cInputGroupText [cTooltip]="description">
+      {{ key }}
+    </span>
+    } @else {
+        <span cInputGroupText>
+      {{ key }}
+    </span>
+    }
+</ng-template>
