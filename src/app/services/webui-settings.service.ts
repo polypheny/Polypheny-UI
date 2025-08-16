@@ -20,7 +20,7 @@ export class WebuiSettingsService {
         new Setting(this.settings, 'config.prefix', 'config', false);
         new Setting(this.settings, 'information.prefix', 'info', false);
         new Setting(this.settings, 'reconnection.timeout', '500', true, 'Reconnection Timeout');
-        new Setting(this.settings, 'websocket.keepalive', '10_000', false, 'Websocket Keepalive');
+        new Setting(this.settings, 'websocket.keepalive', '10000', false, 'Websocket Keepalive');
 
         this.host = localStorage.getItem('host');
 
