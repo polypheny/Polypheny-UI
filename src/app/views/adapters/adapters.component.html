@@ -278,12 +278,12 @@
 
 <ng-template #tooltipText let-key="key" let-description="description">
     @if (description) {
-        <span cInputGroupText [cTooltip]="description">
-      {{ key }}
-    </span>
+        <span cInputGroupText [cTooltip]="description" cTooltipPlacement="left">
+            {{ key }}
+        </span>
     } @else {
         <span cInputGroupText>
-      {{ key }}
-    </span>
+            {{ key }}
+        </span>
     }
 </ng-template>
