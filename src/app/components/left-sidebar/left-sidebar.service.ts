@@ -182,10 +182,10 @@ export class LeftSidebarService {
                     if (node.parent.parent) { // implies depth 2
                         const url = ['/views/schema-editing/'];
                         const fullChildLink = (url.concat(rname));
-                        this._breadcrumb.setBreadcrumbsSchema([
+                        this._breadcrumb.setBreadcrumbs([
                             new BreadcrumbItem('Schema', '/views/schema-editing/'),
                             new BreadcrumbItem(((node.data.id).split('.'))[0], node.data.routerLink),
-                            new BreadcrumbItem(node.data.name)], node.data.id);
+                            new BreadcrumbItem(node.data.name)]);
                         _router.navigate(fullChildLink);
                     } else {
                         const fullLink = rLink.concat(rname);

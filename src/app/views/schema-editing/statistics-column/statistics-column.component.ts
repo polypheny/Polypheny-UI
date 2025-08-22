@@ -1,9 +1,11 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, input, OnDestroy, OnInit} from '@angular/core';
 import {StatisticColumnSet, StatisticTableSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {StatisticRequest} from '../../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
+import {EntityModel} from '../../../models/catalog.model';
+import _ from 'lodash';
 
 @Component({
     selector: 'app-statistics-column',
@@ -12,11 +14,12 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 })
 export class StatisticsColumnComponent implements OnInit, OnDestroy {
 
+    entity = input.required<EntityModel>();
+
     private readonly _crud = inject(CrudService);
     private readonly _toast = inject(ToasterService);
 
     subscriptions = new Subscription();
-    entityId: number;
     statisticSet: StatisticTableSet;
     alphabeticStatisticSet: StatisticColumnSet;
     numericalStatisticSet: StatisticColumnSet;
@@ -26,23 +29,26 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.getTableStatistics(this.entityId);
+        this.getStatistics(this.entity().id);
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
     }
 
-    getTableStatistics(entityId: number) {
+    getStatistics(entityId: number) {
         this._crud.getTableStatistics(new StatisticRequest(entityId)).subscribe({
             next: (res: StatisticTableSet) => {
+                if (_.isEmpty(res)) {
+                    this.statisticSet = null;
+                    return;
+                }
                 this.statisticSet = res;
                 this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
                 this.numericalStatisticSet = this.statisticSet.numericalColumn;
                 this.temporalStatisticSet = this.statisticSet.temporalColumn;
             }, error: err => {
-                this._toast.warn('There are no statistics for this entity.');
-
+                this._toast.warn('Unable to retrieve statistics for this entity.');
             }
         });
     }

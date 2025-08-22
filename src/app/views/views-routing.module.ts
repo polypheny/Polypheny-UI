@@ -102,17 +102,17 @@ const routes: Routes = [
         pathMatch: 'full'
     },
     {
-        path: 'schema-editing/:id',
+        path: 'schema-editing/:id/:tab',
         component: SchemaEditingComponent,
         data: {
             title: 'Namespaces'
         }
     },
     {
-        path: 'schema-editing/:id/statistics-column',
+        path: 'schema-editing/:id',
         component: SchemaEditingComponent,
         data: {
-            title: 'Statistics'
+            title: 'Namespaces'
         }
     },
     {

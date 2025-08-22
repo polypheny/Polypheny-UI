@@ -1,4 +1,4 @@
-import {Component, computed, effect, HostListener, inject, Injector, Input, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, HostListener, inject, Injector, input, Input, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import {CrudService} from '../../../services/crud.service';
 import {FieldType, IndexMethodModel, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
@@ -16,7 +16,8 @@ import {Router} from '@angular/router';
 import {ConfigService} from '../../../services/config.service';
 
 const INITIAL_TYPE = 'BIGINT';
-type Tabs = 'column' | 'constraint' | 'foreign' | 'fresh' | 'index' | 'placement';
+const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics'] as const;
+type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
 
 
 @Component({
@@ -34,6 +35,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     @Input() set route(currentRoute: string) {
         this.currentRoute.set(currentRoute);
     }
+
+    currentTab = input.required<string>();
+
+    activeTab = computed<Tabs>(() =>
+        (tabs.includes(this.currentTab() as Tabs) ? this.currentTab() : 'column') as Tabs
+    );
 
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
@@ -66,6 +73,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     foreignKeys: ForeignKey[] = [];
 
+    entityTitle = computed(() => {
+        switch (this.entity().entityType) {
+            case EntityType.VIEW:
+                return `${this.entity().name} (View)`;
+            case EntityType.MATERIALIZED_VIEW:
+                return `${this.entity().name} (Materialized View)`;
+        }
+        return this.entity().name;
+    });
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
@@ -117,8 +133,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     placementModal = false;
     partitioningModal = false;
     partitionFunctionModal = false;
-
-    activeTab = signal<Tabs>('column');
 
 
     public readonly EntityType = EntityType;
@@ -1002,5 +1016,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     openDataView() {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    setTab(tab: Tabs) {
+        this._router.navigate(['/views/schema-editing/', this.currentRoute(), tab]).then();
     }
 }

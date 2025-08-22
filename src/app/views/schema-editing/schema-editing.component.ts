@@ -32,6 +32,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
         this._route.params.subscribe(route => {
             this.currentRoute.set(route['id']);
+            this.currentTab.set(route['tab'] || null);
         });
         this.namespace = computed(() => {
 
@@ -65,6 +66,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
 
     readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));//either the name of a table (schemaName.tableName) or of a schema (schemaName)
+    readonly currentTab: WritableSignal<string | null> = signal(this._route.snapshot.paramMap.get('tab') || null);
     readonly namespace: Signal<NamespaceModel>;
 
     createForm: UntypedFormGroup;
@@ -100,16 +102,13 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
 
     setBreadCrumb() {
-        const url = this._router.url.replace('/views/schema-editing/', '');
+        const url = this._route.snapshot.paramMap.get('id') || '';
         if (url.length <= 0) {
-            this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema')], null);
-        } else if (url.includes('statistics-column')) {
-            const colName = url.replace('/statistics-column', '').split('.')[url.replace('/statistics-column', '').split('.').length - 1];
-            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0]), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
-        } else if (!url.includes('.')) {
-            this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url)], null);
-        } else {
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema')]);
+        } else if (url.includes('.')) {
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0]), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
+        } else {
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url)]);
         }
     }
 
@@ -228,10 +227,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         } else {
             return 'is-invalid';
         }
-    }
-
-    isStatistic() {
-        return this._router.url.includes('statistics');
     }
 
 }

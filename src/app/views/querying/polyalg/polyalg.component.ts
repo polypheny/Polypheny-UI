@@ -175,9 +175,6 @@ export class PolyalgComponent implements OnInit, OnDestroy {
                         this.queryAnalysis = <InformationPage>res;
                         this.showingAnalysis = true;
                         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
-                        if (this.queryAnalysis.fullWidth) {
-                            this._breadcrumb.hideZoom();
-                        }
                         node.setIsActive(true);
                     }, error: err => {
                         console.log(err);

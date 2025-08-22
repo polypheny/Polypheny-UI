@@ -3,7 +3,8 @@
         @case (NamespaceType.RELATIONAL) {
             @if (entity()?.entityType === EntityType.SOURCE) {
                 <app-edit-source-columns
-                        [currentRoute]="currentRoute"
+                        [currentRoute]="currentRoute()"
+                        [currentTab]="currentTab()"
                         [namespace]="namespace"
                         [entity]="entity"
                         [stores]="stores"
@@ -14,6 +15,7 @@
             } @else {
                 <app-edit-columns
                         [route]="currentRoute()"
+                        [currentTab]="currentTab()"
                         [namespace]="namespace"
                         [entityIn]="entity()"
                         [stores]="stores"
@@ -26,7 +28,8 @@
         }
         @case (NamespaceType.DOCUMENT) {
             <app-document-edit-collection
-                    [currentRoute]="currentRoute"
+                    [currentRoute]="currentRoute()"
+                    [currentTab]="currentTab()"
                     [namespace]="namespace"
                     [entity]="entity"
                     [stores]="stores"
@@ -64,7 +67,8 @@
         }
         @case (NamespaceType.GRAPH) {
             <app-graph-edit
-                    [currentRoute]="currentRoute"
+                    [currentRoute]="currentRoute()"
+                    [currentTab]="currentTab()"
                     [namespace]="namespace"
                     [entity]="entity"
                     [stores]="stores"

@@ -82,9 +82,5 @@
         </c-col>
     </c-row>
 } @else {
-    @if (isStatistic()) {
-        <app-statistics-column></app-statistics-column>
-    } @else {
-        <app-edit-entity [currentRoute]="currentRoute"></app-edit-entity>
-    }
+    <app-edit-entity [currentRoute]="currentRoute()" [currentTab]="currentTab()"></app-edit-entity>
 }

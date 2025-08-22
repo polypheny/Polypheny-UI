@@ -1,9 +1,9 @@
 @if (entity()) {
-    <c-row *ngIf="entity()">
+    <c-row>
         <c-col>
             <div class="d-flex align-items-center">
                 <h1 class="flex-grow-1">
-                    {{ (entity()?.entityType === EntityType.MATERIALIZED_VIEW ? 'Materialized View: ' : '') + entity()?.name }}
+                    {{ entityTitle() }}
                 </h1>
 
                 <div>
@@ -15,38 +15,44 @@
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'column'}"
-                       (click)="activeTab.set('column')"
+                       (click)="setTab('column')"
                        role="tab">Columns</a>
                 </li>
                 <li class="nav-item" role="presentation" *ngIf="entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'constraint'}"
-                       (click)="activeTab.set('constraint')"
+                       (click)="setTab('constraint')"
                        role="tab">Constraints</a>
                 </li>
                 <li class="nav-item" role="presentation" *ngIf="foreignKeys && foreignKeys.length > 0 && entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'foreign'}"
-                       (click)="activeTab.set('foreign')"
+                       (click)="setTab('foreign')"
                        role="tab">Foreign Keys</a>
                 </li>
                 <li class="nav-item" role="presentation" *ngIf="entity()?.entityType === EntityType.MATERIALIZED_VIEW">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'fresh'}"
-                       (click)="activeTab.set('fresh')"
+                       (click)="setTab('fresh')"
                        role="tab">Freshness</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'index'}"
-                       (click)="activeTab.set('index')"
+                       (click)="setTab('index')"
                        role="tab">Indexes</a>
                 </li>
                 <li class="nav-item" role="presentation" *ngIf="placements()">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'placement'}"
-                       (click)="activeTab.set('placement')"
+                       (click)="setTab('placement')"
                        role="tab">Placements</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'statistics'}"
+                       (click)="setTab('statistics')"
+                       role="tab">Statistics</a>
                 </li>
             </ul>
         </c-col>
@@ -54,8 +60,6 @@
     </c-row>
 
     <c-row>
-
-
         <c-col [hidden]="activeTab() !== 'column'">
             <p *ngIf="oldColumns()">Double click on a row in the table below to edit the table column.</p>
             <table cTable hover striped *ngIf="entity()" id="dbColumnTable">
@@ -688,6 +692,10 @@
                     </div>
                 </c-card-body>
             </c-card>
+        </c-col>
+
+        <c-col *ngIf="activeTab() === 'statistics'">
+            <app-statistics-column [entity]="entity()"></app-statistics-column>
         </c-col>
     </c-row>
 
