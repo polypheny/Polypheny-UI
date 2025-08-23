@@ -13,7 +13,7 @@
                 <p *ngIf="formObj.description">{{ formObj.description }}</p>
             </c-col>
         </c-row>
-        <c-row class="card-columns" [xs]="_breadcrumb.getMasonryZoom()">
+        <c-row class="card-columns" [xs]="12">
             <ng-container *ngFor="let group of formObj.groups | keyvalue: orderGroups">
                 <div [id]="group.key | lowercase"> <!--unique id for navigation-->
                     <c-card class="form-group">
