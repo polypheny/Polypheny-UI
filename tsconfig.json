@@ -19,7 +19,6 @@
       "es2019"
     ],
     "types": [
-      "hammerjs"
     ],
     "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true

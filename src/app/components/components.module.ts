@@ -135,7 +135,6 @@ import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.compo
 import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
 import {AutocompleteComponent} from './autocomplete/autocomplete.component';
 
-//import 'hammerjs';
 
 @NgModule({
     imports: [
