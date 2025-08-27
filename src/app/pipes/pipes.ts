@@ -21,3 +21,10 @@ export class SearchFilterPipe implements PipeTransform {
         return filteredMap;
     }
 }
+
+@Pipe({name: 'mapPolyListValues', pure: true})
+export class MapValuesPipe implements PipeTransform {
+    transform(list: any[]): string {
+        return list?.map(i => i.value).join(', ') ?? '';
+    }
+}

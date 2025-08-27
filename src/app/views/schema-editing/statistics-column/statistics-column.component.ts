@@ -1,4 +1,4 @@
-import {Component, inject, input, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
 import {StatisticColumnSet, StatisticTableSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {StatisticRequest} from '../../../models/ui-request.model';
@@ -25,6 +25,8 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
     numericalStatisticSet: StatisticColumnSet;
     temporalStatisticSet: StatisticColumnSet;
 
+    loading = signal(true);
+
     constructor() {
     }
 
@@ -47,8 +49,10 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
                 this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
                 this.numericalStatisticSet = this.statisticSet.numericalColumn;
                 this.temporalStatisticSet = this.statisticSet.temporalColumn;
+                this.loading.set(false);
             }, error: err => {
-                this._toast.warn('Unable to retrieve statistics for this entity.');
+                //this._toast.warn('Unable to retrieve statistics for this entity.');
+                this.loading.set(false);
             }
         });
     }

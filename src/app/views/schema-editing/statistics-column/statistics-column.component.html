@@ -61,7 +61,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td *ngIf="!obj.value.full">{{ obj.value.uniqueValues }}</td>
+                                    <td *ngIf="!obj.value.full">{{ obj.value.uniqueValues | mapPolyListValues }}</td>
                                     <th></th>
                                 </tr>
                                 </tbody>
@@ -82,9 +82,9 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td>{{ obj.value.min }}</td>
-                                <td>{{ obj.value.max }}</td>
-                                <td *ngIf="!obj.value.full">{{ obj.value.uniqueValues }}</td>
+                                <td>{{ obj.value.min.value }}</td>
+                                <td>{{ obj.value.max.value }}</td>
+                                <td *ngIf="!obj.value.full">{{ obj.value.uniqueValues | mapPolyListValues }}</td>
                                 <th></th>
                             </tr>
                             </tbody>
@@ -105,9 +105,9 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td>{{ obj.value.min }}</td>
-                                <td>{{ obj.value.max }}</td>
-                                <td *ngIf="!obj.value.full">{{ obj.value.uniqueValues }}</td>
+                                <td>{{ obj.value.min.value }}</td>
+                                <td>{{ obj.value.max.value }}</td>
+                                <td *ngIf="!obj.value.full">{{ obj.value.uniqueValues | mapPolyListValues }}</td>
                                 <th></th>
                             </tr>
                             </tbody>
@@ -119,6 +119,12 @@
 
             </div>
         </c-col>
+    } @else if (loading()) {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
     } @else {
         <c-col>
             <c-alert color="warning">

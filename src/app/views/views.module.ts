@@ -30,7 +30,7 @@ import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/edit-source-columns.component';
-import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
+import {MapValuesPipe, SearchFilterPipe, ValuePipe} from '../pipes/pipes';
 import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
@@ -185,6 +185,7 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         StatisticsColumnComponent,
         ValuePipe,
         SearchFilterPipe,
+        MapValuesPipe,
         FileUploaderComponent,
         DockerconfigComponent,
         EditEntityComponent,
