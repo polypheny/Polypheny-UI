@@ -90,6 +90,7 @@ import {
 import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.component';
+import {NgChartsModule} from 'ng2-charts';
 
 
 @NgModule({
@@ -160,7 +161,8 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         ProgressBarComponent,
         CollapseDirective,
         ButtonToolbarComponent,
-        AlertComponent
+        AlertComponent,
+        NgChartsModule
     ],
     declarations: [
         EditColumnsComponent,

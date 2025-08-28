@@ -393,7 +393,7 @@
                 </c-col>
             </c-row>
             @if (constraints() && constraints().length > 0) {
-                <table cTable hover="true" striped="true" class="mt-2">
+                <table cTable hover="true" striped="true" class="mt-3">
                     <thead>
                     <tr>
                         <th>Name</th>
@@ -495,7 +495,7 @@
                     </c-alert>
                 </c-col>
             </c-row>
-            <c-row class="mb-3">
+            <c-row>
                 <c-col>
                     <c-card class="card">
                         <c-card-header>
@@ -550,7 +550,7 @@
                 </c-col>
             </c-row>
             @if (indexHeaders() && indexHeaders().length > 0 && indexDefinitions().length > 0) {
-                <c-row>
+                <c-row class="mt-3">
                     <c-col>
                         <table cTable hover striped>
                             <thead>
@@ -579,7 +579,7 @@
 
 
         <c-col [hidden]="activeTab() !== 'placement'" *ngIf="placements()">
-            <div class="mb-3" style="position: relative">
+            <div class="mb-4" style="position: relative">
                 <c-button-group size="sm" id="placementBtnGroup" *ngIf="addableStores()?.length > 0">
                     <c-button-group size="sm" dropdown placement="top right" [dropup]="stores().length > 3">
                         <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
@@ -649,7 +649,7 @@
                 </tbody>
             </table>
 
-            <div class="mb-3" style="display: flex; justify-content: space-between;" *ngIf="isPartitioned()">
+            <div class="mt-3" style="display: flex; justify-content: space-between;" *ngIf="isPartitioned()">
                 <span>PartitionType: {{ placements()[0]?.partitionType }}</span>
                 <button cButton size="sm" color="warning" (click)="mergePartitions()">
                     merge partitions
@@ -658,7 +658,7 @@
                 </button>
             </div>
 
-            <c-card *ngIf="!isPartitioned() && entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
+            <c-card class="mt-3" *ngIf="!isPartitioned() && entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
                 <c-card-header>Horizontal partitioning</c-card-header>
                 <c-card-body>
                     <p>This table is not yet horizontally partitioned.</p>

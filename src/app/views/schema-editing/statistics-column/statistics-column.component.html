@@ -1,46 +1,57 @@
 <c-row class="row">
-    @if (statisticSet) {
+    @if (statisticSet()) {
         <c-col class="col-12 mb-3">
             <div class="card">
                 <div class="card-header">Entity statistics of {{ entity().name }}</div>
                 <div class="card-body">
-                    <h5>Table Statistics</h5>
-                    <table class="table table-hover table-striped">
-                        <thead>
-                        <tr>
-                            <th>Number of Rows</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{{ this.statisticSet.numberOfRows }}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
-                    </table>
 
-                    <table class="table table-hover table-striped"
-                           *ngIf="this.statisticSet.tableType != 'MATERIALIZED_VIEW'">
-                        <thead>
-                        <tr>
-                            <th># of SELECT</th>
-                            <th># of INSERT</th>
-                            <th># of DELETE</th>
-                            <th># of UPDATE</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{{ this.statisticSet.calls.numberOfSelects }}</td>
-                            <td>{{ this.statisticSet.calls.numberOfInserts }}</td>
-                            <td>{{ this.statisticSet.calls.numberOfDeletes }}</td>
-                            <td>{{ this.statisticSet.calls.numberOfUpdates }}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <c-row>
+                        <c-col [xl]="hasWorkload() ? 8 : 12">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Number of Rows</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{{ this.statisticSet().numberOfRows }}</td>
+                                    <th></th>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-hover table-striped"
+                                   *ngIf="this.statisticSet().tableType != 'MATERIALIZED_VIEW'">
+                                <thead>
+                                <tr>
+                                    <th># of SELECT</th>
+                                    <th># of INSERT</th>
+                                    <th># of DELETE</th>
+                                    <th># of UPDATE</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{{ this.statisticSet().calls.numberOfSelects }}</td>
+                                    <td>{{ this.statisticSet().calls.numberOfInserts }}</td>
+                                    <td>{{ this.statisticSet().calls.numberOfDeletes }}</td>
+                                    <td>{{ this.statisticSet().calls.numberOfUpdates }}</td>
+                                    <th></th>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </c-col>
+                        @if (hasWorkload()) {
+                            <c-col [xl]="4">
+                                <app-graph [data]="workloadData()"
+                                           [labels]="['DELETE', 'SELECT', 'INSERT', 'UPDATE']"
+                                           [chartType]="'DOUGHNUT'"></app-graph>
+
+                            </c-col>
+                        }
+                    </c-row>
                 </div>
             </div>
         </c-col>
@@ -49,7 +60,7 @@
             <div class="card">
                 <div class="card-header">Column statistics of {{ entity().name }}</div>
                 <div class="card-body">
-                    <div *ngFor="let obj of this.alphabeticStatisticSet | keyvalue">
+                    <div *ngFor="let obj of this.alphabeticStatisticSet() | keyvalue">
                         <div *ngIf="!obj.value.full">
                             <h5>{{ obj.value.column }}</h5>
                             <table class="table table-hover table-striped">
@@ -69,7 +80,7 @@
                         </div>
                     </div>
 
-                    <div *ngFor="let obj of this.numericalStatisticSet | keyvalue">
+                    <div *ngFor="let obj of this.numericalStatisticSet() | keyvalue">
                         <h5>{{ obj.value.column }}</h5>
                         <table class="table table-hover table-striped">
                             <thead>
@@ -92,7 +103,7 @@
 
                     </div>
 
-                    <div *ngFor="let obj of this.temporalStatisticSet| keyvalue">
+                    <div *ngFor="let obj of this.temporalStatisticSet() | keyvalue">
                         <h5>{{ obj.value.column }}</h5>
                         <table class="table table-hover table-striped">
                             <thead>

@@ -1,4 +1,4 @@
-import {Component, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
 import {StatisticColumnSet, StatisticTableSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {StatisticRequest} from '../../../models/ui-request.model';
@@ -20,10 +20,18 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
 
     subscriptions = new Subscription();
-    statisticSet: StatisticTableSet;
-    alphabeticStatisticSet: StatisticColumnSet;
-    numericalStatisticSet: StatisticColumnSet;
-    temporalStatisticSet: StatisticColumnSet;
+    readonly statisticSet = signal<StatisticTableSet>(null);
+    readonly alphabeticStatisticSet = computed<StatisticColumnSet>(() => this.statisticSet()?.alphabeticColumn);
+    readonly numericalStatisticSet = computed<StatisticColumnSet>(() => this.statisticSet()?.numericalColumn);
+    readonly temporalStatisticSet = computed<StatisticColumnSet>(() => this.statisticSet()?.temporalColumn);
+    readonly hasWorkload = computed<boolean>(() => {
+        const c = this.statisticSet().calls;
+        return c.numberOfSelects > 0 || c.numberOfInserts > 0 || c.numberOfDeletes > 0 || c.numberOfUpdates > 0;
+    });
+    readonly workloadData = computed<any>(() => {
+        const c = this.statisticSet().calls;
+        return {workloadData: {data: [c.numberOfDeletes, c.numberOfSelects, c.numberOfInserts, c.numberOfUpdates], label: 'workloadData'}};
+    });
 
     loading = signal(true);
 
@@ -42,13 +50,10 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
         this._crud.getTableStatistics(new StatisticRequest(entityId)).subscribe({
             next: (res: StatisticTableSet) => {
                 if (_.isEmpty(res)) {
-                    this.statisticSet = null;
+                    this.statisticSet.set(null);
                     return;
                 }
-                this.statisticSet = res;
-                this.alphabeticStatisticSet = this.statisticSet.alphabeticColumn;
-                this.numericalStatisticSet = this.statisticSet.numericalColumn;
-                this.temporalStatisticSet = this.statisticSet.temporalColumn;
+                this.statisticSet.set(res);
                 this.loading.set(false);
             }, error: err => {
                 //this._toast.warn('Unable to retrieve statistics for this entity.');

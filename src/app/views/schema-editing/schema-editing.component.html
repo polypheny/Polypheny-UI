@@ -5,7 +5,7 @@
         <br>
     </c-row>
 
-    <c-row>
+    <c-row class="mb-3">
         <c-col [lg]="6" class="fixed-width">
             <c-card>
                 <c-card-header>
@@ -82,5 +82,7 @@
         </c-col>
     </c-row>
 } @else {
-    <app-edit-entity [currentRoute]="currentRoute()" [currentTab]="currentTab()"></app-edit-entity>
+    <div class="mb-3">
+        <app-edit-entity [currentRoute]="currentRoute()" [currentTab]="currentTab()"></app-edit-entity>
+    </div>
 }

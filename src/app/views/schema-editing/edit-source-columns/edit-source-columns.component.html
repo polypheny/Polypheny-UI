@@ -145,7 +145,7 @@
     </c-col>
 
     <c-col [hidden]="activeTab() !== 'source'" *ngIf="entity()?.entityType !== EntityType.VIEW">
-        <table class="table table-hover table-striped mt-3" *ngIf="columns()">
+        <table class="table table-hover table-striped" *ngIf="columns()">
             <thead>
             <tr>
                 <th>Unique name</th>

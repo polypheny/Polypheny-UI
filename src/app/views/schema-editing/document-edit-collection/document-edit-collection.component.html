@@ -82,8 +82,7 @@
         </c-col>
 
         <c-col [hidden]="activeTab() !== 'placement'">
-            <div class="mb-3" style="position: relative">
-                <h5 style="display: inline">Placements</h5>
+            <div class="mb-4" style="position: relative">
                 <div class="btn-group btn-group-sm" id="placementBtnGroup"
                      *ngIf="addableStores().length > 0">
                     <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores().length>3">
