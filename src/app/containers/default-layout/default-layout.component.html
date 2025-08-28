@@ -1,20 +1,32 @@
 <div class="min-vh-100 max-vh-100 wrapper d-flex flex-column overflow-hidden w-100">
-    <c-navbar class="position-sticky w-100 z-3 border-bottom" expand="xl">
+    <c-navbar class="position-sticky w-100 z-3 border-bottom" expand="lg">
         <c-container [fluid]="true">
-            <a [routerLink]="'/'" cNavbarBrand>
+            <a [routerLink]="'/'" cNavbarBrand class="me-0">
                 <img ngSrc="assets/img/brand/logo.svg" priority alt="Polypheny Logo" height="50" width="200">
             </a>
-            <div class="ms-auto justify-content-end me-3" #collapseRef="cCollapse" navbar cCollapse>
+
+            <div class="d-flex ms-auto justify-content-end">
+                <div class="d-lg-none"> <!--Only displayed when next to collapse button-->
+                    <c-avatar role="button" size="md" color="secondary" (click)="openSettings()"
+                              [status]="getConnectedColor()" class="cil-settings" (mouseenter)="hover.set(true)"
+                              (mouseleave)="hover.set(false)" [cTooltip]="tooltipContent" [cTooltipPlacement]="'left'"></c-avatar>
+                    <ng-template #tooltipContent>
+                        <div [innerHtml]="getConnectionText()"></div>
+                    </ng-template>
+                </div>
+                <button class="ms-3" [cNavbarToggler]="collapseRef"></button>
+            </div>
+            <div class="ms-auto justify-content-end" #collapseRef="cCollapse" navbar cCollapse>
                 <c-navbar-nav>
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/monitoring']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="fa fa-area-chart"></i>
                             <span class="ms-1">Monitoring</span>
                         </a>
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active"
+                        <a cNavLink [routerLink]="['/views/schema-editing']" routerLinkActive="active" class="px-lg-1 px-xl-2"
                            (click)="_sidebar.reset()">
                             <i class="fa fa-cubes"></i>
                             <span class="ms-1">Schema</span>
@@ -22,7 +34,7 @@
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="fa fa-table"></i>
                             <span class="ms-1">Data</span>
                         </a>
@@ -30,7 +42,7 @@
 
                     <c-dropdown alignment="start" variant="nav-item">
 
-                        <a cDropdownToggle cNavLink routerLinkActive="active" class="fs-6">
+                        <a cDropdownToggle cNavLink routerLinkActive="active" class="fs-6 px-lg-1 px-xl-2">
                             <i class="fa fa-keyboard-o"></i>
                             <span class="ms-1">Query</span>
                         </a>
@@ -69,52 +81,52 @@
                     </c-dropdown>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/notebooks']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/notebooks']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="fa fa-book"></i>
-                            <span class="ms-1">Notebooks</span>
+                            <span class="ms-1 d-lg-none d-xl-inline">Notebooks</span>
+                            <span class="ms-1 d-lg-inline d-none d-xl-none">N.books</span>
                         </a>
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/workflows']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/workflows']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="fa fa-code-fork fa-rotate-270"></i>
-                            <span class="ms-2">Workflows</span>
+                            <span class="ms-2 d-lg-none d-xl-inline">Workflows</span>
+                            <span class="ms-1 d-lg-inline d-none d-xl-none">W.flows</span>
                         </a>
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/adapters']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="fa fa-database"></i>
                             <span class="ms-1">Adapters</span>
                         </a>
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/queryInterfaces']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/queryInterfaces']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="fa fa-exchange"></i>
-                            <span class="ms-1">Interfaces</span>
+                            <span class="ms-1 d-lg-none d-xl-inline">Interfaces</span>
+                            <span class="ms-1 d-lg-inline d-none d-xl-none">I.faces</span>
                         </a>
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active">
+                        <a cNavLink [routerLink]="['/views/config']" routerLinkActive="active" class="px-lg-1 px-xl-2">
                             <i class="icon-settings"></i>
                             <span class="ms-1">Config</span>
                         </a>
                     </c-nav-item>
 
                 </c-navbar-nav>
-
-            </div>
-            <div>
-                <c-avatar role="button" size="md" color="secondary" (click)="openSettings()"
-                          [status]="getConnectedColor()" class="cil-settings" (mouseenter)="hover.set(true)"
-                          (mouseleave)="hover.set(false)" [cTooltip]="tooltipContent"></c-avatar>
-                <ng-template #tooltipContent>
-                    <div [innerHtml]="getConnectionText()"></div>
-                </ng-template>
-
-                <button class="ms-3" [cNavbarToggler]="collapseRef"></button>
+                <div class=" ms-3 d-lg-block d-none"> <!--Only displayed when collapse button is hidden-->
+                    <c-avatar role="button" size="md" color="secondary" (click)="openSettings()"
+                              [status]="getConnectedColor()" class="cil-settings" (mouseenter)="hover.set(true)"
+                              (mouseleave)="hover.set(false)" [cTooltip]="tooltipContent" [cTooltipPlacement]="'left'"></c-avatar>
+                    <ng-template #tooltipContent>
+                        <div [innerHtml]="getConnectionText()"></div>
+                    </ng-template>
+                </div>
             </div>
 
         </c-container>
