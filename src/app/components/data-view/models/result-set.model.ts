@@ -28,6 +28,8 @@ export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
     currentPage: number;
     highestPage: number;
     affectedTuples: number;
+    xid?: string;
+    isRolledBack?: boolean;
 }
 
 

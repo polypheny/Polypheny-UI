@@ -17,7 +17,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
-import {DataResultItem, InfoResultItem} from './result-item.model';
+import {DataResultItem, InfoResultItem, SeparatorResultItem} from './result-item.model';
 
 @Component({
     selector: 'app-console',
@@ -43,7 +43,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-    results: WritableSignal<(DataResultItem | InfoResultItem)[]> = signal([]);
+    results: WritableSignal<(DataResultItem | InfoResultItem | SeparatorResultItem)[]> = signal([]);
     collapsed: WritableSignal<boolean[]> = signal([]);
     queryAnalysis: InformationPage;
     analyzeQuery = true;
@@ -63,6 +63,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     readonly usesAdvancedConsole: Signal<boolean> = computed(() => this.language() === 'mql' || this.language() === 'cypher');
     readonly someExpanded: Signal<boolean> = computed(() => this.collapsed().some((v, i) => v && this.results()[i].itemType === 'data'));
     readonly someCollapsed: Signal<boolean> = computed(() => this.collapsed().some((v, i) => !v && this.results()[i].itemType === 'data'));
+    readonly dataResultCount: Signal<number> = computed(() => this.results()?.filter(r => r.itemType === 'data').length || 0);
     delayedNamespace: string = null;
     readonly onlyUseStmts = signal(false);
 
@@ -324,7 +325,16 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
         const items = [];
         let queryCount = 0;
+        let txCount = 0;
+        let lastXid: string = null;
         for (const r of msg) {
+            if (r.xid && r.xid !== lastXid) {
+                txCount++;
+                lastXid = r.xid;
+                items.push(new SeparatorResultItem(
+                    `Transaction ${txCount}${r.isRolledBack ? ' (rolled back)' : ''}`,
+                    r.isRolledBack ? 'danger' : 'muted'));
+            }
             if (this.isUseStmt(r)) {
                 items.push(new InfoResultItem(r.query, 'success'));
             } else {
@@ -334,8 +344,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 items.push(new DataResultItem(r, ++queryCount));
             }
         }
-        this.removeUseStmtsFromSidebar(msg);
         this.results.set(items);
+        setTimeout(() => this.removeUseStmtsFromSidebar(msg), 10); // ensure sidebar messages have time to arrive
 
         this.resetCollapsed();
     }
