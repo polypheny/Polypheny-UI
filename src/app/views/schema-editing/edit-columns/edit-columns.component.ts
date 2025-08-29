@@ -780,7 +780,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
      * Whether the table is partitioned
      */
     isPartitioned() {
-        return this.placements()?.length > 1;
+        return this.placements()?.filter(p => p.partitionType).length > 1;
     }
 
     getPartitionFunctionModel() {
