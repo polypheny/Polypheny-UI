@@ -8,7 +8,7 @@
 } @else {
     <c-container class="mt-3">
         @if (_content.isRoot) {
-            <app-notebooks-dashboard></app-notebooks-dashboard>
+            <app-notebooks-dashboard (serverRunning)="serverRunningChanged($event)"></app-notebooks-dashboard>
         } @else {
             <app-manage-notebook></app-manage-notebook>
         }

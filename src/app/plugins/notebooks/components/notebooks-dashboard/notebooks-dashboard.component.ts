@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, inject, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {interval, Subscription} from 'rxjs';
@@ -14,6 +14,8 @@ import {DockerInstanceInfo} from '../../../../models/docker.model';
     styleUrls: ['./notebooks-dashboard.component.scss']
 })
 export class NotebooksDashboardComponent implements OnInit, OnDestroy {
+    @Output() serverRunning = new EventEmitter<boolean>(false);
+
     @ViewChild('terminateSessionsModal') public terminateSessionsModal: ModalDirective;
     @ViewChild('terminateUnusedSessionsModal') public terminateUnusedSessionsModal: ModalDirective;
     @ViewChild('restartContainerModal') public restartContainerModal: ModalDirective;
@@ -138,6 +140,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
 
     restartContainer() {
         this.serverStatus = null;
+        this.serverRunning.emit(false);
         this.restartContainerModal.hide();
         this._notebooks.restartContainer().subscribe({
             next: res => {
@@ -166,6 +169,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     getServerStatus() {
         this._notebooks.getStatus().subscribe({
             next: res => {
+                this.serverRunning.emit(res != null);
                 this.serverStatus = res;
                 this._content.updateAvailableKernels();
                 this._content.updateSessions();
@@ -173,6 +177,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
             },
             error: () => {
                 this.serverStatus = null;
+                this.serverRunning.emit(false);
                 this.unsubscribeFromSessionChanges();
                 this._content.setAutoUpdate(false);
                 this.getPluginStatus();

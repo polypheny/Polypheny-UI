@@ -8,7 +8,7 @@
                  class="list-group-item header grey-bg px-3 border-bottom">
                 <div class="advanced-console-db-info">
                     <span>Namespace: </span>
-                    <select class="form-control form-control-sm advanced-console-db-info ms-3"
+                    <select cSelect sizing="sm" class="advanced-console-db-info ms-3"
                             [ngModel]="activeNamespace()"
                             (ngModelChange)="changedDefaultDB($event)">
                         <option *ngFor="let namespace of namespaces()"
@@ -44,9 +44,9 @@
                 </c-form-check>
             </c-col>
 
-            <c-col [xs]="6">
+            <c-col [offset]="{xs: 0, lg: 2}" [xs]="6" [lg]="4">
                 <c-input-group>
-                    <select class="form-control btn pull-right me-1 border bg-white" [ngModel]="language()"
+                    <select cSelect [ngModel]="language()"
                             (ngModelChange)="setLanguage($event)" *ngIf="!loading()">
                         <option value="cypher">CYPHER</option>
                         <option value="sql">SQL</option>

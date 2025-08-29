@@ -170,7 +170,7 @@
 
                                         <!-- ConfigClazz, ConfigEnum -->
                                         <ng-container *ngSwitchCase="'SELECT'">
-                                            <select [formControlName]="config.value.key" [id]="config.value.key"
+                                            <select cSelect [formControlName]="config.value.key" [id]="config.value.key"
                                                     [value]="config.value.value" class="form-control"
                                                     [ngClass]="inputValidation(config.value.key)">
                                                 <option *ngFor="let c of config.value.values"
