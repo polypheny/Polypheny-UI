@@ -1,11 +1,11 @@
 import {Component, computed, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
-import {StatisticColumnSet, StatisticTableSet} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {StatisticRequest} from '../../../models/ui-request.model';
 import {Subscription} from 'rxjs';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {EntityModel} from '../../../models/catalog.model';
 import _ from 'lodash';
+import {TableStatistics} from '../../../components/data-view/models/result-set.model';
 
 @Component({
     selector: 'app-statistics-column',
@@ -20,16 +20,13 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
 
     subscriptions = new Subscription();
-    readonly statisticSet = signal<StatisticTableSet>(null);
-    readonly alphabeticStatisticSet = computed<StatisticColumnSet>(() => this.statisticSet()?.alphabeticColumn);
-    readonly numericalStatisticSet = computed<StatisticColumnSet>(() => this.statisticSet()?.numericalColumn);
-    readonly temporalStatisticSet = computed<StatisticColumnSet>(() => this.statisticSet()?.temporalColumn);
+    readonly statistics = signal<TableStatistics>(null);
     readonly hasWorkload = computed<boolean>(() => {
-        const c = this.statisticSet().calls;
+        const c = this.statistics().calls;
         return c.numberOfSelects > 0 || c.numberOfInserts > 0 || c.numberOfDeletes > 0 || c.numberOfUpdates > 0;
     });
     readonly workloadData = computed<any>(() => {
-        const c = this.statisticSet().calls;
+        const c = this.statistics().calls;
         return {workloadData: {data: [c.numberOfDeletes, c.numberOfSelects, c.numberOfInserts, c.numberOfUpdates], label: 'workloadData'}};
     });
 
@@ -48,12 +45,12 @@ export class StatisticsColumnComponent implements OnInit, OnDestroy {
 
     getStatistics(entityId: number) {
         this._crud.getTableStatistics(new StatisticRequest(entityId)).subscribe({
-            next: (res: StatisticTableSet) => {
+            next: (res: TableStatistics) => {
                 if (_.isEmpty(res)) {
-                    this.statisticSet.set(null);
+                    this.statistics.set(null);
                     return;
                 }
-                this.statisticSet.set(res);
+                this.statistics.set(res);
                 this.loading.set(false);
             }, error: err => {
                 //this._toast.warn('Unable to retrieve statistics for this entity.');
