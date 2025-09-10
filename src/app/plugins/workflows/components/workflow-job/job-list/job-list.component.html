@@ -54,7 +54,7 @@
                     </c-row>
                     <c-row>
                         <c-col [xs]="3"><small><strong>Enabled on Startup:</strong></small></c-col>
-                        <c-col [xs]="9"><small> {{ job.enableOnStartup }} </small></c-col>
+                        <c-col [xs]="9"><small> {{ job.enableOnStartup ? 'Yes' : 'No' }} </small></c-col>
                     </c-row>
                 </div>
                 <button cButton (click)="openJob(job.jobId)">

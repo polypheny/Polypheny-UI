@@ -196,7 +196,7 @@ export class GraphComponent implements OnInit, OnChanges {
         nextIndex: 0,
         arr,
         next() {
-            if (this.arr.length === 0) {
+            if (!this.arr || this.arr.length === 0) {
                 return '#000000';
             }
             if (this.nextIndex >= (this.arr.length)) {
@@ -206,7 +206,7 @@ export class GraphComponent implements OnInit, OnChanges {
         },
         lastUsed() {
             if (this.nextIndex === 0) {
-                return this.arr[0];
+                return this.arr?.[0] || '#000000';
             } else {
                 return this.arr[this.nextIndex - 1];
             }

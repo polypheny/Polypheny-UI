@@ -54,7 +54,6 @@ export class NotebooksSidebarService {
         ));
         breadcrumbs.push(new BreadcrumbItem(renamedSegments[renamedSegments.length - 1]));
         this._breadcrumb.setBreadcrumbs(breadcrumbs);
-        this._breadcrumb.hideZoom();
     }
 
     /**

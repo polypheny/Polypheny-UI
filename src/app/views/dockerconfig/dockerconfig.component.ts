@@ -35,8 +35,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.updateList();
         this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Config', '/views/config/'),
-                                         new BreadcrumbItem('Docker')]);
-        this._breadcrumb.hideZoom();
+            new BreadcrumbItem('Docker')]);
         this._sidebar.open();
     }
 
@@ -197,7 +196,7 @@ export class DockerconfigComponent implements OnInit, OnDestroy {
     }
 
     onVisibleChange(visible: boolean) {
-        if (!visible && this.activeModal !== null ) {
+        if (!visible && this.activeModal !== null) {
             this.activeModal = null;
             this.updateList();
         }

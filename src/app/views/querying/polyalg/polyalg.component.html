@@ -1,4 +1,4 @@
-<c-container>
+<div>
 
     <div [hidden]="showingAnalysis">
         <div class="mb-2">
@@ -22,9 +22,9 @@
     <app-information-manager
             *ngIf="queryAnalysis && showingAnalysis"
             [data]="queryAnalysis"></app-information-manager>
-</c-container>
+</div>
 
-<c-container>
+<div>
     <c-card class="my-3" *ngIf="result() && !showingAnalysis " id="alg-result" scrollTo>
         <c-card-header>
             <span>{{ result().query }}</span>
@@ -56,7 +56,7 @@
         </c-card-body>
 
     </c-card>
-</c-container>
+</div>
 
 <c-modal [visible]="showPlanTypeModal()" (visibleChange)="handlePlanTypeModalChange($event)">
     <c-modal-header>

@@ -1,4 +1,4 @@
-import {Component, HostListener, inject, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
+import {Component, computed, HostListener, inject, input, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult} from '../../../components/data-view/models/result-set.model';
@@ -10,6 +10,10 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 import {Method} from '../../../models/ui-request.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {CatalogService} from '../../../services/catalog.service';
+import {Router} from '@angular/router';
+
+const tabs = ['placement', 'statistics'] as const;
+type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
 
 @Component({
     selector: 'app-graph-edit',
@@ -22,7 +26,8 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
     private readonly _toast = inject(ToasterService);
-    private readonly _catalog = inject(CatalogService);
+    protected readonly _catalog = inject(CatalogService);
+    private readonly _router = inject(Router);
 
     constructor() {
 
@@ -32,8 +37,6 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     readonly entity: Signal<TableModel>;
     @Input()
     readonly namespace: Signal<NamespaceModel>;
-    @Input()
-    readonly currentRoute: Signal<string>;
 
     @Input()
     readonly placements: Signal<AllocationPlacementModel[]>;
@@ -45,6 +48,13 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
     readonly stores: Signal<AdapterModel[]>;
     @Input()
     readonly addableStores: Signal<AdapterModel[]>;
+
+    currentRoute = input.required<string>();
+    currentTab = input.required<string>();
+
+    activeTab = computed<Tabs>(() =>
+        (tabs.includes(this.currentTab() as Tabs) ? this.currentTab() : 'placement') as Tabs
+    );
 
     types: PolyType[] = [];
     editColumn = -1;
@@ -119,4 +129,11 @@ export class GraphEditGraphComponent implements OnInit, OnDestroy {
         }
     }
 
+    openDataView() {
+        this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    setTab(tab: Tabs) {
+        this._router.navigate(['/views/schema-editing/', this.currentRoute(), tab]).then();
+    }
 }

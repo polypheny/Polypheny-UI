@@ -1,18 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    EventEmitter,
-    inject,
-    Input,
-    OnDestroy,
-    Output,
-    Signal,
-    signal,
-    untracked,
-    ViewChild,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, Output, Signal, signal, untracked, ViewChild, WritableSignal} from '@angular/core';
 import {DataPresentationType, QueryLanguage, QueryType, Result} from './models/result-set.model';
 import {EntityConfig} from './data-table/entity-config';
 import {CrudService} from '../../services/crud.service';
@@ -23,7 +9,6 @@ import {DataModel} from '../../models/ui-request.model';
 import * as Plyr from 'plyr';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
-import {WebSocket} from '../../services/webSocket';
 
 import {Table} from '../../views/schema-editing/edit-tables/edit-tables.component';
 import {LeftSidebarService} from '../left-sidebar/left-sidebar.service';
@@ -56,25 +41,16 @@ export class ViewInformation {
     styleUrls: ['./data-view.component.scss']
 })
 export class DataViewComponent implements OnDestroy {
-    public readonly _crud = inject(CrudService);
-    public readonly _toast = inject(ToasterService);
-    public readonly _route = inject(ActivatedRoute);
-    public readonly _router = inject(Router);
-    public readonly _types = inject(DbmsTypesService);
-    public readonly _settings = inject(WebuiSettingsService);
-    public readonly _sidebar = inject(LeftSidebarService);
-    public readonly _catalog = inject(CatalogService);
 
 
     constructor() {
-        this.webSocket = new WebSocket();
 
         this.$tables = computed(() => {
             const catalog = this._catalog.listener();
             const entities = this._catalog.getEntities(null);
             return entities.filter(e => e.dataModel === DataModel.RELATIONAL)
-                .map(n => Table.fromModel(<TableModel>n))
-                .sort((a, b) => a.name.localeCompare(b.name));
+            .map(n => Table.fromModel(<TableModel>n))
+            .sort((a, b) => a.name.localeCompare(b.name));
         });
 
         effect(() => {
@@ -83,10 +59,10 @@ export class DataViewComponent implements OnDestroy {
             }
 
             untracked(() => {
-                if (this.$result().queryType == QueryType.DML || this.$result().queryType == QueryType.DDL) {
+                if (this.$result().queryType === QueryType.DML || this.$result().queryType === QueryType.DDL) {
                     // we use the same for dmls and ddls independent data models
                     this.$presentationType.set(DataPresentationType.TABLE);
-                    return
+                    return;
                 }
 
                 switch (this.$result().dataModel) {
@@ -111,22 +87,31 @@ export class DataViewComponent implements OnDestroy {
         });
     }
 
-    public containsNode(): boolean {
-        return this.$result().header.some(h => h.dataType.toLowerCase().includes("node"));
-    }
-
-    @ViewChild(ViewComponent, {static: false})
-    public readonly view: ViewComponent;
-    public readonly $result: WritableSignal<CombinedResult> = signal(null);
-
     @Input()
     set result(result: Result<any, any>) {
         if (!result) {
             return;
         }
-        const res = CombinedResult.from(result)
+        const res = CombinedResult.from(result);
         this.$result.set(res);
     }
+
+    @Input() set loading(loading: boolean) {
+        this.$loading.set(loading);
+    }
+
+    public readonly _crud = inject(CrudService);
+    public readonly _toast = inject(ToasterService);
+    public readonly _route = inject(ActivatedRoute);
+    public readonly _router = inject(Router);
+    public readonly _types = inject(DbmsTypesService);
+    public readonly _settings = inject(WebuiSettingsService);
+    public readonly _sidebar = inject(LeftSidebarService);
+    public readonly _catalog = inject(CatalogService);
+
+    @ViewChild(ViewComponent, {static: false})
+    public readonly view: ViewComponent;
+    public readonly $result: WritableSignal<CombinedResult> = signal(null);
 
 
     @Input()
@@ -140,17 +125,12 @@ export class DataViewComponent implements OnDestroy {
 
     readonly $loading: WritableSignal<boolean> = signal(false);
 
-    @Input() set loading(loading: boolean) {
-        this.$loading.set(loading);
-    }
-
     $modalVisible: WritableSignal<boolean> = signal(false);
 
     $presentationType: WritableSignal<DataPresentationType> = signal(DataPresentationType.TABLE);
     presentationTypes: typeof DataPresentationType = DataPresentationType;
 
     player: Plyr;
-    webSocket: WebSocket;
     subscriptions = new Subscription();
 
     query: string;
@@ -160,9 +140,15 @@ export class DataViewComponent implements OnDestroy {
 
     protected readonly NamespaceType = DataModel;
 
+    protected readonly QueryLanguage = QueryLanguage;
+    protected readonly QueryType = QueryType;
+
+    public containsNode(): boolean {
+        return this.$result().header.some(h => h.dataType.toLowerCase().includes('node'));
+    }
+
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
-        this.webSocket.close();
     }
 
 
@@ -188,8 +174,5 @@ export class DataViewComponent implements OnDestroy {
         return !(this.$dataModel() === DataModel.RELATIONAL || this.$dataModel() === DataModel.DOCUMENT);
 
     }
-
-    protected readonly QueryLanguage = QueryLanguage;
-    protected readonly QueryType = QueryType;
 }
 

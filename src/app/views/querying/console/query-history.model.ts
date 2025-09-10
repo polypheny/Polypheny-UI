@@ -2,13 +2,16 @@ import * as moment from 'moment';
 
 
 export class QueryHistory {
-    query: string;
-    time: Date;
-    lang: string;
+    readonly query: string;
+    readonly time: Date;
+    readonly lang: string;
+    readonly namespace: string;
 
-    constructor(query: string, time = null, lang = 'sql') {
+
+    constructor(query: string, time = null, lang = 'sql', namespace = 'public') {
         this.query = query;
         this.lang = lang;
+        this.namespace = namespace;
         if (time === null) {
             this.time = new Date();
         } else {
@@ -24,7 +27,7 @@ export class QueryHistory {
 
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) {
-                map.set(obj[key].query, new QueryHistory(obj[key].query, obj[key].time, obj[key].lang));
+                map.set(obj[key].query, new QueryHistory(obj[key].query, obj[key].time, obj[key].lang, obj[key].namespace));
             }
         }
     }

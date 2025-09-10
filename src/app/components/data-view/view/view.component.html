@@ -38,13 +38,14 @@
             </c-input-group>
             @if ($result().dataModel == DataModel.RELATIONAL) {
                 <c-input-group>
-                <span cInputGroupText>
-                    ViewType
-                </span>
-                    <select cSelect #type [ngModel]="$type()" (change)="$type.set(ViewType[type.value])">
-                        <option [value]="ViewType.VIEW" selected>{{ ViewType.VIEW | titlecase }}</option>
-                        <option [value]="ViewType.MATERIALIZED">{{ ViewType.MATERIALIZED | titlecase }}</option>
-                    </select>
+                    <c-button-group size="sm" id="enum-radios">
+                        @for (type of viewTypes; track type) {
+                            <button cButton color="dark" [variant]="$type() === type ? null : 'outline'"
+                                    (click)="$type.set(ViewType[type])">
+                                {{ type | titlecase }}
+                            </button>
+                        }
+                    </c-button-group>
                 </c-input-group>
             }
             <c-input-group *ngIf="$type() === ViewType.MATERIALIZED">
@@ -90,10 +91,10 @@
             </c-input-group>
 
             <c-col class="d-flex justify-content-end">
-                <button cButton color="light" (click)="createViewCode(false)">
+                <button cButton color="light" (click)="createViewCode(false, true)">
                     Insert Query
                 </button>
-                <button cButton class="ms-3" (click)="createViewCode(true)">
+                <button cButton class="ms-3" (click)="createViewCode(true, false)">
                     Create View
                 </button>
             </c-col>

@@ -41,7 +41,7 @@
                         </ng-container>
 
                         <ng-container *ngSwitchCase="'select'">
-                            <select [formControlName]="item.key" class="custom-select">
+                            <select cSelect [formControlName]="item.key" class="custom-select">
                                 <option *ngFor="let option of item.options" [value]="option.value">
                                     {{ option.label }}
                                 </option>

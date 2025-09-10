@@ -1,40 +1,31 @@
-<div class="bg-footer mb-3 border-bottom mb-3" *ngIf="!hidden()">
-    <c-container>
-        <c-row class="no-gutters">
+<div class="bg-footer border-bottom" *ngIf="!hidden()">
+    <c-row class="no-gutters align-items-center">
 
-            <c-col md="6" class="d-flex align-items-center">
-                <c-breadcrumb
-                        class="m-0 py-3 ms-3"
-                        style="--cil-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);">
-                    <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
-                        <ng-container *ngIf="b.routerLink">
-                            <a [routerLink]="b.routerLink">{{ b.name }}</a>
-                        </ng-container>
+        <c-col [md]="6" class="d-flex align-items-center">
+            <c-breadcrumb
+                    class="m-0 py-3 ms-3"
+                    style="--cil-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);">
+                <li *ngFor="let b of breadcrumbs" class="breadcrumb-item">
+                    @if (b.routerLink) {
+                        <a [routerLink]="b.routerLink" (click)="onBreadcrumbClick(b)">{{ b.name }}</a>
+                    } @else {
                         <ng-container *ngIf="!b.routerLink">{{ b.name }}</ng-container>
-                    </li>
-                </c-breadcrumb>
-            </c-col>
-            <c-col class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
+                    }
+                </li>
+            </c-breadcrumb>
+        </c-col>
+        <c-col class="col-md-6" *ngIf="breadcrumbs[0].name != 'Schema'">
 
-            </c-col>
-            <c-col class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
-                <div class="custom-control-inline breadcrumb breadcrumb-menu-right" id="statistics-wrapper">
-                    <div class="custom-control" *ngIf="_breadcrumb.getTableId()">
-                        <button cButton color="light"
-                                [routerLink]=" '/views/schema-editing/' + _breadcrumb.getTableId() + '/statistics-column'">
-                            Statistics
-                        </button>
-
-                    </div>
-                    <div class="custom-control"
-                         *ngIf="_breadcrumb.getNamespaceName() && _breadcrumb.isRelational() && !_breadcrumb.getTableId()">
-                        <button cButton color="light" [routerLink]=" '/views/uml/' + _breadcrumb.getNamespaceName()">
-                            UML
-                        </button>
-                    </div>
+        </c-col>
+        <c-col class="col-md-6" *ngIf="breadcrumbs[0].name == 'Schema'">
+            <!--<div class="custom-control-inline breadcrumb breadcrumb-menu-right" id="statistics-wrapper">
+                <div class="custom-control"
+                     *ngIf="_breadcrumb.getNamespaceName()">
+                    <button cButton color="primary" [routerLink]=" '/views/uml/' + _breadcrumb.getNamespaceName()">
+                        UML
+                    </button>
                 </div>
-            </c-col>
-        </c-row>
-    </c-container>
+            </div>-->
+        </c-col>
+    </c-row>
 </div>
-<div class="w-100 mb-3" *ngIf="hidden"></div>

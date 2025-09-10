@@ -7,6 +7,7 @@ import {
     AccordionButtonDirective,
     AccordionComponent,
     AccordionItemComponent,
+    AlertComponent,
     BadgeComponent,
     BgColorDirective,
     BreadcrumbComponent as BreadCrumb,
@@ -33,6 +34,7 @@ import {
     FormDirective,
     FormFeedbackComponent,
     FormSelectDirective,
+    FormTextDirective,
     GutterDirective,
     InputGroupComponent,
     InputGroupTextDirective,
@@ -133,7 +135,6 @@ import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.compo
 import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
 import {AutocompleteComponent} from './autocomplete/autocomplete.component';
 
-//import 'hammerjs';
 
 @NgModule({
     imports: [
@@ -220,7 +221,8 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         PopoverModule,
         ButtonToolbarComponent,
         BadgeComponent,
-        FormCheckComponent
+        FormCheckComponent,
+        AlertComponent, FormTextDirective
     ],
     declarations: [
         BreadcrumbComponent,

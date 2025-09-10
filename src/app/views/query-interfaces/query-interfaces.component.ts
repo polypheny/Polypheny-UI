@@ -6,12 +6,7 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
-import {
-    QueryInterface,
-    QueryInterfaceTemplate,
-    QueryInterfaceCreateRequest,
-    QueryInterfaceSetting
-} from './query-interfaces.model';
+import {QueryInterface, QueryInterfaceCreateRequest, QueryInterfaceSetting, QueryInterfaceTemplate} from './query-interfaces.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -126,18 +121,19 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 delete queryInterface.currentSettings[k];
             }
         }
+        console.log('submitting query interface settings', queryInterface);
         this._crud.updateQueryInterfaceSettings(queryInterface).subscribe({
             next: res => {
                 const result = <RelationalResult>res;
-                if (!result.error) {
-                    this._toast.success('updated queryInterface settings');
+                if (!result?.error) {
+                    this._toast.success('Updated Query Interface settings');
                 } else {
                     this._toast.exception(result);
                 }
                 this.QISettingsModal.hide();
                 this.getQueryInterfaces();
             }, error: err => {
-                this._toast.error('could not update queryInterface settings');
+                this._toast.error('Could not update Query Interface settings');
                 console.log(err);
             }
         });

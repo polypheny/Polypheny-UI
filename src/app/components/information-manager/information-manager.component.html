@@ -1,4 +1,4 @@
-<ng-container *ngIf="$data()">
+<div *ngIf="$data()" class="mb-3">
     <c-row *ngIf="$data().name || $data().description">
         <c-col class="col-md-12">
             <h1 *ngIf="$data().name">{{ $data().name }}</h1>
@@ -8,24 +8,40 @@
                                [action]="refreshPage"></app-reload-button>
         </c-col>
     </c-row>
-    <c-row [gutter]="4">
-        <ng-container *ngFor="let item of $data().groups | keyvalue : order">
-            <c-col [md]="zoom()">
-                <c-card [className]="getCardClass(item.value.color)">
-                    <c-card-header>
-                        {{item.value.name}}
-                        <button cButton color="secondary" class="btn-circle refreshGroup"
-                                [ngClass]="{'rotating': refreshingGroup[item.value.id]}"
-                                (click)="refreshGroup(item.value.id)"
-                                *ngIf="item.value.refreshable"><i class="icon-reload"></i></button>
-                    </c-card-header>
-                    <ng-container *ngFor="let li of item.value.informationObjects | keyvalue : order">
-                        <c-card-body>
-                            <app-render-item [li]="li.value"></app-render-item>
-                        </c-card-body>
-                    </ng-container>
-                </c-card>
-            </c-col>
+
+    @if (isFullWidth()) {
+        <c-row [gutter]="4">
+            <ng-container *ngFor="let item of $data().groups | keyvalue : order">
+                <c-col [md]="12">
+                    <ng-container *ngTemplateOutlet="groupCard; context: { item: item }"></ng-container>
+                </c-col>
+            </ng-container>
+        </c-row>
+    } @else {
+        <div class="masonry"> <!--items fill up the first col, then the second one-->
+            <ng-container *ngFor="let item of $data().groups | keyvalue : order">
+                <div class="masonry-item">
+                    <ng-container *ngTemplateOutlet="groupCard; context: { item: item }"></ng-container>
+                </div>
+            </ng-container>
+            <div class="masonry-item filler-item"></div>
+        </div>
+    }
+</div>
+
+<ng-template #groupCard let-item="item">
+    <c-card [className]="getCardClass(item.value.color)">
+        <c-card-header>
+            {{ item.value.name }}
+            <button cButton color="secondary" class="btn-circle refreshGroup"
+                    [ngClass]="{'rotating': refreshingGroup[item.value.id]}"
+                    (click)="refreshGroup(item.value.id)"
+                    *ngIf="item.value.refreshable"><i class="icon-reload"></i></button>
+        </c-card-header>
+        <ng-container *ngFor="let li of item.value.informationObjects | keyvalue : order">
+            <c-card-body>
+                <app-render-item [li]="li.value"></app-render-item>
+            </c-card-body>
         </ng-container>
-    </c-row>
-</ng-container>
+    </c-card>
+</ng-template>

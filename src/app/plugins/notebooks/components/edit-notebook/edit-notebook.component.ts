@@ -76,7 +76,6 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         );
         this.subscriptions.add(
             this._content.onNamespaceChange().subscribe(namespaces => {
-                console.log('namespaces:', namespaces);
                 this.namespaces = namespaces;
             })
         );

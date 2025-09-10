@@ -76,7 +76,6 @@ export class CatalogService {
 
     getSnapshot(): Observable<CatalogService> {
         return this._http.post(`${this.httpUrl}/getSnapshot`, this.snapshot ? this.snapshot.id : -1).pipe(map((snapshot: LogicalSnapshotModel) => {
-            console.log(snapshot);
             if (snapshot) {
                 this.updateSnapshot(snapshot);
             }
@@ -86,7 +85,8 @@ export class CatalogService {
     }
 
     private updateSnapshot(snapshot: LogicalSnapshotModel) {
-        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id)) {
+        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id &&
+            this.snapshot.constraints.length === snapshot.constraints.length)) { // adding a constraint does not always increase the id for some reason
             return;
         }
 
@@ -134,10 +134,10 @@ export class CatalogService {
 
     private toIdListMap<T extends IdEntity, D>(idEntities: T[], extract: (entity: T) => D) {
         const map = new Map();
-        for (let idEntity of idEntities) {
+        for (const idEntity of idEntities) {
             const id = extract(idEntity);
             if (!map.has(id)) {
-                map.set(id, [])
+                map.set(id, []);
             }
             map.set(id, [idEntity, ...map.get(id)]);
         }
@@ -203,7 +203,9 @@ export class CatalogService {
             }
             nodes.push(namespaceNode);
         }
-
+        nodes.sort((a, b) =>
+            a.name === 'public' ? -1 : b.name === 'public' ? 1 : SidebarNode.sortNodes(a, b) // public namespace is first
+        );
         return nodes;
     }
 
@@ -226,6 +228,7 @@ export class CatalogService {
 
             nodes.push(collectionTree);
         }
+        nodes.sort(SidebarNode.sortNodes);
         namespaceNode.children.push(...nodes);
     }
 
@@ -256,6 +259,7 @@ export class CatalogService {
             nodes.push(tableNode);
 
         }
+        nodes.sort(SidebarNode.sortNodes);
         namespaceNode.children.push(...nodes);
         namespaceNode.routerLink = '';
     }
@@ -275,7 +279,7 @@ export class CatalogService {
     private getNamespaceIcon(dataModel: DataModel): string {
         if (!this.assets) {
             this.updateIfNecessary();
-            return "";
+            return '';
         }
         switch (dataModel) {
             case DataModel.DOCUMENT:

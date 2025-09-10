@@ -280,8 +280,8 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         return obj;
     }
 
-    deleteRow(values: string[], i) {
-        if (this.confirm !== i) {
+    deleteRow(values: string[], i: number | null) {
+        if (i !== null && this.confirm !== i) { // confirm functionality may be delegated to app-delete-confirm component
             this.confirm = i;
             return;
         }
@@ -414,7 +414,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const formData = new FormData();
         this.insertValues.forEach((v, k) => {
             //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
-            if (this.insertDirty.get(k) === true) {
+            if (this.insertDirty.get(k) === true && v !== null) { // null check prevents null being inserted as string "null"
                 let value;
                 if (isNaN(v)) {
                     value = v;
@@ -437,7 +437,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                     const result = <RelationalResult>res.body;
                     emitResult.emit(result);
                     if (result.error) {
-                        this._toast.exception(result, 'Could not insert the data', 'insert error');
+                        if (result.error.includes('PRIMARY KEY')) {
+                            this._toast.warn(`Insert failed: Duplicate primary key value.`);
+                        } else {
+                            this._toast.exception(result, 'Insert failed:');
+                        }
                     } else if (result.affectedTuples === 1) {
                         $('.insert-input').val('');
                         this.insertValues.clear();
@@ -447,9 +451,9 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                 }
             },
             error: err => {
-                this._toast.error('Could not insert the data.');
+                this._toast.error('Insert failed.');
                 console.log(err);
-                emitResult.emit(new RelationalResult('Could not insert the data.'));
+                emitResult.emit(new RelationalResult('Insert failed.'));
             }
         }).add(() => this.uploadProgress = -1);
         return emitResult;
@@ -574,7 +578,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                         }
                         this._toast.success('Updated ' + result.affectedTuples + rows, result.query, 'update', ToastDuration.SHORT);
                     } else if (result.error) {
-                        this._toast.exception(result, 'Could not update this tuple');
+                        if (result.error.includes('PRIMARY KEY')) {
+                            this._toast.warn(`Update failed: Duplicate primary key value.`);
+                        } else {
+                            this._toast.exception(result, 'Update failed:');
+                        }
                     }
                 }
             },

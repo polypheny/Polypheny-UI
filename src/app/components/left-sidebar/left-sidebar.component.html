@@ -24,7 +24,7 @@
          *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
         <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
     </div>
-    <c-button-group *ngIf="buttons.length > 0" role="group" class="ps-0">
+    <c-button-group *ngIf="buttons.length > 0" role="group" class="px-0">
         <button cButton color="light" [variant]="item.isOutline ? 'outline' : undefined" *ngFor="let item of buttons"
                 type="button" (click)="item.clickEvent($event)" onclick="this.blur();">
             {{ item.name }}
@@ -67,7 +67,7 @@
 
     <div *ngIf="needsButton()" class="schema-editing-wrapper">
         <div class="border-top my-3"></div>
-        <a cNavLink id="namespaceText" class="pe-auto link-light text-white" [routerLink]="'/views/schema-editing/'">
+        <a cNavLink id="namespaceText" class="pe-auto link-light text-white" (click)="deselectAll()" [routerLink]="'/views/schema-editing/'">
             <i class="fa fa-pencil" aria-hidden="true"></i>
             <span class="ms-1">Manage Namespaces</span>
         </a>

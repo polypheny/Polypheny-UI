@@ -1,15 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    OnDestroy,
-    OnInit,
-    signal,
-    Signal,
-    untracked,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, inject, OnDestroy, OnInit, signal, Signal, untracked, WritableSignal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {CrudService} from '../../services/crud.service';
@@ -43,6 +32,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
         this._route.params.subscribe(route => {
             this.currentRoute.set(route['id']);
+            this.currentTab.set(route['tab'] || null);
         });
         this.namespace = computed(() => {
 
@@ -76,6 +66,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
 
     readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));//either the name of a table (schemaName.tableName) or of a schema (schemaName)
+    readonly currentTab: WritableSignal<string | null> = signal(this._route.snapshot.paramMap.get('tab') || null);
     readonly namespace: Signal<NamespaceModel>;
 
     createForm: UntypedFormGroup;
@@ -96,27 +87,28 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         this._route.params.subscribe((ev) => {
             this.setBreadCrumb();
         });
+
         const sub = this._crud.onReconnection().subscribe(
             b => {
                 this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
             }
         );
-
         this.subscriptions.add(sub);
+
+        this.subscriptions.add(
+            this._breadcrumb.onBreadCrumbClicked().subscribe(b => this._leftSidebar.reset(false))
+        );
     }
 
 
     setBreadCrumb() {
-        const url = this._router.url.replace('/views/schema-editing/', '');
+        const url = this._route.snapshot.paramMap.get('id') || '';
         if (url.length <= 0) {
-            this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema')], null);
-        } else if (url.includes('statistics-column')) {
-            const colName = url.replace('/statistics-column', '').split('.')[url.replace('/statistics-column', '').split('.').length - 1];
-            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0]), new BreadcrumbItem(colName, this._router.url.replace('/statistics-column', '')), new BreadcrumbItem('statistics')]);
-        } else if (!url.includes('.')) {
-            this._breadcrumb.setBreadcrumbsSchema([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url)], null);
-        } else {
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema')]);
+        } else if (url.includes('.')) {
             this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url.split('.')[0], this._router.url.split('.')[0]), new BreadcrumbItem(url.split('.')[url.split('.').length - 1])]);
+        } else {
+            this._breadcrumb.setBreadcrumbs([new BreadcrumbItem('Schema', '/views/schema-editing/'), new BreadcrumbItem(url)]);
         }
     }
 
@@ -183,7 +175,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
 
     dropNamespace() {
-        if (this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid') {
+        if (this.canDrop()) {
             const val = this.dropForm.value;
             this.dropSubmitted = true;
             this._crud.createOrDropNamespace(new Namespace(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe({
@@ -201,6 +193,10 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         } else {
             this._toast.warn('This namespace does not exist', 'cannot drop');
         }
+    }
+
+    canDrop() {
+        return this.dropForm.valid && this.getValidationClass(this.dropForm.controls['name'].value) === 'is-valid';
     }
 
     getValidationClass(val) {
@@ -231,10 +227,6 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
         } else {
             return 'is-invalid';
         }
-    }
-
-    isStatistic() {
-        return this._router.url.includes('statistics');
     }
 
 }

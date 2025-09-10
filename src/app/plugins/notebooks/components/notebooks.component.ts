@@ -173,15 +173,15 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                         return EMPTY;
                     }
                 )
-            ).subscribe(
-                res => {
+            ).subscribe({
+                next: res => {
                 },
-                err => {
+                error: err => {
                     console.log(err);
                     this._toast.error('Failed to open Notebook. The file might be corrupted or does no longer exist.');
                     this.openManagePage(path);
                 }
-            ).add(() => this._loading.hide());
+            }).add(() => this._loading.hide());
         }
     }
 
@@ -322,11 +322,14 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                 (event) => {
                     const base64 = event.target.result.toString().split('base64,', 2)[1];
                     this._notebooks.updateFile(this._content.directoryPath + '/' + file.name, base64, 'base64', 'file')
-                        .subscribe(res => {
+                    .subscribe({
+                        next: res => {
                             this._content.update();
-                        }, err => {
+                        },
+                        error: err => {
                             this._toast.error(`An error occurred while uploading ${file.name}:\n${err.error}`, 'File could not be uploaded');
-                        });
+                        }
+                    });
                 },
                 false
             );
@@ -334,6 +337,14 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         }
         this.onFileChange(null);
         this.uploadNotebookModal.hide();
+    }
+
+    serverRunningChanged(isRunning: boolean) {
+        if (isRunning) {
+            this._sidebar.open();
+        } else {
+            this._sidebar.close();
+        }
     }
 
     /**

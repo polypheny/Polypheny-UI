@@ -26,3 +26,9 @@ app-delete-confirm, .rename {
 tr:hover app-delete-confirm, tr:hover .rename {
   visibility: visible;
 }
+
+/*Tabs*/
+.nav-link {
+  cursor: pointer;
+  user-select: none;
+}

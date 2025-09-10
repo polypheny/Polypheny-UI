@@ -1,17 +1,7 @@
-import {
-    Component,
-    effect,
-    inject,
-    OnDestroy,
-    OnInit,
-    signal,
-    untracked,
-    ViewChild,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
 import {CrudService} from '../../../services/crud.service';
-import {RelationalResult, Result} from '../../../components/data-view/models/result-set.model';
+import {Result} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
 import {QueryRequest} from '../../../models/ui-request.model';
@@ -19,7 +9,6 @@ import {SidebarNode} from '../../../models/sidebar-node.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {InformationObject, InformationPage} from '../../../models/information-page.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
-import {BreadcrumbItem} from '../../../components/breadcrumb/breadcrumb-item';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
@@ -28,6 +17,7 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 import {ViewInformation} from '../../../components/data-view/data-view.component';
 import {CatalogService} from '../../../services/catalog.service';
 import {NamespaceModel} from '../../../models/catalog.model';
+import {DataResultItem, InfoResultItem, SeparatorResultItem} from './result-item.model';
 
 @Component({
     selector: 'app-console',
@@ -53,8 +43,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private readonly LOCAL_STORAGE_HISTORY_KEY = 'query-history';
     private readonly LOCAL_STORAGE_NAMESPACE_KEY = 'polypheny-namespace';
 
-    results: WritableSignal<Result<any, any>[]> = signal([]);
-    collapsed: boolean[];
+    results: WritableSignal<(DataResultItem | InfoResultItem | SeparatorResultItem)[]> = signal([]);
+    collapsed: WritableSignal<boolean[]> = signal([]);
     queryAnalysis: InformationPage;
     analyzeQuery = true;
     useCache = true;
@@ -67,10 +57,15 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     saveInHistory = true;
     showSearch = false;
     historySearchQuery = '';
-    confirmDeletingHistory;
     readonly activeNamespace: WritableSignal<string> = signal(null);
-    readonly namespaces: WritableSignal<NamespaceModel[]> = signal([]);
-    delayedNamespace: string = null
+    readonly namespaces: Signal<NamespaceModel[]> = computed(() => Array.from(this._catalog.namespaces().values()));
+    readonly activeNamespaceExists: Signal<boolean> = computed(() => this.namespaces().some(v => v.name === this.activeNamespace()));
+    readonly usesAdvancedConsole: Signal<boolean> = computed(() => this.language() === 'mql' || this.language() === 'cypher');
+    readonly someExpanded: Signal<boolean> = computed(() => this.collapsed().some((v, i) => v && this.results()[i].itemType === 'data'));
+    readonly someCollapsed: Signal<boolean> = computed(() => this.collapsed().some((v, i) => !v && this.results()[i].itemType === 'data'));
+    readonly dataResultCount: Signal<number> = computed(() => this.results()?.filter(r => r.itemType === 'data').length || 0);
+    delayedNamespace: string = null;
+    readonly onlyUseStmts = signal(false);
 
     entityConfig: EntityConfig = {
         create: false,
@@ -80,7 +75,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         search: false,
         exploring: false
     };
-    showNamespaceConfig: boolean;
 
     constructor() {
         this.websocket = new WebSocket();
@@ -94,22 +88,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         }
 
         this.initWebsocket();
-
-        effect(() => {
-            const namespace = this._catalog.namespaces();
-            untracked(() => {
-                this.namespaces.set(Array.from(namespace.values()));
-            });
-        });
-
-        effect(() => {
-            const res = this.results();
-
-            untracked(() => {
-                this.collapsed = new Array(res.length);
-                this.collapsed.fill(false);
-            })
-        });
     }
 
 
@@ -123,12 +101,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private loadAndSetNamespaceDB() {
         let namespaceName = localStorage.getItem(this.LOCAL_STORAGE_NAMESPACE_KEY);
 
-        if (namespaceName === null || (this.namespaces && this.namespaces.length > 0 && (this.namespaces().filter(n => n.name === namespaceName).length === 0))) {
-            if (this.namespaces() && this.namespaces().length > 0) {
-                namespaceName = this.namespaces()[0].name;
-            } else {
-                namespaceName = 'public';
-            }
+        const hasNamespaces = this.namespaces() && this.namespaces().length > 0;
+        if (namespaceName === null || (hasNamespaces && !this.namespaces().some(n => n.name === namespaceName))) {
+            namespaceName = hasNamespaces ? this.namespaces()[0].name : 'public';
         }
         if (!namespaceName) {
             return;
@@ -156,18 +131,18 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.saveInHistory) {
-            this.addToHistory(code, this.language());
+            this.addToHistory(code, this.language(), this.activeNamespace());
         }
-        if (this.usesAdvancedConsole(this.language())) {
-            code.split(";").forEach((query: string) => {
+        if (this.usesAdvancedConsole()) {
+            code.split(';').forEach((query: string) => {
                 // maybe adjust
-                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const graphUse = /use *graph *([a-zA-Z][a-zA-Z0-9-_]*)/gmi;
                 const matchGraph = graphUse.exec(query.trim());
                 if (matchGraph !== null && matchGraph.length > 1) {
                     this.delayedNamespace = matchGraph[1];
                 }
 
-                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi
+                const useRegex = /use ([a-zA-Z][a-zA-Z0-9-_]*)/gmi;
                 const match = useRegex.exec(query.trim());
                 if (match !== null && match.length > 1) {
                     const namespace = match[1];
@@ -175,7 +150,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                         this.delayedNamespace = namespace;
                     }
                 }
-            })
+            });
 
 
             if (code.match('show db')) {
@@ -184,11 +159,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 });
                 return;
             }
-
+            const usePattern = /^\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?(?:\s*use\s+(?:graph\s+)?[a-zA-Z][a-zA-Z0-9-_]*\s*;?)*\s*$/i;
+            this.onlyUseStmts.set(usePattern.test(code));
+        } else {
+            this.onlyUseStmts.set(false);
         }
 
         this._leftSidebar.setNodes([]);
-        if (this.analyzeQuery) {
+        if (this.analyzeQuery && !this.onlyUseStmts()) {
             this._leftSidebar.open();
         } else {
             this._leftSidebar.close();
@@ -198,15 +176,16 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace()))) {
             this.loading.set(false);
-            this.results.set([new RelationalResult('Could not establish a connection with the server.')]);
+            this.results.set([new InfoResultItem('Could not establish a connection with the server.', 'warning')]);
+            this.resetCollapsed();
         }
     }
 
     collapseAll(collapse: boolean) {
-        this.collapsed.fill(collapse);
+        this.collapsed.update(v => v.map(() => collapse));
     }
 
-    addToHistory(query: string, lang: string): void {
+    addToHistory(query: string, lang: string, namespace: string): void {
         if (this.history.size >= this.MAX_HISTORY) {
             let h: QueryHistory = new QueryHistory('');
             this.history.forEach((val, key) => {
@@ -216,28 +195,26 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             });
             this.history.delete(h.query);
         }
-        const newHistory = new QueryHistory(query, null, lang);
+        const newHistory = new QueryHistory(query, null, lang, namespace);
         this.history.set(newHistory.query, newHistory);
 
         localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
     }
 
-    applyHistory(query: string, lang: string, run: boolean) {
+    applyHistory(query: string, lang: string, namespace: string, run: boolean) {
         this.language.set(lang);
         this.codeEditor.setCode(query);
+        if (namespace) {
+            this.activeNamespace.set(namespace);
+        }
         if (run) {
             this.submitQuery();
         }
     }
 
-    deleteHistoryItem(key, e) {
-        if (this.confirmDeletingHistory === key) {
-            this.history.delete(key);
-            localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
-        } else {
-            this.confirmDeletingHistory = key;
-        }
-        e.stopPropagation();
+    deleteHistoryItem(key: string) {
+        this.history.delete(key);
+        localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
     }
 
     //from: https://stackoverflow.com/questions/52793944/angular-keyvalue-pipe-sort-properties-iterate-in-order
@@ -275,13 +252,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             if (analyzerId && analyzerPage) {
                 this._crud.getAnalyzerPage(analyzerId, analyzerPage).subscribe({
                     next: res => {
-                        console.log(res);
                         this.queryAnalysis = <InformationPage>res;
                         this.showingAnalysis = true;
-                        this._breadcrumb.setBreadcrumbs([new BreadcrumbItem(node.data.name)]);
-                        if (this.queryAnalysis.fullWidth) {
-                            this._breadcrumb.hideZoom();
-                        }
                         node.setIsActive(true);
                     }, error: err => {
                         console.log(err);
@@ -294,50 +266,11 @@ export class ConsoleComponent implements OnInit, OnDestroy {
             next: msg => {
                 //if msg contains nodes of the sidebar
                 if (Array.isArray(msg) && msg[0].hasOwnProperty('routerLink')) {
-                    const sidebarNodesTemp: SidebarNode[] = <SidebarNode[]>msg;
-                    const sidebarNodes: SidebarNode[] = [];
-                    const labels = new Set();
-                    sidebarNodesTemp.sort(this._leftSidebar.sortNodes).forEach((s) => {
-                        if (s.label) {
-                            labels.add(s.label);
-                        } else {
-                            sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
-                        }
-                    });
-                    for (const l of [...labels].sort()) {
-                        sidebarNodes.push(new SidebarNode(l, l).asSeparator());
-                        sidebarNodesTemp.filter((n) => n.label === l).sort(this._leftSidebar.sortNodes).forEach((n) => {
-                            sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
-                        });
-                    }
-
-                    sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
-
-                    this._leftSidebar.setNodes(sidebarNodes);
-                    if (sidebarNodes.length > 0) {
-                        this._leftSidebar.open();
-                    } else {
-                        this._leftSidebar.close();
-                    }
-
+                    this.handleSidebarMsg(msg as SidebarNode[], nodeBehavior);
                 } else if (Array.isArray(msg) && ((msg[0].hasOwnProperty('data') || msg[0].hasOwnProperty('affectedTuples') || msg[0].hasOwnProperty('error')))) { // array of ResultSets
-                    if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
-                        this.activeNamespace.set(this.delayedNamespace);
-                        this.storeNamespace(this.delayedNamespace)
-                    }
-                    this.delayedNamespace = null;
-
-                    this.loading.set(false);
-                    this.results.set(<Result<any, any>[]>msg);
-
+                    this.handleDataMsg(msg as Result<any, any>[]);
                 } else if (msg.hasOwnProperty('type')) { //if msg contains a notification of a changed information object
-                    const iObj = <InformationObject>msg;
-                    if (this.queryAnalysis) {
-                        const group = this.queryAnalysis.groups[iObj.groupId];
-                        if (group != null) {
-                            group.informationObjects[iObj.id] = iObj;
-                        }
-                    }
+                    this.handleInfoChangeMsg(msg as InformationObject);
                 }
             },
             error: err => {
@@ -350,6 +283,115 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub);
     }
 
+    private handleSidebarMsg(msg: SidebarNode[], nodeBehavior: (tree: any, node: any, $event: any) => void) {
+        if (this.onlyUseStmts()) {
+            this._leftSidebar.close();
+            return;
+        }
+        const sidebarNodes: SidebarNode[] = [];
+        const labels = new Set<string>();
+        msg.sort(SidebarNode.sortNodes).forEach((s) => {
+            if (s.label) {
+                labels.add(s.label);
+            } else {
+                sidebarNodes.push(SidebarNode.fromJson(s, {allowRouting: false, action: nodeBehavior}));
+            }
+        });
+        let queryCount = 0;
+        for (const l of [...labels].sort()) {
+            const displayLabel = l.includes('Query ') ? `Query ${(++queryCount)}` : l;
+            sidebarNodes.push(new SidebarNode(l, displayLabel).asSeparator());
+            msg.filter((n) => n.label === l).sort(SidebarNode.sortNodes).forEach((n) => {
+                sidebarNodes.push(SidebarNode.fromJson(n, {allowRouting: false, action: nodeBehavior}));
+            });
+        }
+
+        sidebarNodes.unshift(new SidebarNode('console', 'console', 'fa fa-keyboard-o').setAction(nodeBehavior));
+        this._leftSidebar.setNodes(sidebarNodes);
+        if (sidebarNodes.length > 0) {
+            this._leftSidebar.open();
+        } else {
+            this._leftSidebar.close();
+        }
+    }
+
+    private handleDataMsg(msg: Result<any, any>[]) {
+        if (this.delayedNamespace && !msg[0].hasOwnProperty('error')) {
+            this.activeNamespace.set(this.delayedNamespace);
+            this.storeNamespace(this.delayedNamespace);
+        }
+        this.delayedNamespace = null;
+        this.loading.set(false);
+
+        const items = [];
+        let queryCount = 0;
+        let txCount = 0;
+        let lastXid: string = null;
+        for (const r of msg) {
+            if (r.xid && r.xid !== lastXid) {
+                txCount++;
+                lastXid = r.xid;
+                items.push(new SeparatorResultItem(
+                    `Transaction ${txCount}${r.isRolledBack ? ' (rolled back)' : ''}`,
+                    r.isRolledBack ? 'danger' : 'muted'));
+            }
+            if (this.isUseStmt(r)) {
+                items.push(new InfoResultItem(r.query, 'success'));
+            } else {
+                if (r.language === 'cypher') {
+                    r.query = this.removeComments(r.query);
+                }
+                items.push(new DataResultItem(r, ++queryCount));
+            }
+        }
+        this.results.set(items);
+        setTimeout(() => this.removeUseStmtsFromSidebar(msg), 10); // ensure sidebar messages have time to arrive
+
+        this.resetCollapsed();
+    }
+
+    private handleInfoChangeMsg(iObj: InformationObject) {
+        if (this.queryAnalysis) {
+            const group = this.queryAnalysis.groups[iObj.groupId];
+            if (group != null) {
+                group.informationObjects[iObj.id] = iObj;
+            }
+        }
+    }
+
+    private removeUseStmtsFromSidebar(msg: Result<any, any>[]) {
+        const useIdxs = msg.map(
+            (r, i) => this.isUseStmt(r) ? i : -1
+        ).filter(i => i >= 0);
+        // using the results, we can determine which queries can be removed
+        const nodes = this._leftSidebar.getNodes().value;
+
+        const filteredNodes = [];
+        let queryIdx = -1;
+        let queryCount = 0;
+        for (const node of nodes) {
+            if (node.isSeparator && node.id.startsWith('Query ')) {
+                queryIdx++;
+                if (!useIdxs.includes(queryIdx)) {
+                    node.name = `Query ${++queryCount}`;
+                }
+            }
+            if (!useIdxs.includes(queryIdx)) {
+                filteredNodes.push(node);
+            }
+        }
+        if (queryIdx >= useIdxs.length) {
+            // at least 1 non-use query exists
+            this._leftSidebar.setNodes(filteredNodes);
+        } else {
+            this._leftSidebar.close();
+        }
+    }
+
+    private isUseStmt(r: Result<any, any>): boolean {
+        return r.queryType === 'DDL' && r.query.toLowerCase().trim().startsWith('use ');
+    }
+
     createView(info: ViewInformation) {
         this.codeEditor.setCode(info.fullQuery);
     }
@@ -359,60 +401,24 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.submitQuery();
     }
 
-    formatQuery() {
-        let code = this.codeEditor.getCode();
-        if (!code) {
-            return;
-        }
-        let before = '';
-        const after = ')';
-
-        // here we replace the Json incompatible types with placeholders
-        const temp = code.match(/NumberDecimal\([^)]*\)/g);
-
-        if (temp !== null) {
-            for (let i = 0; i < temp.length; i++) {
-                code = code.replace(temp[i], '"___' + i + '"');
-            }
-        }
-
-
-        const splits = code.split('(');
-        before = splits.shift() + '(';
-
-        try {
-            let json = this.parse(splits.join('(').slice(0, -1));
-            // we have to translate them back
-            if (temp !== null) {
-                for (let i = 0; i < temp.length; i++) {
-                    json = json.replace('"___' + i + '"', temp[i]);
-                }
-            }
-
-            this.codeEditor.setCode(before + json + after);
-        } catch (e) {
-            this._toast.warn(e);
-        }
-    }
-
-    parse(code: string) {
-        const formatted = JSON.stringify(JSON.parse('[' + code + ']'), null, 4);
-        return formatted.substring(1, formatted.length - 1);
-    }
-
     private storeNamespace(name: string) {
         localStorage.setItem(this.LOCAL_STORAGE_NAMESPACE_KEY, name);
     }
 
-    toggleCollapsed(i: number) {
-        console.log(i)
-        if (this.collapsed !== undefined && this.collapsed[i] !== undefined) {
-            this.collapsed[i] = !this.collapsed[i];
-        }
+    private resetCollapsed() {
+        const collapsed = new Array(this.results().length);
+        collapsed.fill(false);
+        this.collapsed.set(collapsed);
     }
 
-    clearConsole() {
-        this.codeEditor.setCode('');
+    toggleCollapsed(i: number) {
+        this.collapsed.update(v => {
+            const collapsed = [...v];
+            if (collapsed[i] !== undefined) {
+                collapsed[i] = !collapsed[i];
+            }
+            return collapsed;
+        });
     }
 
     toggleCache(b: boolean) {
@@ -423,17 +429,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     }
 
     revertCache() {
-        console.log('revert');
         this.useCache = this.originalCache;
         this.originalCache = null;
-    }
-
-    usesAdvancedConsole(lang: string) {
-        return lang === 'mql' || lang === 'cypher';
-    }
-
-    toggleNamespaceField() {
-        this.showNamespaceConfig = !this.showNamespaceConfig;
     }
 
     changedDefaultDB(n) {
@@ -442,5 +439,20 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
     setLanguage(language) {
         this.language.set(language);
+    }
+
+    clearHistory() {
+        this.history.clear();
+        localStorage.setItem(this.LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(Array.from(this.history.values())));
+    }
+
+    private removeComments(query: string) {
+        // Regex based simplified removal of comments. Correct removal would require a lexer.
+        if (query === null) {
+            return query;
+        }
+        return query
+        .replace(/\/\*[\s\S]*?\*\//g, '') // multi-line comments
+        .replace(/(^|[^:])\/\/.*$/gm, ''); // single-line comments, not prepended by ':' to avoid removing URLs -> covers most cases where '//' appears in a string
     }
 }

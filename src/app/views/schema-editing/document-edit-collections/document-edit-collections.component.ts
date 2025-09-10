@@ -1,16 +1,4 @@
-import {
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    QueryList,
-    Renderer2,
-    Signal,
-    ViewChildren
-} from '@angular/core';
+import {Component, computed, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, Renderer2, Signal, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {Method, QueryRequest} from '../../../models/ui-request.model';
 import {Router} from '@angular/router';
@@ -19,16 +7,7 @@ import {ToastDuration, ToasterService} from '../../../components/toast-exposer/t
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
-import {DbTable} from '../../uml/uml.model';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    CollectionModel,
-    EntityType,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, CollectionModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 
@@ -105,7 +84,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     readonly collections: Signal<Collection[]>;
 
     newCollectionName: string;
-    selectedStore;
+    selectedStore: AdapterModel;
     creatingCollection = false;
 
     private subscriptions = new Subscription();
@@ -134,24 +113,18 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * get the right class for the 'drop' and 'truncate' buttons
-     * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
+     * Enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
      */
-    dropTruncateClass(action: Method, table: Collection) {
-        if (action === Method.DROP && (table.drop === table.name || table.drop === 'drop ' + table.name)) {
-            return 'btn-danger';
-        } else if (action === Method.TRUNCATE && (table.truncate === table.name || table.truncate === 'truncate ' + table.name)) {
-            return 'btn-danger';
-        }
-        return 'btn-light disabled';
+    isDropTruncateEnabled(action: Method, coll: Collection) {
+        return action === Method.DROP && (coll.drop === coll.name || coll.drop === 'drop ' + coll.name) ||
+            action === Method.TRUNCATE && (coll.truncate === coll.name || coll.truncate === 'truncate ' + coll.name);
     }
 
     /**
      * send a request to either drop or truncate a table
      */
     sendRequest(action: Method, collection: Collection) {
-        console.log('trunc');
-        if (this.dropTruncateClass(action, collection) !== 'btn-danger') {
+        if (!this.isDropTruncateEnabled(action, collection)) {
             return;
         }
 
@@ -161,7 +134,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                 query = `db.${collection.name}.drop()`;
                 break;
             case Method.TRUNCATE:
-                query = `db.${collection.name}.remove({})`;
+                query = `db.${collection.name}.deleteMany({})`;
                 break;
             default:
                 return;
@@ -170,7 +143,8 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         const request = new QueryRequest(query, false, true, 'mql', this.namespace().name);
 
         this._crud.anyQueryBlocking(request).subscribe({
-            next: (result: Result<any, any>) => {
+            next: (results: Result<any, any>[]) => {
+                const result = results[0];
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
                 } else {
@@ -180,6 +154,8 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                         toastAction = 'Dropped';
                         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                     }
+                    collection.drop = '';
+                    collection.truncate = '';
                     this._toast.success(toastAction + ' collection ' + collection.name);
                 }
 
@@ -204,12 +180,13 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
             this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
             return;
         }
-        const query = 'db.createCollection(' + this.newCollectionName + ')';
+        const query = `db.createCollection(${this.newCollectionName}).store(${this.selectedStore.name})`;
         const entityName = this.newCollectionName;
         //const request = new EditCollectionRequest(this.namespace.value.id, this.newCollectionName, null, 'create', this.selectedStore);
         this.creatingCollection = true;
         this._crud.anyQueryBlocking(new QueryRequest(query, false, true, 'mql', this.namespace().name)).subscribe({
-            next: (result: Result<any, any>) => {
+            next: (results: Result<any, any>[]) => {
+                const result = results[0];
                 if (result.error) {
                     this._toast.exception(result, 'Could not generate collection:');
                 } else {
@@ -226,20 +203,20 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         }).add(() => this.creatingCollection = false);
     }
 
-    rename(table: Collection) {
-        const t = new EntityMeta(this.namespace().id, table.id, table.newName, []);
-        this._crud.renameTable(t).subscribe({
+    rename(collection: Collection) {
+        const t = new EntityMeta(this.namespace().id, collection.id, collection.newName, []);
+        this._crud.renameCollection(t).subscribe({
             next: res => {
                 const r = <RelationalResult>res;
-                if (r.exception) {
+                if (r.error) {
                     this._toast.exception(r);
                 } else {
-                    this._toast.success('Renamed table ' + table.name + ' to ' + table.newName);
+                    this._toast.success('Renamed collection ' + collection.name + ' to ' + collection.newName);
                     //this._catalog.updateIfNecessary();
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
                 }
             }, error: err => {
-                this._toast.error('Could not rename the collection ' + table.name);
+                this._toast.error('Could not rename the collection ' + collection.name);
                 console.log(err);
             }
 
@@ -267,6 +244,10 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         }
     }
 
+    openDetails(collection: Collection) {
+        this._router.navigate(['/views/schema-editing/' + this.namespace().name + '.' + collection.name]).then();
+        this._leftSidebar.reset(false);
+    }
 }
 
 class Collection {
@@ -280,18 +261,15 @@ class Collection {
     modifiable: boolean;
     tableType: EntityType;
 
-    constructor(name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+    constructor(id: number, name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+        this.id = id;
         this.name = name;
         this.newName = newName;
         this.modifiable = modifiable;
         this.tableType = entityType;
     }
 
-    static fromDB(collection: DbTable) {
-        return new Collection(collection.tableName, collection.tableName, collection.modifiable, collection.tableType);
-    }
-
     static fromModel(collection: CollectionModel) {
-        return new Collection(collection.name, collection.name, collection.modifiable, collection.entityType);
+        return new Collection(collection.id, collection.name, collection.name, collection.modifiable, collection.entityType);
     }
 }

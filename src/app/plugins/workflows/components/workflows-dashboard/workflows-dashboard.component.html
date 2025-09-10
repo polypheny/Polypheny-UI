@@ -1,6 +1,6 @@
 @switch (route()) {
     @case ('dashboard') {
-        <h1 class="mb-4">Workflow Dashboard</h1>
+        <h1 class="mb-4">Workflows</h1>
 
         <c-row class="mb-5">
             <c-col [md]="6" class="fixed-width">
@@ -72,8 +72,8 @@
 
             </div>
 
-            <div cCollapse [visible]="visibleGroups[group.groupName]()">
-                <c-accordion class="mb-5">
+            <div cCollapse [visible]="visibleGroups[group.groupName]()" class="mb-3">
+                <c-accordion>
                     @for (def of group.defs; track def.id) {
                         <c-accordion-item #item="cAccordionItem" [visible]="false">
                             <ng-template cTemplateId="accordionHeaderTemplate">
@@ -197,9 +197,11 @@
     }
     @case ('sessions') {
         <h1 class="mb-4">Active Sessions</h1>
-        <ul cListGroup *ngIf="workflowDefs" class="mb-5">
+        <ul cListGroup *ngIf="workflowDefs" class="mb-3">
             @for (session of userSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+            } @empty {
+                <p>There are currently no active user sessions.</p>
             }
         </ul>
     }
@@ -313,9 +315,11 @@
         </c-accordion>
 
         <h2>API Sessions</h2>
-        <ul cListGroup class="mb-5">
+        <ul cListGroup class="mb-3">
             @for (session of apiSessions; track session.sessionId) {
                 <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+            } @empty {
+                <p>There are currently no active API sessions.</p>
             }
         </ul>
     }

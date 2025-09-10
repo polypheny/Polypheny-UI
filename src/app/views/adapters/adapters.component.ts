@@ -1,36 +1,13 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    Injector,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, inject, Injector, OnDestroy, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
-import {
-    AbstractControl,
-    FormGroup,
-    UntypedFormBuilder,
-    UntypedFormControl,
-    UntypedFormGroup,
-    ValidatorFn,
-    Validators
-} from '@angular/forms';
+import {AbstractControl, FormGroup, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
-import {
-    AdapterSettingModel,
-    AdapterTemplateModel,
-    DeployMode
-} from '../../models/catalog.model';
+import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -71,6 +48,9 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
 
     readonly adapter: WritableSignal<Adapter> = signal(null);
+    readonly hasModifiableSettings = computed(() =>
+        this.adapter().task === 'DEPLOY' || [...this.adapter().settings.values()].some(s => s.template.modifiable)
+    );
     editingAdapterForm: FormGroup;
     deletingAdapter: AdapterModel;
     deletingInProgress: AdapterModel[];
@@ -109,7 +89,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         return (a, b) => {
             return a.position - b.position;
         };
-    };
+    }
 
 
     ngOnInit() {
@@ -143,16 +123,17 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 if (setting.template.required && setting.template.appliesTo.includes(mode)) {
                     validators.push(Validators.required);
                 }
-                let val = setting.template.defaultValue;
                 if (setting.template.type.toLowerCase() === 'directory') {
                     fc[setting.template.name] = this._fb.array([]);
                 } else {
-                    if (setting.template.options) {
+                    let val = setting.current != null ? setting.current : setting.template.defaultValue;
+                    if (setting.template.options && !setting.template.options.includes(val)) {
                         val = setting.template.options[0];
-                    } else if (setting.template.fileNames) {
-                        val = new UntypedFormControl(val, validators).value;
                     }
                     fc[setting.template.name] = new UntypedFormControl(val, validators);
+                }
+                if (adapter.task === Task.CHANGE && !setting.template.modifiable) {
+                    fc[setting.template.name].disable();
                 }
             }
 
@@ -205,16 +186,25 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     saveAdapterSettings() {
-        const adapter = <any>this.adapter;
-        adapter.settings = {};
+        const request = {
+            uniqueName: this.adapter().uniqueName,
+            settings: {}
+        };
         for (const [k, v] of Object.entries(this.editingAdapterForm.controls)) {
             const setting = this.getAdapterSetting(k);
-            if (!setting[0].modifiable || setting[0].fileNames) {
+            if (!setting) {
+                continue; // e.g. uniqueName when editing an adapter
+            }
+            if (!setting.template.modifiable || setting.template.fileNames) {
                 continue;
             }
-            adapter.settings[k] = v.value;
+            request.settings[k] = v.value;
         }
-        this._crud.updateAdapterSettings(adapter).subscribe({
+        if (Object.keys(request.settings).length === 0) {
+            this._toast.warn('No settings were changed');
+            return;
+        }
+        this._crud.updateAdapterSettings(request).subscribe({
             next: result => {
                 if (result.error) {
                     this._toast.exception(result);
@@ -282,10 +272,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         const fileNames = [];
         const setting = this.getAdapterSetting(key);
         setting.template.fileNames = [];
-        for (let file of files) {
+        for (const file of files) {
             fileNames.push(file.name);
             this.files.set(file.name, file);
-            setting.template.fileNames.push(file.name)
+            setting.template.fileNames.push(file.name);
         }
 
     }
@@ -350,10 +340,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 setting.current = null;
             }
 
-            if (setting.template.type.toLowerCase() === "directory") {
+            if (setting.template.type.toLowerCase() === 'directory') {
                 const fileNames = [];
 
-                for (let fileName of setting.template.fileNames) {
+                for (const fileName of setting.template.fileNames) {
                     fd.append(fileName, this.files.get(fileName));
                 }
                 setting.current = JSON.stringify(setting.template.fileNames);
@@ -407,7 +397,6 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     }
 
     private startDeploying(deploy: AdapterModel, formdata: FormData) {
-        console.log(deploy)
         this.deploying = true;
         this._crud.createAdapter(deploy, formdata).subscribe({
             next: (result: RelationalResult) => {
