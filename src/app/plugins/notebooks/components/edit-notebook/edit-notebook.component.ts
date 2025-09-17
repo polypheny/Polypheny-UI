@@ -456,13 +456,15 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this._notebooks.restartKernel(this.session.kernel.id).pipe(
             tap(() => this.nb.setKernelStatusBusy()),
             delay(2500) // time for the kernel to restart
-        ).subscribe(() => {
-            this.nb.requestExecutionState();
-            if (this.executeAllAfterRestart) {
-                this.nb.executeAll();
-            }
-        }, () => {
-            this._toast.error('Unable to restart the kernel.');
+        ).subscribe({
+            next: () => {
+                this.nb.requestExecutionState();
+                this._toast.success('Kernel has been restarted.');
+                if (this.executeAllAfterRestart) {
+                    this.nb.executeAll();
+                }
+            },
+            error: () => this._toast.error('Unable to restart the kernel.')
         });
         this.restartKernelModal.hide();
     }

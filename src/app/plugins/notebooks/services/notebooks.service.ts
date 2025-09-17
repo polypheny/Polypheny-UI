@@ -1,14 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
-import {
-    Content,
-    KernelResponse,
-    KernelSpecs,
-    NotebookContent,
-    SessionResponse,
-    StatusResponse
-} from '../models/notebooks-response.model';
+import {Content, KernelResponse, KernelSpecs, NotebookContent, SessionResponse, StatusResponse} from '../models/notebooks-response.model';
 import {Notebook} from '../models/notebook.model';
 import * as uuid from 'uuid';
 import {forkJoin} from 'rxjs';
@@ -190,7 +183,7 @@ export class NotebooksService {
     }
 
     restartContainer() {
-        return this._http.post(`${this.httpUrl}/container/restart`, '', this.httpOptions);
+        return this._http.post(`${this.httpUrl}/container/restart`, null, {responseType: 'text'});
     }
 
     getDockerInstances() {
