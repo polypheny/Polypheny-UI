@@ -1,4 +1,4 @@
-<div [hidden]="!visible()" class="no-select d-flex flex-row border-end h-100"
+<div [hidden]="!visible()" class="no-select d-flex flex-row border-end h-100 outer-row"
      [ngClass]="{'info-visible': openedActivityDef,'info-hidden': !openedActivityDef}">
     @if (visible()) {
         <div class="add-activity-col flex-grow-1 d-flex flex-column h-100">
@@ -61,7 +61,7 @@
 
         </div>
         <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col d-flex flex-column">
-            <div class="px-3 py-2 border-bottom menu-header d-flex">
+            <div class="px-3 py-2 border-bottom menu-header d-flex bg-light-subtle">
                 <h4 class="mb-0">{{ openedActivityDef.displayName }}</h4>
                 <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
             </div>
@@ -96,7 +96,7 @@
             <c-col [xs]="1" class="ps-0 pe-2 text-end">
                                     <span class="fa fa-question-circle px-2 info-button"
                                           [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-dark'"
-                                          style="cursor: pointer;" (click)="openedActivityDef = activity">
+                                          style="cursor: pointer;" (click)="toggleOpenedActivityDef(activity)">
                                     </span>
             </c-col>
         </c-row>
