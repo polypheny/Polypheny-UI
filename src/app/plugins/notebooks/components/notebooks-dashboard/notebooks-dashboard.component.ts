@@ -38,6 +38,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     pluginLoaded = false;
     sessionSubscription = null;
     instances: DockerInstanceInfo[] = [];
+    connectedInstance: DockerInstanceInfo | null = null;
 
     constructor() {
     }
@@ -53,6 +54,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
             }
         });
         this.getPluginStatus();
+        this.updateDockerInstanceInfo();
 
         const sub = interval(10000).subscribe(() => {
             this.getServerStatus();
@@ -128,7 +130,10 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
                 this.creating = false;
                 console.log(err);
             }
-        }).add(() => this.getServerStatus());
+        }).add(() => {
+            this.getServerStatus();
+            this.updateDockerInstanceInfo();
+        });
     }
 
     destroyContainer() {
@@ -152,7 +157,10 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
                 console.log('server restart error', err);
                 this._toast.error('An error occurred while restarting the container!');
             }
-        }).add(() => this.getServerStatus());
+        }).add(() => {
+            this.getServerStatus();
+            this.updateDockerInstanceInfo();
+        });
     }
 
     getPluginStatus() {
@@ -183,6 +191,12 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
                 this._content.setAutoUpdate(false);
                 this.getPluginStatus();
             }
+        });
+    }
+
+    private updateDockerInstanceInfo() {
+        this._notebooks.getDockerInstance().subscribe({
+            next: res => this.connectedInstance = res
         });
     }
 

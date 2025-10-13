@@ -190,6 +190,10 @@ export class NotebooksService {
         return this._http.get<DockerInstanceInfo[]>(`${this.httpUrl}/container/getDockerInstances`);
     }
 
+    getDockerInstance() {
+        return this._http.get<DockerInstanceInfo>(`${this.httpUrl}/container/getDockerInstance`);
+    }
+
     createContainer(id: number) {
         return this._http.post(`${this.httpUrl}/container/create?dockerInstance=${id}`, '', this.httpOptions);
     }
