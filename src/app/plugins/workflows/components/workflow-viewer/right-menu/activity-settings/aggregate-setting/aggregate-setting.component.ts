@@ -8,7 +8,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-aggregate-setting',
     templateUrl: './aggregate-setting.component.html',
-    styleUrl: './aggregate-setting.component.scss'
+    styleUrl: './aggregate-setting.component.scss',
+    standalone: false
 })
 export class AggregateSettingComponent {
     isEditable = input.required<boolean>();

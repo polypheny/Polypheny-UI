@@ -4,7 +4,8 @@ import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 @Component({
     selector: 'app-dynamic-forms',
     templateUrl: './dynamic-forms.component.html',
-    styleUrls: ['./dynamic-forms.component.scss']
+    styleUrls: ['./dynamic-forms.component.scss'],
+    standalone: false
 })
 export class DynamicFormsComponent implements OnInit {
 

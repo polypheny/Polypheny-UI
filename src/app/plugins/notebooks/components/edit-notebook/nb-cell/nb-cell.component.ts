@@ -1,15 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    computed,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    Signal,
-    ViewChild,
-} from '@angular/core';
+import {AfterViewInit, Component, computed, ElementRef, EventEmitter, Input, OnInit, Output, Signal, ViewChild,} from '@angular/core';
 import {CellDisplayDataOutput, CellErrorOutput, CellStreamOutput, NotebookCell} from '../../../models/notebook.model';
 import {default as AnsiUp} from 'ansi_up';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
@@ -25,6 +14,7 @@ import {CatalogService} from '../../../../../services/catalog.service';
     selector: 'app-nb-cell',
     templateUrl: './nb-cell.component.html',
     styleUrls: ['./nb-cell.component.scss'],
+    standalone: false
 })
 export class NbCellComponent implements OnInit, AfterViewInit {
     @Input() cell: NotebookCell;

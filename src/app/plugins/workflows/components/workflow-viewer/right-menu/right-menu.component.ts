@@ -13,7 +13,8 @@ export type MenuTabs = 'settings' | 'variables' | 'config' | 'execution' | 'help
 @Component({
     selector: 'app-right-menu',
     templateUrl: './right-menu.component.html',
-    styleUrl: './right-menu.component.scss'
+    styleUrl: './right-menu.component.scss',
+    standalone: false
 })
 export class RightMenuComponent {
     isEditable = input.required<boolean>();

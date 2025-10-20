@@ -9,7 +9,8 @@ import {Subscription} from 'rxjs';
 @Component({
     selector: 'app-job-list',
     templateUrl: './job-list.component.html',
-    styleUrl: './job-list.component.scss'
+    styleUrl: './job-list.component.scss',
+    standalone: false
 })
 export class JobListComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);

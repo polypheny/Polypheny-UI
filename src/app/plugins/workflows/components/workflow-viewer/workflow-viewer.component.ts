@@ -24,6 +24,8 @@ import {WORKFLOW_DESCRIPTION_LENGTH} from '../workflows-dashboard/workflows-dash
     styleUrl: './workflow-viewer.component.scss',
     providers: [WorkflowsWebSocketService, CheckpointViewerService],
     encapsulation: ViewEncapsulation.None // required to be able to style the rete context menu
+    ,
+    standalone: false
 })
 export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() sessionId: string;

@@ -22,7 +22,8 @@ import {DataResultItem, InfoResultItem, SeparatorResultItem} from './result-item
 @Component({
     selector: 'app-console',
     templateUrl: './console.component.html',
-    styleUrls: ['./console.component.scss']
+    styleUrls: ['./console.component.scss'],
+    standalone: false
 })
 export class ConsoleComponent implements OnInit, OnDestroy {
 

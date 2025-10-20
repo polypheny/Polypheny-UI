@@ -11,7 +11,8 @@ import {DockerInstanceInfo} from '../../../../models/docker.model';
 @Component({
     selector: 'app-notebooks-dashboard',
     templateUrl: './notebooks-dashboard.component.html',
-    styleUrls: ['./notebooks-dashboard.component.scss']
+    styleUrls: ['./notebooks-dashboard.component.scss'],
+    standalone: false
 })
 export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     @Output() serverRunning = new EventEmitter<boolean>(false);

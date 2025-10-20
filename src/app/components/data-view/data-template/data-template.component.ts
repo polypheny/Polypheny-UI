@@ -24,7 +24,8 @@ const INITIAL_TYPE = 'BIGINT';
 @Component({
     selector: 'data-template',
     templateUrl: './data-template.component.html',
-    styleUrls: ['./data-template.component.scss']
+    styleUrls: ['./data-template.component.scss'],
+    standalone: false
 })
 export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 

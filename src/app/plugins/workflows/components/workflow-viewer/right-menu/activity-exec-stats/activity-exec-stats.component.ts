@@ -5,7 +5,8 @@ import {ExecutionState} from '../../../../models/workflows.model';
 @Component({
     selector: 'app-activity-exec-stats',
     templateUrl: './activity-exec-stats.component.html',
-    styleUrl: './activity-exec-stats.component.scss'
+    styleUrl: './activity-exec-stats.component.scss',
+    standalone: false
 })
 export class ActivityExecStatsComponent {
     activity = input.required<Activity>();

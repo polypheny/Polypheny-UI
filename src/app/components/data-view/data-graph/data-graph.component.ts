@@ -8,7 +8,8 @@ import * as d3 from 'd3';
 @Component({
     selector: 'app-data-graph',
     templateUrl: './data-graph.component.html',
-    styleUrls: ['./data-graph.component.scss']
+    styleUrls: ['./data-graph.component.scss'],
+    standalone: false
 })
 export class DataGraphComponent extends DataTemplateComponent {
 

@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-window-arg',
     templateUrl: './window-arg.component.html',
-    styleUrl: './window-arg.component.scss'
+    styleUrl: './window-arg.component.scss',
+    standalone: false
 })
 export class WindowArgComponent {
     @Input() data: WindowControl;

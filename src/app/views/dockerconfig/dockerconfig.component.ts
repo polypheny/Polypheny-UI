@@ -9,7 +9,8 @@ import {AutoDockerStatus, DockerInstanceInfo, HandshakeInfo} from '../../models/
 @Component({
     selector: 'app-dockerconfig',
     templateUrl: './dockerconfig.component.html',
-    styleUrls: ['./dockerconfig.component.scss']
+    styleUrls: ['./dockerconfig.component.scss'],
+    standalone: false
 })
 export class DockerconfigComponent implements OnInit, OnDestroy {
 

@@ -8,7 +8,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-graph-map-setting',
     templateUrl: './graph-map-setting.component.html',
-    styleUrl: './graph-map-setting.component.scss'
+    styleUrl: './graph-map-setting.component.scss',
+    standalone: false
 })
 export class GraphMapSettingComponent {
     isEditable = input.required<boolean>();

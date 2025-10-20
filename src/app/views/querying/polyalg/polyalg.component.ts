@@ -26,7 +26,8 @@ const SAMPLE_PLANS = {
 @Component({
     selector: 'app-polyalg',
     templateUrl: './polyalg.component.html',
-    styleUrl: './polyalg.component.scss'
+    styleUrl: './polyalg.component.scss',
+    standalone: false
 })
 export class PolyalgComponent implements OnInit, OnDestroy {
 
@@ -279,7 +280,10 @@ export class PolyalgComponent implements OnInit, OnDestroy {
 }
 
 // https://stackoverflow.com/a/42820432
-@Directive({selector: '[scrollTo]'})
+@Directive({
+    selector: '[scrollTo]',
+    standalone: false
+})
 export class ScrollToDirective implements AfterViewInit {
     constructor(private elRef: ElementRef) {
     }

@@ -11,7 +11,8 @@ import {Subscription} from 'rxjs';
 @Component({
     selector: 'app-monitoring',
     templateUrl: './monitoring.component.html',
-    styleUrls: ['./monitoring.component.scss']
+    styleUrls: ['./monitoring.component.scss'],
+    standalone: false
 })
 export class MonitoringComponent implements OnInit, OnDestroy {
 

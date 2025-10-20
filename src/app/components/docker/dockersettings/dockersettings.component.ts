@@ -5,7 +5,8 @@ import {CrudService} from '../../../services/crud.service';
 @Component({
     selector: 'app-dockersettings',
     templateUrl: './dockersettings.component.html',
-    styleUrls: ['./dockersettings.component.scss']
+    styleUrls: ['./dockersettings.component.scss'],
+    standalone: false
 })
 export class DockersettingsComponent implements OnInit {
 

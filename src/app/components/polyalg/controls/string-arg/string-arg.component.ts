@@ -8,7 +8,8 @@ import {hasValidStructure, sanitizeAlias} from '../arg-control-utils';
 @Component({
     selector: 'app-string-arg',
     templateUrl: './string-arg.component.html',
-    styleUrl: './string-arg.component.scss'
+    styleUrl: './string-arg.component.scss',
+    standalone: false
 })
 export class StringArgComponent {
     @Input() data: StringControl;

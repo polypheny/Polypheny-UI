@@ -7,7 +7,8 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 @Component({
     selector: 'app-refinement-options',
     templateUrl: './refinement-options.component.html',
-    styleUrls: ['./refinement-options.component.scss']
+    styleUrls: ['./refinement-options.component.scss'],
+    standalone: false
 })
 
 export class RefinementOptionsComponent implements OnInit {

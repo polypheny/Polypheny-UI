@@ -7,7 +7,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-field-rename-setting',
     templateUrl: './field-rename-setting.component.html',
-    styleUrl: './field-rename-setting.component.scss'
+    styleUrl: './field-rename-setting.component.scss',
+    standalone: false
 })
 export class FieldRenameSettingComponent {
     isEditable = input.required<boolean>();

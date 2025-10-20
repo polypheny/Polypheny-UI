@@ -5,7 +5,8 @@ import {Info, Pair, Type} from '../json-editor.component';
     selector: 'app-json-elem',
     templateUrl: './json-elem.component.html',
     styleUrls: ['./json-elem.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 
 export class JsonElemComponent implements OnInit, OnChanges {

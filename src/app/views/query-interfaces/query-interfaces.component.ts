@@ -12,7 +12,8 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 @Component({
     selector: 'app-query-interfaces',
     templateUrl: './query-interfaces.component.html',
-    styleUrls: ['./query-interfaces.component.scss']
+    styleUrls: ['./query-interfaces.component.scss'],
+    standalone: false
 })
 export class QueryInterfacesComponent implements OnInit, OnDestroy {
 

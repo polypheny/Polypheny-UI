@@ -19,7 +19,8 @@ const INITIAL_TYPE = 'BIGINT';
 @Component({
     selector: 'app-edit-tables',
     templateUrl: './edit-tables.component.html',
-    styleUrls: ['./edit-tables.component.scss']
+    styleUrls: ['./edit-tables.component.scss'],
+    standalone: false
 })
 export class EditTablesComponent implements OnInit, OnDestroy {
 

@@ -10,7 +10,8 @@ import {Component, EventEmitter, Input, model, Output, ViewEncapsulation} from '
     selector: 'app-autocomplete',
     templateUrl: './autocomplete.component.html',
     styleUrl: './autocomplete.component.scss',
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class AutocompleteComponent {
     value = model.required<string>();

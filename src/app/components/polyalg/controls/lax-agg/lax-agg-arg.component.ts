@@ -9,7 +9,8 @@ import {sanitizeAlias} from '../arg-control-utils';
 @Component({
     selector: 'app-lax-agg-arg',
     templateUrl: './lax-agg-arg.component.html',
-    styleUrl: './lax-agg-arg.component.scss'
+    styleUrl: './lax-agg-arg.component.scss',
+    standalone: false
 })
 export class LaxAggArgComponent implements OnInit {
     @Input() data: LaxAggControl;

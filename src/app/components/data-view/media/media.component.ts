@@ -4,7 +4,8 @@ import Plyr from 'plyr';
 @Component({
     selector: 'app-media',
     templateUrl: './media.component.html',
-    styleUrls: ['./media.component.scss']
+    styleUrls: ['./media.component.scss'],
+    standalone: false
 })
 export class MediaComponent implements OnInit, AfterViewInit {
 

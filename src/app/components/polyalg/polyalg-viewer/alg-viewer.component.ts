@@ -28,7 +28,8 @@ interface NodeEditor {
 @Component({
     selector: 'app-alg-viewer',
     templateUrl: './alg-viewer.component.html',
-    styleUrl: './alg-viewer.component.scss'
+    styleUrl: './alg-viewer.component.scss',
+    standalone: false
 })
 export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 

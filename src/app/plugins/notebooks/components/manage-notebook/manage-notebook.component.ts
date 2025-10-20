@@ -13,7 +13,8 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 @Component({
     selector: 'app-manage-notebook',
     templateUrl: './manage-notebook.component.html',
-    styleUrls: ['./manage-notebook.component.scss']
+    styleUrls: ['./manage-notebook.component.scss'],
+    standalone: false
 })
 export class ManageNotebookComponent implements OnInit, OnDestroy {
 

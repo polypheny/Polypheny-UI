@@ -3,7 +3,8 @@ import {Component, computed, input, OnInit, Signal} from '@angular/core';
 @Component({
     selector: 'app-json-text',
     templateUrl: './json-text.component.html',
-    styleUrls: ['./json-text.component.scss']
+    styleUrls: ['./json-text.component.scss'],
+    standalone: false
 })
 export class JsonTextComponent implements OnInit {
 

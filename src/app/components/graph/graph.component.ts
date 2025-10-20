@@ -4,7 +4,8 @@ import {hexToRgba} from '@coreui/utils';
 @Component({
     selector: 'app-graph',
     templateUrl: './graph.component.html',
-    styleUrls: ['./graph.component.scss']
+    styleUrls: ['./graph.component.scss'],
+    standalone: false
 })
 
 export class GraphComponent implements OnInit, OnChanges {

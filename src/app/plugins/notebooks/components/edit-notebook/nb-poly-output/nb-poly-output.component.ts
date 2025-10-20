@@ -5,7 +5,8 @@ import {Result} from '../../../../../components/data-view/models/result-set.mode
 @Component({
     selector: 'app-db-poly-output',
     templateUrl: './nb-poly-output.component.html',
-    styleUrls: ['./nb-poly-output.component.scss']
+    styleUrls: ['./nb-poly-output.component.scss'],
+    standalone: false
 })
 export class NbPolyOutputComponent implements OnInit {
 

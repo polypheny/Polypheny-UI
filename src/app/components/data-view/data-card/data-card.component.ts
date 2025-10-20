@@ -5,7 +5,8 @@ import {DataModel} from '../../../models/ui-request.model';
 @Component({
     selector: 'app-data-card',
     templateUrl: './data-card.component.html',
-    styleUrls: ['./data-card.component.scss']
+    styleUrls: ['./data-card.component.scss'],
+    standalone: false
 })
 export class DataCardComponent extends DataTemplateComponent implements OnInit {
 

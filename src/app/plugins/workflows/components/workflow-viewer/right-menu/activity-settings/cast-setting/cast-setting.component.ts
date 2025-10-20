@@ -10,7 +10,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-cast-setting',
     templateUrl: './cast-setting.component.html',
-    styleUrl: './cast-setting.component.scss'
+    styleUrl: './cast-setting.component.scss',
+    standalone: false
 })
 export class CastSettingComponent implements OnInit {
     isEditable = input.required<boolean>();

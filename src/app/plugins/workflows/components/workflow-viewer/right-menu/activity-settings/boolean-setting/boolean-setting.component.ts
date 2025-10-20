@@ -5,7 +5,8 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 @Component({
     selector: 'app-boolean-setting',
     templateUrl: './boolean-setting.component.html',
-    styleUrl: './boolean-setting.component.scss'
+    styleUrl: './boolean-setting.component.scss',
+    standalone: false
 })
 export class BooleanSettingComponent {
     isEditable = input.required<boolean>();

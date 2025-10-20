@@ -4,7 +4,8 @@ import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
 @Component({
     selector: 'app-json-editor',
     templateUrl: './json-editor.component.html',
-    styleUrls: ['./json-editor.component.scss']
+    styleUrls: ['./json-editor.component.scss'],
+    standalone: false
 })
 
 export class JsonEditorComponent implements OnInit {

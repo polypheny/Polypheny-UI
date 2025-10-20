@@ -7,7 +7,8 @@ import {InformationService} from '../../services/information.service';
     selector: 'app-information-manager',
     templateUrl: './information-manager.component.html',
     styleUrls: ['./information-manager.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class InformationManagerComponent implements OnInit {
 

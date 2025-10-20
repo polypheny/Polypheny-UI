@@ -6,7 +6,8 @@ import {ToastComponent} from './toast/toast.component';
 @Component({
     selector: 'app-toast-exposer',
     templateUrl: './toast-exposer.component.html',
-    styleUrls: ['./toast-exposer.component.scss']
+    styleUrls: ['./toast-exposer.component.scss'],
+    standalone: false
 })
 export class ToastExposerComponent implements OnInit {
 

@@ -11,7 +11,6 @@ import {META_ACTIVITY_TYPES, NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
 
 @Component({
     selector: 'app-activity-config-editor',
-    standalone: true,
     imports: [
         FormsModule,
         NgForOf,

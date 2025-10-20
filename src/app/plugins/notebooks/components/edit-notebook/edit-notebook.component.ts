@@ -21,7 +21,8 @@ import {MarkdownService, MarkedRenderer} from 'ngx-markdown';
 @Component({
     selector: 'app-edit-notebook',
     templateUrl: './edit-notebook.component.html',
-    styleUrls: ['./edit-notebook.component.scss']
+    styleUrls: ['./edit-notebook.component.scss'],
+    standalone: false
 })
 export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private readonly _notebooks = inject(NotebooksService);
