@@ -16,7 +16,8 @@ import {AdapterModel} from '../adapters/adapter.model';
 @Component({
     selector: 'app-schema-editing',
     templateUrl: './schema-editing.component.html',
-    styleUrls: ['./schema-editing.component.scss']
+    styleUrls: ['./schema-editing.component.scss'],
+    standalone: false
 })
 export class SchemaEditingComponent implements OnInit, OnDestroy {
 

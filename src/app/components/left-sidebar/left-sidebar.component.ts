@@ -10,7 +10,8 @@ import {CatalogState} from '../../models/catalog.model';
 @Component({
     selector: 'app-left-sidebar',
     templateUrl: './left-sidebar.component.html',
-    styleUrls: ['./left-sidebar.component.scss']
+    styleUrls: ['./left-sidebar.component.scss'],
+    standalone: false
 })
 
 //docs: https://angular2-tree.readme.io/docs/

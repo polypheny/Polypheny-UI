@@ -9,7 +9,8 @@ import Position = Popper.Position;
             <path [attr.d]="path"/>
         </svg>
     `,
-    styleUrl: './magnetic-connection.component.scss'
+    styleUrl: './magnetic-connection.component.scss',
+    standalone: false
 })
 export class MagneticConnectionComponent {
     @Input() data: any;

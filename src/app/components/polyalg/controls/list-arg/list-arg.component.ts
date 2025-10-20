@@ -8,7 +8,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-list-arg',
     templateUrl: './list-arg.component.html',
-    styleUrl: './list-arg.component.scss'
+    styleUrl: './list-arg.component.scss',
+    standalone: false
 })
 export class ListArgComponent {
     @Input() data: ListControl;

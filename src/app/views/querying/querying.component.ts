@@ -6,6 +6,7 @@ import {PolyAlgService} from '../../components/polyalg/polyalg.service';
     selector: 'app-querying',
     templateUrl: './querying.component.html',
     styleUrls: ['./querying.component.scss'],
+    standalone: false
 })
 export class QueryingComponent implements OnInit {
 

@@ -14,7 +14,8 @@ import {AdapterModel} from '../../adapters/adapter.model';
 @Component({
     selector: 'app-document-edit-collections',
     templateUrl: './document-edit-collections.component.html',
-    styleUrls: ['./document-edit-collections.component.scss']
+    styleUrls: ['./document-edit-collections.component.scss'],
+    standalone: false
 })
 export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 

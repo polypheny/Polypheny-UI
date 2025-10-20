@@ -6,7 +6,8 @@ import {EdgeModel, EdgeState} from '../../../../models/workflows.model';
 @Component({
     selector: 'app-edge',
     templateUrl: './edge.component.html',
-    styleUrl: './edge.component.scss'
+    styleUrl: './edge.component.scss',
+    standalone: false
 })
 export class EdgeComponent implements OnInit {
     @Input() data!: Edge<ActivityNode>;

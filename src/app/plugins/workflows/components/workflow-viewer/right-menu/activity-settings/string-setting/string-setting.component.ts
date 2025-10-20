@@ -11,7 +11,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-string-setting',
     templateUrl: './string-setting.component.html',
-    styleUrl: './string-setting.component.scss'
+    styleUrl: './string-setting.component.scss',
+    standalone: false
 })
 export class StringSettingComponent implements OnInit, AfterViewInit {
     isEditable = input.required<boolean>();

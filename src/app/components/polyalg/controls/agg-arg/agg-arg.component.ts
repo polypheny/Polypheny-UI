@@ -10,7 +10,8 @@ import {sanitizeAlias} from '../arg-control-utils';
 @Component({
     selector: 'app-agg-arg',
     templateUrl: './agg-arg.component.html',
-    styleUrl: './agg-arg.component.scss'
+    styleUrl: './agg-arg.component.scss',
+    standalone: false
 })
 export class AggArgComponent implements OnInit {
 

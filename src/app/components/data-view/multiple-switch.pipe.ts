@@ -2,6 +2,7 @@ import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
     name: 'multipleSwitch',
+    standalone: false
 })
 export class MultipleSwitchPipe implements PipeTransform {
     transform<T = any>(cases: T[], value: T): T {

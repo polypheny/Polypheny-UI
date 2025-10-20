@@ -12,7 +12,8 @@ import {UtilService} from '../../../services/util.service';
     selector: 'app-toast',
     templateUrl: './toast.component.html',
     styleUrls: ['./toast.component.scss'],
-    providers: [{provide: ToastParent, useExisting: forwardRef(() => ToastComponent)}]
+    providers: [{provide: ToastParent, useExisting: forwardRef(() => ToastComponent)}],
+    standalone: false
 })
 export class ToastComponent extends ToastParent {
 

@@ -5,7 +5,8 @@ import {EditorComponent} from '../../../../../components/editor/editor.component
 @Component({
     selector: 'app-nb-input-editor',
     templateUrl: './nb-input-editor.component.html',
-    styleUrls: ['./nb-input-editor.component.scss']
+    styleUrls: ['./nb-input-editor.component.scss'],
+    standalone: false
 })
 export class NbInputEditorComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() type: CellType;

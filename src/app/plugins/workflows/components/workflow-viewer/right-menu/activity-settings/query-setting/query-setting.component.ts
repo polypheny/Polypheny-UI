@@ -6,7 +6,8 @@ import {EditorComponent} from '../../../../../../../components/editor/editor.com
 @Component({
     selector: 'app-query-setting',
     templateUrl: './query-setting.component.html',
-    styleUrl: './query-setting.component.scss'
+    styleUrl: './query-setting.component.scss',
+    standalone: false
 })
 export class QuerySettingComponent implements AfterViewInit {
     isEditable = input.required<boolean>();

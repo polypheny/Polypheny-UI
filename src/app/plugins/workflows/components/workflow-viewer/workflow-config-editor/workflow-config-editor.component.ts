@@ -7,7 +7,8 @@ import {WorkflowsWebSocketService} from '../../../services/workflows-websocket.s
 @Component({
     selector: 'app-workflow-config-editor',
     templateUrl: './workflow-config-editor.component.html',
-    styleUrl: './workflow-config-editor.component.scss'
+    styleUrl: './workflow-config-editor.component.scss',
+    standalone: false
 })
 export class WorkflowConfigEditorComponent implements OnInit {
     config = input.required<WorkflowConfigModel>();

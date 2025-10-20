@@ -18,7 +18,8 @@ type Tabs = (typeof tabs)[number]; // returns the type of any element in the tab
 @Component({
     selector: 'app-graph-edit',
     templateUrl: './graph-edit-graph.component.html',
-    styleUrls: ['./graph-edit-graph.component.scss']
+    styleUrls: ['./graph-edit-graph.component.scss'],
+    standalone: false
 })
 
 export class GraphEditGraphComponent implements OnInit, OnDestroy {

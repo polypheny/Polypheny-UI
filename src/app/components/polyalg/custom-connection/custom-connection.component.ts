@@ -11,7 +11,8 @@ import Position = Popper.Position;
             <path [attr.d]="path" [attr.stroke-width]="data.width || DEFAULT_WIDTH"/>
         </svg>
     `,
-    styleUrl: './custom-connection.component.scss'
+    styleUrl: './custom-connection.component.scss',
+    standalone: false
 })
 export class CustomConnectionComponent {
     @Input() data!: CustomConnection<AlgNode>;

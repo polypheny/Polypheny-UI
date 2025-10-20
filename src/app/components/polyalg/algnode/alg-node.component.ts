@@ -16,7 +16,8 @@ type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N[
 @Component({
     selector: 'app-alg-node',
     templateUrl: './alg-node.component.html',
-    styleUrl: './alg-node.component.scss'
+    styleUrl: './alg-node.component.scss',
+    standalone: false
 })
 export class AlgNodeComponent implements OnChanges {
     @Input() data!: AlgNode;

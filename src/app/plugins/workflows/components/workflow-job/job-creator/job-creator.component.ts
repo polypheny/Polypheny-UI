@@ -6,7 +6,8 @@ import {ToasterService} from '../../../../../components/toast-exposer/toaster.se
 @Component({
     selector: 'app-job-creator',
     templateUrl: './job-creator.component.html',
-    styleUrl: './job-creator.component.scss'
+    styleUrl: './job-creator.component.scss',
+    standalone: false
 })
 export class JobCreatorComponent {
     @ViewChild('variableEditor') variableEditor: JsonEditorComponent;

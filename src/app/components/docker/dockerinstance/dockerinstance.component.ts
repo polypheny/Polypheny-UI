@@ -6,7 +6,8 @@ import {ToasterService} from '../../toast-exposer/toaster.service';
 @Component({
     selector: 'app-dockerinstance',
     templateUrl: './dockerinstance.component.html',
-    styleUrls: ['./dockerinstance.component.scss']
+    styleUrls: ['./dockerinstance.component.scss'],
+    standalone: false
 })
 export class DockerInstanceComponent implements OnChanges, OnDestroy {
     hostname: string;

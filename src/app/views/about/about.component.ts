@@ -4,7 +4,8 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 @Component({
     selector: 'app-about',
     templateUrl: './about.component.html',
-    styleUrls: ['./about.component.scss']
+    styleUrls: ['./about.component.scss'],
+    standalone: false
 })
 export class AboutComponent implements OnInit {
 

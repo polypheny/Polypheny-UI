@@ -7,7 +7,6 @@ import {NgClass} from '@angular/common';
 
 @Component({
     selector: 'app-activity-port',
-    standalone: true,
     imports: [
         NgClass
     ],

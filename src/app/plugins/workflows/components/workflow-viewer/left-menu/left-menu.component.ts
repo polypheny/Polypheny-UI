@@ -6,7 +6,8 @@ import {ActivityCategory, ActivityDef} from '../../../models/activity-registry.m
 @Component({
     selector: 'app-left-menu',
     templateUrl: './left-menu.component.html',
-    styleUrl: './left-menu.component.scss'
+    styleUrl: './left-menu.component.scss',
+    standalone: false
 })
 export class LeftMenuComponent {
     isEditable = input.required<boolean>();

@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-collation-arg',
     templateUrl: './collation-arg.component.html',
-    styleUrl: './collation-arg.component.scss'
+    styleUrl: './collation-arg.component.scss',
+    standalone: false
 })
 export class CollationArgComponent {
     @Input() data: CollationControl;

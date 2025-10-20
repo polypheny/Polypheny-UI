@@ -9,7 +9,8 @@ type Directions = 'ASCENDING' | 'STRICTLY_ASCENDING' | 'DESCENDING' | 'STRICTLY_
 @Component({
     selector: 'app-collation-setting',
     templateUrl: './collation-setting.component.html',
-    styleUrl: './collation-setting.component.scss'
+    styleUrl: './collation-setting.component.scss',
+    standalone: false
 })
 export class CollationSettingComponent {
     isEditable = input.required<boolean>();

@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-field-arg',
     templateUrl: './field-arg.component.html',
-    styleUrl: './field-arg.component.scss'
+    styleUrl: './field-arg.component.scss',
+    standalone: false
 })
 export class FieldArgComponent {
     @Input() data: FieldControl;

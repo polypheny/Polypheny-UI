@@ -19,7 +19,8 @@ type Tabs = (typeof tabs)[number]; // returns the type of any element in the tab
 @Component({
     selector: 'app-document-edit-collection',
     templateUrl: './document-edit-collection.component.html',
-    styleUrls: ['./document-edit-collection.component.scss']
+    styleUrls: ['./document-edit-collection.component.scss'],
+    standalone: false
 })
 
 export class DocumentEditCollectionComponent implements OnInit, OnDestroy {

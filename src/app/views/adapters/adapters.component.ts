@@ -13,7 +13,8 @@ import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.ser
 @Component({
     selector: 'app-adapters',
     templateUrl: './adapters.component.html',
-    styleUrls: ['./adapters.component.scss']
+    styleUrls: ['./adapters.component.scss'],
+    standalone: false
 })
 export class AdaptersComponent implements OnInit, OnDestroy {
 

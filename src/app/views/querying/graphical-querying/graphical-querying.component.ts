@@ -1,16 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    effect,
-    inject,
-    OnDestroy,
-    OnInit,
-    signal,
-    untracked,
-    ViewChild,
-    ViewEncapsulation,
-    WritableSignal
-} from '@angular/core';
+import {AfterViewInit, Component, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild, ViewEncapsulation, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
@@ -32,8 +20,8 @@ import {CatalogService} from '../../../services/catalog.service';
     selector: 'app-graphical-querying',
     templateUrl: './graphical-querying.component.html',
     styleUrls: ['./graphical-querying.component.scss'],
-    encapsulation: ViewEncapsulation.None, // new elements in sortable should have margin as well
-
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDestroy {
 

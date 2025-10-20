@@ -9,7 +9,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-field-select-setting',
     templateUrl: './field-select-setting.component.html',
-    styleUrl: './field-select-setting.component.scss'
+    styleUrl: './field-select-setting.component.scss',
+    standalone: false
 })
 export class FieldSelectSettingComponent {
     isEditable = input.required<boolean>();

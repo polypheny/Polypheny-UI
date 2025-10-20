@@ -11,6 +11,8 @@ import {CatalogService} from '../../../../services/catalog.service';
     templateUrl: './entity-arg.component.html',
     styleUrl: './entity-arg.component.scss',
     encapsulation: ViewEncapsulation.None // for autocomplete styling
+    ,
+    standalone: false
 })
 export class EntityArgComponent implements OnInit {
     @Input() data: EntityControl;

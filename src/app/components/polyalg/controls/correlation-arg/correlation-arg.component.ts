@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-correlation-arg',
     templateUrl: './correlation-arg.component.html',
-    styleUrl: './correlation-arg.component.scss'
+    styleUrl: './correlation-arg.component.scss',
+    standalone: false
 })
 export class CorrelationArgComponent {
     @Input() data: CorrelationControl;

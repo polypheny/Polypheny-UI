@@ -4,7 +4,8 @@ import {BadgeLevel, MetadataBadge, MetadataConnection, MetadataTableEntry, PlanM
 @Component({
     selector: 'app-alg-metadata',
     templateUrl: './alg-metadata.component.html',
-    styleUrl: './alg-metadata.component.scss'
+    styleUrl: './alg-metadata.component.scss',
+    standalone: false
 })
 export class AlgMetadataComponent {
     @Input() data: AlgMetadata;

@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-boolean-arg',
     templateUrl: './boolean-arg.component.html',
-    styleUrl: './boolean-arg.component.scss'
+    styleUrl: './boolean-arg.component.scss',
+    standalone: false
 })
 export class BooleanArgComponent {
     @Input() data: BooleanControl;

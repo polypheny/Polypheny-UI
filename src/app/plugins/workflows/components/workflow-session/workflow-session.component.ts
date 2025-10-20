@@ -9,7 +9,8 @@ import {MarkdownService, MarkedRenderer} from 'ngx-markdown';
 @Component({
     selector: 'app-workflow-session',
     templateUrl: './workflow-session.component.html',
-    styleUrl: './workflow-session.component.scss'
+    styleUrl: './workflow-session.component.scss',
+    standalone: false
 })
 export class WorkflowSessionComponent implements OnInit, OnDestroy {
     private readonly _route = inject(ActivatedRoute);

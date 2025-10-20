@@ -7,7 +7,8 @@ import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 @Component({
     selector: 'app-render-item',
     templateUrl: './render-item.component.html',
-    styleUrls: ['./render-item.component.scss']
+    styleUrls: ['./render-item.component.scss'],
+    standalone: false
 })
 export class RenderItemComponent implements OnInit {
 

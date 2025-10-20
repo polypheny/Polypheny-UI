@@ -6,7 +6,8 @@ import {Workflow} from '../workflow';
 @Component({
     selector: 'app-execution-monitor',
     templateUrl: './execution-monitor.component.html',
-    styleUrl: './execution-monitor.component.scss'
+    styleUrl: './execution-monitor.component.scss',
+    standalone: false
 })
 export class ExecutionMonitorComponent {
 

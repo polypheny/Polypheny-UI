@@ -16,7 +16,8 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 @Component({
     selector: 'app-notebooks',
     templateUrl: './notebooks.component.html',
-    styleUrls: ['./notebooks.component.scss']
+    styleUrls: ['./notebooks.component.scss'],
+    standalone: false
 })
 export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<ComponentCanDeactivate> {
 

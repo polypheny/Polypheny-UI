@@ -4,7 +4,8 @@ import {SettingDefModel} from '../../../../../models/activity-registry.model';
 @Component({
     selector: 'app-enum-setting',
     templateUrl: './enum-setting.component.html',
-    styleUrl: './enum-setting.component.scss'
+    styleUrl: './enum-setting.component.scss',
+    standalone: false
 })
 export class EnumSettingComponent {
     isEditable = input.required<boolean>();

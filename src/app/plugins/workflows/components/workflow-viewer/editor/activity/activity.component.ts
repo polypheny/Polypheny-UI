@@ -34,7 +34,8 @@ export const portTypeIcons = {
 @Component({
     selector: 'app-activity',
     templateUrl: './activity.component.html',
-    styleUrl: './activity.component.scss'
+    styleUrl: './activity.component.scss',
+    standalone: false
 })
 export class ActivityComponent implements OnInit, OnChanges {
     @Input() data!: ActivityNode;

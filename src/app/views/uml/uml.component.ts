@@ -15,7 +15,8 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 @Component({
     selector: 'app-uml',
     templateUrl: './uml.component.html',
-    styleUrls: ['./uml.component.scss']
+    styleUrls: ['./uml.component.scss'],
+    standalone: false
 })
 
 export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {

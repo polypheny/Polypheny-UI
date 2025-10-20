@@ -5,7 +5,8 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 @Component({
     selector: 'app-file-setting',
     templateUrl: './file-setting.component.html',
-    styleUrl: './file-setting.component.scss'
+    styleUrl: './file-setting.component.scss',
+    standalone: false
 })
 export class FileSettingComponent implements OnInit {
     isEditable = input.required<boolean>();

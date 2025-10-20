@@ -6,6 +6,7 @@ import {KatexOptions} from 'ngx-markdown';
     selector: 'app-activity-help',
     templateUrl: './activity-help.component.html',
     styleUrl: './activity-help.component.scss',
+    standalone: false
 })
 export class ActivityHelpComponent implements OnInit {
     def = input.required<ActivityDef>();

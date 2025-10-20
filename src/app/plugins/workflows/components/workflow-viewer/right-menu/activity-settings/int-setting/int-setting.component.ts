@@ -5,7 +5,8 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 @Component({
     selector: 'app-int-setting',
     templateUrl: './int-setting.component.html',
-    styleUrl: './int-setting.component.scss'
+    styleUrl: './int-setting.component.scss',
+    standalone: false
 })
 export class IntSettingComponent {
     isEditable = input.required<boolean>();

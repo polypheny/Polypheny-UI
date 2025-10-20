@@ -8,7 +8,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-enum-arg',
     templateUrl: './enum-arg.component.html',
-    styleUrl: './enum-arg.component.scss'
+    styleUrl: './enum-arg.component.scss',
+    standalone: false
 })
 export class EnumArgComponent implements OnInit {
     @Input() data: EnumControl;

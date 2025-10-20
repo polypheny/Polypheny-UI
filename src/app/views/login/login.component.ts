@@ -5,7 +5,8 @@ import {Router} from '@angular/router';
 @Component({
     selector: 'app-dashboard',
     templateUrl: 'login.component.html',
-    styleUrls: ['login.component.scss']
+    styleUrls: ['login.component.scss'],
+    standalone: false
 })
 export class LoginComponent implements OnInit {
     form: UntypedFormGroup;

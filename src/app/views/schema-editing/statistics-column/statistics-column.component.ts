@@ -10,7 +10,8 @@ import {TableStatistics} from '../../../components/data-view/models/result-set.m
 @Component({
     selector: 'app-statistics-column',
     templateUrl: './statistics-column.component.html',
-    styleUrls: ['./statistics-column.component.scss']
+    styleUrls: ['./statistics-column.component.scss'],
+    standalone: false
 })
 export class StatisticsColumnComponent implements OnInit, OnDestroy {
 

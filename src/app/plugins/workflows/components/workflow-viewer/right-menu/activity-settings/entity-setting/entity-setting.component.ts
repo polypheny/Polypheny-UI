@@ -7,7 +7,8 @@ import {CatalogService} from '../../../../../../../services/catalog.service';
 @Component({
     selector: 'app-entity-setting',
     templateUrl: './entity-setting.component.html',
-    styleUrl: './entity-setting.component.scss'
+    styleUrl: './entity-setting.component.scss',
+    standalone: false
 })
 export class EntitySettingComponent implements OnInit {
     isEditable = input.required<boolean>();

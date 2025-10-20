@@ -4,7 +4,8 @@ import {NavigationEnd, Router} from '@angular/router';
 @Component({
     // tslint:disable-next-line
     selector: 'body',
-    templateUrl: './app.component.html'
+    templateUrl: './app.component.html',
+    standalone: false
 })
 export class AppComponent implements OnInit {
     constructor(private router: Router) {

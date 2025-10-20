@@ -8,7 +8,8 @@ import {Variables} from '../../../../models/workflows.model';
 @Component({
     selector: 'app-activity-settings',
     templateUrl: './activity-settings.component.html',
-    styleUrl: './activity-settings.component.scss'
+    styleUrl: './activity-settings.component.scss',
+    standalone: false
 })
 export class ActivitySettingsComponent implements OnInit {
     protected readonly SettingType = SettingType;

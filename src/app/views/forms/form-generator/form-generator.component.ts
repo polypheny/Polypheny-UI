@@ -14,7 +14,8 @@ import {PluginStatus} from '../../../models/ui-request.model';
 @Component({
     selector: 'app-form-generator',
     templateUrl: './form-generator.component.html',
-    styleUrls: ['./form-generator.component.scss']
+    styleUrls: ['./form-generator.component.scss'],
+    standalone: false
 })
 
 export class FormGeneratorComponent implements OnInit, OnDestroy {

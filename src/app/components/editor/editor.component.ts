@@ -19,7 +19,8 @@ import {CatalogService} from '../../services/catalog.service';
 @Component({
     selector: 'app-editor',
     templateUrl: './editor.component.html',
-    styleUrls: ['./editor.component.scss']
+    styleUrls: ['./editor.component.scss'],
+    standalone: false
 })
 
 //ace editor: see: https://medium.com/@ofir3322/create-an-online-ide-with-angular-6-nodejs-part-1-163a939a7929

@@ -5,7 +5,8 @@ import {OperatorModel} from '../models/polyalg-registry';
 @Component({
     selector: 'app-custom-socket',
     template: ``,
-    styleUrl: './custom-socket.component.scss'
+    styleUrl: './custom-socket.component.scss',
+    standalone: false
 })
 export class CustomSocketComponent implements OnInit, OnChanges {
     @Input() data!: AlgNodeSocket;

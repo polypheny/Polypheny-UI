@@ -3,7 +3,8 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 @Component({
     selector: 'app-delete-confirm',
     templateUrl: './delete-confirm.component.html',
-    styleUrls: ['./delete-confirm.component.scss']
+    styleUrls: ['./delete-confirm.component.scss'],
+    standalone: false
 })
 export class DeleteConfirmComponent implements OnInit {
 

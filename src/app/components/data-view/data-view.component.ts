@@ -37,7 +37,8 @@ export class ViewInformation {
 @Component({
     selector: 'app-data-view',
     templateUrl: './data-view.component.html',
-    styleUrls: ['./data-view.component.scss']
+    styleUrls: ['./data-view.component.scss'],
+    standalone: false
 })
 export class DataViewComponent implements OnDestroy {
 
