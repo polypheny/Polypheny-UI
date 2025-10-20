@@ -41,9 +41,9 @@ export class PluginService {
             if ((this.pluginRequestFired + this.REQUEST_DELAY) < today) {
                 this.pluginRequestFired = today;
                 this._http.get(`${this.httpUrl}/getAvailablePlugins`, this.httpOptions)
-                    .subscribe(res => {
-                        this.availablePlugins = <[PluginEntity]>res;
-                    });
+                .subscribe(res => {
+                    this.availablePlugins = <[PluginEntity]>res;
+                });
             }
             return [];
         }
