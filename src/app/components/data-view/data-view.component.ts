@@ -6,7 +6,6 @@ import {ToasterService} from '../toast-exposer/toaster.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {DataModel} from '../../models/ui-request.model';
-import * as Plyr from 'plyr';
 import {Subscription} from 'rxjs';
 import {WebuiSettingsService} from '../../services/webui-settings.service';
 
@@ -129,8 +128,6 @@ export class DataViewComponent implements OnDestroy {
 
     $presentationType: WritableSignal<DataPresentationType> = signal(DataPresentationType.TABLE);
     presentationTypes: typeof DataPresentationType = DataPresentationType;
-
-    player: Plyr;
     subscriptions = new Subscription();
 
     query: string;

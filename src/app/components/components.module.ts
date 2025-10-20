@@ -112,7 +112,7 @@ import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
 import {AlgViewerComponent} from './polyalg/polyalg-viewer/alg-viewer.component';
 import {AlgNodeComponent} from './polyalg/algnode/alg-node.component';
-import {ReteModule} from 'rete-angular-plugin/17';
+import {ReteModule} from 'rete-angular-plugin/18';
 import {EntityArgComponent} from './polyalg/controls/entity-arg/entity-arg.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {ListArgComponent} from './polyalg/controls/list-arg/list-arg.component';
