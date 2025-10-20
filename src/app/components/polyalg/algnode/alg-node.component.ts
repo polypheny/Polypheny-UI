@@ -5,7 +5,7 @@ import {Declaration, OperatorModel, SimpleType} from '../models/polyalg-registry
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
 import {ArgControl} from '../controls/arg-control';
-import {Position} from 'rete-angular-plugin/17/types';
+import {Position} from 'rete-angular-plugin/18/types';
 import {AlgNodeSocket} from '../custom-socket/custom-socket.component';
 import {AlgMetadata} from './alg-metadata/alg-metadata.component';
 import {getModelPrefix} from '../polyalg-viewer/alg-editor-utils';

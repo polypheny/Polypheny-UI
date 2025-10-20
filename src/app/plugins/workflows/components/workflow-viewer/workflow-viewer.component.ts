@@ -4,7 +4,7 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 import {WorkflowEditor} from './editor/workflow-editor';
 import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, RenderingUpdateResponse, ResponseType, StateUpdateResponse, WsResponse} from '../../models/ws-response.model';
 import {filter, Subscription} from 'rxjs';
-import {Position} from 'rete-angular-plugin/17/types';
+import {Position} from 'rete-angular-plugin/18/types';
 import {Activity, Workflow} from './workflow';
 import {ActivityState, SessionModel, WorkflowDefModel, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';

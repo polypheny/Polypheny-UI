@@ -142,7 +142,7 @@ export class JsonElemComponent implements OnInit, OnChanges {
             if (!temp) {
                 this.errorMessage = this.dupKeyError;
             }
-            this.valid &&= temp && this.el.value instanceof Array && this.el.value.reduce<boolean>((c, next) => c && next.isValid(), true);
+            this.valid &&= temp && this.el.value instanceof Array && this.el.value.every(pair => pair.isValid());
         }
         this.validChanged.emit();
     }

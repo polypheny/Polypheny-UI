@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import * as Plyr from 'plyr';
+import Plyr from 'plyr';
 
 @Component({
     selector: 'app-media',
