@@ -1,9 +1,9 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "downlevelIteration": true,
     "importHelpers": true,
     "module": "esnext",
+    "esModuleInterop": true,
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -20,8 +20,7 @@
     ],
     "types": [
     ],
-    "useDefineForClassFields": false,
-    "allowSyntheticDefaultImports": true
+    "useDefineForClassFields": false
   },
   "exclude": ["node_modules"],
   "angularCompilerOptions": {

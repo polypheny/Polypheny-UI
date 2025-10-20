@@ -17,7 +17,7 @@ import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {NgChartsModule} from 'ng2-charts';
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {
     AvatarComponent,
@@ -82,8 +82,15 @@ import {MarkdownModule} from 'ngx-markdown';
 
 
 @NgModule({
-    imports: [
-        ComponentsModule,
+    declarations: [
+        AppComponent,
+        DefaultLayoutComponent,
+        P404Component,
+        P500Component,
+        LoginComponent
+    ],
+    bootstrap: [AppComponent],
+    exports: [], imports: [ComponentsModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
@@ -103,7 +110,6 @@ import {MarkdownModule} from 'ngx-markdown';
         ReactiveFormsModule,
         BsDropdownModule,
         TypeaheadModule.forRoot(),
-        HttpClientModule,
         ViewsModule,
         PopoverModule.forRoot(),
         ModalModule.forRoot(),
@@ -155,21 +161,10 @@ import {MarkdownModule} from 'ngx-markdown';
         CollapseDirective,
         NavbarBrandDirective,
         NavbarNavComponent,
-        MarkdownModule.forRoot()
-    ],
-    declarations: [
-        AppComponent,
-        DefaultLayoutComponent,
-        P404Component,
-        P500Component,
-        LoginComponent
-    ],
-    providers: [{
+        MarkdownModule.forRoot()], providers: [{
         provide: LocationStrategy,
         useClass: HashLocationStrategy
-    }],
-    bootstrap: [AppComponent],
-    exports: []
+    }, provideHttpClient(withInterceptorsFromDi())]
 })
 export class AppModule {
 }
