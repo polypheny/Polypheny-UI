@@ -1,3 +1,4 @@
+@use "sass:color";
 
 #collapse, #expand {
   color: black;
@@ -52,7 +53,7 @@
   margin-left: 1rem;
 
   &:hover {
-    background: lighten(#20a8d8, 30%);
+    background: color.adjust(#20a8d8, $lightness: 30%);
     cursor: pointer;
   }
 }
