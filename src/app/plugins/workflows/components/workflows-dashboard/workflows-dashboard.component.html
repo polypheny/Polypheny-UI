@@ -61,16 +61,16 @@
         <h2 class="mb-3">Stored Workflows ({{ workflowDefsCount }})</h2>
 
         @for (group of sortedGroups; track group.groupName) {
-            <div class="mb-1" *ngIf="group.groupName.length > 0"
-                 (click)="toggleCollapse(group.groupName)" style="cursor: pointer;">
-
-                <h4>
-                    <i class="fa me-3"
-                       [ngClass]="{'fa-folder-o': !visibleGroups[group.groupName](), 'fa-folder-open-o': visibleGroups[group.groupName]()}"></i>
-                    {{ group.groupName }} ({{ group.defs.length }})
-                </h4>
-
-            </div>
+            @if (group.groupName.length > 0) {
+                <div class="mb-1"
+                     (click)="toggleCollapse(group.groupName)" style="cursor: pointer;">
+                    <h4>
+                        <i class="fa me-3"
+                           [ngClass]="{'fa-folder-o': !visibleGroups[group.groupName](), 'fa-folder-open-o': visibleGroups[group.groupName]()}"></i>
+                        {{ group.groupName }} ({{ group.defs.length }})
+                    </h4>
+                </div>
+            }
 
             <div cCollapse [visible]="visibleGroups[group.groupName]()" class="mb-3">
                 <c-accordion>
@@ -102,17 +102,19 @@
                                             </div>
                                         </div>
 
-                                        <div *ngIf="def.def.description" class="mt-2 me-5">
-                                            <div class="d-flex align-items-center" (click)="toggleExpandDescription(def.id); $event.stopPropagation()" style="cursor: pointer; user-select: none;">
-                                                <strong>
-                                                    <span [class]="expandedDescriptions.has(def.id) ? 'fa fa-angle-down me-1' : 'fa fa-angle-right me-2'" class=""></span>
-                                                    {{ expandedDescriptions.has( def.id ) ? 'Hide Description' : 'Show Description' }}
-                                                </strong>
+                                        @if (def.def.description) {
+                                            <div class="mt-2 me-5">
+                                                <div class="d-flex align-items-center" (click)="toggleExpandDescription(def.id); $event.stopPropagation()" style="cursor: pointer; user-select: none;">
+                                                    <strong>
+                                                        <span [class]="expandedDescriptions.has(def.id) ? 'fa fa-angle-down me-1' : 'fa fa-angle-right me-2'" class=""></span>
+                                                        {{ expandedDescriptions.has( def.id ) ? 'Hide Description' : 'Show Description' }}
+                                                    </strong>
+                                                </div>
+                                                <div [visible]="expandedDescriptions.has(def.id)" cCollapse>
+                                                    <div class="ms-0 text-muted expanded-description">{{ def.def.description }}</div>
+                                                </div>
                                             </div>
-                                            <div [visible]="expandedDescriptions.has(def.id)" cCollapse>
-                                                <div class="ms-0 text-muted expanded-description">{{ def.def.description }}</div>
-                                            </div>
-                                        </div>
+                                        }
 
                                     </div>
                                 </button>
@@ -180,8 +182,10 @@
                                                                 size="sm" color="dark" variant="ghost" cTooltip="Create Copy">
                                                             <span class="fa fa-copy"></span>
                                                         </button>
-                                                        <app-delete-confirm cTooltip="Delete" *ngIf="Object.keys(def.def.versions).length > 1"
-                                                                            (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
+                                                        @if (Object.keys( def.def.versions ).length > 1) {
+                                                            <app-delete-confirm cTooltip="Delete"
+                                                                                (delete)="deleteVersion(def.id, version.key)"></app-delete-confirm>
+                                                        }
                                                     </td>
                                                 </tr>
                                             }
@@ -197,13 +201,15 @@
     }
     @case ('sessions') {
         <h1 class="mb-4">Active Sessions</h1>
-        <ul cListGroup *ngIf="workflowDefs" class="mb-3">
-            @for (session of userSessions; track session.sessionId) {
-                <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
-            } @empty {
-                <p>There are currently no active user sessions.</p>
-            }
-        </ul>
+        @if (workflowDefs) {
+            <ul cListGroup class="mb-3">
+                @for (session of userSessions; track session.sessionId) {
+                    <ng-container *ngTemplateOutlet="sessionTemplate; context: { $implicit: session }"></ng-container>
+                } @empty {
+                    <p>There are currently no active user sessions.</p>
+                }
+            </ul>
+        }
     }
     @case ('jobs') {
         <app-job-list></app-job-list>
@@ -338,72 +344,78 @@
     </c-alert>
 </ng-template>
 
-<c-modal [visible]="showDeleteModal()" (visibleChange)="showDeleteModal.set($event)" *ngIf="workflowToDelete">
-    <c-modal-header>
-        <h5 cModalTitle>Delete Workflow</h5>
-        <button (click)="toggleDeleteModal()" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>
-        Do you really want to delete all versions of workflow "{{ workflowToDelete.def.name }}"?
-        This operation cannot be undone.
-    </c-modal-body>
-    <c-modal-footer>
-        <button (click)="toggleDeleteModal()" cButton color="secondary">Close</button>
-        <div>
-            <button cButton color="danger" (click)="deleteWorkflow(workflowToDelete.id)">Delete</button>
-        </div>
-    </c-modal-footer>
-</c-modal>
+@if (workflowToDelete) {
+    <c-modal [visible]="showDeleteModal()" (visibleChange)="showDeleteModal.set($event)">
+        <c-modal-header>
+            <h5 cModalTitle>Delete Workflow</h5>
+            <button (click)="toggleDeleteModal()" cButtonClose></button>
+        </c-modal-header>
+        <c-modal-body>
+            Do you really want to delete all versions of workflow "{{ workflowToDelete.def.name }}"?
+            This operation cannot be undone.
+        </c-modal-body>
+        <c-modal-footer>
+            <button (click)="toggleDeleteModal()" cButton color="secondary">Close</button>
+            <div>
+                <button cButton color="danger" (click)="deleteWorkflow(workflowToDelete.id)">Delete</button>
+            </div>
+        </c-modal-footer>
+    </c-modal>
+}
 
-<c-modal [visible]="showCopyModal()" (visibleChange)="showCopyModal.set($event)" *ngIf="workflowToCopy">
-    <c-modal-header>
-        <h5 cModalTitle>Copy Workflow</h5>
-        <button (click)="toggleCopyModal()" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>
-        Create a new Workflow from the selected version.
-        <c-input-group class="mb-3" cCol>
-            <span cInputGroupText>Name</span>
-            <input cFormControl placeholder="Workflow Name" [(ngModel)]="copyWorkflowName"
-                   autocomplete="off"/>
-        </c-input-group>
-        <c-input-group class="mb-3">
-            <span cInputGroupText>Folder</span>
-            <input cFormControl placeholder="Default Folder" [(ngModel)]="copyWorkflowGroup"
-                   autocomplete="off"/>
-        </c-input-group>
-    </c-modal-body>
-    <c-modal-footer>
-        <button (click)="toggleCopyModal()" cButton color="secondary">Close</button>
-        <div>
-            <button cButton color="primary" (click)="copyWorkflow()"
-                    [disabled]="!copyWorkflowName">
-                Copy
-            </button>
-        </div>
-    </c-modal-footer>
-</c-modal>
+@if (workflowToCopy) {
+    <c-modal [visible]="showCopyModal()" (visibleChange)="showCopyModal.set($event)">
+        <c-modal-header>
+            <h5 cModalTitle>Copy Workflow</h5>
+            <button (click)="toggleCopyModal()" cButtonClose></button>
+        </c-modal-header>
+        <c-modal-body>
+            Create a new Workflow from the selected version.
+            <c-input-group class="mb-3" cCol>
+                <span cInputGroupText>Name</span>
+                <input cFormControl placeholder="Workflow Name" [(ngModel)]="copyWorkflowName"
+                       autocomplete="off"/>
+            </c-input-group>
+            <c-input-group class="mb-3">
+                <span cInputGroupText>Folder</span>
+                <input cFormControl placeholder="Default Folder" [(ngModel)]="copyWorkflowGroup"
+                       autocomplete="off"/>
+            </c-input-group>
+        </c-modal-body>
+        <c-modal-footer>
+            <button (click)="toggleCopyModal()" cButton color="secondary">Close</button>
+            <div>
+                <button cButton color="primary" (click)="copyWorkflow()"
+                        [disabled]="!copyWorkflowName">
+                    Copy
+                </button>
+            </div>
+        </c-modal-footer>
+    </c-modal>
+}
 
 
-<c-modal [visible]="showDescriptionModal()" (visibleChange)="showDescriptionModal.set($event)" *ngIf="workflowToModify">
-    <c-modal-header>
-        <h5 cModalTitle>Set Workflow Description</h5>
-        <button (click)="showDescriptionModal.set(false)" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>
-        Give a brief description of the workflow (maximal {{ MAX_DESCRIPTION_LENGTH }} characters).
-        <div cFormFloating class="mt-3">
-            <textarea class="description-textarea" cFormControl id="floatingTextarea" [(ngModel)]="updatedWorkflowDescription"
-                      placeholder="Workflow Description" autocomplete="off"></textarea>
-            <label cLabel for="floatingTextarea">Description</label>
-        </div>
-    </c-modal-body>
-    <c-modal-footer>
-        <button (click)="showDescriptionModal.set(false)" cButton color="secondary">Close</button>
-        <div>
-            <button cButton color="primary" (click)="changeDescription()" [disabled]="updatedWorkflowDescription?.length > MAX_DESCRIPTION_LENGTH">
-                Save
-            </button>
-        </div>
-    </c-modal-footer>
-</c-modal>
+@if (workflowToModify) {
+    <c-modal [visible]="showDescriptionModal()" (visibleChange)="showDescriptionModal.set($event)">
+        <c-modal-header>
+            <h5 cModalTitle>Set Workflow Description</h5>
+            <button (click)="showDescriptionModal.set(false)" cButtonClose></button>
+        </c-modal-header>
+        <c-modal-body>
+            Give a brief description of the workflow (maximal {{ MAX_DESCRIPTION_LENGTH }} characters).
+            <div cFormFloating class="mt-3">
+                        <textarea class="description-textarea" cFormControl id="floatingTextarea" [(ngModel)]="updatedWorkflowDescription"
+                                  placeholder="Workflow Description" autocomplete="off"></textarea>
+                <label cLabel for="floatingTextarea">Description</label>
+            </div>
+        </c-modal-body>
+        <c-modal-footer>
+            <button (click)="showDescriptionModal.set(false)" cButton color="secondary">Close</button>
+            <div>
+                <button cButton color="primary" (click)="changeDescription()" [disabled]="updatedWorkflowDescription?.length > MAX_DESCRIPTION_LENGTH">
+                    Save
+                </button>
+            </div>
+        </c-modal-footer>
+    </c-modal>
+}

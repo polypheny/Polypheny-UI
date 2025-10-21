@@ -1,135 +1,155 @@
-<div *ngFor="let schema of stylingSet | keyvalue">
-    <div *ngIf="_choosenTables && _choosenTables['column'] && includesSchema(_choosenTables['column'], schema.key)">
-        <h5>Refinement Options</h5>
-        <h4 class="my-2" *ngIf="hasMultipleSchemas()">{{'Schema: ' + schema.key}}</h4>
-
-        <div class="card text-center">
-            <div class="card-header">
-                <ul class="c-header-nav nav-tabs card-header-tabs">
-                    <li class="c-header-nav-item"
-                        *ngFor="let table of filterHeaders(stylingSet[schema.key], _choosenTables, schema.key) | keyvalue">
-                        <a [className]="this.activeHeaders && this.activeHeaders[schema.key] === table.key ? 'nav-link active': 'nav-link'"
-                           (click)="addToHeader(schema.key, table.key)">{{table.key}}</a>
-                    </li>
-                </ul>
-            </div>
-
-
-            <div class="card-body text-left">
-                <div *ngFor="let table of stylingSet[schema.key] | keyvalue">
-                    <div class="refinement-table"
-                         *ngIf="_choosenTables && _choosenTables['column'] && includesTable(_choosenTables['column'], table.key) && this.activeHeaders && this.activeHeaders[schema.key] === table.key">
-                        <div class="refinement-column"
-                             *ngFor="let col of filterSet(stylingSet[schema.key][table.key]) | keyvalue; index as i">
-                            <div *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
-                                <h5>Column: {{col.key}}</h5>
-
-                                <c-row class="row" [id]="this.statisticSet[col.value['qualifiedColumnName']]['table']">
-                                    <!-- sorting columns ascending, descending or off -->
-                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
-                                         *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName'])">
-                                        <p>Sorting</p>
-                                        <div class="btn-group-vertical btn-group-toggle" id="radio"
-                                             data-toggle="buttons">
-                                            <label class="btn btn-secondary"
-                                                   [ngClass]="{'active' : filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'OFF'}">
-                                                <input type="radio" class="form-control" name="sort" value="OFF"
-                                                       id="{{col.value['qualifiedColumnName'] + 'sortOff'}}"
-                                                       autocomplete="off"
-                                                       [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']"
-                                                       (ngModelChange)="changeUserInput()"> off
-                                            </label>
-                                            <label class="btn btn-secondary"
-                                                   [ngClass]="{'active': filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'ASC'}">
-                                                <input type="radio" class="form-control" name="sort" value="ASC"
-                                                       id="{{col.value['qualifiedColumnName'] + 'ASC'}}"
-                                                       autocomplete="off"
-                                                       [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']"
-                                                       (ngModelChange)="changeUserInput()"> ascending
-                                            </label>
-                                            <label class="btn btn-secondary"
-                                                   [ngClass]="{'active': filteredUserInput[col.value['qualifiedColumnName']]['sorting'] == 'DESC'}">
-                                                <input type="radio" class="form-control" name="sort" value="DESC"
-                                                       id="{{col.value['qualifiedColumnName'] + 'DESC'}}"
-                                                       autocomplete="off"
-                                                       [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']"
-                                                       (ngModelChange)="changeUserInput()"> descending
-                                            </label>
-                                        </div>
-                                    </c-col>
-
-                                    <!-- avg, min max for numerical values -->
-                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
-                                         *ngIf=" _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && ['numeric','temporal'].includes(this.statisticSet[col.value['qualifiedColumnName']]['columnType'])">
-                                        <p>Aggregate</p>
-                                        <div class="row">
-                                            <div class="btn-group" dropdown>
-                                                <label class="my-1 me-2" for="aggregateFunction"></label>
-                                                <select class="form-control custom-select" id="aggregateFunction"
-                                                        [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']"
-                                                        (ngModelChange)="changeUserInput()">
-                                                    <option selected>OFF</option>
-                                                    <option>MIN</option>
-                                                    <option>MAX</option>
-                                                    <option>COUNT</option>
-                                                    <option *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['columnType'] != 'temporal'">
-                                                        AVG
-                                                    </option>
-                                                </select>
+@for (schema of stylingSet | keyvalue; track schema.key) {
+    <div>
+        @if (_choosenTables && _choosenTables['column'] && includesSchema( _choosenTables['column'], schema.key )) {
+            <div>
+                <h5>Refinement Options</h5>
+                @if (hasMultipleSchemas()) {
+                    <h4 class="my-2">{{ 'Schema: ' + schema.key }}</h4>
+                }
+                <div class="card text-center">
+                    <div class="card-header">
+                        <ul class="c-header-nav nav-tabs card-header-tabs">
+                            @for (table of filterHeaders( stylingSet[schema.key], _choosenTables, schema.key ) | keyvalue; track table.key) {
+                                <li class="c-header-nav-item"
+                                >
+                                    <a [className]="this.activeHeaders && this.activeHeaders[schema.key] === table.key ? 'nav-link active': 'nav-link'"
+                                       (click)="addToHeader(schema.key, table.key)">{{ table.key }}</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-body text-left">
+                        @for (table of stylingSet[schema.key] | keyvalue; track table.key) {
+                            <div>
+                                @if (_choosenTables && _choosenTables['column'] && includesTable( _choosenTables['column'], table.key ) && this.activeHeaders && this.activeHeaders[schema.key] === table.key) {
+                                    <div class="refinement-table"
+                                    >
+                                        @for (col of filterSet( stylingSet[schema.key][table.key] ) | keyvalue; track col.key; let i = $index) {
+                                            <div class="refinement-column"
+                                            >
+                                                @if (_choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] )) {
+                                                    <div>
+                                                        <h5>Column: {{ col.key }}</h5>
+                                                        <c-row class="row" [id]="this.statisticSet[col.value['qualifiedColumnName']]['table']">
+                                                            <!-- sorting columns ascending, descending or off -->
+                                                            @if (_choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] )) {
+                                                                <c-col class="col col-lg-4 col-md-6 col-sm-12"
+                                                                >
+                                                                    <p>Sorting</p>
+                                                                    <div class="btn-group-vertical btn-group-toggle" id="radio"
+                                                                         data-toggle="buttons">
+                                                                        <label class="btn btn-secondary"
+                                                                               [ngClass]="{'active' : filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'OFF'}">
+                                                                            <input type="radio" class="form-control" name="sort" value="OFF"
+                                                                                   id="{{col.value['qualifiedColumnName'] + 'sortOff'}}"
+                                                                                   autocomplete="off"
+                                                                                   [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']"
+                                                                                   (ngModelChange)="changeUserInput()"> off
+                                                                        </label>
+                                                                        <label class="btn btn-secondary"
+                                                                               [ngClass]="{'active': filteredUserInput[col.value['qualifiedColumnName']]['sorting'] === 'ASC'}">
+                                                                            <input type="radio" class="form-control" name="sort" value="ASC"
+                                                                                   id="{{col.value['qualifiedColumnName'] + 'ASC'}}"
+                                                                                   autocomplete="off"
+                                                                                   [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']"
+                                                                                   (ngModelChange)="changeUserInput()"> ascending
+                                                                        </label>
+                                                                        <label class="btn btn-secondary"
+                                                                               [ngClass]="{'active': filteredUserInput[col.value['qualifiedColumnName']]['sorting'] == 'DESC'}">
+                                                                            <input type="radio" class="form-control" name="sort" value="DESC"
+                                                                                   id="{{col.value['qualifiedColumnName'] + 'DESC'}}"
+                                                                                   autocomplete="off"
+                                                                                   [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['sorting']"
+                                                                                   (ngModelChange)="changeUserInput()"> descending
+                                                                        </label>
+                                                                    </div>
+                                                                </c-col>
+                                                            }
+                                                            <!-- avg, min max for numerical values -->
+                                                            @if (_choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] ) && ['numeric', 'temporal'].includes( this.statisticSet[col.value['qualifiedColumnName']]['columnType'] )) {
+                                                                <c-col class="col col-lg-4 col-md-6 col-sm-12"
+                                                                >
+                                                                    <p>Aggregate</p>
+                                                                    <div class="row">
+                                                                        <div class="btn-group" dropdown>
+                                                                            <label class="my-1 me-2" for="aggregateFunction"></label>
+                                                                            <select class="form-control custom-select" id="aggregateFunction"
+                                                                                    [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['aggregate']"
+                                                                                    (ngModelChange)="changeUserInput()">
+                                                                                <option selected>OFF</option>
+                                                                                <option>MIN</option>
+                                                                                <option>MAX</option>
+                                                                                <option>COUNT</option>
+                                                                                @if (this.statisticSet[col.value['qualifiedColumnName']]['columnType'] != 'temporal') {
+                                                                                    <option>
+                                                                                        AVG
+                                                                                    </option>
+                                                                                }
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </c-col>
+                                                            }
+                                                            <!-- min max for numeric values -->
+                                                            @if (this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes( this.statisticSet[col.value['qualifiedColumnName']]['type'], 'range' ) && _choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] ) && this.statisticSet[col.value['qualifiedColumnName']]['isFull']) {
+                                                                <c-col class="col col-lg-4 col-md-6 col-sm-12"
+                                                                >
+                                                                    <p>Min - Max</p>
+                                                                    <ngx-slider id="slider"
+                                                                                [(value)]="this.statisticSet[col.value['qualifiedColumnName']]['min']"
+                                                                                [(highValue)]="this.statisticSet[col.value['qualifiedColumnName']]['max']"
+                                                                                [options]="this.statisticSet[col.value['qualifiedColumnName']]['options']"
+                                                                                [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['minMax']"
+                                                                                (ngModelChange)="changeUserInput()"></ngx-slider>
+                                                                </c-col>
+                                                            }
+                                                            <!-- column value for search -->
+                                                            @if (this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes( this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues' ) && _choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] ) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'alphabetic' && this.statisticSet[col.value['qualifiedColumnName']]['isFull']) {
+                                                                <c-col class="col col-lg-4 col-md-6 col-sm-12"
+                                                                >
+                                                                    <p>Search</p>
+                                                                    <div class="input-group mb-3" id="search">
+                                          <span class="input-group-text"
+                                                popover="Use *-character as wildcard, e.g. 'word*' searches for result starting with 'word'."
+                                                triggers="mouseenter:mouseleave">search</span>
+                                                                        <input type="text" class="form-control" placeholder="search"
+                                                                               aria-label="search" aria-describedby="basic-addon1"
+                                                                               [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['startsWith']"
+                                                                               (ngModelChange)="changeUserInput()">
+                                                                    </div>
+                                                                </c-col>
+                                                            }
+                                                            <!-- checkbox for unique values -->
+                                                            @if (this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes( this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues' ) && _choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] ) && !(this.statisticSet[col.value['qualifiedColumnName']]['isFull']) && this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues'].length) {
+                                                                <div class="col col-lg-4 col-md-6 col-sm-12"
+                                                                >
+                                                                    <p>Unique Values</p>
+                                                                    @for (val of this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues']; track val) {
+                                                                        <div>
+                                                                            <div class="form-check">
+                                                                                <label class="form-check-label">
+                                                                                    <input class="form-check-input" type="checkbox"
+                                                                                           [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['check' + val]"
+                                                                                           (ngModelChange)="changeUserInput()">
+                                                                                    {{ val }}
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </c-row>
+                                                    </div>
+                                                }
                                             </div>
-                                        </div>
-                                    </c-col>
-
-                                    <!-- min max for numeric values -->
-                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
-                                         *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'range') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['isFull']">
-                                        <p>Min - Max</p>
-                                        <ngx-slider id="slider"
-                                                    [(value)]="this.statisticSet[col.value['qualifiedColumnName']]['min']"
-                                                    [(highValue)]="this.statisticSet[col.value['qualifiedColumnName']]['max']"
-                                                    [options]="this.statisticSet[col.value['qualifiedColumnName']]['options']"
-                                                    [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['minMax']"
-                                                    (ngModelChange)="changeUserInput()"></ngx-slider>
-                                    </c-col>
-
-                                    <!-- column value for search -->
-                                    <c-col class="col col-lg-4 col-md-6 col-sm-12"
-                                         *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && this.statisticSet[col.value['qualifiedColumnName']]['columnType'] == 'alphabetic' && this.statisticSet[col.value['qualifiedColumnName']]['isFull'] ">
-                                        <p>Search</p>
-                                        <div class="input-group mb-3" id="search">
-                                            <span class="input-group-text"
-                                                  popover="Use *-character as wildcard, e.g. 'word*' searches for result starting with 'word'."
-                                                  triggers="mouseenter:mouseleave">search</span>
-                                            <input type="text" class="form-control" placeholder="search"
-                                                   aria-label="search" aria-describedby="basic-addon1"
-                                                   [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['startsWith']"
-                                                   (ngModelChange)="changeUserInput()">
-                                        </div>
-                                    </c-col>
-
-                                    <!-- checkbox for unique values -->
-                                    <div class="col col-lg-4 col-md-6 col-sm-12"
-                                         *ngIf="this.statisticSet[col.value['qualifiedColumnName']]['type'] && includes(this.statisticSet[col.value['qualifiedColumnName']]['type'], 'uniqueValues') && _choosenTables && _choosenTables['column'] && includes(_choosenTables['column'], col.value['qualifiedColumnName']) && !(this.statisticSet[col.value['qualifiedColumnName']]['isFull']) && this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues'].length ">
-                                        <p>Unique Values</p>
-                                        <div *ngFor="let val of this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues']">
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox"
-                                                           [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['check' + val]"
-                                                           (ngModelChange)="changeUserInput()">
-                                                    {{val}}
-                                                </label>
-                                            </div>
-                                        </div>
+                                        }
                                     </div>
-                                </c-row>
+                                }
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
-
-
-</div>
+}

@@ -1,65 +1,75 @@
 <c-row>
-    <c-col xs="12" class="mb-3" *ngIf="collections() && collections().length > 0">
-        <h1>{{ namespace()?.name }}</h1>
-        <table cTable striped="true" hover="true">
-            <thead>
-            <tr>
-                <th>Collection</th>
-                <th></th> <!--Details-->
-                <th>Truncate</th>
-                <th>Drop</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let collection of collections(); let i = index" [ngClass]="{'table-warning':collection.export}"
-                [class.editing]="collection.editing">
-                <td>
-                    <span *ngIf="!collection.editing">
-                      {{ collection.name }}
-                        <i class="cil-pencil show-on-hover ms-2" (click)="collection.editing = !collection.editing"></i>
-                    </span>
-                    <c-input-group sizing="sm" *ngIf="collection.editing" tabindex="-1" style="max-width: 200px" #editing>
-                        <input cFormControl type="text" placeholder="newName"
-                               [(ngModel)]="collection.newName" autofocus (keyup.enter)="rename(collection)"
-                               (keyup.escape)="collection.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
-                               [class.editings]="collection.editing">
-
-                        <button cButton color="primary" size="sm" [disabled]="!canRename(collection)"
-                                (click)="rename(collection)" [class.editings]="collection.editing">rename
-                        </button>
-                    </c-input-group>
-                </td>
-                <td>
-                    <button cButton color="secondary" size="sm" class="show-on-hover" (click)="openDetails(collection)">
-                        Details
-                    </button>
-                </td>
-                <td>
-                    <c-input-group class="confirm-group" sizing="sm" *ngIf="collection.modifiable">
-                        <input cFormControl type="text" placeholder="truncate {{collection.name}}"
-                               [(ngModel)]="collection.truncate" (keyup.enter)="sendRequest(Method.TRUNCATE, collection)">
-                        <button cButton [ngClass]="isDropTruncateEnabled(Method.TRUNCATE, collection) ? 'btn-danger' : 'btn-secondary'"
-                                [disabled]="!isDropTruncateEnabled(Method.TRUNCATE, collection)"
-                                (click)="sendRequest(Method.TRUNCATE, collection)">truncate
-                        </button>
-                    </c-input-group>
-                </td>
-                <td>
-                    <c-input-group class="confirm-group" sizing="sm" *ngIf="collection.tableType !== 'SOURCE'">
-                        <input cFormControl type="text" placeholder="drop {{collection.name}}"
-                               [(ngModel)]="collection.drop" (keyup.enter)="sendRequest(Method.DROP, collection)">
-                        <button cButton [ngClass]="isDropTruncateEnabled(Method.DROP, collection) ? 'btn-danger' : 'btn-secondary'"
-                                [disabled]="!isDropTruncateEnabled(Method.DROP, collection)"
-                                (click)="sendRequest(Method.DROP, collection)">drop
-                        </button>
-                    </c-input-group>
-                </td>
-                <td></td>
-            </tr>
-            </tbody>
-        </table>
-
-    </c-col>
+    @if (collections() && collections().length > 0) {
+        <c-col xs="12" class="mb-3">
+            <h1>{{ namespace()?.name }}</h1>
+            <table cTable striped="true" hover="true">
+                <thead>
+                <tr>
+                    <th>Collection</th>
+                    <th></th> <!--Details-->
+                    <th>Truncate</th>
+                    <th>Drop</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (collection of collections(); track collection.id; let i = $index) {
+                        <tr [ngClass]="{'table-warning':collection.export}"
+                            [class.editing]="collection.editing">
+                            <td>
+                                @if (!collection.editing) {
+                                    <span>
+                    {{ collection.name }}
+                                        <i class="cil-pencil show-on-hover ms-2" (click)="collection.editing = !collection.editing"></i>
+                  </span>
+                                }
+                                @if (collection.editing) {
+                                    <c-input-group sizing="sm" tabindex="-1" style="max-width: 200px" #editing>
+                                        <input cFormControl type="text" placeholder="newName"
+                                               [(ngModel)]="collection.newName" autofocus (keyup.enter)="rename(collection)"
+                                               (keyup.escape)="collection.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
+                                               [class.editings]="collection.editing">
+                                        <button cButton color="primary" size="sm" [disabled]="!canRename(collection)"
+                                                (click)="rename(collection)" [class.editings]="collection.editing">rename
+                                        </button>
+                                    </c-input-group>
+                                }
+                            </td>
+                            <td>
+                                <button cButton color="secondary" size="sm" class="show-on-hover" (click)="openDetails(collection)">
+                                    Details
+                                </button>
+                            </td>
+                            <td>
+                                @if (collection.modifiable) {
+                                    <c-input-group class="confirm-group" sizing="sm">
+                                        <input cFormControl type="text" placeholder="truncate {{collection.name}}"
+                                               [(ngModel)]="collection.truncate" (keyup.enter)="sendRequest(Method.TRUNCATE, collection)">
+                                        <button cButton [ngClass]="isDropTruncateEnabled(Method.TRUNCATE, collection) ? 'btn-danger' : 'btn-secondary'"
+                                                [disabled]="!isDropTruncateEnabled(Method.TRUNCATE, collection)"
+                                                (click)="sendRequest(Method.TRUNCATE, collection)">truncate
+                                        </button>
+                                    </c-input-group>
+                                }
+                            </td>
+                            <td>
+                                @if (collection.tableType !== 'SOURCE') {
+                                    <c-input-group class="confirm-group" sizing="sm">
+                                        <input cFormControl type="text" placeholder="drop {{collection.name}}"
+                                               [(ngModel)]="collection.drop" (keyup.enter)="sendRequest(Method.DROP, collection)">
+                                        <button cButton [ngClass]="isDropTruncateEnabled(Method.DROP, collection) ? 'btn-danger' : 'btn-secondary'"
+                                                [disabled]="!isDropTruncateEnabled(Method.DROP, collection)"
+                                                (click)="sendRequest(Method.DROP, collection)">drop
+                                        </button>
+                                    </c-input-group>
+                                }
+                            </td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </c-col>
+    }
 </c-row>
 
 <c-row class="mt-5">
@@ -77,19 +87,23 @@
                             </button>
 
                             <ul cDropdownMenu>
-                                <ng-container *ngIf="stores()?.length > 0">
+                                @if (stores()?.length > 0) {
                                     <li>
                                         <button cDropdownItem (click)="selectedStore = null">auto</button>
                                     </li>
                                     <li cDropdownDivider></li>
-                                    <li role="menuitem" *ngFor="let store of stores()">
-                                        <button cDropdownItem (click)="selectedStore = store">{{ store.name }}
-                                        </button>
+                                    @for (store of stores(); track store.id) {
+                                        <li role="menuitem">
+                                            <button cDropdownItem (click)="selectedStore = store">{{ store.name }}
+                                            </button>
+                                        </li>
+                                    }
+                                }
+                                @if (stores().length === 0) {
+                                    <li role="menuitem">
+                                        <button cDropdownItem disabled>no stores available</button>
                                     </li>
-                                </ng-container>
-                                <li *ngIf="stores().length === 0" role="menuitem">
-                                    <button cDropdownItem disabled>no stores available</button>
-                                </li>
+                                }
                             </ul>
                         </c-dropdown>
 

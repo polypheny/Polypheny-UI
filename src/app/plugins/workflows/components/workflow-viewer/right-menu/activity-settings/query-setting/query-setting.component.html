@@ -2,7 +2,9 @@
     <label cInputGroupText for="language">Language</label>
     <select cSelect id="language" [(ngModel)]="val().queryLanguage"
             (change)="valueChanged()" [disabled]="!isEditable() || def().queryLanguages.length < 2">
-        <option *ngFor="let language of def().queryLanguages" [value]="language">{{ language }}</option>
+        @for (language of def().queryLanguages; track language) {
+            <option [value]="language">{{ language }}</option>
+        }
     </select>
 </c-input-group>
 

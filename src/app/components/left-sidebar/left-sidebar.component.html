@@ -1,39 +1,53 @@
 <div id="tree-outer-wrapper" class="schema-editing d-flex flex-column h-100 w-100 gap-2 overflow-x-hidden">
     <div class="d-flex">
         <c-input-group>
-            <button cButton color="light" cInputGroupText id="basic-addon1" *ngIf="isExpandAndCollapseShown()">
-                <span (click)="collapseAll()" id="collapse">
-                    <i class="fa fa-compress"></i>
-                </span>
-            </button>
+            @if (isExpandAndCollapseShown()) {
+                <button cButton color="light" cInputGroupText id="basic-addon1">
+          <span (click)="collapseAll()" id="collapse">
+            <i class="fa fa-compress"></i>
+          </span>
+                </button>
+            }
             <input cFormControl type="text" placeholder="search" id="search-tree" class="bg-light text-body">
-            <button cButton color="light" cInputGroupText *ngIf="isExpandAndCollapseShown()">
-                <span (click)="expandAll()" id="expand">
-                    <i class="fa fa-expand"></i>
-                </span>
-            </button>
+            @if (isExpandAndCollapseShown()) {
+                <button cButton color="light" cInputGroupText>
+          <span (click)="expandAll()" id="expand">
+            <i class="fa fa-expand"></i>
+          </span>
+                </button>
+            }
         </c-input-group>
         @if (sidebarAvailable()) {
-            <button cButton class="sidebar-toggle text-white border-0 cil-menu" *ngIf="!_sidebar.isVisible()" size="sm"
-                    (click)="_sidebar.toggle()"></button>
+            @if (!_sidebar.isVisible()) {
+                <button cButton class="sidebar-toggle text-white border-0 cil-menu" size="sm"
+                        (click)="_sidebar.toggle()"></button>
+            }
             <button cButton class="sidebar-toggle text-white border-0 open cil-x" (click)="_sidebar.toggle()"></button>
         }
     </div>
 
-    <div class="w-100 text-center flex-grow-1 d-flex align-items-center"
-         *ngIf="this._catalog.state() !== CatalogState.UP_TO_DATE">
-        <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
-    </div>
-    <c-button-group *ngIf="buttons.length > 0" role="group" class="px-0">
-        <button cButton color="light" [variant]="item.isOutline ? 'outline' : undefined" *ngFor="let item of buttons"
-                type="button" (click)="item.clickEvent($event)" onclick="this.blur();">
-            {{ item.name }}
-        </button>
-    </c-button-group>
+    @if (this._catalog.state() !== CatalogState.UP_TO_DATE) {
+        <div class="w-100 text-center flex-grow-1 d-flex align-items-center"
+        >
+            <c-spinner aria-hidden="true" size="xl" class="mx-auto"></c-spinner>
+        </div>
+    }
+    @if (buttons.length > 0) {
+        <c-button-group role="group" class="px-0">
+            @for (item of buttons; track $index) {
+                <button cButton color="light" [variant]="item.isOutline ? 'outline' : undefined"
+                        type="button" (click)="item.clickEvent($event)" onclick="this.blur();">
+                    {{ item.name }}
+                </button>
+            }
+        </c-button-group>
+    }
 
-    <span *ngIf="error">
-        {{ error }}
+    @if (error) {
+        <span>
+      {{ error }}
     </span>
+    }
     <div id="tree-inner-wrapper"
          [classList]="this._catalog.state() === CatalogState.UP_TO_DATE ? 'flex-grow-1 overflow-y-hidden h-100' : 'flex-grow-0' ">
         <tree-root class="h-100 overflow-y-auto" [nodes]="nodes" [options]="options"
@@ -54,9 +68,13 @@
                          [treeAllowDrop]="node.allowDrop"
                          [treeDrag]="node"
                          [treeDragEnabled]="node.allowDrag()">
-                        <span *ngIf="node.data.icon" class="algSymbol"
-                              [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
-                        <span *ngIf="node.data.algSymbol" [innerHTML]="node.data.algSymbol" class="algSymbol"></span>
+                        @if (node.data.icon) {
+                            <span class="algSymbol"
+                                  [ngClass]="[node.data.icon, 'sidebarIcon']"></span>
+                        }
+                        @if (node.data.algSymbol) {
+                            <span [innerHTML]="node.data.algSymbol" class="algSymbol"></span>
+                        }
                         <span class="title" [innerHTML]="node.data.name"></span>
                     </div>
                 </div>
@@ -65,11 +83,13 @@
     </div>
 
 
-    <div *ngIf="needsButton()" class="schema-editing-wrapper">
-        <div class="border-top my-3"></div>
-        <a cNavLink id="namespaceText" class="pe-auto link-light text-white" (click)="deselectAll()" [routerLink]="'/views/schema-editing/'">
-            <i class="fa fa-pencil" aria-hidden="true"></i>
-            <span class="ms-1">Manage Namespaces</span>
-        </a>
-    </div>
+    @if (needsButton()) {
+        <div class="schema-editing-wrapper">
+            <div class="border-top my-3"></div>
+            <a cNavLink id="namespaceText" class="pe-auto link-light text-white" (click)="deselectAll()" [routerLink]="'/views/schema-editing/'">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+                <span class="ms-1">Manage Namespaces</span>
+            </a>
+        </div>
+    }
 </div>

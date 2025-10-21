@@ -1,6 +1,6 @@
 import {Component, computed, effect, EventEmitter, input, OnInit, Output, Signal, signal} from '@angular/core';
 import {ActivityConfigModel, CommonType, ControlStateMerger, ExpectedOutcome} from '../../../../models/workflows.model';
-import {NgForOf, NgIf} from '@angular/common';
+
 import {FormsModule} from '@angular/forms';
 import {ActivityDef} from '../../../../models/activity-registry.model';
 import {ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormControlDirective, FormDirective, FormSelectDirective, FormTextDirective, InputGroupComponent, InputGroupTextDirective} from '@coreui/angular';
@@ -13,7 +13,6 @@ import {META_ACTIVITY_TYPES, NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
     selector: 'app-activity-config-editor',
     imports: [
         FormsModule,
-        NgForOf,
         FormDirective,
         FormCheckComponent,
         FormCheckInputDirective,
@@ -22,7 +21,6 @@ import {META_ACTIVITY_TYPES, NESTED_WF_ACTIVITY_TYPE} from '../../workflow';
         ButtonDirective,
         InputGroupComponent,
         InputGroupTextDirective,
-        NgIf,
         FormControlDirective,
         ComponentsModule,
         FormTextDirective

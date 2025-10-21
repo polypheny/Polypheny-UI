@@ -6,7 +6,9 @@
                 <span class="mb-0">Manage {{ metadata.type.charAt( 0 ).toUpperCase() + metadata.type.slice( 1 ) }}</span>
             </c-card-header>
             <c-card-body>
-                <p *ngIf="metadata.type!=='directory'">Size: {{ _util.humanFileSize( metadata.size ) }}</p>
+                @if (metadata.type !== 'directory') {
+                    <p>Size: {{ _util.humanFileSize( metadata.size ) }}</p>
+                }
                 <p>Created: {{ metadata.created  | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
                 <p>Last modified: {{ metadata.last_modified  | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
             </c-card-body>
@@ -16,19 +18,23 @@
                         <i [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
                     </button>
                     <button cButton color="primary" class="me-2" (click)="renameFileModal.visible = true">Rename</button>
-                    <button cButton color="secondary" class=" me-2" *ngIf="metadata.type!=='directory'"
-                            (click)="duplicateFile()">Duplicate
-                    </button>
-                    <button cButton color="secondary" *ngIf="metadata.type!=='directory'" (click)="downloadFile()">
-                        <span class="cil-cloud-download"></span>
-                    </button>
+                    @if (metadata.type !== 'directory') {
+                        <button cButton color="secondary" class=" me-2"
+                                (click)="duplicateFile()">Duplicate
+                        </button>
+                    }
+                    @if (metadata.type !== 'directory') {
+                        <button cButton color="secondary" (click)="downloadFile()">
+                            <span class="cil-cloud-download"></span>
+                        </button>
+                    }
                 </div>
                 <c-row>
                 </c-row>
             </c-card-footer>
         </c-card>
     </c-col>
-    <ng-container *ngIf="metadata.type==='notebook'">
+    @if (metadata.type === 'notebook') {
         <c-col class="col-lg-4 fixed-width">
             <c-card>
                 <c-card-header>
@@ -44,19 +50,21 @@
                                 (click)="terminateSessionModal.visible = true">
                             Shut Down
                         </button>
-                        <button cButton variant="outline" color="primary" class="me-2" (click)="connectSessionModal.visible = true"
-                                *ngIf="sessions.length > 0">Connect
-                        </button>
+                        @if (sessions.length > 0) {
+                            <button cButton variant="outline" color="primary" class="me-2" (click)="connectSessionModal.visible = true"
+                            >Connect
+                            </button>
+                        }
                         <button cButton color="primary" (click)="createKernelModal.visible = true" [disabled]="availableKernels.length === 0">Open</button>
                     </div>
                 </c-card-footer>
             </c-card>
         </c-col>
-    </ng-container>
+    }
 </c-row>
 
 <c-modal #renameFileModal tabindex="-1" role="dialog"
-     aria-labelledby="renameFileModal" aria-hidden="true">
+         aria-labelledby="renameFileModal" aria-hidden="true">
     <c-modal-header>
         <h4 class="modal-title">Rename File</h4>
         <button type="button" class="close" (click)="renameFileModal.visible = false" aria-label="Close">
@@ -84,7 +92,7 @@
 </c-modal>
 
 <c-modal #terminateSessionModal tabindex="-1" role="dialog"
-     aria-labelledby="terminateSessionModal" aria-hidden="true">
+         aria-labelledby="terminateSessionModal" aria-hidden="true">
     <c-modal-header>
         <h4 class="modal-title">Shut Down Kernel(s)</h4>
         <button type="button" class="close" (click)="terminateSessionModal.visible = false" aria-label="Close">
@@ -100,17 +108,19 @@
                     <label class="input-group-text" for="terminate-session">Kernel</label>
                 </div>
                 <select class="form-control" formControlName="session" id="terminate-session">
-                    <option *ngFor="let session of sessions" [value]="session.id">
-                        {{ session.kernel.name }}
-                    </option>
+                    @for (session of sessions; track session.id) {
+                        <option [value]="session.id">
+                            {{ session.kernel.name }}
+                        </option>
+                    }
                 </select>
             </div>
         </form>
-        <ng-container *ngIf="selectedSession != null">
+        @if (selectedSession != null) {
             <p>Status: {{ selectedSession.kernel.execution_state }}</p>
             <p>Last Activity: {{ selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
             <p>Connections: {{ selectedSession.kernel.connections }}</p>
-        </ng-container>
+        }
     </c-modal-body>
     <c-modal-footer>
         <button type="button" class="btn btn-secondary" (click)="terminateSessionModal.visible = false">Cancel</button>
@@ -127,7 +137,7 @@
 </c-modal>
 
 <c-modal #connectSessionModal tabindex="-1" role="dialog"
-     aria-labelledby="connectSessionModal" aria-hidden="true">
+         aria-labelledby="connectSessionModal" aria-hidden="true">
     <c-modal-header>
         <h4 class="modal-title">Connect to Kernel</h4>
         <button type="button" class="close" (click)="connectSessionModal.visible = false" aria-label="Close">
@@ -143,17 +153,19 @@
                     <label class="input-group-text" for="selected-session">Kernel</label>
                 </div>
                 <select class="form-control" formControlName="session" id="selected-session">
-                    <option *ngFor="let session of sessions" [value]="session.id">
-                        {{ session.kernel.name }}
-                    </option>
+                    @for (session of sessions; track session.id) {
+                        <option [value]="session.id">
+                            {{ session.kernel.name }}
+                        </option>
+                    }
                 </select>
             </div>
         </form>
-        <ng-container *ngIf="selectedSession != null">
+        @if (selectedSession != null) {
             <p>Status: {{ selectedSession.kernel.execution_state }}</p>
             <p>Last Activity: {{ selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
             <p>Connections: {{ selectedSession.kernel.connections }}</p>
-        </ng-container>
+        }
     </c-modal-body>
     <c-modal-footer>
         <button type="button" class="btn btn-secondary" (click)="connectSessionModal.visible = false">Cancel</button>
@@ -164,7 +176,7 @@
 </c-modal>
 
 <c-modal #createKernelModal tabindex="-1" role="dialog"
-     aria-labelledby="createKernelModal" aria-hidden="true">
+         aria-labelledby="createKernelModal" aria-hidden="true">
     <c-modal-header>
         <h4 class="modal-title">Create Kernel</h4>
         <button type="button" class="close" (click)="createKernelModal.visible = false" aria-label="Close">
@@ -179,9 +191,11 @@
                     <label class="input-group-text" for="selected-kernel">Kernel</label>
                 </div>
                 <select class="form-control" formControlName="kernel" id="selected-kernel">
-                    <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
-                        {{ kernel.spec.display_name }}
-                    </option>
+                    @for (kernel of availableKernels; track kernel.name) {
+                        <option [value]="kernel.name">
+                            {{ kernel.spec.display_name }}
+                        </option>
+                    }
                 </select>
             </div>
         </form>
@@ -191,8 +205,12 @@
         <button type="button" class="btn btn-secondary" (click)="createKernelModal.visible = false">Cancel</button>
         <button type="submit" class="btn btn-primary" (click)="create()"
                 [disabled]="!createKernelForm.valid || creating">
-            <span *ngIf="!creating">Create</span>
-            <span *ngIf="creating" class="spinner-border spinner-border-sm" role="status"></span>
+            @if (!creating) {
+                <span>Create</span>
+            }
+            @if (creating) {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+            }
         </button>
     </c-modal-footer>
 </c-modal>

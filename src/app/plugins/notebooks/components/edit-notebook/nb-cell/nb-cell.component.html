@@ -1,141 +1,150 @@
 <div class="nb-cell" #cellDiv (click)="onFocus($event)" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()"
      tabindex="-1">
-    <div *ngIf="isFocused" class="nb-overlay">
-        <div class="nb-overlay-buttons btn-group btn-group-sm me-2" role="group" aria-label="Overlay Buttons">
-            <select class="form-select btn bg-light pe-5" aria-label="Select Cell Type"
-                    (change)="changeType.emit($event)"
-                    [value]="selectedCellType">
-                <option value="code">Code</option>
-                <option value="markdown">Markdown</option>
-                <option value="poly">Query</option>
-                <option value="raw">Raw</option>
-            </select>
-            <div class="nb-overlay-separator bg-secondary"></div>
-            <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
-                    [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">
-                <i class="fa fa-arrow-up no-select-cell"></i>
-            </button>
-            <button cButton color="light" type="button" class="no-select-cell" (click)="move.emit(true)"
-                    [disabled]="isLast" onclick="this.blur();" tooltip="Move cell down" container="body">
-                <i class="fa fa-arrow-down no-select-cell"></i>
-            </button>
-            <div class="nb-overlay-separator bg-secondary"></div>
-            <button cButton color="light" type="button" class="no-select-cell" (click)="duplicate.emit()"
-                    onclick="this.blur();" tooltip="Duplicate cell" container="body">
-                <i class="fa fa-clone no-select-cell"></i>
-            </button>
-            <button cButton color="light" type="button" class="vertical-icons py-0 no-select-cell ms-0"
-                    (click)="insert.emit(false)"
-                    onclick="this.blur();" tooltip="Insert cell above (A)" container="body">
-                <i class="fa fa-chevron-up no-select-cell"></i>
-                <i class="fa fa-plus-square vertical-icon-plus-bottom no-select-cell"></i>
-            </button>
-            <button cButton
-                    color="light"
-                    type="button"
-                    class="vertical-icons py-0 no-select-cell"
-                    (click)="insert.emit(true)"
-                    onclick="this.blur();"
-                    tooltip="Insert cell below (B)"
-                    container="body">
-                <i class="fa fa-plus-square vertical-icon-plus-top no-select-cell"></i>
-                <i class="fa fa-chevron-down no-select-cell"></i>
-            </button>
-            <div class="nb-overlay-separator bg-secondary"></div>
-            <button cButton color="light" class="no-select-cell"
-                    (click)="deleteCell()"
-                    (mouseleave)="resetDeleteConfirm()"
-                    tooltip="Delete cell"
-                    container="body">
-                <i class="no-select-cell text-danger"
-                   [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
-            </button>
+    @if (isFocused) {
+        <div class="nb-overlay">
+            <div class="nb-overlay-buttons btn-group btn-group-sm me-2" role="group" aria-label="Overlay Buttons">
+                <select class="form-select btn bg-light pe-5" aria-label="Select Cell Type"
+                        (change)="changeType.emit($event)"
+                        [value]="selectedCellType">
+                    <option value="code">Code</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="poly">Query</option>
+                    <option value="raw">Raw</option>
+                </select>
+                <div class="nb-overlay-separator bg-secondary"></div>
+                <button cButton color="light" type="button" class="no-select-cell ms-0" (click)="move.emit(false)"
+                        [disabled]="isFirst" onclick="this.blur();" tooltip="Move cell up" container="body">
+                    <i class="fa fa-arrow-up no-select-cell"></i>
+                </button>
+                <button cButton color="light" type="button" class="no-select-cell" (click)="move.emit(true)"
+                        [disabled]="isLast" onclick="this.blur();" tooltip="Move cell down" container="body">
+                    <i class="fa fa-arrow-down no-select-cell"></i>
+                </button>
+                <div class="nb-overlay-separator bg-secondary"></div>
+                <button cButton color="light" type="button" class="no-select-cell" (click)="duplicate.emit()"
+                        onclick="this.blur();" tooltip="Duplicate cell" container="body">
+                    <i class="fa fa-clone no-select-cell"></i>
+                </button>
+                <button cButton color="light" type="button" class="vertical-icons py-0 no-select-cell ms-0"
+                        (click)="insert.emit(false)"
+                        onclick="this.blur();" tooltip="Insert cell above (A)" container="body">
+                    <i class="fa fa-chevron-up no-select-cell"></i>
+                    <i class="fa fa-plus-square vertical-icon-plus-bottom no-select-cell"></i>
+                </button>
+                <button cButton
+                        color="light"
+                        type="button"
+                        class="vertical-icons py-0 no-select-cell"
+                        (click)="insert.emit(true)"
+                        onclick="this.blur();"
+                        tooltip="Insert cell below (B)"
+                        container="body">
+                    <i class="fa fa-plus-square vertical-icon-plus-top no-select-cell"></i>
+                    <i class="fa fa-chevron-down no-select-cell"></i>
+                </button>
+                <div class="nb-overlay-separator bg-secondary"></div>
+                <button cButton color="light" class="no-select-cell"
+                        (click)="deleteCell()"
+                        (mouseleave)="resetDeleteConfirm()"
+                        tooltip="Delete cell"
+                        container="body">
+                    <i class="no-select-cell text-danger"
+                       [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
+                </button>
+            </div>
         </div>
-    </div>
+    }
 
     <div class="nb-input-wrapper text-monospace">
         <div class="nb-select-bar" (click)="setSourceHidden(!sourceHidden)" [ngClass]=
                 "{'bg-primary': isFocused, 'bg-white': !isFocused && !isMouseOver,
-                'bg-light': isMouseOver && !isFocused}"></div>
+    'bg-light': isMouseOver && !isFocused}"></div>
         <div class="nb-side-area">
-            <span class="nb-exec-counter" *ngIf="cell.cell_type === 'code'" [hidden]="sourceHidden"
-                  [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
-                [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
-            </span>
+            @if (cell.cell_type === 'code') {
+                <span class="nb-exec-counter" [hidden]="sourceHidden"
+                      [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
+          [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
+        </span>
+            }
             <ng-content></ng-content> <!-- turns the drag-container into a DragHandle-->
-            <ng-container
-                    *ngIf="(isFocused || isMouseOver || manualExecution) && (cell.cell_type === 'code' || (cellType === 'markdown' && !isMdRendered))">
+            @if ((isFocused || isMouseOver || manualExecution) && (cell.cell_type === 'code' || (cellType === 'markdown' && !isMdRendered))) {
                 <button
                         [hidden]="sourceHidden"
                         type="button" class="btn nb-exec-btn" [ngClass]="{'me-0 pe-0': manualExecution}"
                         (click)="executeCell()" onclick="this.blur();">
-                    <i *ngIf="cellType === 'markdown' || !manualExecution; else elseManual" class="fa fa-play"
-                       style="vertical-align: middle"></i>
-                    <ng-template #elseManual>
+                    @if (cellType === 'markdown' || !manualExecution) {
+                        <i class="fa fa-play"
+                           style="vertical-align: middle"></i>
+                    } @else {
                         (<i class="fa fa-play nb-exec-play-manual" style="vertical-align: middle"></i>)
-                    </ng-template>
+                    }
                 </button>
-                <button *ngIf="isFocused && cellType !== 'markdown'"
-                        [hidden]="sourceHidden"
-                        type="button" class="btn nb-exec-btn"
-                        (click)="toggledManual()" onclick="this.blur();">
-                    <i class="fa" [ngClass]="{'fa-toggle-off': !manualExecution, 'fa-toggle-on': manualExecution}"
-                       tooltip="Toggle manual execution (useful to prevent queries from being executed more than once)"
-                       placement="right" container="body"></i>
-                </button>
-            </ng-container>
+                @if (isFocused && cellType !== 'markdown') {
+                    <button
+                            [hidden]="sourceHidden"
+                            type="button" class="btn nb-exec-btn"
+                            (click)="toggledManual()" onclick="this.blur();">
+                        <i class="fa" [ngClass]="{'fa-toggle-off': !manualExecution, 'fa-toggle-on': manualExecution}"
+                           tooltip="Toggle manual execution (useful to prevent queries from being executed more than once)"
+                           placement="right" container="body"></i>
+                    </button>
+                }
+            }
 
 
         </div>
         <div class="nb-hider" [hidden]="sourceHidden">
-            <markdown class="nb-markdown border" *ngIf="cellType === 'markdown' && isMdRendered"
-                      [ngClass]="{'border-light': isFocused && (mode==='command'),
+            @if (cellType === 'markdown' && isMdRendered) {
+                <markdown class="nb-markdown border"
+                          [ngClass]="{'border-light': isFocused && (mode==='command'),
                                'border-white': !isFocused || (mode!=='command')}"
-                      katex [katexOptions]="options"
-                      [data]="mdSource"
-                      (ready)="onReady()"
-                      (dblclick)="editMode()">
-            </markdown>
+                          katex [katexOptions]="options"
+                          [data]="mdSource"
+                          (ready)="onReady()"
+                          (dblclick)="editMode()">
+                </markdown>
+            }
             <div class="nb-input" [hidden]="isMdRendered">
-                <form [formGroup]="polyForm" *ngIf="cellType === 'poly'" autocomplete="off" cForm cRow
-                      class="mb-2 justify-content-start polycell-form" [gutter]="1">
-                    <c-col [xl]="4" [xxl]="2">
-                        <c-input-group sizing="sm" class="flex-nowrap">
-                            <span cInputGroupText class="px-1">Language</span>
-                            <select cSelect class="ps-1" id="language"
-                                    (change)="changedLanguage()" formControlName="language">
-                                <option value="cypher">CYPHER</option>
-                                <option value="sql">SQL</option>
-                                <option value="mql">MQL</option>
-                                <option value="cql">CQL</option>
-                                <option value="pig">PIG</option>
-                            </select>
-                        </c-input-group>
-
-                    </c-col>
-                    <c-col [xl]="4" [xxl]="2">
-                        <c-input-group sizing="sm" class="pr-0 flex-nowrap">
-                            <span cInputGroupText class="px-1">Namespace</span>
-                            <select cSelect class="ps-1" id="namespace"
-                                    (change)="changedNamespace()" formControlName="namespace">
-                                <option *ngFor="let namespace of namespaces()" [ngValue]="namespace">{{ namespace }}
-                                </option>
-                            </select>
-                        </c-input-group>
-
-                    </c-col>
-                    <c-col [xl]="8" [xxl]="2">
-                        <c-input-group sizing="sm" class="pr-0 flex-nowrap">
-                            <span cInputGroupText class="px-1" for="variableName">Store in</span>
-
-                            <input cFormControl type="text" autocomplete="off" class="px-1 no-command-hotkey"
-                                   id="variableName"
-                                   maxlength="30"
-                                   (change)="changedVariableName()" formControlName="variable"
-                                   [ngClass]="{'is-invalid pr-4': !polyForm.valid}">
-                        </c-input-group>
-                    </c-col>
-                </form>
+                @if (cellType === 'poly') {
+                    <form [formGroup]="polyForm" autocomplete="off" cForm cRow
+                          class="mb-2 justify-content-start polycell-form" [gutter]="1">
+                        <c-col [xl]="4" [xxl]="2">
+                            <c-input-group sizing="sm" class="flex-nowrap">
+                                <span cInputGroupText class="px-1">Language</span>
+                                <select cSelect class="ps-1" id="language"
+                                        (change)="changedLanguage()" formControlName="language">
+                                    <option value="cypher">CYPHER</option>
+                                    <option value="sql">SQL</option>
+                                    <option value="mql">MQL</option>
+                                    <option value="cql">CQL</option>
+                                    <option value="pig">PIG</option>
+                                </select>
+                            </c-input-group>
+                        </c-col>
+                        <c-col [xl]="4" [xxl]="2">
+                            <c-input-group sizing="sm" class="pr-0 flex-nowrap">
+                                <span cInputGroupText class="px-1">Namespace</span>
+                                <select cSelect class="ps-1" id="namespace"
+                                        (change)="changedNamespace()" formControlName="namespace">
+                                    @for (namespace of namespaces(); track namespace) {
+                                        <option [ngValue]="namespace">{{ namespace }}
+                                        </option>
+                                    }
+                                </select>
+                            </c-input-group>
+                        </c-col>
+                        <c-col [xl]="8" [xxl]="2">
+                            <c-input-group sizing="sm" class="pr-0 flex-nowrap">
+                                <span cInputGroupText class="px-1" for="variableName">Store in</span>
+                                <input cFormControl type="text" autocomplete="off" class="px-1 no-command-hotkey"
+                                       id="variableName"
+                                       maxlength="30"
+                                       (change)="changedVariableName()" formControlName="variable"
+                                       [ngClass]="{'is-invalid pr-4': !polyForm.valid}">
+                            </c-input-group>
+                        </c-col>
+                    </form>
+                }
 
                 <div class="sql-console form-group border" (click)="editMode()" [ngClass]=
                         "{'border-primary': isFocused && (mode==='edit'),'border-light': !isFocused || (mode==='command')}">
@@ -149,78 +158,83 @@
             </div>
         </div>
 
-        <div *ngIf="sourceHidden" class="nb-hidden" (click)="setSourceHidden(false)"
-             [ngClass]="{'text-secondary': isFocused, 'text-light': !isFocused}">
-            <i class="fa fa-circle me-2"></i>
-            <i class="fa fa-circle me-2"></i>
-            <i class="fa fa-circle me-2"></i>
-        </div>
-
-    </div>
-
-
-    <div class="nb-output-wrapper" *ngIf="cell.cell_type === 'code' && cell.outputs.length > 0">
-        <div class="nb-select-bar" (click)="setOutputsHidden(!outputsHidden)" [ngClass]=
-                "{'bg-primary': isFocused, 'bg-white': !isFocused && !isMouseOver, 'bg-light': isMouseOver && !isFocused}"></div>
-
-        <div class="nb-hider" *ngIf="!outputsHidden">
-            <div class="nb-outputs" *ngIf="cellType === 'poly'; else codeOutput">
-                <div class="nb-poly-data-view nb-output">
-                    <!--<div class="nb-side-area"></div>-->
-                    <div class="nb-output-text ms-1">
-                        <app-db-poly-output [resultSet]="resultSet"
-                                            [resultVariable]="resultVariable"
-                                            [resultIsTooLong]="resultIsTooLong"></app-db-poly-output>
-                    </div>
-                </div>
+        @if (sourceHidden) {
+            <div class="nb-hidden" (click)="setSourceHidden(false)"
+                 [ngClass]="{'text-secondary': isFocused, 'text-light': !isFocused}">
+                <i class="fa fa-circle me-2"></i>
+                <i class="fa fa-circle me-2"></i>
+                <i class="fa fa-circle me-2"></i>
             </div>
-            <ng-template #codeOutput>
-                <div class="nb-outputs text-monospace">
-                    <div class="nb-output" *ngFor="let output of cell.outputs">
-                        <ng-container *ngIf="output.output_type !== 'execute_result'; else elseExecuteResult">
-                            <div class="nb-side-area"></div>
+        }
 
-                            <div class="nb-output-text">
-                                <ng-container [ngSwitch]="output.output_type">
-                                    <ng-container *ngSwitchCase="'stream'">
-                                        <pre class="nb-plaintext text-monospace" [innerHTML]="streamHtml"></pre>
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'display_data'">
-                                        <app-nb-output-data [data]="output.data"
-                                                            [isTrusted]="isTrusted"></app-nb-output-data>
-                                    </ng-container>
-                                    <pre class="nb-error text-monospace" *ngSwitchCase="'error'"
-                                         [innerHTML]="errorHtml">
-                                    </pre>
-                                </ng-container>
-
-                            </div>
-                        </ng-container>
-
-                        <ng-template #elseExecuteResult>
-                            <div class="nb-side-area">
-                                <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
-                                    [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
-                                </span>
-                            </div>
-
-                            <div class="nb-output-text nb-execute-result">
-                                <app-nb-output-data [data]="output.data" [isTrusted]="isTrusted"></app-nb-output-data>
-                            </div>
-                        </ng-template>
-                    </div>
-                </div>
-            </ng-template>
-        </div>
-
-
-        <div *ngIf="outputsHidden" class="nb-hidden nb-output" (click)="setOutputsHidden(false)"
-             [ngClass]="{'text-secondary': isFocused, 'text-light': !isFocused}">
-            <div class="nb-side-area"></div>
-            <i class="fa fa-circle me-2"></i>
-            <i class="fa fa-circle me-2"></i>
-            <i class="fa fa-circle me-2"></i>
-        </div>
     </div>
+
+
+    @if (cell.cell_type === 'code' && cell.outputs.length > 0) {
+        <div class="nb-output-wrapper">
+            <div class="nb-select-bar" (click)="setOutputsHidden(!outputsHidden)" [ngClass]=
+                    "{'bg-primary': isFocused, 'bg-white': !isFocused && !isMouseOver, 'bg-light': isMouseOver && !isFocused}"></div>
+            @if (!outputsHidden) {
+                <div class="nb-hider">
+                    @if (cellType === 'poly') {
+                        <div class="nb-outputs">
+                            <div class="nb-poly-data-view nb-output">
+                                <!--<div class="nb-side-area"></div>-->
+                                <div class="nb-output-text ms-1">
+                                    <app-db-poly-output [resultSet]="resultSet"
+                                                        [resultVariable]="resultVariable"
+                                                        [resultIsTooLong]="resultIsTooLong"></app-db-poly-output>
+                                </div>
+                            </div>
+                        </div>
+                    } @else {
+                        <div class="nb-outputs text-monospace">
+                            @for (output of cell.outputs; track $index) {
+                                <div class="nb-output">
+                                    @if (output.output_type !== 'execute_result') {
+                                        <div class="nb-side-area"></div>
+                                        <div class="nb-output-text">
+                                            @switch (output.output_type) {
+                                                @case ('stream') {
+                                                    <pre class="nb-plaintext text-monospace" [innerHTML]="streamHtml"></pre>
+                                                }
+                                                @case ('display_data') {
+                                                    <app-nb-output-data [data]="output.data"
+                                                                        [isTrusted]="isTrusted"></app-nb-output-data>
+                                                }
+                                                @case ('error') {
+                                                    <pre class="nb-error text-monospace"
+                                                         [innerHTML]="errorHtml">
+                            </pre>
+                                                }
+                                            }
+                                        </div>
+                                    } @else {
+                                        <div class="nb-side-area">
+                        <span [ngClass]="{'text-primary': isFocused, 'text-secondary': !isFocused}">
+                          [{{ (isExecuting ? '*' : cell.execution_count) || ' ' }}]:
+                        </span>
+                                        </div>
+                                        <div class="nb-output-text nb-execute-result">
+                                            <app-nb-output-data [data]="output.data" [isTrusted]="isTrusted"></app-nb-output-data>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            @if (outputsHidden) {
+                <div class="nb-hidden nb-output" (click)="setOutputsHidden(false)"
+                     [ngClass]="{'text-secondary': isFocused, 'text-light': !isFocused}">
+                    <div class="nb-side-area"></div>
+                    <i class="fa fa-circle me-2"></i>
+                    <i class="fa fa-circle me-2"></i>
+                    <i class="fa fa-circle me-2"></i>
+                </div>
+            }
+        </div>
+    }
 </div>
 

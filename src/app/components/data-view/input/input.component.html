@@ -1,26 +1,30 @@
 <c-input-group>
-    <ng-container [ngSwitch]="header.dataType">
+    @switch (header.dataType) {
         <!-- multiple cases: from: https://stackoverflow.com/questions/40176061/two-switch-case-values-in-angular2/40177408#40177408 -->
-        <ng-container *ngSwitchCase="_types.numericTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
+        @case (_types.numericTypes().includes( header.dataType.toLowerCase() ) ? header.dataType : '') {
             <!-- use input type text to prevent problems when having current values such as "12." (dot at the end) -->
-            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
-
+            @if (showLabel) {
+                <span cInputGroupText>{{ header.name }}</span>
+            }
             <input cFormControl sizing="sm" type="text" inputmode="decimal" [value]="value"
                    [disabled]="value === null && header.nullable === true" #inputElement
                    [ngClass]="validate(inputElement)?.cssClass" (keyup)="onValueChange(inputElement.value, $event)"
                    (keydown)="restrictNumericInput($event)"
                    (paste)="sanitizePastedInput($event)">
-
-            <button cButton size="sm" *ngIf="header.nullable"
-                    [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
-                    (click)="onValueChange( triggerNull(value), inputElement )">null
-            </button>
-
-            <c-form-feedback *ngIf="validate(inputElement)?.message">{{ validate( inputElement )?.message }}</c-form-feedback>
-        </ng-container>
-
-        <ng-container *ngSwitchCase="_types.booleanTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
+            @if (header.nullable) {
+                <button cButton size="sm"
+                        [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
+                        (click)="onValueChange( triggerNull(value), inputElement )">null
+                </button>
+            }
+            @if (validate( inputElement )?.message) {
+                <c-form-feedback>{{ validate( inputElement )?.message }}</c-form-feedback>
+            }
+        }
+        @case (_types.booleanTypes().includes( header.dataType.toLowerCase() ) ? header.dataType : '') {
+            @if (showLabel) {
+                <span cInputGroupText>{{ header.name }}</span>
+            }
             <c-button-group aria-label="boolean entry" class="mx-auto" role="group" size="sm">
                 <button cButton color="primary" style="border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important;" (click)="onValueChange(true)" [variant]="value === true || value === 'true' ? undefined:'outline'">true</button>
                 <button cButton color="primary" (click)="onValueChange(false)" [variant]="value === false || value === 'false' ? undefined:'outline'">false</button>
@@ -28,57 +32,60 @@
                     <button cButton color="primary" (click)="onValueChange(null)" [variant]="value === null ? undefined:'outline'">null</button>
                 }
             </c-button-group>
-        </ng-container>
-
-        <ng-container *ngSwitchCase="_types.dateTimeTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-            <span *ngIf="showLabel" cInputGroupText>{{ header.name }}</span>
-
+        }
+        @case (_types.dateTimeTypes().includes( header.dataType.toLowerCase() ) ? header.dataType : '') {
+            @if (showLabel) {
+                <span cInputGroupText>{{ header.name }}</span>
+            }
             <input type="text" cFormControl sizing="sm" class="fPickerInput" [value]="value"
                    [placeholder]="header.dataType.toLowerCase() === 'time' ? 'Select time..': 'Select date..'"
                    #flatpickr>
-
-            <button *ngIf="header.nullable" cButton size="sm" [ngClass]="{'btn-primary': value == null, 'btn-light': value !== null}"
-                    (click)="clearFlatpickr()">null
-            </button>
-        </ng-container>
-
-        <ng-container *ngSwitchCase="_types.multimediaTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-
-            <span *ngIf="showLabel" cInputGroupText>{{ header.name }}</span>
-
+            @if (header.nullable) {
+                <button cButton size="sm" [ngClass]="{'btn-primary': value == null, 'btn-light': value !== null}"
+                        (click)="clearFlatpickr()">null
+                </button>
+            }
+        }
+        @case (_types.multimediaTypes().includes( header.dataType.toLowerCase() ) ? header.dataType : '') {
+            @if (showLabel) {
+                <span cInputGroupText>{{ header.name }}</span>
+            }
             <label [for]="'customFile'+randomId" class="form-control form-control-sm file-label">
                 <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
                 <input type="file" style="display: none;" [id]="'customFile'+randomId" (change)="onFileChange($event.target.files)" #fileInput>
                 {{ inputFileName }}
             </label>
-
-            <button cButton size="sm" color="primary" class="mb-0" *ngIf="value !== null && header.nullable"
-                    (click)="onFileChange(null, $event);">
-                null
-            </button>
-            <label cButton color="light" size="sm" [for]="'customFile'+randomId" class="btn btn-sm btn-light mb-0"
-                   *ngIf="!header.nullable || value === null">Browse</label>
-
-        </ng-container>
-
-        <ng-container *ngSwitchDefault>
-            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
+            @if (value !== null && header.nullable) {
+                <button cButton size="sm" color="primary" class="mb-0"
+                        (click)="onFileChange(null, $event);">
+                    null
+                </button>
+            }
+            @if (!header.nullable || value === null) {
+                <label cButton color="light" size="sm" [for]="'customFile'+randomId" class="btn btn-sm btn-light mb-0"
+                >Browse</label>
+            }
+        }
+        @default {
+            @if (showLabel) {
+                <span cInputGroupText>{{ header.name }}</span>
+            }
             <input cFormControl sizing="sm" type="text" [value]="value"
                    [maxLength]="header.precision || 524288"
                    [disabled]="value === null && header.nullable === true"
                    [ngClass]="validate(defaultInput)?.cssClass" (keyup)="onValueChange(defaultInput.value, $event)"
                    #defaultInput>
-
-            <button cButton
-                    *ngIf="header.nullable"
-                    size="sm"
-                    [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
-                    (click)="onValueChange( triggerNull(value) )">null
-            </button>
-
-            <c-form-feedback *ngIf="validate(defaultInput)?.message">{{ validate( defaultInput )?.message }}</c-form-feedback>
-        </ng-container>
-
-    </ng-container>
+            @if (header.nullable) {
+                <button cButton
+                        size="sm"
+                        [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
+                        (click)="onValueChange( triggerNull(value) )">null
+                </button>
+            }
+            @if (validate( defaultInput )?.message) {
+                <c-form-feedback>{{ validate( defaultInput )?.message }}</c-form-feedback>
+            }
+        }
+    }
 
 </c-input-group>

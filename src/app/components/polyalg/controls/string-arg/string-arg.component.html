@@ -1,15 +1,17 @@
 <div class="param-wrapper">
-    <label for="arg" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+    @if (data.name) {
+        <label for="arg"><strong>{{ data.name }}</strong></label>
+    }
 
     <c-input-group sizing="sm">
         <input type="text" id="arg" name="arg" (pointerdown)="$event.stopPropagation()"
                autocomplete="off" [readonly]="data.isReadOnly" placeholder="string"
                class="form-control form-control-sm px-1" [(ngModel)]="data.arg">
-        <ng-container *ngIf="data.showAlias">
+        @if (data.showAlias) {
             <span cInputGroupText class="p-1">AS</span>
             <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
                    autocomplete="off" [readonly]="data.isReadOnly" placeholder="{{data.arg() || 'alias'}}"
                    class="form-control form-control-sm px-1" [(ngModel)]="data.alias">
-        </ng-container>
+        }
     </c-input-group>
 </div>

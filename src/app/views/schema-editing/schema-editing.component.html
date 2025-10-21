@@ -12,40 +12,46 @@
                     <span class="mb-0">Create Namespace</span>
                 </c-card-header>
                 <c-card-body>
-                    <form *ngIf="createForm" [formGroup]="createForm" (ngSubmit)="createNamespace()" cForm cRow class="needs-validation" [validated]="false">
-                        <c-input-group class="mb-3 has-validation" cCol>
-                            <span cInputGroupText id="namespaceNameCreate2">Name</span>
-                            <input aria-describedby="NamespaceNameCreate2"
-                                   autocomplete="off"
-                                   cFormControl
-                                   formControlName="name"
-                                   [ngClass]="createNamespaceValidation(createForm.controls['name'].value)"
-                                   required
-                                   type="text"
-                                   placeholder="namespace name">
-                            <c-form-feedback valid="false">{{ createNamespaceFeedback }}</c-form-feedback>
-                        </c-input-group>
-                        <c-input-group class="mb-3">
-                            <label cInputGroupText for="namespace-type">Type</label>
-                            <select id="namespace-type" formControlName="type" cSelect>
-                                <option value="relational">relational</option>
-                                <option value="document">document</option>
-                                <option value="graph">graph</option>
-                            </select>
-                        </c-input-group>
-                        <c-input-group class="mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
-                            <label cInputGroupText for="namespace-type">Store</label>
-                            <select formControlName="stores" id="graph-store" cSelect>
-                                <option *ngFor="let store of stores()" value="{{ store.name }}">{{ store.name }}</option>
-                            </select>
-                        </c-input-group>
-                        <c-input-group class="mb-0 justify-content-end">
-                            <button cButton type="submit" color="primary"
-                                    [ngClass]="{'progress-bar-striped progress-bar-animated': createSubmitted}"
-                                    [disabled]="createSubmitted || !createForm.valid">Create
-                            </button>
-                        </c-input-group>
-                    </form>
+                    @if (createForm) {
+                        <form [formGroup]="createForm" (ngSubmit)="createNamespace()" cForm cRow class="needs-validation" [validated]="false">
+                            <c-input-group class="mb-3 has-validation" cCol>
+                                <span cInputGroupText id="namespaceNameCreate2">Name</span>
+                                <input aria-describedby="NamespaceNameCreate2"
+                                       autocomplete="off"
+                                       cFormControl
+                                       formControlName="name"
+                                       [ngClass]="createNamespaceValidation(createForm.controls['name'].value)"
+                                       required
+                                       type="text"
+                                       placeholder="namespace name">
+                                <c-form-feedback valid="false">{{ createNamespaceFeedback }}</c-form-feedback>
+                            </c-input-group>
+                            <c-input-group class="mb-3">
+                                <label cInputGroupText for="namespace-type">Type</label>
+                                <select id="namespace-type" formControlName="type" cSelect>
+                                    <option value="relational">relational</option>
+                                    <option value="document">document</option>
+                                    <option value="graph">graph</option>
+                                </select>
+                            </c-input-group>
+                            @if (this.createForm.get( 'type' ).value === 'graph') {
+                                <c-input-group class="mb-3">
+                                    <label cInputGroupText for="namespace-type">Store</label>
+                                    <select formControlName="stores" id="graph-store" cSelect>
+                                        @for (store of stores(); track store.id) {
+                                            <option value="{{ store.name }}">{{ store.name }}</option>
+                                        }
+                                    </select>
+                                </c-input-group>
+                            }
+                            <c-input-group class="mb-0 justify-content-end">
+                                <button cButton type="submit" color="primary"
+                                        [ngClass]="{'progress-bar-striped progress-bar-animated': createSubmitted}"
+                                        [disabled]="createSubmitted || !createForm.valid">Create
+                                </button>
+                            </c-input-group>
+                        </form>
+                    }
                 </c-card-body>
             </c-card>
         </c-col>

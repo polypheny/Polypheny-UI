@@ -11,84 +11,102 @@
 
 
             <ul class="nav nav-underline mb-5" role="tablist">
-                <li class="nav-item" role="presentation" *ngIf="placements()">
-                    <a class="nav-link"
-                       [ngClass]="{'active': activeTab() === 'placement'}"
-                       (click)="setTab('placement')"
-                       role="tab">Placements</a>
-                </li>
+                @if (placements()) {
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link"
+                           [ngClass]="{'active': activeTab() === 'placement'}"
+                           (click)="setTab('placement')"
+                           role="tab">Placements</a>
+                    </li>
+                }
                 <!--<li class="nav-item" role="presentation">
-                    <a class="nav-link"
-                       [ngClass]="{'active': activeTab() === 'statistics'}"
-                       (click)="setTab('statistics')"
-                       role="tab">Statistics</a>
-                </li>-->
+                <a class="nav-link"
+                  [ngClass]="{'active': activeTab() === 'statistics'}"
+                  (click)="setTab('statistics')"
+                role="tab">Statistics</a>
+              </li>-->
             </ul>
 
         </c-col>
     </c-row>
 
     <c-row>
-        <c-col [hidden]="activeTab() !== 'placement'" *ngIf="placements()">
-            <div class="mb-4" style="position: relative">
-                <div class="btn-group btn-group-sm" id="placementBtnGroup"
-                     *ngIf="addableStores()?.length > 0">
-                    <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores().length > 3">
-                        <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                            <span *ngIf="!selectedStore">Select store</span>
-                            <span *ngIf="selectedStore">{{ selectedStore.name }}</span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-                            <ng-container *ngFor="let store of addableStores()">
-                                <li role="menuitem">
-                                    <a class="dropdown-item" [routerLink]="[]"
-                                       (click)="selectedStore = store">{{ store.name }}</a>
-                                </li>
-                            </ng-container>
-                            <li *ngIf="addableStores()?.length === 0" role="menuitem">
-                                <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <button cButton size="sm" color="primary" (click)="modifyPlacement(Method.ADD)">add</button>
+        @if (placements()) {
+            <c-col [hidden]="activeTab() !== 'placement'">
+                <div class="mb-4" style="position: relative">
+                    @if (addableStores()?.length > 0) {
+                        <div class="btn-group btn-group-sm" id="placementBtnGroup"
+                        >
+                            <div class="btn-group btn-group-sm" dropdown placement="top right" [dropup]="stores().length > 3">
+                                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                                    @if (!selectedStore) {
+                                        <span>Select store</span>
+                                    }
+                                    @if (selectedStore) {
+                                        <span>{{ selectedStore.name }}</span>
+                                    }
+                                    <span class="caret"></span>
+                                </button>
+                                <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                                    @for (store of addableStores(); track store.id) {
+                                        <li role="menuitem">
+                                            <a class="dropdown-item" [routerLink]="[]"
+                                               (click)="selectedStore = store">{{ store.name }}</a>
+                                        </li>
+                                    }
+                                    @if (addableStores()?.length === 0) {
+                                        <li role="menuitem">
+                                            <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            <button cButton size="sm" color="primary" (click)="modifyPlacement(Method.ADD)">add</button>
+                        </div>
+                    }
+                    @if (isAddingPlacement) {
+                        <c-progress class="mt-3">
+                            <c-progress-bar [animated]="true" variant="striped"
+                                            class="progress progress-bar mt-2" [value]="0"
+                                            [max]="1"></c-progress-bar>
+                        </c-progress>
+                    }
                 </div>
-                <c-progress class="mt-3" *ngIf="isAddingPlacement">
-                    <c-progress-bar [animated]="true" variant="striped"
-                                    class="progress progress-bar mt-2" [value]="0"
-                                    [max]="1"></c-progress-bar>
-                </c-progress>
-            </div>
-            <table cTable hover="true" striped="true">
-                <thead>
-                <tr>
-                    <th>Store</th>
-                    <th>Adapter</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let placement of placements() ; let i = index">
-                    <td>{{ _catalog.getAdapter( placement.adapterId )?.name }}</td>
-                    <td>{{ _catalog.getAdapter( placement.adapterId )?.adapterName }}</td>
-                    <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
-                    <ng-container *ngIf="placements()?.length > 1">
-                        <td class="delete">
-                            <app-delete-confirm (delete)="modifyPlacement(Method.DROP, placement )"></app-delete-confirm>
-                        </td>
-                    </ng-container>
-                    <!-- don't show delete icon if there is only one placement --->
-                    <ng-container *ngIf="placements()?.length < 2">
-                        <td></td>
-                    </ng-container>
-                </tr>
-                </tbody>
-            </table>
-        </c-col>
+                <table cTable hover="true" striped="true">
+                    <thead>
+                    <tr>
+                        <th>Store</th>
+                        <th>Adapter</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @for (placement of placements(); track placement; let i = $index) {
+                            <tr>
+                                <td>{{ _catalog.getAdapter( placement.adapterId )?.name }}</td>
+                                <td>{{ _catalog.getAdapter( placement.adapterId )?.adapterName }}</td>
+                                <!-- show delete icon only if there is more than one placement (deleting a single placement is not possible) --->
+                                @if (placements()?.length > 1) {
+                                    <td class="delete">
+                                        <app-delete-confirm (delete)="modifyPlacement(Method.DROP, placement )"></app-delete-confirm>
+                                    </td>
+                                }
+                                <!-- don't show delete icon if there is only one placement --->
+                                @if (placements()?.length < 2) {
+                                    <td></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </c-col>
+        }
 
-        <c-col *ngIf="activeTab() === 'statistics'">
-            <app-statistics-column [entity]="entity()"></app-statistics-column>
-        </c-col>
+        @if (activeTab() === 'statistics') {
+            <c-col>
+                <app-statistics-column [entity]="entity()"></app-statistics-column>
+            </c-col>
+        }
 
     </c-row>
 

@@ -7,25 +7,29 @@
         <c-input-group class="mb-3">
             <span cInputGroupText>select</span>
             <div class="form-control" id="selectBox">
-                <button *ngFor="let field of selects()" cButton color="secondary" size="sm" class="dbCol">{{field.name}}<span (click)="removeSelect(field)" class="del">&times;</span></button>
+                @for (field of selects(); track field.id) {
+                    <button cButton color="secondary" size="sm" class="dbCol">{{ field.name }}<span (click)="removeSelect(field)" class="del">&times;</span></button>
+                }
             </div>
         </c-input-group>
 
         <c-input-group class="mb-3">
             <span class="input-group-text">from</span>
             <div class="form-control" id="fromBox">
-                <button cButton color="secondary" size="sm" disabled *ngFor="let entity of entities | keyvalue" class="dbTable">{{entity.key}}test</button>
+                @for (entity of entities | keyvalue; track entity.key) {
+                    <button cButton color="secondary" size="sm" disabled class="dbTable">{{ entity.key }}test</button>
+                }
             </div>
         </c-input-group>
 
         <c-input-group class="mb-3">
             <span class="input-group-text">join<br>conditions</span>
             <div class="form-control" id="joinConditionBox">
-                <ng-container *ngFor="let con of joinConditions | keyvalue">
+                @for (con of joinConditions | keyvalue; track con.key) {
                     <input type="checkbox" [(ngModel)]="con.value.active" [id]="con.key" (click)="toggleCondition(con.value)">
-                    <label [for]="con.key">&nbsp;{{con.value.condition}}</label>
+                    <label [for]="con.key">&nbsp;{{ con.value.condition }}</label>
                     <br>
-                </ng-container>
+                }
             </div>
         </c-input-group>
 
@@ -41,45 +45,60 @@
         <app-refinement-options [choosenTables]="selectedColumn" (filteredUserInputChange)="userInput($event)"></app-refinement-options>
 
 
-        <button cButton color="primary" *ngIf="!loading()" (click)="executeQuery()">Execute</button>
-        <button cButton color="primary" *ngIf="loading()" class="mb-3" disabled>Loading</button>
+        @if (!loading()) {
+            <button cButton color="primary" (click)="executeQuery()">Execute</button>
+        }
+        @if (loading()) {
+            <button cButton color="primary" class="mb-3" disabled>Loading</button>
+        }
 
-        <div *ngIf="result">
-            <hr>
-            <h5>Query Result</h5>
-        </div>
+        @if (result) {
+            <div>
+                <hr>
+                <h5>Query Result</h5>
+            </div>
+        }
 
-        <c-card *ngIf="result" id="result-graphical">
-            <c-header>
-                <span>{{result.query}}</span>
-                <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
-                    <ng-container *ngIf="!result.error">{{result.affectedTuples}}</ng-container>
-                    <ng-container *ngIf="result.error">!</ng-container>
-                </c-badge>
-            </c-header>
-
-            <c-card-body style="padding-bottom: 0.25rem">
-                <div class="text-danger" *ngIf="result && result.error">
-                    <strong>Error:</strong>
-                    <p class="mb-3">{{result.error}}</p>
-                </div>
-
-                <div class="query-info">
-                    <p *ngIf="result && !result.data && !result.error" class="mb-3">
-                        <i>Successfully executed</i>
-                    </p>
-                </div>
-
-                <c-row *ngIf="result && result.data">
-                    <c-col class="col-lg-12">
-                        <app-data-view [result]="result"
-                                       [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}"
-                                       [loading]="loading()"
-                                       (viewQueryConsumer)="executeView($event)"></app-data-view>
-                    </c-col>
-                </c-row>
-            </c-card-body>
-        </c-card>
+        @if (result) {
+            <c-card id="result-graphical">
+                <c-header>
+                    <span>{{ result.query }}</span>
+                    <c-badge class="pull-right" [color]="result.error ? 'danger' : 'secondary'">
+                        @if (!result.error) {
+                            {{ result.affectedTuples }}
+                        }
+                        @if (result.error) {
+                            !
+                        }
+                    </c-badge>
+                </c-header>
+                <c-card-body style="padding-bottom: 0.25rem">
+                    @if (result && result.error) {
+                        <div class="text-danger">
+                            <strong>Error:</strong>
+                            <p class="mb-3">{{ result.error }}</p>
+                        </div>
+                    }
+                    <div class="query-info">
+                        @if (result && !result.data && !result.error) {
+                            <p class="mb-3">
+                                <i>Successfully executed</i>
+                            </p>
+                        }
+                    </div>
+                    @if (result && result.data) {
+                        <c-row>
+                            <c-col class="col-lg-12">
+                                <app-data-view [result]="result"
+                                               [config]="{create:false, update:false, delete:false, sort:false, search: false, exploring: false}"
+                                               [loading]="loading()"
+                                               (viewQueryConsumer)="executeView($event)"></app-data-view>
+                            </c-col>
+                        </c-row>
+                    }
+                </c-card-body>
+            </c-card>
+        }
 
     </c-col>
 

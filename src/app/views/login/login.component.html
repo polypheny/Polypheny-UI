@@ -21,16 +21,20 @@
                                         <i class="cil-star">
 
                                         </i> favorites</h6>
-                                    <a class="dropdown-item" *ngFor="let f of favorites" href="#"
-                                       (click)="applyHistory(f)" [routerLink]="[]">
-                                        <i class="cil-trash text-danger" (click)="deleteFavorite()"></i>{{ f.server }}
-                                        :{{ f.port }}</a>
+                                    @for (f of favorites; track f) {
+                                        <a class="dropdown-item" href="#"
+                                           (click)="applyHistory(f)" [routerLink]="[]">
+                                            <i class="cil-trash text-danger" (click)="deleteFavorite()"></i>{{ f.server }}
+                                            :{{ f.port }}</a>
+                                    }
 
                                     <a class="dropdown-item" href="#" (click)="saveNewFavorite(loginForm)"
                                        [routerLink]="[]">save this login</a>
                                     <h6 class="dropdown-header"><i class="fa fa-history"></i> history</h6>
-                                    <a class="dropdown-item" *ngFor="let h of history" href="#"
-                                       (click)="applyHistory(h)" [routerLink]="[]">{{ h.server }}:{{ h.port }}</a>
+                                    @for (h of history; track h) {
+                                        <a class="dropdown-item" href="#"
+                                           (click)="applyHistory(h)" [routerLink]="[]">{{ h.server }}:{{ h.port }}</a>
+                                    }
                                 </div>
                             </div>
 

@@ -3,227 +3,210 @@
         <h5 cModalTitle>Help</h5>
         <button (click)="toggleHelpModal()" cButtonClose></button>
     </c-modal-header>
-    <c-modal-body *ngIf="showHelpModal()">
-        <ul class="nav nav-underline mb-3 help-nav no-select" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" (click)="helpTab.set('intro')"
-                   [ngClass]="{'active': helpTab() === 'intro'}"
-                   role="tab">Introduction</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" (click)="helpTab.set('control')"
-                   [ngClass]="{'active': helpTab() === 'control'}"
-                   role="tab">Control Flow</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link d-flex align-items-center" (click)="helpTab.set('variables')"
-                   [ngClass]="{'active': helpTab() === 'variables'}"
-                   role="tab">
-                    Variables
-                    <span class="cil-bolt ms-1"></span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" (click)="helpTab.set('optimization')"
-                   [ngClass]="{'active': helpTab() === 'optimization'}"
-                   role="tab">Optimization</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" (click)="helpTab.set('nested')"
-                   [ngClass]="{'active': helpTab() === 'nested'}"
-                   role="tab">Nested Workflows</a>
-            </li>
-        </ul>
-
-        @switch (helpTab()) {
-            @case ("intro") {
-                <p>Each workflow is made up of a set of reusable building blocks called activities. They are connected with
-                    edges to form an acyclic graph that represents the flow of execution.</p>
-
-                <h5>Activities</h5>
-                <p>Each activity has a status bar whose color indicates the activity state.</p>
-                <ul>
-                    <li>
-                        <span class="badge text-dark" [style.background]="stateColors[ActivityState.IDLE]">Idle</span>
-                        the activity has not yet been executed.
-                    </li>
-                    <li>
-                        <span class="badge" [style.background]="stateColors[ActivityState.QUEUED]">Queued</span>
-                        the activity is waiting to be executed.
-                    </li>
-                    <li>
-                        <span class="badge" [style.background]="stateColors[ActivityState.EXECUTING]">Executing</span>
-                        the activity is getting executed. Many activities also report the estimated progress in form of a progress bar.
-                    </li>
-                    <li>
-                        <span class="badge" [style.background]="stateColors[ActivityState.SAVED]">Finished</span>
-                        the activity was successfully executed and its results can be viewed.
-                    </li>
-                    <li>
-                        <span class="badge" [style.background]="stateColors[ActivityState.FAILED]">Failed</span>
-                        the execution was unsuccessful. Open the activity settings to see an error message.
-                    </li>
-                    <li>
-                        <span class="badge" [style.background]="stateColors[ActivityState.SKIPPED]">Cancelled</span>
-                        the activity was queued for execution, but it was never executed.
-                    </li>
-                </ul>
-
-                <p>
-                    If a problem with an activity is detected, the execution cannot be started.
-                    A warning sign <span class="badge bg-warning"><span class="fa fa-warning"></span></span> is shown.
-                    By clicking on it, a detailed problem description can be viewed.
-                </p>
-
-
-                <h5 class="pt-2">Data Models</h5>
-                <p>Data flowing through the workflow can adhere to any of the data models supported by Polypheny:</p>
-                <ul>
-                    <li>
-                        <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.REL]"></span></span>
-                        relational model
-                    </li>
-                    <li>
-                        <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.DOC]"></span></span>
-                        document model
-                    </li>
-                    <li>
-                        <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.LPG]"></span></span>
-                        property graph model
-                    </li>
-                </ul>
-                <p>Outputs of one model can only be connected to inputs of a compatible data model.
-                    Some activities have inputs that are agnostic to the data model
-                    (<span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.ANY]"></span></span>).
-                </p>
-
-                <h5>Checkpoints</h5>
-                Without any <a (click)="helpTab.set('optimization')" [style.cursor]="'pointer'">optimizations</a> enabled, each successfully executed
-                        activity stores its outputs in form of a checkpoint. This is useful for iterative development of workflows and recoverability.
-                <p>
-                    Checkpoints can be viewed by clicking on the corresponding output symbol
-                    <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.REL]"></span></span>.
-                </p>
+    @if (showHelpModal()) {
+        <c-modal-body>
+            <ul class="nav nav-underline mb-3 help-nav no-select" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" (click)="helpTab.set('intro')"
+                       [ngClass]="{'active': helpTab() === 'intro'}"
+                       role="tab">Introduction</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" (click)="helpTab.set('control')"
+                       [ngClass]="{'active': helpTab() === 'control'}"
+                       role="tab">Control Flow</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link d-flex align-items-center" (click)="helpTab.set('variables')"
+                       [ngClass]="{'active': helpTab() === 'variables'}"
+                       role="tab">
+                        Variables
+                        <span class="cil-bolt ms-1"></span>
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" (click)="helpTab.set('optimization')"
+                       [ngClass]="{'active': helpTab() === 'optimization'}"
+                       role="tab">Optimization</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" (click)="helpTab.set('nested')"
+                       [ngClass]="{'active': helpTab() === 'nested'}"
+                       role="tab">Nested Workflows</a>
+                </li>
+            </ul>
+            @switch (helpTab()) {
+                @case ("intro") {
+                    <p>Each workflow is made up of a set of reusable building blocks called activities. They are connected with
+                        edges to form an acyclic graph that represents the flow of execution.</p>
+                    <h5>Activities</h5>
+                    <p>Each activity has a status bar whose color indicates the activity state.</p>
+                    <ul>
+                        <li>
+                            <span class="badge text-dark" [style.background]="stateColors[ActivityState.IDLE]">Idle</span>
+                            the activity has not yet been executed.
+                        </li>
+                        <li>
+                            <span class="badge" [style.background]="stateColors[ActivityState.QUEUED]">Queued</span>
+                            the activity is waiting to be executed.
+                        </li>
+                        <li>
+                            <span class="badge" [style.background]="stateColors[ActivityState.EXECUTING]">Executing</span>
+                            the activity is getting executed. Many activities also report the estimated progress in form of a progress bar.
+                        </li>
+                        <li>
+                            <span class="badge" [style.background]="stateColors[ActivityState.SAVED]">Finished</span>
+                            the activity was successfully executed and its results can be viewed.
+                        </li>
+                        <li>
+                            <span class="badge" [style.background]="stateColors[ActivityState.FAILED]">Failed</span>
+                            the execution was unsuccessful. Open the activity settings to see an error message.
+                        </li>
+                        <li>
+                            <span class="badge" [style.background]="stateColors[ActivityState.SKIPPED]">Cancelled</span>
+                            the activity was queued for execution, but it was never executed.
+                        </li>
+                    </ul>
+                    <p>
+                        If a problem with an activity is detected, the execution cannot be started.
+                        A warning sign <span class="badge bg-warning"><span class="fa fa-warning"></span></span> is shown.
+                        By clicking on it, a detailed problem description can be viewed.
+                    </p>
+                    <h5 class="pt-2">Data Models</h5>
+                    <p>Data flowing through the workflow can adhere to any of the data models supported by Polypheny:</p>
+                    <ul>
+                        <li>
+                            <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.REL]"></span></span>
+                            relational model
+                        </li>
+                        <li>
+                            <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.DOC]"></span></span>
+                            document model
+                        </li>
+                        <li>
+                            <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.LPG]"></span></span>
+                            property graph model
+                        </li>
+                    </ul>
+                    <p>Outputs of one model can only be connected to inputs of a compatible data model.
+                        Some activities have inputs that are agnostic to the data model
+                        (<span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.ANY]"></span></span>).
+                    </p>
+                    <h5>Checkpoints</h5>
+                    Without any <a (click)="helpTab.set('optimization')" [style.cursor]="'pointer'">optimizations</a> enabled, each successfully executed
+                            activity stores its outputs in form of a checkpoint. This is useful for iterative development of workflows and recoverability.
+                    <p>
+                        Checkpoints can be viewed by clicking on the corresponding output symbol
+                        <span class="badge bg-light"><span class="text-dark" [ngClass]="portTypeIcons[PortType.REL]"></span></span>.
+                    </p>
+                }
+                @case ("control") {
+                    <p>
+                        Apart from defining the flow of data, the data edges also restrict the order in which activities are executed.
+                        Oftentimes, more granular control over the execution order is required. We want to be able to
+                        condition the execution of an activity on the success or failure of another activity. This is solved by control edges.
+                        They enable conditional branching and error handling similar to try-catch structures in programming languages.
+                    </p>
+                    <p>Control edges are dashed lines starting at the
+                        <span class="badge bg-success">success</span> or <span class="badge bg-danger">fail</span> output of an activity and ending at a
+                        <span class="badge bg-dark">control</span> input.
+                        The success output becomes active when the activity was successfully executed, the fail output becomes active when it failed.
+                    </p>
+                    <h5>Variables</h5>
+                    Just like data edges, control edges also carry dynamic variables (see <a (click)="helpTab.set('variables')" [style.cursor]="'pointer'">Variables</a>).
+                    <p>A fail control edge also carries the error message of the failed activity, which can be useful for logging.</p>
+                    <h5>Multiple Control Edges</h5>
+                    <p>If multiple edges are connected to a single control input, the logical AND is computed to determine whether the activity can be executed.
+                        If we want to executed an activity if (at least) one of several activities fails, this behavior might not be desired.
+                        The <i>Control State Merger</i> in the activity <span class="badge bg-light text-dark">Configuration</span> menu can be used to change it to the logical OR of all fail edges.
+                    </p>
+                    <h5>Overall Execution Success</h5>
+                    <p>
+                        Control edges allow us to properly handle activity failures. A failed activity does not necessarily mean that the entire workflow execution was unsuccessful.
+                        By default, the workflow execution is thus always considered a success.
+                    </p>
+                    <p>
+                        More granular control over whether workflow execution has been successful is important for <a class="link" (click)="helpTab.set('nested')" [style.cursor]="'pointer'">nested workflows</a>.
+                        The expected outcome can be customized in the activity <span class="badge bg-light text-dark">Configuration</span>.
+                        For instance, <span class="badge bg-light text-dark">MUST_SUCCEED</span> results in the workflow only being considered a success if that specific activity succeeded.
+                    </p>
+                }
+                @case ("variables") {
+                    <p>
+                        The workflow engine comes with a powerful variable system. It allows any Activity-Setting value to be set dynamically.
+                        There are three types of variables:
+                    </p>
+                    <ul>
+                        <li><strong>Workflow Variables</strong>: They are defined in the <i>Variables</i> toolbar menu and do not change during execution. Every activity can access these variables.</li>
+                        <li><strong>Dynamic Variables</strong>: They are set dynamically by specialized activities and are propagated by both data and control edges.</li>
+                        <li><strong>Environment Variables</strong>: They work just like dynamic variables, but are intended to be used for secrets.
+                            The actual variable values are only accessible by activities, not by the workflow editor.
+                        </li>
+                    </ul>
+                }
+                @case ("optimization") {
+                    <p>
+                        The creation of checkpoints is very resource intensive. Two kinds of optimizations can be enabled
+                        in the workflow configuration to skip unnecessary checkpoints. This is done by executing all activities
+                        in a subtree of compatible activities at the same time.
+                    </p>
+                    <p>
+                        An executed activity whose checkpoint is not materialized can be recognized by a
+                        <span class="badge" [style.background]="stripedColor">striped</span>
+                        status bar.
+                    </p>
+                    <h5>Fusion</h5>
+                    <p>
+                        Depending on the activity type and setting values, some activities are pushed down to the query execution engine of Polypheny.
+                        When activity fusion is enabled, such adjacent activities are fused into a single query plan and executed in one unit. This
+                        can be a very powerful optimization, as the query optimizer of Polypheny can further optimize the plan.
+                    </p>
+                    <h5>Pipelining</h5>
+                    <p>
+                        Most activities work on a tuple-by-tuple basis. The execution of such adjacent activities can be pipelined.
+                        They are executed concurrently and bounded queues are used to transmit tuples between activities.
+                    </p>
+                    <h5>Enforcing Checkpoints</h5>
+                    <p>
+                        Checkpoints for specific activities can be enforced from the activity <span class="badge bg-light text-dark">Configuration</span>.
+                    </p>
+                }
+                @case ("nested") {
+                    <p>
+                        If certain combinations of activities are frequently used across multiple workflows, duplicating them can become inefficient.
+                        Nested workflows solves this challenge by dividing complex workflows into smaller, logical sub-workflows.
+                    </p>
+                    <p>
+                        Any stored workflow version can be executed from a different workflow by using the 'Execute Workflow' activity.
+                        As long as there is no recursive call, workflows can be nested arbitrarily deeply.
+                        <a class="link" (click)="helpTab.set('optimization')" [style.cursor]="'pointer'">Optimization techniques</a>
+                        do not extend across workflow boundaries. Apart from this, the performance impact of using nested workflows is minimal.
+                    </p>
+                    <c-alert color="danger">
+                        Always ensure that a sufficient number of global workers is configured. Each level of nesting requires one
+                        additional worker. An insufficient number of workers might result in a deadlock.
+                    </c-alert>
+                    <h5>Data Inputs & Outputs</h5>
+                    <p>
+                        A nested workflow can have an arbitrary number of inputs and up to to outputs.
+                        Use one 'Nested Workflow Input' activity per input and configure its index.
+                        All outputs are configured with a single 'Nested Workflow Outputs' activity. If this activity fails or cannot be executed,
+                        the entire nested workflow is considered to have failed (see <a class="link" (click)="helpTab.set('control')" [style.cursor]="'pointer'">Overall Execution Success</a>).
+                    </p>
+                    <h5>Variables</h5>
+                    <p>
+                        By default, <a class="link" (click)="helpTab.set('variables')" [style.cursor]="'pointer'">variables</a>
+                        remain separated between parent and nested workflow. The 'Execute Workflow' activity can
+                        selectively enable the transfer of variables to the nested workflow. While transferred workflow variables become
+                        available at all activities in the nested workflow, dynamic and environment variables are only injected into the input activities.
+                    </p>
+                    <p>
+                        The nested output activity can enable the export of dynamic variables from the nested to the parent workflow.
+                    </p>
+                }
             }
-            @case ("control") {
-                <p>
-                    Apart from defining the flow of data, the data edges also restrict the order in which activities are executed.
-                    Oftentimes, more granular control over the execution order is required. We want to be able to
-                    condition the execution of an activity on the success or failure of another activity. This is solved by control edges.
-                    They enable conditional branching and error handling similar to try-catch structures in programming languages.
-                </p>
-                <p>Control edges are dashed lines starting at the
-                    <span class="badge bg-success">success</span> or <span class="badge bg-danger">fail</span> output of an activity and ending at a
-                    <span class="badge bg-dark">control</span> input.
-                    The success output becomes active when the activity was successfully executed, the fail output becomes active when it failed.
-                </p>
-
-                <h5>Variables</h5>
-                Just like data edges, control edges also carry dynamic variables (see <a (click)="helpTab.set('variables')" [style.cursor]="'pointer'">Variables</a>).
-                <p>A fail control edge also carries the error message of the failed activity, which can be useful for logging.</p>
-
-                <h5>Multiple Control Edges</h5>
-                <p>If multiple edges are connected to a single control input, the logical AND is computed to determine whether the activity can be executed.
-                    If we want to executed an activity if (at least) one of several activities fails, this behavior might not be desired.
-                    The <i>Control State Merger</i> in the activity <span class="badge bg-light text-dark">Configuration</span> menu can be used to change it to the logical OR of all fail edges.
-                </p>
-
-                <h5>Overall Execution Success</h5>
-                <p>
-                    Control edges allow us to properly handle activity failures. A failed activity does not necessarily mean that the entire workflow execution was unsuccessful.
-                    By default, the workflow execution is thus always considered a success.
-                </p>
-                <p>
-                    More granular control over whether workflow execution has been successful is important for <a class="link" (click)="helpTab.set('nested')" [style.cursor]="'pointer'">nested workflows</a>.
-                    The expected outcome can be customized in the activity <span class="badge bg-light text-dark">Configuration</span>.
-                    For instance, <span class="badge bg-light text-dark">MUST_SUCCEED</span> results in the workflow only being considered a success if that specific activity succeeded.
-                </p>
-            }
-            @case ("variables") {
-                <p>
-                    The workflow engine comes with a powerful variable system. It allows any Activity-Setting value to be set dynamically.
-                    There are three types of variables:
-                </p>
-                <ul>
-                    <li><strong>Workflow Variables</strong>: They are defined in the <i>Variables</i> toolbar menu and do not change during execution. Every activity can access these variables.</li>
-                    <li><strong>Dynamic Variables</strong>: They are set dynamically by specialized activities and are propagated by both data and control edges.</li>
-                    <li><strong>Environment Variables</strong>: They work just like dynamic variables, but are intended to be used for secrets.
-                        The actual variable values are only accessible by activities, not by the workflow editor.
-                    </li>
-                </ul>
-            }
-            @case ("optimization") {
-                <p>
-                    The creation of checkpoints is very resource intensive. Two kinds of optimizations can be enabled
-                    in the workflow configuration to skip unnecessary checkpoints. This is done by executing all activities
-                    in a subtree of compatible activities at the same time.
-                </p>
-                <p>
-                    An executed activity whose checkpoint is not materialized can be recognized by a
-                    <span class="badge" [style.background]="stripedColor">striped</span>
-                    status bar.
-                </p>
-
-                <h5>Fusion</h5>
-                <p>
-                    Depending on the activity type and setting values, some activities are pushed down to the query execution engine of Polypheny.
-                    When activity fusion is enabled, such adjacent activities are fused into a single query plan and executed in one unit. This
-                    can be a very powerful optimization, as the query optimizer of Polypheny can further optimize the plan.
-                </p>
-
-                <h5>Pipelining</h5>
-                <p>
-                    Most activities work on a tuple-by-tuple basis. The execution of such adjacent activities can be pipelined.
-                    They are executed concurrently and bounded queues are used to transmit tuples between activities.
-                </p>
-
-                <h5>Enforcing Checkpoints</h5>
-                <p>
-                    Checkpoints for specific activities can be enforced from the activity <span class="badge bg-light text-dark">Configuration</span>.
-                </p>
-
-            }
-            @case ("nested") {
-                <p>
-                    If certain combinations of activities are frequently used across multiple workflows, duplicating them can become inefficient.
-                    Nested workflows solves this challenge by dividing complex workflows into smaller, logical sub-workflows.
-                </p>
-                <p>
-                    Any stored workflow version can be executed from a different workflow by using the 'Execute Workflow' activity.
-                    As long as there is no recursive call, workflows can be nested arbitrarily deeply.
-                    <a class="link" (click)="helpTab.set('optimization')" [style.cursor]="'pointer'">Optimization techniques</a>
-                    do not extend across workflow boundaries. Apart from this, the performance impact of using nested workflows is minimal.
-                </p>
-
-                <c-alert color="danger">
-                    Always ensure that a sufficient number of global workers is configured. Each level of nesting requires one
-                    additional worker. An insufficient number of workers might result in a deadlock.
-                </c-alert>
-
-                <h5>Data Inputs & Outputs</h5>
-                <p>
-                    A nested workflow can have an arbitrary number of inputs and up to to outputs.
-                    Use one 'Nested Workflow Input' activity per input and configure its index.
-                    All outputs are configured with a single 'Nested Workflow Outputs' activity. If this activity fails or cannot be executed,
-                    the entire nested workflow is considered to have failed (see <a class="link" (click)="helpTab.set('control')" [style.cursor]="'pointer'">Overall Execution Success</a>).
-                </p>
-
-                <h5>Variables</h5>
-                <p>
-                    By default, <a class="link" (click)="helpTab.set('variables')" [style.cursor]="'pointer'">variables</a>
-                    remain separated between parent and nested workflow. The 'Execute Workflow' activity can
-                    selectively enable the transfer of variables to the nested workflow. While transferred workflow variables become
-                    available at all activities in the nested workflow, dynamic and environment variables are only injected into the input activities.
-                </p>
-                <p>
-                    The nested output activity can enable the export of dynamic variables from the nested to the parent workflow.
-                </p>
-            }
-
-        }
-
-
-    </c-modal-body>
+        </c-modal-body>
+    }
     <c-modal-footer>
         <button (click)="toggleHelpModal()" cButton color="secondary"> Close</button>
     </c-modal-footer>

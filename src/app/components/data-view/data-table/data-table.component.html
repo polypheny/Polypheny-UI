@@ -1,172 +1,239 @@
-<div class="text-danger mb-3"
-     *ngIf="$result() && $result().error && !$result().header">{{ $result().error }}
-</div>
+@if ($result() && $result().error && !$result().header) {
+    <div class="text-danger mb-3"
+    >{{ $result().error }}
+    </div>
+}
 
-<c-row *ngIf="$result() && $result().header">
-    <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig().exploring }">
-        <table cTable hover bordered small
-               [striped]="true"
-               [ngClass]="{'loading': loading()}" id="data-table"
-               [attr.data-table]="$result().entityName">
-            <thead>
-            <tr>
-                <ng-container *ngIf="$result()?.dataModel !== NamespaceType.DOCUMENT">
-                    <ng-container *ngFor="let h of $result().header">
-                        <th>
-                        <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
-                              [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                            <a *ngIf="false && entityConfig().sort && canOrder(h) && h.name !== '_data'"
-                               [routerLink]="[]"
-                               [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
-                               (click)="sortTable(h.sort)">
-                                <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
-                            </a>
-                        </th>
-                    </ng-container>
-                </ng-container>
-                <th class="delete" *ngIf="entityConfig().delete">
-                    <!--<i class="cil-trash"></i>-->
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngIf="entityConfig().search">
-                <td *ngFor="let h of $result().header; trackBy:trackByFn">
-                    <input *ngIf="_types.isNumeric(h.dataType) && !h.collectionsType"
-                           type="number"
-                           cFormControl
-                           sizing="sm"
-                           class="table-filter"
-                           placeholder="search"
-                           [id]="'search-' + h.name" [attr.data-col]="h.name" [value]="h.filter"
-                           (keyup)="filterTable($event, filter1.value, h)" #filter1>
-                    <input *ngIf="( ! _types.isNumeric(h.dataType) && !_types.isMultimedia(h.dataType) && !_types.isDocument($result().dataModel) && !_types.isGraph($result().dataModel)) || h.collectionsType"
-                           type="text"
-                           cFormControl sizing="sm"
-                           class="table-filter"
-                           placeholder="search"
-                           [attr.data-col]="h.name"
-                           [id]="'search-' + h.name"
-                           [value]="h.filter"
-                           (input)="filterTable($event, filter2.value, h)"
-                           #filter2
-                           [ngClass]="isValidFilter(filter2.value,h)">
-                </td>
-                <td *ngIf="entityConfig().update || entityConfig().delete"></td>
-            </tr>
-            <tr *ngFor="let d1 of $result().data; let i = index"
-                [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
-                <ng-container *ngIf="editing === i">
-                    <td *ngFor="let d2 of d1; let j = index">
-                        <app-input class="editing" [header]="$result().header[j]"
-                                   [value]="updateValues.get($result().header[j].name)"
-                                   (valueChange)="newUpdateValue($result().header[j].name, $event)"
-                                   (enter)="updateTuple()" [attr.data-before]="d2"
-                                   [attr.data-col]="$result().header[j].name"></app-input>
-                    </td>
-                    <td *ngIf="entityConfig().update || entityConfig().delete">
-                        @if (uploadProgress === -1) {
-                            <div class="flex">
-                                <button cButton color="secondary" variant="outline" id="editColCancel" class="me-1"
-                                        (click)="stopEditing()"><i class="fa fa-undo" aria-hidden="true"></i></button>
-                                <button cButton color="primary" id="editColSave"
-                                        (click)="updateTuple()"><i class="fa fa-save"></i></button>
-                            </div>
-
+@if ($result() && $result().header) {
+    <c-row>
+        <c-col [lg]="12" id="data-table-wrapper" [ngClass]="{ 'overflow-y-hidden': entityConfig().exploring }">
+            <table cTable hover bordered small
+                   [striped]="true"
+                   [ngClass]="{'loading': loading()}" id="data-table"
+                   [attr.data-table]="$result().entityName">
+                <thead>
+                <tr>
+                    @if ($result()?.dataModel !== NamespaceType.DOCUMENT) {
+                        @for (h of $result().header; track $index) {
+                            <th>
+                  <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
+                        [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
+                                @if (false && entityConfig().sort && canOrder( h ) && h.name !== '_data') {
+                                    <a
+                                            [routerLink]="[]"
+                                            [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
+                                            (click)="sortTable(h.sort)">
+                                        <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+                                    </a>
+                                }
+                            </th>
                         }
-                    </td>
-                </ng-container>
-                <!-- table which shows results  -->
-                <ng-container *ngIf="editing !== i">
-                    <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-                        <ng-container [ngSwitch]="removeNull($result().header[j].dataType)" *ngIf="d2">
-                            <ng-container *ngSwitchCase="'FILE'">
-                                <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download"
-                                   (click)="getFile(d2, i)" download><span class="cil-cloud-download"></span></a>
-                                <c-progress>
-                                    <c-progress-bar
-                                            *ngIf="downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100"
-                                            [animated]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
-                                            variant="striped" color="primary" class="file-progress"></c-progress-bar>
-                                    <c-progress-bar
-                                            *ngIf="downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)"
-                                            [animated]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
-                                            variant="striped" color="primary" class="file-progress"></c-progress-bar>
-                                </c-progress>
-                            </ng-container>
-                            <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d2)"
-                                 style="max-height:200px; max-width: 300px"/>
-                            <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d2)"
-                                       [type]="$result().header[j].dataType"
-                                       [style]="{width: '300px'}"></app-media>
-                            <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d2)"
-                                       [type]="$result().header[j].dataType"
-                                       [style]="{width: '300px'}"></app-media>
-                            <app-json-text
-                                    *ngSwitchCase="['JSON','DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType', 'GraphType'] | multipleSwitch: removeNull($result().header[j].dataType)"
-                                    [text]="d2"></app-json-text>
-                            <app-json-text *ngSwitchCase="'ANY'" [text]="d2"></app-json-text>
-                            <app-expandable-text *ngSwitchDefault [text]="d2"></app-expandable-text>
-                        </ng-container>
-                    </td>
-                    <td class="delete" *ngIf="entityConfig().update || entityConfig().delete">
-                        <app-delete-confirm (delete)="deleteRow(d1, null)"></app-delete-confirm>
-                    </td>
-                </ng-container>
-            </tr>
-            <tr *ngIf="!$result().data || $result().data.length === 0">
-                <td *ngIf="!$result().error" [attr.colspan]="$result().header.length+1"
-                    class="text-danger text-center">(no data to show)
-                </td>
-                <td *ngIf="$result().error" [attr.colspan]="$result().header.length+1"
-                    class="text-danger text-center">error while filtering entity
-                </td>
-            </tr>
-            <tr *ngIf="entityConfig().create" id="insertRow">
-                <td *ngFor="let h of $result().header">
-                    <app-input [header]="h" [value]="insertValues.get(h.name)"
-                               (valueChange)="inputChange(h.name, $event)"
-                               (enter)="insertTuple()"></app-input>
-                </td>
-                <td *ngIf="entityConfig().update || entityConfig().delete">
-                    <button cButton color="primary" id="addColumnBtn" (click)="insertTuple()"
-                            *ngIf="uploadProgress === -1 || editing !== -1">+
-                    </button>
-                    <c-progress
-                            *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100">
-                        <c-progress-bar
-                                [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
-                                variant="striped"
-                                color="primary" class="file-progress"></c-progress-bar>
-                    </c-progress>
-                    <c-progress
-                            *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
-                        <c-progress-bar
-                                [animated]="true" [value]="100" color="primary"
-                                class="file-progress"></c-progress-bar>
-                    </c-progress>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </c-col>
+                    }
+                    @if (entityConfig().delete) {
+                        <th class="delete">
+                            <!--<i class="cil-trash"></i>-->
+                        </th>
+                    }
+                </tr>
+                </thead>
+                <tbody>
+                    @if (entityConfig().search) {
+                        <tr>
+                            @for (h of $result().header; track trackByFn( $index, h )) {
+                                <td>
+                                    @if (_types.isNumeric( h.dataType ) && !h.collectionsType) {
+                                        <input
+                                                type="number"
+                                                cFormControl
+                                                sizing="sm"
+                                                class="table-filter"
+                                                placeholder="search"
+                                                [id]="'search-' + h.name" [attr.data-col]="h.name" [value]="h.filter"
+                                                (keyup)="filterTable($event, filter1.value, h)" #filter1>
+                                    }
+                                    @if ((!_types.isNumeric( h.dataType ) && !_types.isMultimedia( h.dataType ) && !_types.isDocument( $result().dataModel ) && !_types.isGraph( $result().dataModel )) || h.collectionsType) {
+                                        <input
+                                                type="text"
+                                                cFormControl sizing="sm"
+                                                class="table-filter"
+                                                placeholder="search"
+                                                [attr.data-col]="h.name"
+                                                [id]="'search-' + h.name"
+                                                [value]="h.filter"
+                                                (input)="filterTable($event, filter2.value, h)"
+                                                #filter2
+                                                [ngClass]="isValidFilter(filter2.value,h)">
+                                    }
+                                </td>
+                            }
+                            @if (entityConfig().update || entityConfig().delete) {
+                                <td></td>
+                            }
+                        </tr>
+                    }
+                    @for (d1 of $result().data; track d1; let i = $index) {
+                        <tr
+                                [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
+                            @if (editing === i) {
+                                @for (d2 of d1; track d2; let j = $index) {
+                                    <td>
+                                        <app-input class="editing" [header]="$result().header[j]"
+                                                   [value]="updateValues.get($result().header[j].name)"
+                                                   (valueChange)="newUpdateValue($result().header[j].name, $event)"
+                                                   (enter)="updateTuple()" [attr.data-before]="d2"
+                                                   [attr.data-col]="$result().header[j].name"></app-input>
+                                    </td>
+                                }
+                                @if (entityConfig().update || entityConfig().delete) {
+                                    <td>
+                                        @if (uploadProgress === -1) {
+                                            <div class="flex">
+                                                <button cButton color="secondary" variant="outline" id="editColCancel" class="me-1"
+                                                        (click)="stopEditing()"><i class="fa fa-undo" aria-hidden="true"></i></button>
+                                                <button cButton color="primary" id="editColSave"
+                                                        (click)="updateTuple()"><i class="fa fa-save"></i></button>
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                            }
+                            <!-- table which shows results  -->
+                            @if (editing !== i) {
+                                @for (d2 of d1; track d2; let j = $index) {
+                                    <td (dblclick)="triggerEditing(i)">
+                                        @if (d2) {
+                                            @switch (removeNull( $result().header[j].dataType )) {
+                                                @case ('FILE') {
+                                                    @if (downloadingIthRow !== i) {
+                                                        <a [routerLink]="[]" class="download"
+                                                           (click)="getFile(d2, i)" download><span class="cil-cloud-download"></span></a>
+                                                    }
+                                                    <c-progress>
+                                                        @if (downloadingIthRow === i && downloadProgress > -1 && downloadProgress !== 0 && downloadProgress !== 100) {
+                                                            <c-progress-bar
+                                                                    [animated]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
+                                                                    variant="striped" color="primary" class="file-progress"></c-progress-bar>
+                                                        }
+                                                        @if (downloadingIthRow === i && downloadProgress > -1 && (downloadProgress === 100 || downloadProgress === 0)) {
+                                                            <c-progress-bar
+                                                                    [animated]="true" [value]="downloadProgress === 0 ? 100 : downloadProgress"
+                                                                    variant="striped" color="primary" class="file-progress"></c-progress-bar>
+                                                        }
+                                                    </c-progress>
+                                                }
+                                                @case ('IMAGE') {
+                                                    <img [src]="getFileLink(d2)"
+                                                         style="max-height:200px; max-width: 300px"/>
+                                                }
+                                                @case ('VIDEO') {
+                                                    <app-media [src]="getFileLink(d2)"
+                                                               [type]="$result().header[j].dataType"
+                                                               [style]="{width: '300px'}"></app-media>
+                                                }
+                                                @case ('AUDIO') {
+                                                    <app-media [src]="getFileLink(d2)"
+                                                               [type]="$result().header[j].dataType"
+                                                               [style]="{width: '300px'}"></app-media>
+                                                }
+                                                @case (['JSON', 'DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType', 'GraphType'] | multipleSwitch: removeNull( $result().header[j].dataType )) {
+                                                    <app-json-text
+                                                            [text]="d2"></app-json-text>
+                                                }
+                                                @case ('ANY') {
+                                                    <app-json-text [text]="d2"></app-json-text>
+                                                }
+                                                @default {
+                                                    <app-expandable-text [text]="d2"></app-expandable-text>
+                                                }
+                                            }
+                                        }
+                                    </td>
+                                }
+                                @if (entityConfig().update || entityConfig().delete) {
+                                    <td class="delete">
+                                        <app-delete-confirm (delete)="deleteRow(d1, null)"></app-delete-confirm>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                    @if (!$result().data || $result().data.length === 0) {
+                        <tr>
+                            @if (!$result().error) {
+                                <td [attr.colspan]="$result().header.length+1"
+                                    class="text-danger text-center">(no data to show)
+                                </td>
+                            }
+                            @if ($result().error) {
+                                <td [attr.colspan]="$result().header.length+1"
+                                    class="text-danger text-center">error while filtering entity
+                                </td>
+                            }
+                        </tr>
+                    }
+                    @if (entityConfig().create) {
+                        <tr id="insertRow">
+                            @for (h of $result().header; track $index) {
+                                <td>
+                                    <app-input [header]="h" [value]="insertValues.get(h.name)"
+                                               (valueChange)="inputChange(h.name, $event)"
+                                               (enter)="insertTuple()"></app-input>
+                                </td>
+                            }
+                            @if (entityConfig().update || entityConfig().delete) {
+                                <td>
+                                    @if (uploadProgress === -1 || editing !== -1) {
+                                        <button cButton color="primary" id="addColumnBtn" (click)="insertTuple()"
+                                        >+
+                                        </button>
+                                    }
+                                    @if (editing === -1 && uploadProgress > -1 && uploadProgress !== 0 && uploadProgress !== 100) {
+                                        <c-progress
+                                        >
+                                            <c-progress-bar
+                                                    [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
+                                                    variant="striped"
+                                                    color="primary" class="file-progress"></c-progress-bar>
+                                        </c-progress>
+                                    }
+                                    @if (editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)) {
+                                        <c-progress
+                                        >
+                                            <c-progress-bar
+                                                    [animated]="true" [value]="100" color="primary"
+                                                    class="file-progress"></c-progress-bar>
+                                        </c-progress>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </c-col>
+    </c-row>
+}
 
-</c-row>
-
-<c-row class="row my-4" *ngIf="$result()">
-    <c-col class="col">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
-            <c-pagination align="center">
-                <li *ngFor="let p of pagination" class="page-item pe-auto" cPageItem
-                    [disabled]="p.disabled" [active]="p.active">
-                    <a cPageLink class="pe-auto page-link"
-                       [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
-                       [routerLink]>{{ p.label }}</a>
-                </li>
-            </c-pagination>
-        </nav>
-    </c-col>
-</c-row>
+@if ($result()) {
+    <c-row class="row my-4">
+        <c-col class="col">
+            @if ($result().highestPage > 1) {
+                <nav aria-label="Page navigation" class="float-right">
+                    <c-pagination align="center">
+                        @for (p of pagination; track $index) {
+                            <li class="page-item pe-auto" cPageItem
+                                [disabled]="p.disabled" [active]="p.active">
+                                <a cPageLink class="pe-auto page-link"
+                                   [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
+                                   [routerLink]>{{ p.label }}</a>
+                            </li>
+                        }
+                    </c-pagination>
+                </nav>
+            }
+        </c-col>
+    </c-row>
+}
 
 
 

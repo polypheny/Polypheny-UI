@@ -2,27 +2,35 @@
 
     <div class="status-bar" [ngClass]="'state-' + data.state().toLowerCase()"
          [style.background]="statusBackground?.()" [title]="statusText?.()">
-        <p class="text-center mb-0 status-text" *ngIf="data.state() === ActivityState.EXECUTING"
-           [ngClass]="data.state() === ActivityState.IDLE ? 'text-muted' : 'text-light'">
-            {{ statusText?.() }}
-        </p>
+        @if (data.state() === ActivityState.EXECUTING) {
+            <p class="text-center mb-0 status-text"
+               [ngClass]="data.state() === ActivityState.IDLE ? 'text-muted' : 'text-light'">
+                {{ statusText?.() }}
+            </p>
+        }
     </div>
 
     <div class="activity-body h-100 d-flex flex-column">
 
         <div class="control-bar d-flex flex-row py-1 px-3 align-items-center border-bottom">
-            <button cButton size=sm color="warning" *ngIf="data.hasInvalidSettings() || data.invalidReason()"
-                    (click)="showProblems()" (pointerdown)="$event.stopPropagation()" title="Show Problems"
-                    class="me-2">
-                <span class="fa fa-exclamation-triangle text-light"></span>
-            </button>
+            @if (data.hasInvalidSettings() || data.invalidReason()) {
+                <button cButton size=sm color="warning"
+                        (click)="showProblems()" (pointerdown)="$event.stopPropagation()" title="Show Problems"
+                        class="me-2">
+                    <span class="fa fa-exclamation-triangle text-light"></span>
+                </button>
+            }
 
             <div class="flex-grow-1"></div>
-            <h6 class="ms-2 mb-0" *ngIf="data.commonType() !== 'NONE'" [class.text-danger]="data.isRolledBack()"
-                [title]="data.isRolledBack() ? 'While the activity might have executed successfully on its own, the common activity was aborted' : 'Common Transaction'">
-                {{ data.commonType() }}
-                <span *ngIf="data.isRolledBack()"> (aborted)</span>
-            </h6>
+            @if (data.commonType() !== 'NONE') {
+                <h6 class="ms-2 mb-0" [class.text-danger]="data.isRolledBack()"
+                    [title]="data.isRolledBack() ? 'While the activity might have executed successfully on its own, the common activity was aborted' : 'Common Transaction'">
+                    {{ data.commonType() }}
+                    @if (data.isRolledBack()) {
+                        <span> (aborted)</span>
+                    }
+                </h6>
+            }
 
             @switch (data.expectedOutcome()) {
                 @case ('MUST_SUCCEED') {
@@ -41,23 +49,29 @@
                 }
             }
             <c-button-group role="group" class="ms-2" size="sm">
-                <button cButton color="primary" class="" (click)="data.execute()" *ngIf="data.canExecute()"
-                        [disabled]="data.invalidReason() || data.hasInvalidSettings()"
-                        (pointerdown)="$event.stopPropagation()">
-                    <i class="fa fa-play"></i>
-                </button>
-                <button cButton color="primary" variant="outline" (click)="data.reset()" *ngIf="data.canReset()"
-                        (pointerdown)="$event.stopPropagation()">
-                    <i class="fa fa-rotate-left"></i>
-                </button>
+                @if (data.canExecute()) {
+                    <button cButton color="primary" class="" (click)="data.execute()"
+                            [disabled]="data.invalidReason() || data.hasInvalidSettings()"
+                            (pointerdown)="$event.stopPropagation()">
+                        <i class="fa fa-play"></i>
+                    </button>
+                }
+                @if (data.canReset()) {
+                    <button cButton color="primary" variant="outline" (click)="data.reset()"
+                            (pointerdown)="$event.stopPropagation()">
+                        <i class="fa fa-rotate-left"></i>
+                    </button>
+                }
                 <button cButton color="secondary" class="cil-settings px-3" (click)="data.openSettings()"
                         (pointerdown)="$event.stopPropagation()">
                 </button>
             </c-button-group>
-            <button cButton color="secondary" size="sm" (click)="data.openNested()" *ngIf="data.hasNested && !data.hasInvalidSettings() && !data.invalidReason()"
-                    class="ms-1" (pointerdown)="$event.stopPropagation()" title="Open nested workflow">
-                <i class="fa fa-sign-in me-1"></i>
-            </button>
+            @if (data.hasNested && !data.hasInvalidSettings() && !data.invalidReason()) {
+                <button cButton color="secondary" size="sm" (click)="data.openNested()"
+                        class="ms-1" (pointerdown)="$event.stopPropagation()" title="Open nested workflow">
+                    <i class="fa fa-sign-in me-1"></i>
+                </button>
+            }
         </div>
 
         <div class="d-flex flex-row pt-3 h-100">
@@ -69,18 +83,20 @@
                 </div>
 
 
-                <div class="input d-flex align-items-center mb-2"
-                     *ngFor="let input of data.dataInputs | keyvalue: sortByIndex, let i = index">
-                    <div class="input-socket data-inport" refComponent [emit]="emit"
-                         [data]="{type: 'socket', side: 'input', key: input.key, nodeId: data.id, payload: input.value?.socket, seed: seed }">
-                    </div>
-                    <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(true, input.key)"
-                            (pointerdown)="$event.stopPropagation()" [disabled]="true">
-                        <!--The button is currently always disabled, since it might give the wrong impression that the checkpoint belongs to this activity.
+                @for (input of data.dataInputs | keyvalue: sortByIndex; track input; let i = $index) {
+                    <div class="input d-flex align-items-center mb-2"
+                    >
+                        <div class="input-socket data-inport" refComponent [emit]="emit"
+                             [data]="{type: 'socket', side: 'input', key: input.key, nodeId: data.id, payload: input.value?.socket, seed: seed }">
+                        </div>
+                        <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(true, input.key)"
+                                (pointerdown)="$event.stopPropagation()" [disabled]="true">
+                            <!--The button is currently always disabled, since it might give the wrong impression that the checkpoint belongs to this activity.
                             To enable it correctly, the state of the predecessor activity would have to be saved or finished.-->
-                        <span class="text-dark" [ngClass]="inIcons[input.key]?.()"></span>
-                    </button>
-                </div>
+                            <span class="text-dark" [ngClass]="inIcons[input.key]?.()"></span>
+                        </button>
+                    </div>
+                }
             </div>
 
             <div class="activity-content flex-grow-1 h-100 px-1 d-flex flex-column justify-content-between">
@@ -88,29 +104,33 @@
                 <textarea cFormControl id="activity-notes" class="mb-2" placeholder="Notes"
                           [(ngModel)]="data.rendering().notes" spellcheck="false"
                           (pointerdown)="$event.stopPropagation()" (change)="saveNotes()">
-                    </textarea>
+        </textarea>
             </div>
 
             <div class="activity-outputs d-flex flex-column justify-content-between">
                 <div>
                     <div class="mb-5 output-spacer"></div>
-                    <div class="output mb-2 d-flex align-items-center justify-content-end"
-                         *ngFor="let output of data.dataOutputs | keyvalue: sortByIndex">
-                        <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(false, output.key)"
-                                (pointerdown)="$event.stopPropagation()" [disabled]="!data.canOpenCheckpoint()">
-                            <span class="text-dark" [ngClass]="outIcons[output.key]?.()"></span>
-                        </button>
-                        <div class="output-socket data-outport" refComponent [emit]="emit"
-                             [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }">
+                    @for (output of data.dataOutputs | keyvalue: sortByIndex; track output.key) {
+                        <div class="output mb-2 d-flex align-items-center justify-content-end"
+                        >
+                            <button cButton color="light" class="px-1 py-0" (click)="data.openCheckpoint(false, output.key)"
+                                    (pointerdown)="$event.stopPropagation()" [disabled]="!data.canOpenCheckpoint()">
+                                <span class="text-dark" [ngClass]="outIcons[output.key]?.()"></span>
+                            </button>
+                            <div class="output-socket data-outport" refComponent [emit]="emit"
+                                 [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }">
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
                 <div class="mb-2">
-                    <div class="output" *ngFor="let output of data.controlOutputs | keyvalue: sortByIndex">
-                        <div class="output-socket control-outport" refComponent [emit]="emit"
-                             [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }">
+                    @for (output of data.controlOutputs | keyvalue: sortByIndex; track output.key) {
+                        <div class="output">
+                            <div class="output-socket control-outport" refComponent [emit]="emit"
+                                 [data]="{type: 'socket', side: 'output', key: output.key, nodeId: data.id, payload: output.value?.socket, seed: seed }">
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>

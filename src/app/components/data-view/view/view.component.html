@@ -7,98 +7,115 @@
         <h5 cModalTitle>Create {{ !$result() ? "" : $result().dataModel | titlecase }} View</h5>
         <button (click)="$showView.set(false)" cButtonClose></button>
     </c-modal-header>
-    <c-modal-body *ngIf="$result()">
-        <div cRow [gutter]="3">
-            <c-col>
-                <div class=" p-3 font-monospace rounded-2 bg-light">
-                    @if ($result().dataModel == DataModel.RELATIONAL) {
-                        <p>CREATE <span
-                                class="text-primary">{{ $type() == ViewType.MATERIALIZED ? ViewType.MATERIALIZED : '' }}</span>
-                            VIEW <span class="text-primary">{{ $viewName() }}</span> AS (<br>{{ $result().query }})
-                            <span *ngIf="$type()=== ViewType.MATERIALIZED">ON STORE <span
-                                    class="text-primary">{{ $store()?.name }}</span> </span>
-                            <span *ngIf="($freshness() === Freshness.INTERVAL || $freshness() === Freshness.UPDATE) && $type() === ViewType.MATERIALIZED"> FRESHNESS <span
-                                    class="text-primary">{{ $freshness() }} {{ $freshnessMerged() }}</span></span>
-                        </p>
-                    } @else if ($result().dataModel == DataModel.DOCUMENT) {
-                        <p>db.createView( <span class="text-primary">{{ $viewName() }}</span> ,<span
-                                class="text-primary">{{ getEntityName() }}</span> ,</p>
-                        <p class="ms-2"> {{ getDocumentQuery()[1] }}</p>
-                        <p>)</p>
-                    } @else {
-                        <p>This data model is not supported for view creation.</p>
-                    }
-                </div>
-            </c-col>
-            <c-input-group>
-                <span cInputGroupText>
-                    Name
-                </span>
-                <input cFormControl #name [value]="$viewName()" (input)="$viewName.set(name.value)">
-            </c-input-group>
-            @if ($result().dataModel == DataModel.RELATIONAL) {
-                <c-input-group>
-                    <c-button-group size="sm" id="enum-radios">
-                        @for (type of viewTypes; track type) {
-                            <button cButton color="dark" [variant]="$type() === type ? null : 'outline'"
-                                    (click)="$type.set(ViewType[type])">
-                                {{ type | titlecase }}
-                            </button>
+    @if ($result()) {
+        <c-modal-body>
+            <div cRow [gutter]="3">
+                <c-col>
+                    <div class=" p-3 font-monospace rounded-2 bg-light">
+                        @if ($result().dataModel == DataModel.RELATIONAL) {
+                            <p>CREATE <span
+                                    class="text-primary">{{ $type() == ViewType.MATERIALIZED ? ViewType.MATERIALIZED : '' }}</span>
+                                VIEW <span class="text-primary">{{ $viewName() }}</span> AS (<br>{{ $result().query }})
+                                @if ($type() === ViewType.MATERIALIZED) {
+                                    <span>ON STORE <span
+                                            class="text-primary">{{ $store()?.name }}</span> </span>
+                                }
+                                @if (($freshness() === Freshness.INTERVAL || $freshness() === Freshness.UPDATE) && $type() === ViewType.MATERIALIZED) {
+                                    <span> FRESHNESS <span
+                                            class="text-primary">{{ $freshness() }} {{ $freshnessMerged() }}</span></span>
+                                }
+                            </p>
+                        } @else if ($result().dataModel == DataModel.DOCUMENT) {
+                            <p>db.createView( <span class="text-primary">{{ $viewName() }}</span> ,<span
+                                    class="text-primary">{{ getEntityName() }}</span> ,</p>
+                            <p class="ms-2"> {{ getDocumentQuery()[1] }}</p>
+                            <p>)</p>
+                        } @else {
+                            <p>This data model is not supported for view creation.</p>
                         }
-                    </c-button-group>
+                    </div>
+                </c-col>
+                <c-input-group>
+      <span cInputGroupText>
+        Name
+      </span>
+                    <input cFormControl #name [value]="$viewName()" (input)="$viewName.set(name.value)">
                 </c-input-group>
-            }
-            <c-input-group *ngIf="$type() === ViewType.MATERIALIZED">
-                <span cInputGroupText>
-                    Store
-                </span>
-                <select cSelect #store [ngModel]="$store()?.name" (change)="setStore(store.value)">
-                    @for (store of $stores(); track store.id) {
-                        <option [value]="store.name">
-                            {{ store.name }}
-                        </option>
-                    }
-                </select>
-            </c-input-group>
-            <c-input-group *ngIf="$type() === ViewType.MATERIALIZED">
-                <span cInputGroupText>
-                    Freshness
-                </span>
-                <select cSelect #freshness [ngModel]="$freshness()"
-                        (change)="$freshness.set(Freshness[freshness.value])">
-                    <option *ngFor="let freshness of Freshness | keyvalue">
-                        {{ freshness.value }}
-                    </option>
-                </select>
-            </c-input-group>
-            <c-input-group *ngIf="$type() === ViewType.MATERIALIZED && $freshness() === Freshness.INTERVAL">
-                <span cInputGroupText>
-                    Freshness Interval
-                </span>
-                <input cFormControl type="number" #time [valueAsNumber]="$time()" (input)="$time.set(+time.value)">
-                <select cSelect #unit [ngModel]="$unit()" (change)="$unit.set(TimeUnits[unit.value])">
-                    <option *ngFor="let unit of TimeUnits | keyvalue">
-                        {{ unit.value }}
-                    </option>
-                </select>
-            </c-input-group>
-            <c-input-group *ngIf="$type() === ViewType.MATERIALIZED && $freshness() === Freshness.UPDATE">
-                <span cInputGroupText>
-                    Updates
-                </span>
-                <input type="number" cFormControl #updates [valueAsNumber]="$updates()"
-                       (input)="$updates.set(+updates.value)">
-            </c-input-group>
-
-            <c-col class="d-flex justify-content-end">
-                <button cButton color="light" (click)="createViewCode(false, true)">
-                    Insert Query
-                </button>
-                <button cButton class="ms-3" (click)="createViewCode(true, false)">
-                    Create View
-                </button>
-            </c-col>
-        </div>
-    </c-modal-body>
+                @if ($result().dataModel == DataModel.RELATIONAL) {
+                    <c-input-group>
+                        <c-button-group size="sm" id="enum-radios">
+                            @for (type of viewTypes; track type) {
+                                <button cButton color="dark" [variant]="$type() === type ? null : 'outline'"
+                                        (click)="$type.set(ViewType[type])">
+                                    {{ type | titlecase }}
+                                </button>
+                            }
+                        </c-button-group>
+                    </c-input-group>
+                }
+                @if ($type() === ViewType.MATERIALIZED) {
+                    <c-input-group>
+        <span cInputGroupText>
+          Store
+        </span>
+                        <select cSelect #store [ngModel]="$store()?.name" (change)="setStore(store.value)">
+                            @for (store of $stores(); track store.id) {
+                                <option [value]="store.name">
+                                    {{ store.name }}
+                                </option>
+                            }
+                        </select>
+                    </c-input-group>
+                }
+                @if ($type() === ViewType.MATERIALIZED) {
+                    <c-input-group>
+        <span cInputGroupText>
+          Freshness
+        </span>
+                        <select cSelect #freshness [ngModel]="$freshness()"
+                                (change)="$freshness.set(Freshness[freshness.value])">
+                            @for (freshness of Freshness | keyvalue; track freshness.key) {
+                                <option>
+                                    {{ freshness.value }}
+                                </option>
+                            }
+                        </select>
+                    </c-input-group>
+                }
+                @if ($type() === ViewType.MATERIALIZED && $freshness() === Freshness.INTERVAL) {
+                    <c-input-group>
+        <span cInputGroupText>
+          Freshness Interval
+        </span>
+                        <input cFormControl type="number" #time [valueAsNumber]="$time()" (input)="$time.set(+time.value)">
+                        <select cSelect #unit [ngModel]="$unit()" (change)="$unit.set(TimeUnits[unit.value])">
+                            @for (unit of TimeUnits | keyvalue; track unit.key) {
+                                <option>
+                                    {{ unit.value }}
+                                </option>
+                            }
+                        </select>
+                    </c-input-group>
+                }
+                @if ($type() === ViewType.MATERIALIZED && $freshness() === Freshness.UPDATE) {
+                    <c-input-group>
+        <span cInputGroupText>
+          Updates
+        </span>
+                        <input type="number" cFormControl #updates [valueAsNumber]="$updates()"
+                               (input)="$updates.set(+updates.value)">
+                    </c-input-group>
+                }
+                <c-col class="d-flex justify-content-end">
+                    <button cButton color="light" (click)="createViewCode(false, true)">
+                        Insert Query
+                    </button>
+                    <button cButton class="ms-3" (click)="createViewCode(true, false)">
+                        Create View
+                    </button>
+                </c-col>
+            </div>
+        </c-modal-body>
+    }
 
 </c-modal>

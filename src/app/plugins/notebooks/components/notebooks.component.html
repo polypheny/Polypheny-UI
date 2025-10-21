@@ -31,8 +31,10 @@
                     <label cInputGroupText>Name</label>
                     <input type="text" autocomplete="off" cFormControl class="col-sm-10"
                            formControlName="name">
-                    <input type="text" autocomplete="off" cFormControl class="col-sm-2"
-                           formControlName="ext" *ngIf="this.createFileForm.get('type').value === 'file'">
+                    @if (this.createFileForm.get( 'type' ).value === 'file') {
+                        <input type="text" autocomplete="off" cFormControl class="col-sm-2"
+                               formControlName="ext">
+                    }
                 </c-input-group>
                 <c-input-group class="mb-3">
                     <label cInputGroupText>File Type</label>
@@ -42,26 +44,38 @@
                         <option value="file">File</option>
                     </select>
                 </c-input-group>
-                <c-input-group class="mb-3" *ngIf="this.createFileForm.get('type').value === 'notebook'">
-                    <label cInputGroupText for="selected-kernel">Kernel</label>
-                    <select cSelect formControlName="kernel" id="selected-kernel">
-                        <option *ngIf="availableKernels.length === 0" value="">No kernels available</option>
-                        <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
-                            {{ kernel.spec.display_name }}
-                        </option>
-                    </select>
-                </c-input-group>
-                <div *ngIf="this.createFileForm.get('type').value === 'notebook' && availableKernels.length === 0">
-                    <div class="alert alert-info">No Jupyter kernels are available. Start a Jupyter Server container to add kernels.</div>
-                </div>
+                @if (this.createFileForm.get( 'type' ).value === 'notebook') {
+                    <c-input-group class="mb-3">
+                        <label cInputGroupText for="selected-kernel">Kernel</label>
+                        <select cSelect formControlName="kernel" id="selected-kernel">
+                            @if (availableKernels.length === 0) {
+                                <option value="">No kernels available</option>
+                            }
+                            @for (kernel of availableKernels; track kernel.name) {
+                                <option [value]="kernel.name">
+                                    {{ kernel.spec.display_name }}
+                                </option>
+                            }
+                        </select>
+                    </c-input-group>
+                }
+                @if (this.createFileForm.get( 'type' ).value === 'notebook' && availableKernels.length === 0) {
+                    <div>
+                        <div class="alert alert-info">No Jupyter kernels are available. Start a Jupyter Server container to add kernels.</div>
+                    </div>
+                }
             </form>
         </c-card-body>
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="addNotebookModal.visible = false">Close</button>
             <button cButton color="primary" type="submit" (click)="createFile()"
                     [disabled]="!createFileForm.valid || creating">
-                <span *ngIf="!creating">Create</span>
-                <span *ngIf="creating" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!creating) {
+                    <span>Create</span>
+                }
+                @if (creating) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
@@ -103,66 +117,86 @@
          aria-labelledby="addNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
-            <h4 cModalTitle *ngIf="createSessionForm.get('canConnect').value; else elseDefaultKernel">
-                Select Kernel</h4>
-            <ng-template #elseDefaultKernel>
+            @if (createSessionForm.get( 'canConnect' ).value) {
+                <h4 cModalTitle>
+                    Select Kernel</h4>
+            } @else {
                 <h4 class="modal-title">Select Default Kernel</h4>
-            </ng-template>
+            }
             <button cButtonClose type="button" class="close" (click)="createSessionModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
             <form [formGroup]="createSessionForm" autocomplete="off" (submit)="openNotebookClicked()">
-                <div class="form-check" *ngIf="createSessionForm.get('canConnect').value">
-                    <input class="form-check-input" type="checkbox" formControlName="isNew"
-                           id="createSession-chkbx">
-                    <label class="form-check-label" for="createSession-chkbx">
-                        Create new Kernel
-                    </label>
-                </div>
+                @if (createSessionForm.get( 'canConnect' ).value) {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" formControlName="isNew"
+                               id="createSession-chkbx">
+                        <label class="form-check-label" for="createSession-chkbx">
+                            Create new Kernel
+                        </label>
+                    </div>
+                }
 
-                <c-input-group class="mb-3" id="createSession-sessionGroup"
-                               *ngIf="!createSessionForm.get('isNew').value">
-                    <label cInputGroupText for="createSession-session">Running</label>
-                    <select cSelect class="form-control" formControlName="session" id="createSession-session">
-                        <option *ngFor="let session of createSessionForm.get('sessions').value" [value]="session.id">
-                            {{ session.kernel.name }}
-                        </option>
-                    </select>
-                </c-input-group>
+                @if (!createSessionForm.get( 'isNew' ).value) {
+                    <c-input-group class="mb-3" id="createSession-sessionGroup"
+                    >
+                        <label cInputGroupText for="createSession-session">Running</label>
+                        <select cSelect class="form-control" formControlName="session" id="createSession-session">
+                            @for (session of createSessionForm.get( 'sessions' ).value; track session.id) {
+                                <option [value]="session.id">
+                                    {{ session.kernel.name }}
+                                </option>
+                            }
+                        </select>
+                    </c-input-group>
+                }
 
-                <c-input-group class="mb-3" id="createSession-kernelGroup"
-                               *ngIf="createSessionForm.get('isNew').value">
-                    <label cInputGroupText for="createSession-kernel">Kernel</label>
-                    <select cSelect formControlName="kernel" id="createSession-kernel">
-                        <option *ngIf="availableKernels.length === 0" value="">No kernels available</option>
-                        <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
-                            {{ kernel.spec.display_name }}
-                        </option>
-                    </select>
-                </c-input-group>
-                <div *ngIf="availableKernels.length === 0">
-                    <div class="alert alert-info">No Jupyter kernels are available. Start a Jupyter Server container to add kernels.</div>
-                </div>
+                @if (createSessionForm.get( 'isNew' ).value) {
+                    <c-input-group class="mb-3" id="createSession-kernelGroup"
+                    >
+                        <label cInputGroupText for="createSession-kernel">Kernel</label>
+                        <select cSelect formControlName="kernel" id="createSession-kernel">
+                            @if (availableKernels.length === 0) {
+                                <option value="">No kernels available</option>
+                            }
+                            @for (kernel of availableKernels; track kernel.name) {
+                                <option [value]="kernel.name">
+                                    {{ kernel.spec.display_name }}
+                                </option>
+                            }
+                        </select>
+                    </c-input-group>
+                }
+                @if (availableKernels.length === 0) {
+                    <div>
+                        <div class="alert alert-info">No Jupyter kernels are available. Start a Jupyter Server container to add kernels.</div>
+                    </div>
+                }
             </form>
-            <ng-container *ngIf="selectedSession != null && !createSessionForm.get('isNew').value">
+            @if (selectedSession != null && !createSessionForm.get( 'isNew' ).value) {
                 <p>Status: {{ selectedSession.kernel.execution_state }}</p>
                 <p>Last Activity: {{ selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
                 <p>Connections: {{ selectedSession.kernel.connections }}</p>
-            </ng-container>
+            }
         </c-modal-body>
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="createSessionModal.visible = false">Close</button>
             <div>
-                <button cButton type="button" color="primary" variant="outline" class="me-2"
-                        *ngIf="createSessionForm.get('canManage').value"
-                        (click)="openManagePage(createSessionForm.get('path').value)">
-                    Manage File
-                </button>
+                @if (createSessionForm.get( 'canManage' ).value) {
+                    <button cButton type="button" color="primary" variant="outline" class="me-2"
+                            (click)="openManagePage(createSessionForm.get('path').value)">
+                        Manage File
+                    </button>
+                }
                 <button cButton color="primary" type="submit" (click)="openNotebookClicked()"
                         [disabled]="!createSessionForm.valid || creating">
-                    <span *ngIf="!creating">Open</span>
-                    <span *ngIf="creating" class="spinner-border spinner-border-sm" role="status"></span>
+                    @if (!creating) {
+                        <span>Open</span>
+                    }
+                    @if (creating) {
+                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                    }
                 </button>
             </div>
 

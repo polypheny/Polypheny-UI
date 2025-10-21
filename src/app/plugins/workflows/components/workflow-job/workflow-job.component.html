@@ -117,57 +117,64 @@
         <button cButton color="primary" (click)="executeJob()" class="mb-4" [disabled]="session().state !== 'IDLE'">
             Manually Trigger Execution
         </button>
-        <ul cListGroup *ngIf="session().executionHistory" class="mb-5">
-            @for (exec of session().executionHistory; track $index) {
-                <li cListGroupItem>
-                    <c-row class="mb-3">
-                        <c-col [xs]="1">
-                            <h5>
-                                @switch (exec.result) {
-                                    @case (JobResult.SUCCESS) {
-                                        <span class="badge bg-success">Success</span>
+        @if (session().executionHistory) {
+            <ul cListGroup class="mb-5">
+                @for (exec of session().executionHistory; track $index) {
+                    <li cListGroupItem>
+                        <c-row class="mb-3">
+                            <c-col [xs]="1">
+                                <h5>
+                                    @switch (exec.result) {
+                                        @case (JobResult.SUCCESS) {
+                                            <span class="badge bg-success">Success</span>
+                                        }
+                                        @case (JobResult.FAILED) {
+                                            <span class="badge bg-danger">Failed</span>
+                                        }
+                                        @case (JobResult.SKIPPED) {
+                                            <span class="badge bg-warning">Skipped</span>
+                                        }
                                     }
-                                    @case (JobResult.FAILED) {
-                                        <span class="badge bg-danger">Failed</span>
-                                    }
-                                    @case (JobResult.SKIPPED) {
-                                        <span class="badge bg-warning">Skipped</span>
-                                    }
+                                </h5>
+                            </c-col>
+                            <c-col [xs]="3">
+                                <h5>
+                  <span>
+                    {{ exec.startTime | date: 'yyyy-MM-dd HH:mm:ss' }}
+                  </span>
+                                </h5>
+                            </c-col>
+                            <c-col [xs]="6">
+                                <h5>{{ exec.message }}</h5>
+                            </c-col>
+                        </c-row>
+                        <div class="mb-1">
+                            @if (exec.statistics) {
+                                @if (exec.statistics) {
+                                    <p><strong>Duration: </strong> {{ exec.statistics.totalDuration }} ms</p>
                                 }
-                            </h5>
-                        </c-col>
-                        <c-col [xs]="3">
-                            <h5>
-                                <span>
-                                    {{ exec.startTime | date: 'yyyy-MM-dd HH:mm:ss' }}
-                                </span>
-                            </h5>
-                        </c-col>
-                        <c-col [xs]="6">
-                            <h5>{{ exec.message }}</h5>
-                        </c-col>
-                    </c-row>
-
-                    <div class="mb-1">
-                        @if (exec.statistics) {
-                            <p *ngIf="exec.statistics"><strong>Duration: </strong> {{ exec.statistics.totalDuration }} ms</p>
-                            <button cButton color="secondary" *ngIf="workflow()" size="sm"
-                                    (click)="executionMonitor.show(exec.statistics)">Statistics
-                            </button>
-                        }
-                        @if (exec.variables) {
-                            <button cButton color="secondary" *ngIf="workflow()" size="sm" [class.ms-1]="exec.statistics"
-                                    (click)="openVariables(exec.variables)">Variables
-                            </button>
-                        }
-                    </div>
-                </li>
-            } @empty {
-                <li cListGroupItem>
-                    Workflow was not yet executed.
-                </li>
-            }
-        </ul>
+                                @if (workflow()) {
+                                    <button cButton color="secondary" size="sm"
+                                            (click)="executionMonitor.show(exec.statistics)">Statistics
+                                    </button>
+                                }
+                            }
+                            @if (exec.variables) {
+                                @if (workflow()) {
+                                    <button cButton color="secondary" size="sm" [class.ms-1]="exec.statistics"
+                                            (click)="openVariables(exec.variables)">Variables
+                                    </button>
+                                }
+                            }
+                        </div>
+                    </li>
+                } @empty {
+                    <li cListGroupItem>
+                        Workflow was not yet executed.
+                    </li>
+                }
+            </ul>
+        }
     }
 }
 
@@ -176,9 +183,11 @@
         <h5 cModalTitle>Workflow Variables</h5>
         <button (click)="showVariablesModal.set(false)" cButtonClose></button>
     </c-modal-header>
-    <c-modal-body *ngIf="showVariablesModal()">
-        <app-json-text [text]="selectedVariablesStr"></app-json-text>
-    </c-modal-body>
+    @if (showVariablesModal()) {
+        <c-modal-body>
+            <app-json-text [text]="selectedVariablesStr"></app-json-text>
+        </c-modal-body>
+    }
     <c-modal-footer>
         <button (click)="showVariablesModal.set(false)" cButton color="secondary">Close</button>
     </c-modal-footer>

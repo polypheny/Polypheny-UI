@@ -20,30 +20,36 @@
                 </div>
             </c-card-header>
             <c-card-body>
-                <div *ngIf="dashboardInformation != null && diagram.length > 0">
-                    <app-graph [data]="diagram"
-                               [labels]="labels"
-                               [colorList]="colorList"
-                               [chartType]="line"
-                               [min]="min"
-                               [maintainAspectRatio]="false"
-                               [max]="max"
-                               [xLabel]="xLabel"
-                               [yLabel]="yLabel"
-                               class="dashboard-diagram"></app-graph>
-                </div>
-
-                <div *ngIf="dashboardInformation == null && this.infoCounter > 120">
-                    <p>There is not yet enough information to display the workload graph.</p>
-                </div>
-
-
-                <div class="d-flex justify-content-center"
-                     *ngIf="dashboardInformation == null && this.infoCounter <= 120">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+                @if (dashboardInformation != null && diagram.length > 0) {
+                    <div>
+                        <app-graph [data]="diagram"
+                                   [labels]="labels"
+                                   [colorList]="colorList"
+                                   [chartType]="line"
+                                   [min]="min"
+                                   [maintainAspectRatio]="false"
+                                   [max]="max"
+                                   [xLabel]="xLabel"
+                                   [yLabel]="yLabel"
+                                   class="dashboard-diagram"></app-graph>
                     </div>
-                </div>
+                }
+
+                @if (dashboardInformation == null && this.infoCounter > 120) {
+                    <div>
+                        <p>There is not yet enough information to display the workload graph.</p>
+                    </div>
+                }
+
+
+                @if (dashboardInformation == null && this.infoCounter <= 120) {
+                    <div class="d-flex justify-content-center"
+                    >
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                }
 
             </c-card-body>
         </c-card>
@@ -55,63 +61,66 @@
             </c-card-header>
             <c-card-body>
 
-                <div *ngIf="dashboardSet != null">
-                    <h5>Adapter Information</h5>
-                    <table cTable hover="true" striped="true">
-
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Adapter</th>
-                            <th>Type</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let obj of this.dashboardSet.availableAdapter | keyvalue">
-                            <td>{{ obj.key }}</td>
-                            <td>{{ obj.value.left | titlecase }}</td>
-                            <td>{{ obj.value.right | titlecase }}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
-
-                    </table>
-
-                    <h5>Schema Information</h5>
-                    <table cTable hover="true" striped="true">
-
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Data Model</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let obj of this.dashboardSet.availableNamespaces | keyvalue">
-                            <td>{{ obj.key }}</td>
-                            <td>{{ obj.value | titlecase }}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
-
-                    </table>
-
-
-                </div>
-
-                <div *ngIf="dashboardSet == null && this.infoCounter > 120">
-                    <p>There is not yet enough information to display the adapter information.</p>
-                </div>
-
-
-                <div class="d-flex justify-content-center"
-                     *ngIf="dashboardSet == null && this.infoCounter <= 120">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+                @if (dashboardSet != null) {
+                    <div>
+                        <h5>Adapter Information</h5>
+                        <table cTable hover="true" striped="true">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Adapter</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @for (obj of this.dashboardSet.availableAdapter | keyvalue; track obj.key) {
+                                    <tr>
+                                        <td>{{ obj.key }}</td>
+                                        <td>{{ obj.value.left | titlecase }}</td>
+                                        <td>{{ obj.value.right | titlecase }}</td>
+                                        <th></th>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <h5>Schema Information</h5>
+                        <table cTable hover="true" striped="true">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Data Model</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @for (obj of this.dashboardSet.availableNamespaces | keyvalue; track obj.key) {
+                                    <tr>
+                                        <td>{{ obj.key }}</td>
+                                        <td>{{ obj.value | titlecase }}</td>
+                                        <th></th>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                }
+
+                @if (dashboardSet == null && this.infoCounter > 120) {
+                    <div>
+                        <p>There is not yet enough information to display the adapter information.</p>
+                    </div>
+                }
+
+
+                @if (dashboardSet == null && this.infoCounter <= 120) {
+                    <div class="d-flex justify-content-center"
+                    >
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                }
 
             </c-card-body>
         </c-card>
@@ -123,40 +132,45 @@
             </c-card-header>
             <c-card-body>
 
-                <div *ngIf="dashboardSet != null">
-                    <table cTable hover="true" striped="true">
-
-                        <thead>
-                        <tr>
-                            <th>Commits</th>
-                            <th>Rollbacks</th>
-                            <th>DMLs</th>
-                            <th>DQLs</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{{ this.dashboardSet.numberOfCommits }}</td>
-                            <td>{{ this.dashboardSet.numberOfRollbacks }}</td>
-                            <td>{{ this.dashboardSet.numberOfWorkloads }}</td>
-                            <td>{{ this.dashboardSet.numberOfQueries }}</td>
-                            <th></th>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div *ngIf="dashboardSet == null && this.infoCounter > 120">
-                    <p>There is not yet enough information to display the workload information.</p>
-                </div>
-
-                <div class="d-flex justify-content-center"
-                     *ngIf="dashboardSet == null && this.infoCounter <= 120">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+                @if (dashboardSet != null) {
+                    <div>
+                        <table cTable hover="true" striped="true">
+                            <thead>
+                            <tr>
+                                <th>Commits</th>
+                                <th>Rollbacks</th>
+                                <th>DMLs</th>
+                                <th>DQLs</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ this.dashboardSet.numberOfCommits }}</td>
+                                <td>{{ this.dashboardSet.numberOfRollbacks }}</td>
+                                <td>{{ this.dashboardSet.numberOfWorkloads }}</td>
+                                <td>{{ this.dashboardSet.numberOfQueries }}</td>
+                                <th></th>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                }
+
+                @if (dashboardSet == null && this.infoCounter > 120) {
+                    <div>
+                        <p>There is not yet enough information to display the workload information.</p>
+                    </div>
+                }
+
+                @if (dashboardSet == null && this.infoCounter <= 120) {
+                    <div class="d-flex justify-content-center"
+                    >
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                }
             </c-card-body>
         </c-card>
     </c-col>

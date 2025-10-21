@@ -1,6 +1,8 @@
 <c-card class="mb-2" color="light">
     <c-card-body class="py-0">
-        <h6 *ngIf="references().length > 0" class="mt-1">Variable Pointers</h6>
+        @if (references().length > 0) {
+            <h6 class="mt-1">Variable Pointers</h6>
+        }
         <ul cListGroup size="sm" class="mt-1">
             @for (ref of references(); track ref.target) {
                 <li cListGroupItem class="d-flex justify-content-between" color="light">
@@ -17,51 +19,52 @@
             }
         </ul>
 
-        <div class="mt-2 mb-2" *ngIf="isEditable()">
-            <h6>Add Pointer</h6>
-            <c-row class="align-items-center" [gutter]="{gx: 2}">
-                <c-col [xs]="8">
-                    <app-autocomplete
-                            [data]="variables()"
-                            [value]="variableInput()"
-                            (valueChange)="variableInput.set($event)"
-                            placeholder="variable">
-                    </app-autocomplete>
-                </c-col>
-                <c-col [xs]="4">
-                    <c-form-check [switch]="true" class="">
-                        <input cFormCheckInput id="fusion-check" type="checkbox" [(ngModel)]="showAdvanced">
-                        <label cFormCheckLabel for="fusion-check">Advanced</label>
-                    </c-form-check>
-                </c-col>
-            </c-row>
-
-            <div [visible]="showAdvanced" cCollapse class="mt-2">
-                <c-row [gutter]="{gx: 2}">
-                    <c-col [xs]="6">
+        @if (isEditable()) {
+            <div class="mt-2 mb-2">
+                <h6>Add Pointer</h6>
+                <c-row class="align-items-center" [gutter]="{gx: 2}">
+                    <c-col [xs]="8">
                         <app-autocomplete
-                                [data]="variablePointers()"
-                                [value]="pointerInput()"
-                                (valueChange)="pointerInput.set($event)"
-                                placeholder="pointer">
+                                [data]="variables()"
+                                [value]="variableInput()"
+                                (valueChange)="variableInput.set($event)"
+                                placeholder="variable">
                         </app-autocomplete>
                     </c-col>
-                    <c-col [xs]="6">
-                        <app-autocomplete
-                                [data]="targets()"
-                                [value]="targetInput()"
-                                (valueChange)="targetInput.set($event)"
-                                placeholder="target pointer">
-                        </app-autocomplete>
+                    <c-col [xs]="4">
+                        <c-form-check [switch]="true" class="">
+                            <input cFormCheckInput id="fusion-check" type="checkbox" [(ngModel)]="showAdvanced">
+                            <label cFormCheckLabel for="fusion-check">Advanced</label>
+                        </c-form-check>
                     </c-col>
                 </c-row>
+                <div [visible]="showAdvanced" cCollapse class="mt-2">
+                    <c-row [gutter]="{gx: 2}">
+                        <c-col [xs]="6">
+                            <app-autocomplete
+                                    [data]="variablePointers()"
+                                    [value]="pointerInput()"
+                                    (valueChange)="pointerInput.set($event)"
+                                    placeholder="pointer">
+                            </app-autocomplete>
+                        </c-col>
+                        <c-col [xs]="6">
+                            <app-autocomplete
+                                    [data]="targets()"
+                                    [value]="targetInput()"
+                                    (valueChange)="targetInput.set($event)"
+                                    placeholder="target pointer">
+                            </app-autocomplete>
+                        </c-col>
+                    </c-row>
+                </div>
+                <div class="d-flex justify-content-end mt-2">
+                    <button cButton type="button" color="secondary" [disabled]="!isValid()"
+                            (click)="addVariableRef()">
+                        Add
+                    </button>
+                </div>
             </div>
-            <div class="d-flex justify-content-end mt-2">
-                <button cButton type="button" color="secondary" [disabled]="!isValid()"
-                        (click)="addVariableRef()">
-                    Add
-                </button>
-            </div>
-        </div>
+        }
     </c-card-body>
 </c-card>
