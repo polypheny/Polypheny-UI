@@ -87,7 +87,6 @@
         "@types/json-pointer": "^1.0.34",
         "@types/lodash": "^4.17.13",
         "@types/node": "^12.11.1",
-        "codelyzer": "^6.0.2",
         "fstream": "^1.0.12",
         "jasmine-core": "^5.1.0",
         "jasmine-spec-reporter": "^7.0.0",
@@ -101,7 +100,6 @@
         "querystringify": "^2.0.0",
         "tar": "6.2.1",
         "ts-node": "^8.10.2",
-        "tslint": "~6.1.0",
         "typescript": "^5.9.3"
     },
     "engines": {
