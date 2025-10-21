@@ -2,12 +2,12 @@ import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CrudService} from '../../services/crud.service';
 import {Subscription} from 'rxjs';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {RelationalResult} from '../../components/data-view/models/result-set.model';
 import {QueryInterface, QueryInterfaceCreateRequest, QueryInterfaceSetting, QueryInterfaceTemplate} from './query-interfaces.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
+import {ModalComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-query-interfaces',
@@ -37,7 +37,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
     editingAvailableQIForm: UntypedFormGroup;
     availableQIUniqueNameForm: UntypedFormGroup;
 
-    @ViewChild('QISettingsModal', {static: false}) public QISettingsModal: ModalDirective;
+    @ViewChild('QISettingsModal', {static: false}) public QISettingsModal: ModalComponent;
 
     constructor() {
 
@@ -108,7 +108,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             fc[v.name] = new UntypedFormControl({value: val, disabled: !v.modifiable}, validators);
         }
         this.editingQIForm = new UntypedFormGroup(fc);
-        this.QISettingsModal.show();
+        this.QISettingsModal.visible = true;
     }
 
     saveQISettings() {
@@ -131,7 +131,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
                 } else {
                     this._toast.exception(result);
                 }
-                this.QISettingsModal.hide();
+                this.QISettingsModal.visible = false;
                 this.getQueryInterfaces();
             }, error: err => {
                 this._toast.error('Could not update Query Interface settings');
@@ -158,7 +158,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         this.availableQIUniqueNameForm = new UntypedFormGroup({
             uniqueName: new UntypedFormControl(null, [Validators.required, Validators.pattern(this._crud.getValidationRegex()), validateUniqueQI(this.queryInterfaces)])
         });
-        this.QISettingsModal.show();
+        this.QISettingsModal.visible = true;
     }
 
     getFeedback() {
@@ -198,7 +198,7 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
             next: _ => {
                 this._toast.success('Added query interface: ' + deploy.uniqueName);
                 this._router.navigate(['./../'], {relativeTo: this._route});
-                this.QISettingsModal.hide();
+                this.QISettingsModal.visible = false;
             }, error: err => {
                 this._toast.error('Could not add query interface: ' + deploy.uniqueName);
                 console.log(err);
@@ -241,6 +241,11 @@ export class QueryInterfacesComponent implements OnInit, OnDestroy {
         }
     }
 
+    onVisibleChange(isVisible: boolean) {
+        if (!isVisible) {
+            this.onCloseModal();
+        }
+    }
 }
 
 // see https://angular.io/guide/form-validation#custom-validators

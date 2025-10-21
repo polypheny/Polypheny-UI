@@ -23,7 +23,7 @@
                 <tbody>
                 <tr *ngFor="let aQI of availableQueryInterfaces">
                     <td><strong>{{ aQI.interfaceType }}</strong></td>
-                    <td>{{aQI.description}}</td>
+                    <td>{{ aQI.description }}</td>
                     <td class="center">
                         <button cButton color="primary" size="sm" (click)="initAvailableQISettings(aQI)">Add</button>
                     </td>
@@ -44,10 +44,10 @@
         <c-col [lg]="6" class="fixed-width" *ngFor="let queryInterface of queryInterfaces">
             <c-card class="fixed-height">
                 <c-card-header>
-                    {{queryInterface.uniqueName}}
+                    {{ queryInterface.uniqueName }}
                 </c-card-header>
                 <c-card-body>
-                    <span class="mb-2">Type: {{queryInterface.interfaceType}}</span>
+                    <span class="mb-2">Type: {{ queryInterface.interfaceType }}</span>
                     <span class="mb-0" *ngIf="queryInterface.supportsDdl">
                         <span class="fa fa-cubes"></span>
                         Supports schema changes<!--DDL-->
@@ -82,12 +82,12 @@
 </div>
 
 
-<c-modal bsModal #QISettingsModal="bs-modal" class="fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true" id="editUserModal" (onHide)="onCloseModal()">
+<c-modal #QISettingsModal class="fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" id="editUserModal" (visibleChange)="onVisibleChange($event)">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Settings</h4>
-            <button cButtonClose type="button" class="close" (click)="QISettingsModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" class="close" (click)="QISettingsModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <!-- queryInterfaces -->
@@ -95,17 +95,18 @@
             <form [formGroup]="editingQIForm" autocomplete="off" cRow [gutter]="{gy:2}">
                 <div class="form-group" *ngFor="let control of editingQIForm.controls | keyvalue">
                     <c-input-group *ngIf="!getAvailableQISetting(editingQI, control.key).options">
-                        <span cInputGroupText>{{control.key}}</span>
+                        <span cInputGroupText>{{ control.key }}</span>
                         <input cFormControl type="text" [id]="control.key" [formControlName]="control.key"
                                [ngClass]="validate(editingQIForm, control.key)" (keyup.enter)="saveQISettings()">
                         <c-form-feedback>required</c-form-feedback>
                     </c-input-group>
                     <div class="form-group" *ngIf="getAvailableQISetting(editingQI, control.key).options">
                         <c-input-group class="select-wrapper">
-                            <span cInputGroupText>{{control.key}}</span>
+                            <span cInputGroupText>{{ control.key }}</span>
                             <select cSelect [id]="control.key" [formControlName]="control.key">
                                 <option *ngFor="let option of getAvailableQISetting(editingQI, control.key).options"
-                                        [value]="option">{{option}}</option>
+                                        [value]="option">{{ option }}
+                                </option>
                             </select>
                         </c-input-group>
                     </div>
@@ -122,7 +123,7 @@
                         <span cInputGroupText>Query Interface Name</span>
                         <input cFormControl type="text" formControlName="uniqueName"
                                [ngClass]="validate(availableQIUniqueNameForm, 'uniqueName')">
-                        <c-form-feedback>{{getFeedback()}}</c-form-feedback>
+                        <c-form-feedback>{{ getFeedback() }}</c-form-feedback>
                     </c-input-group>
                 </div>
             </form>
@@ -131,17 +132,18 @@
                 <div class="form-group" *ngFor="let control of editingAvailableQIForm.controls | keyvalue">
                     <c-input-group *ngIf="!getAvailableQISetting(editingAvailableQI, control.key).options">
 
-                        <span class="input-group-text">{{control.key}}</span>
+                        <span class="input-group-text">{{ control.key }}</span>
                         <input cFormControl type="text" [id]="control.key" [formControlName]="control.key"
                                [ngClass]="validate(editingAvailableQIForm, control.key)">
                         <c-form-feedback>required</c-form-feedback>
                     </c-input-group>
                     <div class="form-group" *ngIf="getAvailableQISetting(editingAvailableQI, control.key).options">
                         <c-input-group class="select-wrapper">
-                            <span cInputGroupText>{{control.key}}</span>
+                            <span cInputGroupText>{{ control.key }}</span>
                             <select cSelect [id]="control.key" class="form-control" [formControlName]="control.key">
                                 <option *ngFor="let option of getAvailableQISetting(editingAvailableQI, control.key).options"
-                                        [value]="option">{{option}}</option>
+                                        [value]="option">{{ option }}
+                                </option>
                             </select>
                         </c-input-group>
                     </div>
@@ -151,7 +153,7 @@
 
         <c-modal-footer>
             <button cButton color="secondary" type="button" style="position: absolute; left: 1rem;"
-                    (click)="QISettingsModal.hide()">Close
+                    (click)="QISettingsModal.visible = false">Close
             </button>
             <button cButton color="primary" *ngIf="editingQI" type="submit" (click)="saveQISettings()"
                     [disabled]="!editingQIForm.valid">Save

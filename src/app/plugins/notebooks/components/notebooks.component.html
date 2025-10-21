@@ -15,13 +15,13 @@
     </c-container>
 }
 
-<c-modal bsModal #addNotebookModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #addNotebookModal tabindex="-1" role="dialog"
          aria-labelledby="addNotebookModal" aria-hidden="true">
 
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Create File</h4>
-            <button cButtonClose (click)="addNotebookModal.hide()"></button>
+            <button cButtonClose (click)="addNotebookModal.visible = false"></button>
         </c-modal-header>
 
         <c-card-body class="modal-body">
@@ -57,7 +57,7 @@
             </form>
         </c-card-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="addNotebookModal.hide()">Close</button>
+            <button cButton color="secondary" type="button" (click)="addNotebookModal.visible = false">Close</button>
             <button cButton color="primary" type="submit" (click)="createFile()"
                     [disabled]="!createFileForm.valid || creating">
                 <span *ngIf="!creating">Create</span>
@@ -68,12 +68,12 @@
 
 </c-modal>
 
-<c-modal bsModal #uploadNotebookModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+<c-modal #uploadNotebookModal class="modal fade" tabindex="-1" role="dialog"
          aria-labelledby="uploadNotebookModal" aria-hidden="true" (submit)="uploadFile()">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Upload File</h4>
-            <button cButtonClose type="button" class="close" (click)="uploadNotebookModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" class="close" (click)="uploadNotebookModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -91,7 +91,7 @@
             </form>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="uploadNotebookModal.hide()">Close</button>
+            <button cButton color="secondary" type="button" (click)="uploadNotebookModal.visible = false">Close</button>
             <button cButton color="primary" type="submit" (click)="uploadFile()"
                     [disabled]="!uploadFileForm.valid">Confirm
             </button>
@@ -99,7 +99,7 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #createSessionModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #createSessionModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="addNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
@@ -108,7 +108,7 @@
             <ng-template #elseDefaultKernel>
                 <h4 class="modal-title">Select Default Kernel</h4>
             </ng-template>
-            <button cButtonClose type="button" class="close" (click)="createSessionModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" class="close" (click)="createSessionModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -152,7 +152,7 @@
             </ng-container>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="createSessionModal.hide()">Close</button>
+            <button cButton color="secondary" type="button" (click)="createSessionModal.visible = false">Close</button>
             <div>
                 <button cButton type="button" color="primary" variant="outline" class="me-2"
                         *ngIf="createSessionForm.get('canManage').value"

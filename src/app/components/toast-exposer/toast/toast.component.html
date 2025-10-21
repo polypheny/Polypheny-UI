@@ -28,22 +28,18 @@
     </div>
 </ng-container>
 
-<div #stackTraceModal="bs-modal" aria-hidden="true" aria-labelledby="myModalLabel" bsModal class="modal fade"
-     role="dialog" tabindex="-1" id="stackTraceModal">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-        <div class="modal-content bg-warning">
-            <c-modal-header class="modal-header">
-                <h5>Exception</h5>
-            </c-modal-header>
-            <c-modal-body class="text-muted" *ngIf="exception">
-                <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: exception}"></ng-container>
-            </c-modal-body>
-            <div class="modal-footer">
-                <button cButton type="button" color="secondary" (click)="stackTraceModal.hide()">Close</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
+<c-modal #stackTraceModal aria-hidden="true" aria-labelledby="myModalLabel" class="fade"
+         role="dialog" tabindex="-1" id="stackTraceModal" [scrollable]="true">
+    <c-modal-header class="modal-header">
+        <h5>Exception</h5>
+    </c-modal-header>
+    <c-modal-body class="text-muted" *ngIf="exception">
+        <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: exception}"></ng-container>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton type="button" color="secondary" (click)="stackTraceModal.visible = false">Close</button>
+    </c-modal-footer>
+</c-modal>
 
 <ng-template #exceptionTemplate let-e="e">
     <ng-container *ngIf="e" class="p-3">

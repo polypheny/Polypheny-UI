@@ -41,14 +41,14 @@ export class ActivitySettingsComponent implements OnInit {
     constructor(private readonly _websocket: WorkflowsWebSocketService, private readonly _toast: ToasterService) {
         const showDescStr = localStorage.getItem('workflows.showSettingsDescription');
         this.setShowDescription(showDescStr === null ? true : showDescStr === 'true');
-        effect(() => this.activeSettingGroup.set(this.activity().def.getFirstGroup()), {allowSignalWrites: true});
+        effect(() => this.activeSettingGroup.set(this.activity().def.getFirstGroup()));
 
         // if activity or settings (externally) changes, also update serialized edited settings.
         effect(() => {
             this.serializedEditedSettings.set(this.serializedSettings());
             this.updateVisibility();
             this.resetVariablesVisibility();
-        }, {allowSignalWrites: true});
+        });
     }
 
     ngOnInit(): void {

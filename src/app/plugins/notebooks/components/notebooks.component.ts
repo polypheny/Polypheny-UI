@@ -1,7 +1,6 @@
 import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NotebooksService} from '../services/notebooks.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, CanDeactivate, Router, RouterStateSnapshot, UrlSegment} from '@angular/router';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {mergeMap, tap} from 'rxjs/operators';
 import {EMPTY, Observable, of, Subscription} from 'rxjs';
@@ -12,6 +11,7 @@ import {LoadingScreenService} from '../../../components/loading-screen/loading-s
 import {ComponentCanDeactivate} from '../services/unsaved-changes.guard';
 import {EditNotebookComponent} from './edit-notebook/edit-notebook.component';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
+import {ModalComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-notebooks',
@@ -21,9 +21,9 @@ import {ToasterService} from '../../../components/toast-exposer/toaster.service'
 })
 export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<ComponentCanDeactivate> {
 
-    @ViewChild('addNotebookModal') public addNotebookModal: ModalDirective;
-    @ViewChild('uploadNotebookModal') public uploadNotebookModal: ModalDirective;
-    @ViewChild('createSessionModal') public createSessionModal: ModalDirective;
+    @ViewChild('addNotebookModal') public addNotebookModal: ModalComponent;
+    @ViewChild('uploadNotebookModal') public uploadNotebookModal: ModalComponent;
+    @ViewChild('createSessionModal') public createSessionModal: ModalComponent;
     @ViewChild('editNotebook') public editNotebook: EditNotebookComponent;
     @ViewChild('fileInput') fileInput: ElementRef;
 
@@ -65,8 +65,8 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                 }
             }
         );
-        const sub2 = this._sidebar.onAddButtonClicked().subscribe(() => this.addNotebookModal.show());
-        const sub3 = this._sidebar.onUploadButtonClicked().subscribe(() => this.uploadNotebookModal.show());
+        const sub2 = this._sidebar.onAddButtonClicked().subscribe(() => this.addNotebookModal.visible = true);
+        const sub3 = this._sidebar.onUploadButtonClicked().subscribe(() => this.uploadNotebookModal.visible = true);
         const sub4 = this._sidebar.onNotebookClicked().subscribe(([t, n, $e]) => this.notebookClicked(n));
         const sub5 = this._content.onInvalidLocation().subscribe(() => this.onPageNotFound());
         const sub6 = this._content.onKernelSpecsChange().subscribe(specs => this.updateAvailableKernels(specs));
@@ -196,7 +196,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
             canManage: canManage
         });
         this.selectedSession = sessions[0];
-        this.createSessionModal.show();
+        this.createSessionModal.visible = true;
     }
 
     private openCreateSessionModal(name: string, path: string, canManage = true) {
@@ -208,7 +208,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
             canConnect: false,
             canManage: canManage
         });
-        this.createSessionModal.show();
+        this.createSessionModal.visible = true;
 
     }
 
@@ -220,19 +220,19 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         if (val.isNew) {
             this.creating = true;
             this.startAndOpenNotebook(val.name, val.path, val.kernel).subscribe().add(() => {
-                this.createSessionModal.hide();
+                this.createSessionModal.visible = false;
                 this.creating = false;
             });
         } else {
             this.openSession(val.session, val.path);
-            this.createSessionModal.hide();
+            this.createSessionModal.visible = false;
         }
 
     }
 
     openManagePage(path: string) {
         this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')));
-        this.createSessionModal.hide();
+        this.createSessionModal.visible = false;
     }
 
     openChangeSessionModal(name: string, path: string) {
@@ -288,7 +288,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
             if (val.type !== 'notebook') {
                 this._content.update(); // update for notebook happens automatically when navigating
             }
-            this.addNotebookModal.hide();
+            this.addNotebookModal.visible = false;
             this.createFileForm.patchValue({name: '', type: 'notebook', ext: '.txt'});
             this.creating = false;
         });
@@ -337,7 +337,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
             reader.readAsDataURL(file);
         }
         this.onFileChange(null);
-        this.uploadNotebookModal.hide();
+        this.uploadNotebookModal.visible = false;
     }
 
     serverRunningChanged(isRunning: boolean) {
