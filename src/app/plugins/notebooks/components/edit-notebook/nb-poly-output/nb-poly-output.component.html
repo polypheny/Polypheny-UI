@@ -1,31 +1,42 @@
-<div class="result-wrapper" *ngIf="resultSet">
-    <p [ngClass]="{'result-text': !resultSet.data, 'text-center': resultSet.data}"
-       *ngIf="!resultSet.error && resultSet.data">
-        <i>Found: {{resultSet.affectedRows}}</i>
-    </p>
-    <p *ngIf="!resultSet.data && !resultSet.error" class="result-text">
-        <i>Successfully executed</i>
-    </p>
-    <div class="text-danger result-text" *ngIf="resultSet.error">
-        <strong>Error:</strong>
-        <p>{{resultSet.error}}</p>
+@if (resultSet) {
+    <div class="result-wrapper">
+        @if (!resultSet.error && resultSet.data) {
+            <p [ngClass]="{'result-text': !resultSet.data, 'text-center': resultSet.data}"
+            >
+                <i>Found: {{ resultSet.affectedRows }}</i>
+            </p>
+        }
+        @if (!resultSet.data && !resultSet.error) {
+            <p class="result-text">
+                <i>Successfully executed</i>
+            </p>
+        }
+        @if (resultSet.error) {
+            <div class="text-danger result-text">
+                <strong>Error:</strong>
+                <p>{{ resultSet.error }}</p>
+            </div>
+        }
+        @if (resultSet.data) {
+            @if (resultIsTooLong) {
+                <p class="text-center">
+                    Result is too big to be displayed entirely. Only the first {{ resultSet.data.length }}
+                    of {{ resultSet.affectedRows }} entries are shown.
+                </p>
+            }
+            <app-data-view class="result-view" [result]="resultSet" [config]="tableConfig"></app-data-view>
+            @if (resultSet.hasMore) {
+                <p class="text-muted text-center small mt-1 mb-0 w-auto">
+                    Only {{ resultSet.data.length }} rows are being displayed. To fetch more rows, please specify
+                    a LIMIT clause.</p>
+            }
+            @if (resultVariable) {
+                <p class="text-center">
+                    <i class="cil-arrow-right"></i>
+                    <i> {{ resultVariable }}</i>
+                </p>
+            }
+        }
     </div>
-
-    <ng-container *ngIf="resultSet.data">
-        <p class="text-center" *ngIf="resultIsTooLong">
-            Result is too big to be displayed entirely. Only the first {{resultSet.data.length}}
-            of {{resultSet.affectedRows}} entries are shown.
-        </p>
-        <app-data-view class="result-view" [result]="resultSet" [config]="tableConfig"></app-data-view>
-        <p class="text-muted text-center small mt-1 mb-0 w-auto" *ngIf="resultSet.hasMore">
-            Only {{resultSet.data.length}} rows are being displayed. To fetch more rows, please specify
-            a LIMIT clause.</p>
-        <p class="text-center" *ngIf="resultVariable">
-            <i class="cil-arrow-right"></i>
-            <i> {{resultVariable}}</i>
-        </p>
-    </ng-container>
-
-
-</div>
+}
 

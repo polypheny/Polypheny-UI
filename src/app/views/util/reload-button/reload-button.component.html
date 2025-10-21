@@ -1,3 +1,5 @@
-<button cButton color="light" class="btn-circle" [ngClass]="{'rotating': $loading()}" id="reload-btn" (click)="action()" *ngIf="$condition()">
-    <i class="icon-reload"></i>
-</button>
+@if ($condition()) {
+    <button cButton color="light" class="btn-circle" [ngClass]="{'rotating': $loading()}" id="reload-btn" (click)="action()">
+        <i class="icon-reload"></i>
+    </button>
+}

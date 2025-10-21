@@ -1,17 +1,23 @@
 <div class="activity-help">
     <div class="d-flex justify-content-end">
-        <span class="badge bg-success me-1 mb-1" *ngIf="def().fusable"
-              cTooltip="Supports the Activity Fusion Optimization" cTooltipPlacement="top">
-            <span class="fa fa-code-fork fa-rotate-270"></span>
-        </span>
-        <span class="badge bg-success me-1 mb-1" *ngIf="def().pipeable"
-              cTooltip="Supports the Activity Pipelining Optimization" cTooltipPlacement="top">
-            <span class="cil-stream"></span>
-        </span>
-        <span class="badge bg-success me-1 mb-1" *ngIf="def().variableWriter"
-              cTooltip="Writes Variables" cTooltipPlacement="top">
-            <span class="cil-bolt"></span>
-        </span>
+        @if (def().fusable) {
+            <span class="badge bg-success me-1 mb-1"
+                  cTooltip="Supports the Activity Fusion Optimization" cTooltipPlacement="top">
+        <span class="fa fa-code-fork fa-rotate-270"></span>
+      </span>
+        }
+        @if (def().pipeable) {
+            <span class="badge bg-success me-1 mb-1"
+                  cTooltip="Supports the Activity Pipelining Optimization" cTooltipPlacement="top">
+        <span class="cil-stream"></span>
+      </span>
+        }
+        @if (def().variableWriter) {
+            <span class="badge bg-success me-1 mb-1"
+                  cTooltip="Writes Variables" cTooltipPlacement="top">
+        <span class="cil-bolt"></span>
+      </span>
+        }
     </div>
 
     @if (requiresMarkdown()) {
@@ -31,9 +37,13 @@
                         <li cListGroupItem>
                             <h5>{{ $index }}:
                                 <small class="text-medium-emphasis">
-                                    <span *ngIf="inPort.isMulti" class="text-medium-emphasis">Multiple </span>
+                                    @if (inPort.isMulti) {
+                                        <span class="text-medium-emphasis">Multiple </span>
+                                    }
                                     {{ portTypeToDataModel( inPort.type ) }}
-                                    <span *ngIf="inPort.isOptional" class="text-medium-emphasis"> (optional)</span>
+                                    @if (inPort.isOptional) {
+                                        <span class="text-medium-emphasis"> (optional)</span>
+                                    }
                                 </small>
                             </h5>
                             <markdown katex [katexOptions]="options" [data]="inPort.description"></markdown>
@@ -62,36 +72,42 @@
         }
     </div>
 
-    <div class="settings-section mt-4" *ngIf="activeSettingGroup()">
-        <h4 [class]="{'mb-3': def().nonEmptyGroupCount <= 1}">Settings</h4>
-
-        <ul class="nav nav-underline" role="tablist" *ngIf="def().nonEmptyGroupCount > 1">
-            @for (group of def().groups; track group.key) {
-                <li class="nav-item" role="presentation" *ngIf="!group.isEmpty">
-                    <a class="nav-link"
-                       [ngClass]="{'active': activeSettingGroup() === group}"
-                       (click)="activeSettingGroup.set(group)"
-                       role="tab">{{ group.displayName }}</a>
-                </li>
-            }
-        </ul>
-
-        @for (subgroup of activeSettingGroup().subgroups; track subgroup.key) {
-            <ng-container *ngIf="!subgroup.isEmpty">
-                <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
-                <c-card class="mb-3">
-                    <ul cListGroup flush="true">
-                        @for (setting of subgroup.settings; track setting.key) {
-                            <li cListGroupItem>
-                                <h6>{{ setting.displayName }}
-                                    <span class="text-medium-emphasis">({{ setting.key }}: {{ setting.type }})</span>
-                                </h6>
-                                <markdown katex [katexOptions]="options" [data]="setting.longDescription"></markdown>
+    @if (activeSettingGroup()) {
+        <div class="settings-section mt-4">
+            <h4 [class]="{'mb-3': def().nonEmptyGroupCount <= 1}">Settings</h4>
+            @if (def().nonEmptyGroupCount > 1) {
+                <ul class="nav nav-underline" role="tablist">
+                    @for (group of def().groups; track group.key) {
+                        @if (!group.isEmpty) {
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link"
+                                   [ngClass]="{'active': activeSettingGroup() === group}"
+                                   (click)="activeSettingGroup.set(group)"
+                                   role="tab">{{ group.displayName }}</a>
                             </li>
                         }
-                    </ul>
-                </c-card>
-            </ng-container>
-        }
-    </div>
+                    }
+                </ul>
+            }
+            @for (subgroup of activeSettingGroup().subgroups; track subgroup.key) {
+                @if (!subgroup.isEmpty) {
+                    @if (!subgroup.isDefault() || true) {
+                        <h5>{{ subgroup.displayName }}</h5>
+                    }
+                    <c-card class="mb-3">
+                        <ul cListGroup flush="true">
+                            @for (setting of subgroup.settings; track setting.key) {
+                                <li cListGroupItem>
+                                    <h6>{{ setting.displayName }}
+                                        <span class="text-medium-emphasis">({{ setting.key }}: {{ setting.type }})</span>
+                                    </h6>
+                                    <markdown katex [katexOptions]="options" [data]="setting.longDescription"></markdown>
+                                </li>
+                            }
+                        </ul>
+                    </c-card>
+                }
+            }
+        </div>
+    }
 </div>

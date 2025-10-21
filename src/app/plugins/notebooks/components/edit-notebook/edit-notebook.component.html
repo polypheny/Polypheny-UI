@@ -60,10 +60,10 @@
                             <a class="dropdown-item" (click)="toggleExpansion()"
                                cTooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
                             >
-                            <span>
-                                <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
-                                Variable Expansion
-                            </span>
+                <span>
+                  <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
+                  Variable Expansion
+                </span>
                             </a>
                             <a class="dropdown-item" (click)="executeSelected(true)">
                                 <span>Run Selected Cell</span>
@@ -167,45 +167,49 @@
         </c-col>
     </c-row>
 </c-container>
-<div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
-    <h1 class="nb-title mx-4">{{ name }}</h1>
-    <div class="nb-background mt-4 mx-3 pt-4">
-        <ng-container *ngIf="nb">
-            <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
-                <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
-                     *ngFor="let cell of nb.cells; let i = index; trackBy:identify">
-                    <app-nb-cell #nbCell
-                                 [id]="cell.id"
-                                 [cell]="cell"
-                                 [isFocused]="cell.id === selectedCell.id"
-                                 [isExecuting]="busyCellIds.has(cell.id)"
-                                 [isFirst]="i === 0"
-                                 [isLast]="i === nb.cells.length-1"
-                                 [selectedCellType]="selectedCellType"
-                                 [(mode)]="mode"
-                                 [nbLanguage]="kernelSpec?.spec?.language || 'python'"
-                                 [isTrusted]="nb.trustedCellIds.has(cell.id)"
-                                 (execute)="nb.executeCell($event)"
-                                 (insert)="insertCell(cell.id, $event)"
-                                 (move)="moveCell(i, $event)"
-                                 (duplicate)="duplicateCell(cell.id)"
-                                 (delete)="deleteCell($event)"
-                                 (selected)="selectCell($event)"
-                                 (changeType)="onTypeChange($event)">
-                        <div class="nb-drag-handle" cdkDragHandle></div>
-                    </app-nb-cell>
-                    <div *cdkDragPreview class="drop-preview">
-                        <span class="text-secondary me-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
-                        <span>{{ getPreviewText( cell ) }}</span>
-                    </div>
-                    <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
+@if (session) {
+    <div class="nb-scroll" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+        <h1 class="nb-title mx-4">{{ name }}</h1>
+        <div class="nb-background mt-4 mx-3 pt-4">
+            @if (nb) {
+                <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
+                    @for (cell of nb.cells; track identify( i, cell ); let i = $index) {
+                        <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
+                        >
+                            <app-nb-cell #nbCell
+                                         [id]="cell.id"
+                                         [cell]="cell"
+                                         [isFocused]="cell.id === selectedCell.id"
+                                         [isExecuting]="busyCellIds.has(cell.id)"
+                                         [isFirst]="i === 0"
+                                         [isLast]="i === nb.cells.length-1"
+                                         [selectedCellType]="selectedCellType"
+                                         [(mode)]="mode"
+                                         [nbLanguage]="kernelSpec?.spec?.language || 'python'"
+                                         [isTrusted]="nb.trustedCellIds.has(cell.id)"
+                                         (execute)="nb.executeCell($event)"
+                                         (insert)="insertCell(cell.id, $event)"
+                                         (move)="moveCell(i, $event)"
+                                         (duplicate)="duplicateCell(cell.id)"
+                                         (delete)="deleteCell($event)"
+                                         (selected)="selectCell($event)"
+                                         (changeType)="onTypeChange($event)">
+                                <div class="nb-drag-handle" cdkDragHandle></div>
+                            </app-nb-cell>
+                            <div *cdkDragPreview class="drop-preview">
+                                @if (cell.cell_type === 'code') {
+                                    <span class="text-secondary me-4">[ ]:</span>
+                                }
+                                <span>{{ getPreviewText( cell ) }}</span>
+                            </div>
+                            <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
+                        </div>
+                    }
                 </div>
-            </div>
-
-        </ng-container>
+            }
+        </div>
     </div>
-</div>
-<ng-template #elseNoSession>
+} @else {
     <c-container>
         <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
         <p>You can either close the notebook (you can save your changes if you want), or start a new kernel</p>
@@ -217,9 +221,8 @@
                 (click)="closeNotebookModal.visible = true">
             Close Notebook
         </button>
-
     </c-container>
-</ng-template>
+}
 
 
 <c-modal #deleteNotebookModal class="modal" tabindex="-1" role="dialog"
@@ -238,8 +241,12 @@
             <button cButton color="secondary" type="button" (click)="deleteNotebookModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="deleteNotebook()"
                     [disabled]="deleting">
-                <span *ngIf="!deleting">Delete</span>
-                <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!deleting) {
+                    <span>Delete</span>
+                }
+                @if (deleting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
@@ -261,13 +268,21 @@
         <c-modal-footer>
             <button cButton color="secondary" type="button" (click)="overwriteNotebookModal.visible = false">Cancel</button>
             <button cButton color="secondary" type="button" (click)="revertNotebook()" [disabled]="overwriting">
-                <span *ngIf="!overwriting">Revert</span>
-                <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!overwriting) {
+                    <span>Revert</span>
+                }
+                @if (overwriting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
             <button cButton color="danger" type="button" (click)="overwriteNotebook()"
                     [disabled]="overwriting">
-                <span *ngIf="!overwriting">Overwrite</span>
-                <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!overwriting) {
+                    <span>Overwrite</span>
+                }
+                @if (overwriting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
@@ -338,13 +353,15 @@
                         Save Changes (overwriting the file on disk)
                     </label>
                 </div>
-                <div class="form-check" *ngIf="session">
-                    <input class="form-check-input" type="checkbox" formControlName="shutDown"
-                           id="shutDown-chkbx">
-                    <label class="form-check-label" for="shutDown-chkbx">
-                        Shut Down Kernel
-                    </label>
-                </div>
+                @if (session) {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" formControlName="shutDown"
+                               id="shutDown-chkbx">
+                        <label class="form-check-label" for="shutDown-chkbx">
+                            Shut Down Kernel
+                        </label>
+                    </div>
+                }
             </form>
         </c-modal-body>
         <c-modal-footer>

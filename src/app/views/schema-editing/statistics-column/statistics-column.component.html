@@ -21,27 +21,29 @@
                                 </tr>
                                 </tbody>
                             </table>
-                            <table class="table table-hover table-striped"
-                                   *ngIf="this.statistics().entityType != 'MATERIALIZED_VIEW'">
-                                <thead>
-                                <tr>
-                                    <th># of SELECT</th>
-                                    <th># of INSERT</th>
-                                    <th># of DELETE</th>
-                                    <th># of UPDATE</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td>{{ this.statistics().calls.numberOfSelects }}</td>
-                                    <td>{{ this.statistics().calls.numberOfInserts }}</td>
-                                    <td>{{ this.statistics().calls.numberOfDeletes }}</td>
-                                    <td>{{ this.statistics().calls.numberOfUpdates }}</td>
-                                    <th></th>
-                                </tr>
-                                </tbody>
-                            </table>
+                            @if (this.statistics().entityType != 'MATERIALIZED_VIEW') {
+                                <table class="table table-hover table-striped"
+                                >
+                                    <thead>
+                                    <tr>
+                                        <th># of SELECT</th>
+                                        <th># of INSERT</th>
+                                        <th># of DELETE</th>
+                                        <th># of UPDATE</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>{{ this.statistics().calls.numberOfSelects }}</td>
+                                        <td>{{ this.statistics().calls.numberOfInserts }}</td>
+                                        <td>{{ this.statistics().calls.numberOfDeletes }}</td>
+                                        <td>{{ this.statistics().calls.numberOfUpdates }}</td>
+                                        <th></th>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            }
                         </c-col>
                         @if (hasWorkload()) {
                             <c-col [xl]="4">

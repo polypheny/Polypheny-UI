@@ -60,15 +60,17 @@
             </div>
 
         </div>
-        <div *ngIf="openedActivityDef" class="border-start flex-grow-1 info-col d-flex flex-column">
-            <div class="px-3 py-2 border-bottom menu-header d-flex bg-light-subtle">
-                <h4 class="mb-0">{{ openedActivityDef.displayName }}</h4>
-                <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
+        @if (openedActivityDef) {
+            <div class="border-start flex-grow-1 info-col d-flex flex-column">
+                <div class="px-3 py-2 border-bottom menu-header d-flex bg-light-subtle">
+                    <h4 class="mb-0">{{ openedActivityDef.displayName }}</h4>
+                    <button cButtonClose class="text-reset ms-auto" (click)="openedActivityDef=null"></button>
+                </div>
+                <div class="pt-3 px-3 activity-info flex-grow-1">
+                    <app-activity-help [def]="openedActivityDef"></app-activity-help>
+                </div>
             </div>
-            <div class="pt-3 px-3 activity-info flex-grow-1">
-                <app-activity-help [def]="openedActivityDef"></app-activity-help>
-            </div>
-        </div>
+        }
     }
 
 </div>
@@ -85,21 +87,31 @@
             <c-col [xs]="2" class="px-0">
                 <div>
                     <small class="text-muted">
-                        <span *ngIf="isRelational[activity.type]" class="me-1 fa fa-table"></span>
-                        <span *ngIf="isDocument[activity.type]" class="me-1 fa fa-file-text-o"></span>
-                        <span *ngIf="isGraph[activity.type]" class="cil-graph me-1"></span>
-                        <span *ngIf="isVariables[activity.type]" class="cil-bolt"></span>
+                        @if (isRelational[activity.type]) {
+                            <span class="me-1 fa fa-table"></span>
+                        }
+                        @if (isDocument[activity.type]) {
+                            <span class="me-1 fa fa-file-text-o"></span>
+                        }
+                        @if (isGraph[activity.type]) {
+                            <span class="cil-graph me-1"></span>
+                        }
+                        @if (isVariables[activity.type]) {
+                            <span class="cil-bolt"></span>
+                        }
                     </small>
                 </div>
 
             </c-col>
             <c-col [xs]="1" class="ps-0 pe-2 text-end">
-                                    <span class="fa fa-question-circle px-2 info-button"
-                                          [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-dark'"
-                                          style="cursor: pointer;" (click)="toggleOpenedActivityDef(activity)">
-                                    </span>
+            <span class="fa fa-question-circle px-2 info-button"
+                  [ngClass]="activity === openedActivityDef ? 'text-primary' : 'text-dark'"
+                  style="cursor: pointer;" (click)="toggleOpenedActivityDef(activity)">
+            </span>
             </c-col>
         </c-row>
-        <small *ngIf="showDescription">{{ activity.shortDescription }}</small>
+        @if (showDescription) {
+            <small>{{ activity.shortDescription }}</small>
+        }
     </c-card-body>
 </ng-template>

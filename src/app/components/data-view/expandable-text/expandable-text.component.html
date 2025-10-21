@@ -1,8 +1,14 @@
-<ng-container *ngIf="text">
-    <span *ngIf="!expand && text.length > sliceLength">{{text.slice(0, sliceLength)}}<i class="control fa fa-expand"
-                                                                                        *ngIf="text.length > sliceLength"
-                                                                                        (click)="expand = true"></i></span>
-    <span *ngIf="expand || text.length <= sliceLength">{{text}}<i class="control fa fa-compress"
-                                                                  *ngIf="text.length > sliceLength"
-                                                                  (click)="expand = false"></i></span>
-</ng-container>
+@if (text) {
+    @if (!expand && text.length > sliceLength) {
+        <span>{{ text.slice( 0, sliceLength ) }}@if (text.length > sliceLength) {
+            <i class="control fa fa-expand"
+               (click)="expand = true"></i>
+        }</span>
+    }
+    @if (expand || text.length <= sliceLength) {
+        <span>{{ text }}@if (text.length > sliceLength) {
+            <i class="control fa fa-compress"
+               (click)="expand = false"></i>
+        }</span>
+    }
+}

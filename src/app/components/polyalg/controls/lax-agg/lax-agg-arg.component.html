@@ -1,4 +1,6 @@
-<label for="selectFunction" *ngIf="data.name"><strong>{{data.name}}</strong></label>
+@if (data.name) {
+    <label for="selectFunction"><strong>{{ data.name }}</strong></label>
+}
 
 <c-input-group sizing="sm" class="mb-1">
     <label cInputGroupText for="selectFunction">
@@ -6,7 +8,9 @@
     </label>
     <select cSelect id="selectFunction" [(ngModel)]="data.value.function" (pointerdown)="$event.stopPropagation()"
             [disabled]="data.isReadOnly">
-        <option *ngFor="let choice of fChoices" [value]="choice">{{ choice }}</option>
+        @for (choice of fChoices; track choice) {
+            <option [value]="choice">{{ choice }}</option>
+        }
     </select>
 </c-input-group>
 

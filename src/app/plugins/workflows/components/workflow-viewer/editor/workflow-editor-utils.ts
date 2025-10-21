@@ -1,6 +1,6 @@
 import {NodeEditor} from 'rete';
 import {SocketData} from 'rete-connection-plugin';
-import {Position} from 'rete-angular-plugin/18/types';
+import {Position} from 'rete-angular-plugin/types';
 import {Schemes} from './workflow-editor';
 import {EdgeModel, WorkflowState} from '../../../models/workflows.model';
 import {ActivityNode, IN_CONTROL_KEY, SUCCESS_CONTROL_KEY} from './activity/activity.component';

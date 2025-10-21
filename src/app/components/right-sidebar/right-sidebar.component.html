@@ -6,11 +6,13 @@
 <form [formGroup]="form" (ngSubmit)="saveSettings()">
 
     <div class="aside-options">
-        <div class="form-group mb-3" *ngFor="let s of settings | keyvalue">
-            <label [for]="s.key">{{ s.value.displayName }}</label>
-            <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value.value"
-                   [formControlName]="s.key">
-        </div>
+        @for (s of settings | keyvalue; track s.key) {
+            <div class="form-group mb-3">
+                <label [for]="s.key">{{ s.value.displayName }}</label>
+                <input type="text" class="form-control form-control-sm" [id]="s.key" [value]="s.value.value"
+                       [formControlName]="s.key">
+            </div>
+        }
     </div>
 
     <div class="aside-options">

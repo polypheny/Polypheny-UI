@@ -1,16 +1,18 @@
-<div class="mb-3" *ngIf="allowedModes().length > 1">
-    <p class="mb-1">
-        <strong>Location</strong>
-    </p>
-    <c-button-group size="sm" id="enum-radios">
-        @for (option of allowedModes(); track option.type) {
-            <button cButton color="dark" [variant]="val().type === option.type ? null : 'outline'"
-                    (click)="selectType(option)" [disabled]="!isEditable()">
-                {{ option.name }}
-            </button>
-        }
-    </c-button-group>
-</div>
+@if (allowedModes().length > 1) {
+    <div class="mb-3">
+        <p class="mb-1">
+            <strong>Location</strong>
+        </p>
+        <c-button-group size="sm" id="enum-radios">
+            @for (option of allowedModes(); track option.type) {
+                <button cButton color="dark" [variant]="val().type === option.type ? null : 'outline'"
+                        (click)="selectType(option)" [disabled]="!isEditable()">
+                    {{ option.name }}
+                </button>
+            }
+        </c-button-group>
+    </div>
+}
 
 <div class="mb-3">
     <strong>Path</strong>
@@ -19,8 +21,10 @@
            [(ngModel)]="val().path">
 </div>
 
-<c-form-check *ngIf="showMulti()" [switch]="true">
-    <input cFormCheckInput id="file-multi" type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
-           [(ngModel)]="val().multi"/>
-    <label cFormCheckLabel for="file-multi">All Files in Folder</label>
-</c-form-check>
+@if (showMulti()) {
+    <c-form-check [switch]="true">
+        <input cFormCheckInput id="file-multi" type="checkbox" [disabled]="!isEditable()" (change)="valueChanged()"
+               [(ngModel)]="val().multi"/>
+        <label cFormCheckLabel for="file-multi">All Files in Folder</label>
+    </c-form-check>
+}

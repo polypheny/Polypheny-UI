@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {WorkflowViewerComponent} from './components/workflow-viewer/workflow-viewer.component';
-import {ReteModule} from 'rete-angular-plugin/18';
+import {ReteModule} from 'rete-angular-plugin/20';
 import {WorkflowsDashboardComponent} from './components/workflows-dashboard/workflows-dashboard.component';
 import {WorkflowSessionComponent} from './components/workflow-session/workflow-session.component';
 import {

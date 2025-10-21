@@ -38,9 +38,11 @@
             @if (activity().executionInfo().activities.length > 1) {
                 <p class="mb-1"><strong>Activities in Execution Tree:</strong></p>
                 <ul cListGroup flush="true">
-                    <li cListGroupItem *ngFor="let activity of activity().executionInfo().activities">
-                        {{ activity }}
-                    </li>
+                    @for (activity of activity().executionInfo().activities; track activity) {
+                        <li cListGroupItem>
+                            {{ activity }}
+                        </li>
+                    }
                 </ul>
             }
 

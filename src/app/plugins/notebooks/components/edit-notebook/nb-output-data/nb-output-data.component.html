@@ -1,29 +1,25 @@
 <div class="nb-output-data-wrapper">
-    <ng-container *ngIf="data['image/png'];else elseSvg">
+    @if (data['image/png']) {
         <div class="nb-image-wrapper">
             <img class="nb-image" src="{{'data:image/png;base64,'+ data['image/png']}}" alt="{{data['text/plain']}}"/>
         </div>
-    </ng-container>
-    <ng-template #elseSvg>
-        <ng-container *ngIf="data['image/svg+xml'];else elseHtml">
+    } @else {
+        @if (data['image/svg+xml']) {
             <div [innerHTML]="isTrusted ? (data['image/svg+xml'] | safeHtml) : data['image/svg+xml']"></div>
-        </ng-container>
-    </ng-template>
-    <ng-template #elseHtml>
-        <ng-container *ngIf="data['text/html'];else elseJson">
-            <div class="table table-hover table-striped table-borderless"
-                 [innerHTML]="isTrusted ? (data['text/html'] | safeHtml) : data['text/html']"></div>
-        </ng-container>
-    </ng-template>
-    <ng-template #elseJson>
-        <ng-container *ngIf="data['application/json'];else elsePlain">
-            <ngx-json-viewer [json]="data['application/json']" [expanded]="false"></ngx-json-viewer>
-        </ng-container>
-    </ng-template>
-    <ng-template #elsePlain>
-        <ng-container *ngIf="data['text/plain']">
-            <pre class="nb-plaintext">{{data['text/plain']}}</pre>
-        </ng-container>
-    </ng-template>
+        } @else {
+            @if (data['text/html']) {
+                <div class="table table-hover table-striped table-borderless"
+                     [innerHTML]="isTrusted ? (data['text/html'] | safeHtml) : data['text/html']"></div>
+            } @else {
+                @if (data['application/json']) {
+                    <ngx-json-viewer [json]="data['application/json']" [expanded]="false"></ngx-json-viewer>
+                } @else {
+                    @if (data['text/plain']) {
+                        <pre class="nb-plaintext">{{ data['text/plain'] }}</pre>
+                    }
+                }
+            }
+        }
+    }
 </div>
 

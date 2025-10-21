@@ -71,11 +71,13 @@
                                 </a>
                             </li>
                             <li>
-                                <a cDropdownItem class="mb-1" *ngIf="exploreByExampleEnabled()"
-                                   [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
-                                    <i class="fa fa-magic"></i>
-                                    <span class="ms-1">Explore by Example</span>
-                                </a>
+                                @if (exploreByExampleEnabled()) {
+                                    <a cDropdownItem class="mb-1"
+                                       [routerLink]="['/views/querying/explore-by-example']" routerLinkActive="active">
+                                        <i class="fa fa-magic"></i>
+                                        <span class="ms-1">Explore by Example</span>
+                                    </a>
+                                }
                             </li>
                         </ul>
                     </c-dropdown>

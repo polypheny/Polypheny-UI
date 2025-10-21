@@ -1,192 +1,206 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "ng": {
-      "root": "",
-      "sourceRoot": "src",
-      "projectType": "application",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "allowedCommonJsDependencies": [
-              "lodash",
-              "jquery",
-              "jquery-ui",
-              "chart.js",
-              "dagre-d3",
-              "ansi_up",
-              "ace-builds",
-              "mobx",
-              "flatpickr",
-              "plyr",
-              "moment",
-              "elkjs",
-              "json-pointer",
-              "@tweenjs/tween.js",
-              "@babel/runtime/regenerator"
-            ],
-            "outputPath": "dist",
-            "index": "src/index.html",
-            "main": "src/main.ts",
-            "tsConfig": "src/tsconfig.app.json",
-            "polyfills": "src/polyfills.ts",
-            "assets": [
-              "src/assets"
-            ],
-            "styles": [
-              "node_modules/@coreui/coreui/scss/coreui.scss",
-              "./node_modules/@coreui/coreui/scss/coreui.scss",
-              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/@coreui/icons/css/free.css",
-              "node_modules/flag-icons/css/flag-icons.css",
-              "node_modules/font-awesome/css/font-awesome.css",
-              "node_modules/simple-line-icons/css/simple-line-icons.css",
-              "src/scss/style.scss",
-              "node_modules/flatpickr/dist/flatpickr.min.css",
-              "node_modules/plyr/dist/plyr.css",
-              "node_modules/@ali-hm/angular-tree-component/css/angular-tree-component.css",
-              "node_modules/katex/dist/katex.min.css",
-              "node_modules/prismjs/themes/prism-okaidia.css",
-              "src/scss/angular2-multiselect-dropdown.scss"
-            ],
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "./node_modules"
-              ]
-            },
-            "scripts": [
-                "node_modules/katex/dist/katex.js",
-                "node_modules/katex/dist/contrib/auto-render.js",
-                "node_modules/prismjs/prism.js",
-                "node_modules/prismjs/components/prism-css.min.js",
-                "node_modules/prismjs/components/prism-cypher.min.js",
-                "node_modules/prismjs/components/prism-python.min.js",
-                "node_modules/prismjs/components/prism-sql.min.js",
-                "node_modules/prismjs/components/prism-java.min.js",
-                "node_modules/prismjs/components/prism-mongodb.min.js",
-                "node_modules/prismjs/components/prism-bash.min.js",
-                "node_modules/prismjs/components/prism-markdown.min.js",
-                "node_modules/plyr/dist/plyr.js"
-            ],
-            "vendorChunk": true,
-            "extractLicenses": false,
-            "buildOptimizer": false,
-            "sourceMap": true,
-            "optimization": false,
-            "namedChunks": true
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+        "ng": {
+            "root": "",
+            "sourceRoot": "src",
+            "projectType": "application",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "allowedCommonJsDependencies": [
+                            "lodash",
+                            "jquery",
+                            "jquery-ui",
+                            "chart.js",
+                            "dagre-d3",
+                            "ansi_up",
+                            "ace-builds",
+                            "mobx",
+                            "flatpickr",
+                            "plyr",
+                            "moment",
+                            "elkjs",
+                            "json-pointer",
+                            "@tweenjs/tween.js",
+                            "@babel/runtime/regenerator"
+                        ],
+                        "outputPath": "dist",
+                        "index": "src/index.html",
+                        "main": "src/main.ts",
+                        "tsConfig": "src/tsconfig.app.json",
+                        "polyfills": "src/polyfills.ts",
+                        "assets": [
+                            "src/assets"
+                        ],
+                        "styles": [
+                            "node_modules/@coreui/coreui/scss/coreui.scss",
+                            "./node_modules/@coreui/coreui/scss/coreui.scss",
+                            "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+                            "node_modules/@coreui/icons/css/free.css",
+                            "node_modules/flag-icons/css/flag-icons.css",
+                            "node_modules/font-awesome/css/font-awesome.css",
+                            "node_modules/simple-line-icons/css/simple-line-icons.css",
+                            "src/scss/style.scss",
+                            "node_modules/flatpickr/dist/flatpickr.min.css",
+                            "node_modules/plyr/dist/plyr.css",
+                            "node_modules/@ali-hm/angular-tree-component/css/angular-tree-component.css",
+                            "node_modules/katex/dist/katex.min.css",
+                            "node_modules/prismjs/themes/prism-okaidia.css",
+                            "src/scss/angular2-multiselect-dropdown.scss"
+                        ],
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "./node_modules"
+                            ]
+                        },
+                        "scripts": [
+                            "node_modules/katex/dist/katex.js",
+                            "node_modules/katex/dist/contrib/auto-render.js",
+                            "node_modules/prismjs/prism.js",
+                            "node_modules/prismjs/components/prism-css.min.js",
+                            "node_modules/prismjs/components/prism-cypher.min.js",
+                            "node_modules/prismjs/components/prism-python.min.js",
+                            "node_modules/prismjs/components/prism-sql.min.js",
+                            "node_modules/prismjs/components/prism-java.min.js",
+                            "node_modules/prismjs/components/prism-mongodb.min.js",
+                            "node_modules/prismjs/components/prism-bash.min.js",
+                            "node_modules/prismjs/components/prism-markdown.min.js",
+                            "node_modules/plyr/dist/plyr.mjs"
+                        ],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
+                    },
+                    "configurations": {
+                        "production": {
+                            "budgets": [
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.prod.ts"
+                                }
+                            ]
+                        }
+                    },
+                    "defaultConfiguration": ""
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "buildTarget": "ng:build"
+                    },
+                    "configurations": {
+                        "production": {
+                            "buildTarget": "ng:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "buildTarget": "ng:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "src/test.ts",
+                        "karmaConfig": "./karma.conf.js",
+                        "polyfills": "src/polyfills.ts",
+                        "tsConfig": "src/tsconfig.spec.json",
+                        "scripts": [
+                        ],
+                        "styles": [
+                            "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+                            "node_modules/flag-icons/css/flag-icon.css",
+                            "node_modules/font-awesome/css/font-awesome.css",
+                            "node_modules/simple-line-icons/css/simple-line-icons.css",
+                            "src/scss/style.scss"
+                        ],
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "./node_modules"
+                            ]
+                        },
+                        "assets": [
+                            "src/assets",
+                            "src/favicon.ico"
+                        ]
+                    }
                 }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+            }
+        },
+        "ng-e2e": {
+            "root": "",
+            "sourceRoot": "",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@angular-devkit/build-angular:protractor",
+                    "options": {
+                        "protractorConfig": "./protractor.conf.js",
+                        "devServerTarget": "ng:serve"
+                    }
                 }
-              ]
             }
-          },
-          "defaultConfiguration": ""
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "ng:build"
-          },
-          "configurations": {
-            "production": {
-              "buildTarget": "ng:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "buildTarget": "ng:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "karmaConfig": "./karma.conf.js",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "scripts": [
-            ],
-            "styles": [
-              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/flag-icons/css/flag-icon.css",
-              "node_modules/font-awesome/css/font-awesome.css",
-              "node_modules/simple-line-icons/css/simple-line-icons.css",
-              "src/scss/style.scss"
-            ],
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "./node_modules"
-              ]
-            },
-            "assets": [
-              "src/assets",
-              "src/favicon.ico"
-            ]
-          }
         }
-      }
     },
-    "ng-e2e": {
-      "root": "",
-      "sourceRoot": "",
-      "projectType": "application",
-      "architect": {
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "ng:serve"
-          }
+    "schematics": {
+        "@schematics/angular:component": {
+            "prefix": "app",
+            "style": "scss",
+            "skipTests": true,
+            "type": "component"
+        },
+        "@schematics/angular:directive": {
+            "prefix": "app",
+            "skipTests": true,
+            "type": "directive"
+        },
+        "@schematics/angular:module": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:service": {
+            "skipTests": true,
+            "type": "service"
+        },
+        "@schematics/angular:pipe": {
+            "skipTests": true,
+            "typeSeparator": "."
+        },
+        "@schematics/angular:class": {
+            "skipTests": true
+        },
+        "@schematics/angular:guard": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:interceptor": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:resolver": {
+            "typeSeparator": "."
         }
-      }
+    },
+    "cli": {
+        "analytics": "c9aecf11-4a90-4872-af81-26ab5b9af745"
     }
-  },
-  "schematics": {
-    "@schematics/angular:component": {
-      "prefix": "app",
-      "style": "scss",
-      "skipTests": true
-    },
-    "@schematics/angular:directive": {
-      "prefix": "app",
-      "skipTests": true
-    },
-    "@schematics/angular:module": {
-    },
-    "@schematics/angular:service": {
-      "skipTests": true
-    },
-    "@schematics/angular:pipe": {
-      "skipTests": true
-    },
-    "@schematics/angular:class": {
-      "skipTests": true
-    }
-  },
-  "cli": {
-    "analytics": "c9aecf11-4a90-4872-af81-26ab5b9af745"
-  }
 }

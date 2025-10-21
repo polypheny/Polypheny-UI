@@ -1,41 +1,42 @@
-<ng-container *ngIf="!li.type">
+@if (!li.type) {
     {{ li.label }}
-</ng-container>
+}
 
-<ng-container *ngIf="li.type">
-
-    <ng-container *ngIf="li.type == 'InformationLink'">
+@if (li.type) {
+    @if (li.type == 'InformationLink') {
         <a [routerLink]="li.routerLink">{{ li.label }}</a>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationHtml'">
+    }
+    @if (li.type == 'InformationHtml') {
         <div [innerHTML]="li.html"></div>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationTable'">
+    }
+    @if (li.type == 'InformationTable') {
         <div class="table-wrapper">
             <table cTable class="table table-responsive-sm">
                 <thead>
                 <tr>
-                    <th *ngFor="let l of li.labels">{{ l }}</th>
+                    @for (l of li.labels; track l) {
+                        <th>{{ l }}</th>
+                    }
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let row of li.rows">
-                    <td *ngFor="let data of row">{{ data }}</td>
-                </tr>
+                    @for (row of li.rows; track row) {
+                        <tr>
+                            @for (data of row; track $index) {
+                                <td>{{ data }}</td>
+                            }
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationCode'">
+    }
+    @if (li.type == 'InformationCode') {
         <div [ngStyle]="{'height': codeHeight}">
             <app-editor [readonly]="true" [language]="li.language" [code]="li.code"></app-editor>
         </div>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationProgress'">
+    }
+    @if (li.type == 'InformationProgress') {
         <div class="clearfix">
             <div class="float-left">
                 <strong>{{ li.label }}</strong>
@@ -51,109 +52,134 @@
                 </c-progress-bar>
             </c-progress>
         </div>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationGraph'">
+    }
+    @if (li.type == 'InformationGraph') {
         <app-graph [data]="li.data" [labels]="li.labels" [colorList]="li.colors" [chartType]="li.graphType"
                    [min]="li.min"
                    [max]="li.max"></app-graph>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationPolyAlg' && li.jsonPolyAlg">
+    }
+    @if (li.type == 'InformationPolyAlg' && li.jsonPolyAlg) {
         <app-alg-viewer [initialPlan]="li.jsonPolyAlg" [planType]="li.planType" [isReadOnly]="true"></app-alg-viewer>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationAction'">
-        <div class="form-row" *ngIf="li.parameters">
-            <c-input-group class="col-md-6 mb-2"
-                           *ngFor="let p of li.parameters | keyvalue; let i=index; trackBy:trackBy">
-                <div cInputGroupText>{{ p.key }}</div>
-                <input cFormControl type="text" [(ngModel)]="li.parameters[p.key]">
-            </c-input-group>
-        </div>
+    }
+    @if (li.type == 'InformationAction') {
+        @if (li.parameters) {
+            <div class="form-row">
+                @for (p of li.parameters | keyvalue; track trackBy( i, p ); let i = $index) {
+                    <c-input-group class="col-md-6 mb-2"
+                    >
+                        <div cInputGroupText>{{ p.key }}</div>
+                        <input cFormControl type="text" [(ngModel)]="li.parameters[p.key]">
+                    </c-input-group>
+                }
+            </div>
+        }
         <button cButton color="primary" (click)="executeInformationAction(li)"
                 [disabled]="executingInformationAction"
                 tooltip="Warning: Not all parameters are set!" placement="auto" triggers=""
                 #tooltip="bs-tooltip" (mouseenter)="parameterWarning(li, tooltip)" (mouseleave)="tooltip.hide()">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-              *ngIf="executingInformationAction"></span>
+            @if (executingInformationAction) {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                ></span>
+            }
             {{ li.label }}
         </button>
-    </ng-container>
-
-    <div class="InformationDuration" *ngIf="li.type === 'InformationDuration'">
-
-        <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
-            <strong *ngIf="showTotalDuration(li)">
-                total time: {{ displayTime( li.duration ) }}
-            </strong>
-            <br *ngIf="showTotalDuration(li) && li.name">
-            <span class="durationText" [ngClass]="{'text-danger': li.limit && li.duration > li.limit}" *ngIf="li.name">
-        {{ li.name }}: {{ displayTime( li.duration ) }}
-      </span>
-            <div class="progress" *ngIf="!li.noProgressBar && li.children && li.children.length > 1">
-                <div
-                        *ngFor="let c of li.children; let i = index"
-                        class="progress-bar"
-                        [ngClass]="getDurationColor(i)"
-                        [tooltip]="c.name"
-                        container="body"
-                        [ngStyle]="{width: getProgressWidth(li, c)+'%'}">&nbsp;
-                </div>
-            </div>
-            <div class="duration" *ngFor="let duration of li.children ">
-                <strong *ngIf="showTotalDuration(castDuration(duration))">
-                    total {{ duration.duration }}
-                </strong>
-                <br *ngIf="showTotalDuration(castDuration(duration)) && duration.name">
-                <span class="durationText"
-                      [ngClass]="{'text-danger': duration.limit && duration.duration > duration.limit}">
-          {{ duration.name }}: {{ displayTime( duration.duration ) }}
-        </span>
-                <div class="progress"
-                     *ngIf="!duration.noProgressBar && duration.children && duration.children.length > 1">
-                    <div
-                            *ngFor="let c of duration.children; let i = index"
-                            class="progress-bar"
-                            [ngClass]="getDurationColor(i)"
-                            [tooltip]="c.name"
-                            container="body"
-                            [ngStyle]="{width: getProgressWidth(duration, c)+'%'}">&nbsp;
+    }
+    @if (li.type === 'InformationDuration') {
+        <div class="InformationDuration">
+            <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
+                @if (showTotalDuration( li )) {
+                    <strong>
+                        total time: {{ displayTime( li.duration ) }}
+                    </strong>
+                }
+                @if (showTotalDuration( li ) && li.name) {
+                    <br>
+                }
+                @if (li.name) {
+                    <span class="durationText" [ngClass]="{'text-danger': li.limit && li.duration > li.limit}">
+              {{ li.name }}: {{ displayTime( li.duration ) }}
+            </span>
+                }
+                @if (!li.noProgressBar && li.children && li.children.length > 1) {
+                    <div class="progress">
+                        @for (c of li.children; track c; let i = $index) {
+                            <div
+                                    class="progress-bar"
+                                    [ngClass]="getDurationColor(i)"
+                                    [tooltip]="c.name"
+                                    container="body"
+                                    [ngStyle]="{width: getProgressWidth(li, c)+'%'}">&nbsp;
+                            </div>
+                        }
                     </div>
-                </div>
-                <app-render-item *ngFor="let d of duration.children" [li]="castDuration(d)"></app-render-item>
+                }
+                @for (duration of li.children; track $index) {
+                    <div class="duration">
+                        @if (showTotalDuration( castDuration( duration ) )) {
+                            <strong>
+                                total {{ duration.duration }}
+                            </strong>
+                        }
+                        @if (showTotalDuration( castDuration( duration ) ) && duration.name) {
+                            <br>
+                        }
+                        <span class="durationText"
+                              [ngClass]="{'text-danger': duration.limit && duration.duration > duration.limit}">
+                  {{ duration.name }}: {{ displayTime( duration.duration ) }}
+                </span>
+                        @if (!duration.noProgressBar && duration.children && duration.children.length > 1) {
+                            <div class="progress"
+                            >
+                                @for (c of duration.children; track c; let i = $index) {
+                                    <div
+                                            class="progress-bar"
+                                            [ngClass]="getDurationColor(i)"
+                                            [tooltip]="c.name"
+                                            container="body"
+                                            [ngStyle]="{width: getProgressWidth(duration, c)+'%'}">&nbsp;
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @for (d of duration.children; track $index) {
+                            <app-render-item [li]="castDuration(d)"></app-render-item>
+                        }
+                    </div>
+                }
             </div>
         </div>
-    </div>
-
-    <ng-container *ngIf="li.type == 'InformationStacktrace'">
-        <div class="exception" *ngIf="li.exception">
-            <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception, errorMsg: li.error}"></ng-container>
-        </div>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationKeyValue'">
-        <div *ngIf="li.keyValuePairs">
-            <table cTable class="table-sm table-bordered table-striped mb-0">
-                <tbody>
-                <tr *ngFor="let p of li.keyValuePairs | keyvalue">
-                    <td>{{ p.key }}</td>
-                    <td>{{ p.value }}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </ng-container>
-
-    <ng-container *ngIf="li.type == 'InformationText'">
+    }
+    @if (li.type == 'InformationStacktrace') {
+        @if (li.exception) {
+            <div class="exception">
+                <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception, errorMsg: li.error}"></ng-container>
+            </div>
+        }
+    }
+    @if (li.type == 'InformationKeyValue') {
+        @if (li.keyValuePairs) {
+            <div>
+                <table cTable class="table-sm table-bordered table-striped mb-0">
+                    <tbody>
+                        @for (p of li.keyValuePairs | keyvalue; track p.key) {
+                            <tr>
+                                <td>{{ p.key }}</td>
+                                <td>{{ p.value }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+    @if (li.type == 'InformationText') {
         <p>{{ li.text }}</p>
-    </ng-container>
-
-</ng-container>
+    }
+}
 
 
 <ng-template #exceptionTemplate let-e="e" let-errorMsg="errorMsg">
-    <ng-container *ngIf="e">
+    @if (e) {
         <div class="card mb-3 shadow-sm">
             <div class="card-header bg-secondary text-white py-2">
                 @if (e.detailMessage || e.message || errorMsg) {
@@ -161,27 +187,30 @@
                 } @else {
                     <strong>Exception </strong>
                 }
-
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-flush font-monospace small">
-                    <li *ngFor="let s of e.stackTrace" class="list-group-item">
-                        <span class="text-secondary">at </span>
-                        <span class="fw-bold">{{ s.className }}.{{ s.methodName }}</span>
-                        (<span class="text-primary">{{ s.fileName }}:{{ s.lineNumber }}</span>)
-
-                        <span *ngIf="s.moduleName" class="badge bg-light text-dark ms-2">
-                            {{ s.moduleName }} {{ s.moduleVersion || '' }}
-                        </span>
-                    </li>
+                    @for (s of e.stackTrace; track $index) {
+                        <li class="list-group-item">
+                            <span class="text-secondary">at </span>
+                            <span class="fw-bold">{{ s.className }}.{{ s.methodName }}</span>
+                            (<span class="text-primary">{{ s.fileName }}:{{ s.lineNumber }}</span>)
+                            @if (s.moduleName) {
+                                <span class="badge bg-light text-dark ms-2">
+                      {{ s.moduleName }} {{ s.moduleVersion || '' }}
+                    </span>
+                            }
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
-
         <!-- Cause (recursive) -->
-        <div class="ms-3 mt-2 border-start ps-3" *ngIf="e.cause">
-            <span class="fw-bold text-muted">Caused by:</span>
-            <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause, errorMsg: null}"></ng-container>
-        </div>
-    </ng-container>
+        @if (e.cause) {
+            <div class="ms-3 mt-2 border-start ps-3">
+                <span class="fw-bold text-muted">Caused by:</span>
+                <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause, errorMsg: null}"></ng-container>
+            </div>
+        }
+    }
 </ng-template>

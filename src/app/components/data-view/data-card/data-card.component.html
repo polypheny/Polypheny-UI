@@ -1,167 +1,218 @@
-<div class="text-center" *ngIf="!$result() || !$result().data || $result().data.length == 0">
-    <span class="text-danger">(no data to show)</span>
-</div>
-
-<div class="card-wrapper" [class.rel-width]="entityConfig().cardRelWidth" *ngIf="$result()">
-    <c-card *ngFor="let d1 of $result().data; let i = index" (dblclick)="triggerEditing(i)"
-            [ngClass]="{'editing': i===editing, 'json-card': $result().dataModel === DataModel.DOCUMENT}">
-        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig().update && i !== editing"
-           [routerLink]="[]"
-           class="edit-card"
-           (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
-        <a cButton size="sm" color="secondary" variant="outline" *ngIf="entityConfig().update && i !== editing"
-           [routerLink]="[]"
-           class="delete-card"
-           (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i
-                [ngClass]="{ 'cil-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
-        <ul cListGroup flush>
-            <!-- load MM types first -->
-
-            <ng-container *ngFor="let h of $result().header; let j = index">
-                <li cListGroupItem *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)"
-                    [ngClass]="{'multimedia': i !== editing}">
-                    <ng-container *ngIf="i !== editing">
-                        <ng-container [ngSwitch]="h.dataType">
-                            <img *ngSwitchCase="'IMAGE'" [src]="getFileLink(d1[j])"/>
-                            <app-media *ngSwitchCase="'VIDEO'" [src]="getFileLink(d1[j])"
-                                       [type]="h.dataType"></app-media>
-                            <app-media *ngSwitchCase="'AUDIO'" [src]="getFileLink(d1[j])"
-                                       [type]="h.dataType"></app-media>
-                        </ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="i === editing">
-                        <app-input [header]="h" [showLabel]="true" [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
-                                   [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-                    </ng-container>
-                </li>
-            </ng-container>
-
-
-            <!-- then load all non-MM data -->
-            <ng-container *ngFor="let h of $result().header; let j = index">
-                <li cListGroupItem *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)">
-                    <ng-container *ngIf="i !== editing">
-                        <ng-container [ngSwitch]="removeNull(h.dataType)">
-                            <ng-container *ngSwitchCase="'FILE'">
-                                <span class="key">{{ h.name }}:</span>
-                                <a class="download val" [href]="getFileLink(d1[j])" download><span
-                                        class="cil-cloud-download"></span></a>
-                            </ng-container>
-                            <ng-container
-                                    *ngSwitchCase="['JSON', 'DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull(h.dataType)">
-                                <ng-container *ngTemplateOutlet="json; context: {d1: d1, h: h, j: j}"></ng-container>
-                            </ng-container>
-                            <ng-container *ngSwitchCase="'ANY'">
-                                <span *ngIf="h.name !== '_data'" class="key">{{ h.name }} </span>
-                                <app-json-text [text]="d1[j]"></app-json-text>
-                            </ng-container>
-                            <ng-container *ngSwitchDefault>
-                                <span class="key">{{ h.name }}: </span>
-                                <app-expandable-text [text]="d1[j]"></app-expandable-text>
-                            </ng-container>
-                        </ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
-                                   [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
-                                   [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
-                        <app-json-editor (validChange)="setJsonValid($event)"
-                                         *ngIf="$result()?.dataModel === DataModel.DOCUMENT"
-                                         [json]="updateValues.get(h.name)"
-                                         (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
-                    </ng-container>
-                </li>
-            </ng-container>
-
-            <li cListGroupItem *ngIf="i === editing" style="display: flex; justify-content: space-between;">
-                <c-progress *ngIf="uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
-                    <c-progress-bar
-                            [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
-                            variant="striped"
-                            color="primary"></c-progress-bar>
-                </c-progress>
-                <c-progress *ngIf="uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
-                    <c-progress-bar
-                            [animated]="true" [value]="100" color="primary"></c-progress-bar>
-                </c-progress>
-
-                <button cButton color="light" size="sm" *ngIf="uploadProgress === -1" (click)="stopEditing()">
-                    cancel
-                </button>
-                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1" (click)="updateTuple()"
-                        [disabled]="$result()?.dataModel === DataModel.DOCUMENT && !jsonValid">
-                    save
-                </button>
-            </li>
-
-        </ul>
-    </c-card>
-
-    <div *ngIf="entityConfig().create && !showInsertCard" (click)="showInsert()">
-        <button cButton color="primary" class="toggle-insert"><i class="fa fa-plus"></i></button>
+@if (!$result() || !$result().data || $result().data.length == 0) {
+    <div class="text-center">
+        <span class="text-danger">(no data to show)</span>
     </div>
+}
 
-    <c-card *ngIf="entityConfig().create && showInsertCard"
-            [ngClass]="{'json-card': $result()?.dataModel === DataModel.DOCUMENT}">
-        <c-card-header>
-            Insert Data
-        </c-card-header>
-        <ul cListGroup flush="true">
-            <li cListGroupItem *ngFor="let h of $result().header">
-                <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
-                           [header]="h"
-                           [showLabel]="true" [value]="insertValues.get(h.name)"
-                           (valueChange)="inputChange(h.name, $event)"
-                           (enter)="insertTuple()"></app-input>
-                <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="$result()?.dataModel === DataModel.DOCUMENT" [empty]="true"
-                                 [json]="insertValues.get(h.name)"
-                                 (valueChange)="inputChange(h.name, $event)"></app-json-editor>
-            </li>
-            <li cListGroupItem>
-                <c-progress
-                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
-                    <c-progress-bar [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
-                                    variant="striped"
-                                    color="primary"></c-progress-bar>
-                </c-progress>
-                <c-progress
-                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
-                    <c-progress-bar [animated]="true" [value]="100" variant="striped" color="primary"></c-progress-bar>
-                </c-progress>
-                <button cButton color="light" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
-                        (click)="showInsertCard = false">cancel
-                </button>
-                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
-                        class="float-right"
-                        [disabled]="$result()?.dataModel === DataModel.DOCUMENT && !jsonValid"
-                        (click)="insertTuple()">
-                    save
-                </button>
-            </li>
-        </ul>
-    </c-card>
+@if ($result()) {
+    <div class="card-wrapper" [class.rel-width]="entityConfig().cardRelWidth">
+        @for (d1 of $result().data; track i; let i = $index) {
+            <c-card (dblclick)="triggerEditing(i)"
+                    [ngClass]="{'editing': i===editing, 'json-card': $result().dataModel === DataModel.DOCUMENT}">
+                @if (entityConfig().update && i !== editing) {
+                    <a cButton size="sm" color="secondary" variant="outline"
+                       [routerLink]="[]"
+                       class="edit-card"
+                       (click)="triggerEditing(i)"><i class="cil-pencil"></i></a>
+                }
+                @if (entityConfig().update && i !== editing) {
+                    <a cButton size="sm" color="secondary" variant="outline"
+                       [routerLink]="[]"
+                       class="delete-card"
+                       (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i
+                            [ngClass]="{ 'cil-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
+                }
+                <ul cListGroup flush>
+                    <!-- load MM types first -->
+                    @for (h of $result().header; track h; let j = $index) {
+                        @if ((d1[j] || i === editing) && showFirst( h.dataType )) {
+                            <li cListGroupItem
+                                [ngClass]="{'multimedia': i !== editing}">
+                                @if (i !== editing) {
+                                    @switch (h.dataType) {
+                                        @case ('IMAGE') {
+                                            <img [src]="getFileLink(d1[j])"/>
+                                        }
+                                        @case ('VIDEO') {
+                                            <app-media [src]="getFileLink(d1[j])"
+                                                       [type]="h.dataType"></app-media>
+                                        }
+                                        @case ('AUDIO') {
+                                            <app-media [src]="getFileLink(d1[j])"
+                                                       [type]="h.dataType"></app-media>
+                                        }
+                                    }
+                                }
+                                @if (i === editing) {
+                                    <app-input [header]="h" [showLabel]="true" [value]="updateValues.get(h.name)"
+                                               (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
+                                               [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
+                                }
+                            </li>
+                        }
+                    }
+                    <!-- then load all non-MM data -->
+                    @for (h of $result().header; track h; let j = $index) {
+                        @if ((d1[j] || i === editing) && !showFirst( h.dataType )) {
+                            <li cListGroupItem>
+                                @if (i !== editing) {
+                                    @switch (removeNull( h.dataType )) {
+                                        @case ('FILE') {
+                                            <span class="key">{{ h.name }}:</span>
+                                            <a class="download val" [href]="getFileLink(d1[j])" download><span
+                                                    class="cil-cloud-download"></span></a>
+                                        }
+                                        @case (['JSON', 'DOCUMENT', 'NODE', 'EDGE', 'PATH', 'GRAPH', 'DocumentType'] | multipleSwitch: removeNull( h.dataType )) {
+                                            <ng-container *ngTemplateOutlet="json; context: {d1: d1, h: h, j: j}"></ng-container>
+                                        }
+                                        @case ('ANY') {
+                                            @if (h.name !== '_data') {
+                                                <span class="key">{{ h.name }} </span>
+                                            }
+                                            <app-json-text [text]="d1[j]"></app-json-text>
+                                        }
+                                        @default {
+                                            <span class="key">{{ h.name }}: </span>
+                                            <app-expandable-text [text]="d1[j]"></app-expandable-text>
+                                        }
+                                    }
+                                }
+                                @if (i === editing) {
+                                    @if ($result()?.dataModel === DataModel.RELATIONAL) {
+                                        <app-input
+                                                [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
+                                                (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
+                                                [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
+                                    }
+                                    @if ($result()?.dataModel === DataModel.DOCUMENT) {
+                                        <app-json-editor (validChange)="setJsonValid($event)"
+                                                         [json]="updateValues.get(h.name)"
+                                                         (valueChange)="newUpdateValue(h.name, $event)"></app-json-editor>
+                                    }
+                                }
+                            </li>
+                        }
+                    }
+                    @if (i === editing) {
+                        <li cListGroupItem style="display: flex; justify-content: space-between;">
+                            @if (uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0) {
+                                <c-progress>
+                                    <c-progress-bar
+                                            [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
+                                            variant="striped"
+                                            color="primary"></c-progress-bar>
+                                </c-progress>
+                            }
+                            @if (uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)) {
+                                <c-progress>
+                                    <c-progress-bar
+                                            [animated]="true" [value]="100" color="primary"></c-progress-bar>
+                                </c-progress>
+                            }
+                            @if (uploadProgress === -1) {
+                                <button cButton color="light" size="sm" (click)="stopEditing()">
+                                    cancel
+                                </button>
+                            }
+                            @if (uploadProgress === -1) {
+                                <button cButton color="primary" size="sm" (click)="updateTuple()"
+                                        [disabled]="$result()?.dataModel === DataModel.DOCUMENT && !jsonValid">
+                                    save
+                                </button>
+                            }
+                        </li>
+                    }
+                </ul>
+            </c-card>
+        }
+        @if (entityConfig().create && !showInsertCard) {
+            <div (click)="showInsert()">
+                <button cButton color="primary" class="toggle-insert"><i class="fa fa-plus"></i></button>
+            </div>
+        }
+        @if (entityConfig().create && showInsertCard) {
+            <c-card
+                    [ngClass]="{'json-card': $result()?.dataModel === DataModel.DOCUMENT}">
+                <c-card-header>
+                    Insert Data
+                </c-card-header>
+                <ul cListGroup flush="true">
+                    @for (h of $result().header; track h) {
+                        <li cListGroupItem>
+                            @if ($result()?.dataModel === DataModel.RELATIONAL) {
+                                <app-input
+                                        [header]="h"
+                                        [showLabel]="true" [value]="insertValues.get(h.name)"
+                                        (valueChange)="inputChange(h.name, $event)"
+                                        (enter)="insertTuple()"></app-input>
+                            }
+                            @if ($result()?.dataModel === DataModel.DOCUMENT) {
+                                <app-json-editor (validChange)="setJsonValid($event)"
+                                                 [empty]="true"
+                                                 [json]="insertValues.get(h.name)"
+                                                 (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+                            }
+                        </li>
+                    }
+                    <li cListGroupItem>
+                        @if (editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0) {
+                            <c-progress
+                            >
+                                <c-progress-bar [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress"
+                                                variant="striped"
+                                                color="primary"></c-progress-bar>
+                            </c-progress>
+                        }
+                        @if (editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)) {
+                            <c-progress
+                            >
+                                <c-progress-bar [animated]="true" [value]="100" variant="striped" color="primary"></c-progress-bar>
+                            </c-progress>
+                        }
+                        @if (uploadProgress === -1 || editing !== -1) {
+                            <button cButton color="light" size="sm"
+                                    (click)="showInsertCard = false">cancel
+                            </button>
+                        }
+                        @if (uploadProgress === -1 || editing !== -1) {
+                            <button cButton color="primary" size="sm"
+                                    class="float-right"
+                                    [disabled]="$result()?.dataModel === DataModel.DOCUMENT && !jsonValid"
+                                    (click)="insertTuple()">
+                                save
+                            </button>
+                        }
+                    </li>
+                </ul>
+            </c-card>
+        }
+    </div>
+}
 
-</div>
-
-<c-row class="my-4" *ngIf="$result()">
-    <c-col class="col">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
-            <c-pagination align="center">
-                <li *ngFor="let p of pagination" class="page-item pe-auto" cPageItem
-                    [disabled]="p.disabled" [active]="p.active">
-                    <a cPageLink class="pe-auto page-link"
-                       [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
-                       [routerLink]>{{ p.label }}</a>
-                </li>
-            </c-pagination>
-        </nav>
-    </c-col>
-</c-row>
+@if ($result()) {
+    <c-row class="my-4">
+        <c-col class="col">
+            @if ($result().highestPage > 1) {
+                <nav aria-label="Page navigation" class="float-right">
+                    <c-pagination align="center">
+                        @for (p of pagination; track p.label) {
+                            <li class="page-item pe-auto" cPageItem
+                                [disabled]="p.disabled" [active]="p.active">
+                                <a cPageLink class="pe-auto page-link"
+                                   [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
+                                   [routerLink]>{{ p.label }}</a>
+                            </li>
+                        }
+                    </c-pagination>
+                </nav>
+            }
+        </c-col>
+    </c-row>
+}
 
 <ng-template #json let-h='h' let-d1='d1' let-j='j'>
-    <span *ngIf="$result()?.dataModel !== DataModel.DOCUMENT" class="key">{{ h.name }} </span>
+    @if ($result()?.dataModel !== DataModel.DOCUMENT) {
+        <span class="key">{{ h.name }} </span>
+    }
     <app-json-text [text]="d1[j]"></app-json-text>
 </ng-template>

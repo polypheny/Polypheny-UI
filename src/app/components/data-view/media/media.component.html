@@ -1,11 +1,19 @@
-<div [ngSwitch]="type" [ngStyle]="getStyle()">
-    <img *ngSwitchCase="'IMAGE'" [src]="src"/>
-    <video controls *ngSwitchCase="'VIDEO'" #video id="videoPlyr">
-        <source [src]="src">
-        Your browser does not support the video tag.
-    </video>
-    <audio controls *ngSwitchCase="'AUDIO'" #audio id="audioPlyr">
-        <source [src]="src">
-        Your browser does not support the audio element.
-    </audio>
+<div [ngStyle]="getStyle()">
+    @switch (type) {
+        @case ('IMAGE') {
+            <img [src]="src"/>
+        }
+        @case ('VIDEO') {
+            <video controls #video id="videoPlyr">
+                <source [src]="src">
+                Your browser does not support the video tag.
+            </video>
+        }
+        @case ('AUDIO') {
+            <audio controls #audio id="audioPlyr">
+                <source [src]="src">
+                Your browser does not support the audio element.
+            </audio>
+        }
+    }
 </div>

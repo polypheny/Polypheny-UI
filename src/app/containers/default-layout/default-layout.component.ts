@@ -1,5 +1,5 @@
-import {AfterContentChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {DOCUMENT} from '@angular/common';
+import {AfterContentChecked, ChangeDetectorRef, Component, DOCUMENT, Inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+
 import {navItems} from '../../_nav';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {InformationService} from '../../services/information.service';

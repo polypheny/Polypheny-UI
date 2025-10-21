@@ -1,63 +1,71 @@
 <h1>{{ namespace()?.name }}</h1>
-<table cTable [hover]="true" [striped]="true" *ngIf="tables() && tables().length > 0" class="mb-5">
-    <thead>
-    <tr>
-        <th>Table</th>
-        <th></th> <!--Details-->
-        <th>Truncate</th>
-        <th>Drop</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let table of tables(); let i = index" [ngClass]="{'table-warning':table.export}"
-        [class.editing]="table.editing">
-        <td>
-            <span *ngIf="!table.editing">
-              {{ table.name }}
-                <i class="cil-pencil show-on-hover ms-2" (click)="table.editing = !table.editing"></i>
-            </span>
-
-            <c-input-group sizing="sm" *ngIf="table.editing" style="max-width: 200px" [class.editings]="table.editing" #editing>
-                <input cFormControl type="text" placeholder="newName"
-                       [(ngModel)]="table.newName" autofocus (keyup.enter)="rename(table)"
-                       (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
-                       [class.editings]="table.editing">
-
-                <button cButton color="primary" size="sm" [disabled]="!canRename(table)"
-                        (click)="rename(table)" [class.editings]="table.editing">rename
-                </button>
-            </c-input-group>
-        </td>
-        <td>
-            <button cButton color="secondary" size="sm" class="show-on-hover" (click)="openDetails(table)">
-                Details
-            </button>
-        </td>
-        <td>
-            <c-input-group class="confirm-group" sizing="sm" *ngIf="table.modifiable">
-                <input cFormControl type="text" placeholder="truncate {{table.name}}"
-                       [(ngModel)]="table.truncate" (keyup.enter)="sendDropTruncateRequest('truncate', table)">
-
-                <button cButton color="primary" size="sm" [ngClass]="isDropTruncateEnabled('truncate', table) ? 'btn-danger' : 'btn-secondary'"
-                        [disabled]="!isDropTruncateEnabled('truncate', table)"
-                        (click)="sendDropTruncateRequest('truncate', table)">truncate
-                </button>
-            </c-input-group>
-        </td>
-        <td>
-            <c-input-group sizing="sm" class="confirm-group" *ngIf="table.tableType !== 'SOURCE'">
-                <input cFormControl type="text" placeholder="drop {{table.name}}"
-                       [(ngModel)]="table.drop" (keyup.enter)="sendDropTruncateRequest('drop', table)">
-
-                <button cButton size="sm" [ngClass]="isDropTruncateEnabled('drop', table) ? 'btn-danger' : 'btn-secondary'"
-                        [disabled]="!isDropTruncateEnabled('drop', table)"
-                        (click)="sendDropTruncateRequest('drop', table)">drop
-                </button>
-            </c-input-group>
-        </td>
-    </tr>
-    </tbody>
-</table>
+@if (tables() && tables().length > 0) {
+    <table cTable [hover]="true" [striped]="true" class="mb-5">
+        <thead>
+        <tr>
+            <th>Table</th>
+            <th></th> <!--Details-->
+            <th>Truncate</th>
+            <th>Drop</th>
+        </tr>
+        </thead>
+        <tbody>
+            @for (table of tables(); track table; let i = $index) {
+                <tr [ngClass]="{'table-warning':table.export}"
+                    [class.editing]="table.editing">
+                    <td>
+                        @if (!table.editing) {
+                            <span>
+                {{ table.name }}
+                                <i class="cil-pencil show-on-hover ms-2" (click)="table.editing = !table.editing"></i>
+              </span>
+                        }
+                        @if (table.editing) {
+                            <c-input-group sizing="sm" style="max-width: 200px" [class.editings]="table.editing" #editing>
+                                <input cFormControl type="text" placeholder="newName"
+                                       [(ngModel)]="table.newName" autofocus (keyup.enter)="rename(table)"
+                                       (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
+                                       [class.editings]="table.editing">
+                                <button cButton color="primary" size="sm" [disabled]="!canRename(table)"
+                                        (click)="rename(table)" [class.editings]="table.editing">rename
+                                </button>
+                            </c-input-group>
+                        }
+                    </td>
+                    <td>
+                        <button cButton color="secondary" size="sm" class="show-on-hover" (click)="openDetails(table)">
+                            Details
+                        </button>
+                    </td>
+                    <td>
+                        @if (table.modifiable) {
+                            <c-input-group class="confirm-group" sizing="sm">
+                                <input cFormControl type="text" placeholder="truncate {{table.name}}"
+                                       [(ngModel)]="table.truncate" (keyup.enter)="sendDropTruncateRequest('truncate', table)">
+                                <button cButton color="primary" size="sm" [ngClass]="isDropTruncateEnabled('truncate', table) ? 'btn-danger' : 'btn-secondary'"
+                                        [disabled]="!isDropTruncateEnabled('truncate', table)"
+                                        (click)="sendDropTruncateRequest('truncate', table)">truncate
+                                </button>
+                            </c-input-group>
+                        }
+                    </td>
+                    <td>
+                        @if (table.tableType !== 'SOURCE') {
+                            <c-input-group sizing="sm" class="confirm-group">
+                                <input cFormControl type="text" placeholder="drop {{table.name}}"
+                                       [(ngModel)]="table.drop" (keyup.enter)="sendDropTruncateRequest('drop', table)">
+                                <button cButton size="sm" [ngClass]="isDropTruncateEnabled('drop', table) ? 'btn-danger' : 'btn-secondary'"
+                                        [disabled]="!isDropTruncateEnabled('drop', table)"
+                                        (click)="sendDropTruncateRequest('drop', table)">drop
+                                </button>
+                            </c-input-group>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 <br>
 
@@ -79,93 +87,104 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let col of newColumns | keyvalue; let i=index">
-                <td>
-                    <input type="text" class="form-control form-control-sm" placeholder="column name"
-                           [(ngModel)]="col.value.name" #columnName
-                           [ngClass]="columnValidation(columnName.value, col.value.name)" [tabIndex]="i+1">
-                </td>
-                <td class="align-middle">
-                    <input cFormCheckInput type="checkbox" id="check-primary-{{col.key}}"
-                           [(ngModel)]="col.value.primary">
-                </td>
-                <td class="align-middle">
-                    <input cFormCheckInput type="checkbox" id="check-nullable-{{col.key}}"
-                           [(ngModel)]="col.value.nullable">
-                </td>
-                <td>
-                    <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
-                        <option *ngFor="let t of types" [ngValue]="t.name">{{ t.name }}</option>
-                    </select>
-                </td>
-                <td>
-                    <select name="collection_type" id="collection_type" class="form-control form-control-sm editing"
-                            [(ngModel)]="col.value.collectionsType">
-                        <option value="">none</option>
-                        <option value="ARRAY">ARRAY</option>
-                    </select>
-                </td>
-                <td class="data-type-parameters">
-                    <!-- precision -->
-                    <c-input-group class="mb-1" sizing="sm" *ngIf="_types.supportsPrecision(col.value.dataType)">
-                        <span cInputGroupText>{{ _types.precisionPlaceholder( col.value.dataType ) }}</span>
-                        <input cFormControl sizing="sm" [id]="'precision'+i" type="number"
-                               [placeholder]="_types.precisionPlaceholder(col.value.dataType)"
-                               [(ngModel)]="col.value.precision">
-                    </c-input-group>
-                    <!-- scale -->
-                    <c-input-group class="mt-1" sizing="sm" *ngIf="_types.supportsScale(col.value.dataType)">
-                        <span cInputGroupText>scale</span>
-                        <input [id]="'scale'+i" type="number" placeholder="scale"
-                               [(ngModel)]="col.value.scale" cFormControl>
-                    </c-input-group>
-                    <!-- dimension -->
-                    <c-input-group sizing="sm" *ngIf="col.value.collectionsType === 'ARRAY'">
-                        <span cInputGroupText>dimension</span>
-                        <input cFormControl [id]="'dim'+i" type="number" placeholder="dimension"
-                               [(ngModel)]="col.value.dimension">
-                    </c-input-group>
-                    <!-- cardinality -->
-                    <c-input-group sizing="sm" class="mt-1" *ngIf="col.value.collectionsType === 'ARRAY'">
-                        <span cInputGroupText>cardinality</span>
-                        <input [id]="'card'+i" type="number" placeholder="dimension"
-                               cFormControl [(ngModel)]="col.value.cardinality">
-                    </c-input-group>
-                </td>
-                <td>
-                    <c-input-group sizing="sm">
-                        @if (col.value.dataType) {
-                            @if (_types.numericTypes().includes( col.value.dataType.toLowerCase() ) && col.value.collectionsType !== 'ARRAY') {
-                                <input cFormControl [id]="'default'+col.value.name"
-                                       type="number" placeholder="default value"
-                                       [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
-
-                            } @else if (_types.booleanTypes().includes( col.value.dataType.toLowerCase() )) {
-                                <select cSelect [id]="'default'+col.value.name" [(ngModel)]="col.value.defaultValue"
-                                        [disabled]="col.value.defaultValue === null">
-                                    <option [ngValue]=null>{{ "default value" }}</option>
-                                    <option [ngValue]=true>{{ "true" }}</option>
-                                    <option [ngValue]=false>{{ "false" }}</option>
-                                </select>
-                            } @else {
-                                <input type="text" placeholder="default value"
-                                       cFormControl
-                                       [(ngModel)]="col.value.defaultValue"
-                                       [disabled]="col.value.defaultValue === null">
+                @for (col of newColumns | keyvalue; track col; let i = $index) {
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" placeholder="column name"
+                                   [(ngModel)]="col.value.name" #columnName
+                                   [ngClass]="columnValidation(columnName.value, col.value.name)" [tabIndex]="i+1">
+                        </td>
+                        <td class="align-middle">
+                            <input cFormCheckInput type="checkbox" id="check-primary-{{col.key}}"
+                                   [(ngModel)]="col.value.primary">
+                        </td>
+                        <td class="align-middle">
+                            <input cFormCheckInput type="checkbox" id="check-nullable-{{col.key}}"
+                                   [(ngModel)]="col.value.nullable">
+                        </td>
+                        <td>
+                            <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
+                                @for (t of types; track t.name) {
+                                    <option [ngValue]="t.name">{{ t.name }}</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select name="collection_type" id="collection_type" class="form-control form-control-sm editing"
+                                    [(ngModel)]="col.value.collectionsType">
+                                <option value="">none</option>
+                                <option value="ARRAY">ARRAY</option>
+                            </select>
+                        </td>
+                        <td class="data-type-parameters">
+                            <!-- precision -->
+                            @if (_types.supportsPrecision( col.value.dataType )) {
+                                <c-input-group class="mb-1" sizing="sm">
+                                    <span cInputGroupText>{{ _types.precisionPlaceholder( col.value.dataType ) }}</span>
+                                    <input cFormControl sizing="sm" [id]="'precision'+i" type="number"
+                                           [placeholder]="_types.precisionPlaceholder(col.value.dataType)"
+                                           [(ngModel)]="col.value.precision">
+                                </c-input-group>
                             }
-                        }
-                        <button class="btn btn-sm" cButton
-                                [ngClass]="{'btn-primary': col.value.defaultValue === null, 'btn-light': col.value.defaultValue !== null}"
-                                (click)="triggerDefaultNull( col.value )">null
-                        </button>
-                    </c-input-group>
-                </td>
-                <td>
-                    <div class="pt-1">
-                        <app-delete-confirm (delete)="removeNewColumn(col.key)"></app-delete-confirm>
-                    </div>
-                </td>
-            </tr>
+                            <!-- scale -->
+                            @if (_types.supportsScale( col.value.dataType )) {
+                                <c-input-group class="mt-1" sizing="sm">
+                                    <span cInputGroupText>scale</span>
+                                    <input [id]="'scale'+i" type="number" placeholder="scale"
+                                           [(ngModel)]="col.value.scale" cFormControl>
+                                </c-input-group>
+                            }
+                            <!-- dimension -->
+                            @if (col.value.collectionsType === 'ARRAY') {
+                                <c-input-group sizing="sm">
+                                    <span cInputGroupText>dimension</span>
+                                    <input cFormControl [id]="'dim'+i" type="number" placeholder="dimension"
+                                           [(ngModel)]="col.value.dimension">
+                                </c-input-group>
+                            }
+                            <!-- cardinality -->
+                            @if (col.value.collectionsType === 'ARRAY') {
+                                <c-input-group sizing="sm" class="mt-1">
+                                    <span cInputGroupText>cardinality</span>
+                                    <input [id]="'card'+i" type="number" placeholder="dimension"
+                                           cFormControl [(ngModel)]="col.value.cardinality">
+                                </c-input-group>
+                            }
+                        </td>
+                        <td>
+                            <c-input-group sizing="sm">
+                                @if (col.value.dataType) {
+                                    @if (_types.numericTypes().includes( col.value.dataType.toLowerCase() ) && col.value.collectionsType !== 'ARRAY') {
+                                        <input cFormControl [id]="'default'+col.value.name"
+                                               type="number" placeholder="default value"
+                                               [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+                                    } @else if (_types.booleanTypes().includes( col.value.dataType.toLowerCase() )) {
+                                        <select cSelect [id]="'default'+col.value.name" [(ngModel)]="col.value.defaultValue"
+                                                [disabled]="col.value.defaultValue === null">
+                                            <option [ngValue]=null>{{ "default value" }}</option>
+                                            <option [ngValue]=true>{{ "true" }}</option>
+                                            <option [ngValue]=false>{{ "false" }}</option>
+                                        </select>
+                                    } @else {
+                                        <input type="text" placeholder="default value"
+                                               cFormControl
+                                               [(ngModel)]="col.value.defaultValue"
+                                               [disabled]="col.value.defaultValue === null">
+                                    }
+                                }
+                                <button class="btn btn-sm" cButton
+                                        [ngClass]="{'btn-primary': col.value.defaultValue === null, 'btn-light': col.value.defaultValue !== null}"
+                                        (click)="triggerDefaultNull( col.value )">null
+                                </button>
+                            </c-input-group>
+                        </td>
+                        <td>
+                            <div class="pt-1">
+                                <app-delete-confirm (delete)="removeNewColumn(col.key)"></app-delete-confirm>
+                            </div>
+                        </td>
+                    </tr>
+                }
             <tr>
                 <td colspan="3">
                     <button size="sm" class="btn btn-light" (click)="addNewColumn()">Add Column</button>
@@ -178,19 +197,23 @@
                                 {{ selectedStore ? selectedStore.name : 'Store' }}
                             </button>
                             <ul cDropdownMenu>
-                                <ng-container *ngIf="stores()?.length > 0">
+                                @if (stores()?.length > 0) {
                                     <li role="menuitem">
                                         <a class="dropdown-item"
                                            (click)="selectedStore = null">auto</a>
                                     </li>
                                     <li class="dropdown-divider"></li>
-                                    <li role="menuitem" *ngFor="let store of stores()">
-                                        <a class="dropdown-item" [routerLink]="[]"
-                                           (click)="selectedStore = store">{{ store.name }}</a>
-                                    </li>
-                                </ng-container>
-                                <li *ngIf="stores()?.length === 0" role="menuitem">
-                                    <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
+                                    @for (store of stores(); track store.id) {
+                                        <li role="menuitem">
+                                            <a class="dropdown-item" [routerLink]="[]"
+                                               (click)="selectedStore = store">{{ store.name }}</a>
+                                        </li>
+                                    }
+                                }
+                                @if (stores()?.length === 0) {
+                                    <li role="menuitem">
+                                        <a class="dropdown-item disabled" [routerLink]="[]">no stores available</a></li>
+                                }
                             </ul>
                         </c-dropdown>
 

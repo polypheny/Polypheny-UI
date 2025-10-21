@@ -1,14 +1,17 @@
-<ng-container [ngSwitch]="data.simpleType()">
-    <label for="selectFunction" *ngIf="data.name"><strong>{{data.name}}</strong></label>
-
-    <ng-container *ngSwitchCase="SimpleType.SIMPLE_AGG">
+@if (data.name) {
+    <label for="selectFunction"><strong>{{ data.name }}</strong></label>
+}
+@switch (data.simpleType()) {
+    @case (SimpleType.SIMPLE_AGG) {
         <c-input-group sizing="sm" class="mb-1">
             <label cInputGroupText for="simpleSelectFunction">
                 Function
             </label>
             <select cSelect id="simpleSelectFunction" [(ngModel)]="data.value.function" (pointerdown)="$event.stopPropagation()"
                     [disabled]="data.isReadOnly">
-                <option *ngFor="let choice of fChoicesSimple" [value]="choice">{{ choice }}</option>
+                @for (choice of fChoicesSimple; track choice) {
+                    <option [value]="choice">{{ choice }}</option>
+                }
             </select>
         </c-input-group>
 
@@ -19,17 +22,17 @@
                    class="form-control form-control-sm" [(ngModel)]="data.argsStr">
         </c-input-group>
 
-    </ng-container>
-
-    <ng-container *ngSwitchDefault>
-
+    }
+    @default {
         <c-input-group sizing="sm" class="mb-1">
             <label cInputGroupText for="selectFunction">
                 Function
             </label>
             <select cSelect id="selectFunction" [(ngModel)]="data.value.function" (pointerdown)="$event.stopPropagation()"
                     [disabled]="data.isReadOnly">
-                <option *ngFor="let choice of fChoices" [value]="choice">{{ choice }}</option>
+                @for (choice of fChoices; track choice) {
+                    <option [value]="choice">{{ choice }}</option>
+                }
             </select>
         </c-input-group>
 
@@ -61,14 +64,12 @@
                    autocomplete="off" [readonly]="data.isReadOnly" placeholder="Field"
                    class="form-control form-control-sm" [(ngModel)]="data.value.filter">
         </c-input-group>
+    }
+}
 
-    </ng-container>
-
-    <c-input-group sizing="sm" class="mb-1">
-        <span cInputGroupText class="p-1">Alias</span>
-        <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
-               autocomplete="off" [readonly]="data.isReadOnly" placeholder="alias"
-               class="form-control form-control-sm" [(ngModel)]="data.value.alias">
-    </c-input-group>
-
-</ng-container>
+<c-input-group sizing="sm" class="mb-1">
+    <span cInputGroupText class="p-1">Alias</span>
+    <input type="text" id="alias" name="alias" (pointerdown)="$event.stopPropagation()"
+           autocomplete="off" [readonly]="data.isReadOnly" placeholder="alias"
+           class="form-control form-control-sm" [(ngModel)]="data.value.alias">
+</c-input-group>

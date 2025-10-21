@@ -1,28 +1,38 @@
 <div>
-    <button cButton color="primary" *ngIf="!hasFiles()" (click)="file.click()">Select Local Plugins</button>
+    @if (!hasFiles()) {
+        <button cButton color="primary" (click)="file.click()">Select Local Plugins</button>
+    }
 
-    <div *ngIf="hasFiles()" class="card-deck">
-        <c-card>
-            <div *ngFor="let file of files" class="plugin-files m-1 ms-2">
-                <p>{{file.name}}</p>
-                <i class="cil-trash del ms-1" (click)="removeFile(file)"></i>
-            </div>
-        </c-card>
-    </div>
+    @if (hasFiles()) {
+        <div class="card-deck">
+            <c-card>
+                @for (file of files; track file) {
+                    <div class="plugin-files m-1 ms-2">
+                        <p>{{ file.name }}</p>
+                        <i class="cil-trash del ms-1" (click)="removeFile(file)"></i>
+                    </div>
+                }
+            </c-card>
+        </div>
+    }
 
 
-    <button cButton variant="outline" color="primary" class="bg-white" *ngIf="hasFiles() && !isLoading" (click)="loadPlugins()">Load
-        Plugins
-    </button>
+    @if (hasFiles() && !isLoading) {
+        <button cButton variant="outline" color="primary" class="bg-white" (click)="loadPlugins()">Load
+            Plugins
+        </button>
+    }
     <input #file
            type="file"
            multiple
            class="d-none h-0"
            (change)="onFileSelected($event)"
            accept=".zip,.jar"/>
-    <div class="bg-primary d-inline-block rounded p-1" *ngIf="this.isLoading">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden d-none">Loading...</span>
+    @if (this.isLoading) {
+        <div class="bg-primary d-inline-block rounded p-1">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden d-none">Loading...</span>
+            </div>
         </div>
-    </div>
+    }
 </div>

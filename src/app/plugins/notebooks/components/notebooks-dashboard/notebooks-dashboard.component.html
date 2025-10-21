@@ -1,102 +1,111 @@
 <div class="pb-3">
     <h1>Notebooks</h1>
     <br>
-    <c-row *ngIf="pluginLoaded; else pluginOffline" [gutter]="4">
-        <div class="col-xl-4 fixed-width">
-            <c-card>
-                <c-card-header>
-                    <span class="mb-0">Jupyter Server
-                        @if (connectedInstance) {
-                            ({{ connectedInstance.host.alias }})
+    @if (pluginLoaded) {
+        <c-row [gutter]="4">
+            <div class="col-xl-4 fixed-width">
+                <c-card>
+                    <c-card-header>
+              <span class="mb-0">Jupyter Server
+                  @if (connectedInstance) {
+                      ({{ connectedInstance.host.alias }})
+                  }
+              </span>
+                    </c-card-header>
+                    <c-card-body>
+                        <h5>{{ serverStatus ? 'Online' : 'Offline' }}</h5>
+                        @if (serverStatus) {
+                            <p>Started: {{ serverStatus.started | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
+                            <p>Last Activity: {{ serverStatus.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
                         }
-                    </span>
-                </c-card-header>
-                <c-card-body>
-                    <h5>{{ serverStatus ? 'Online' : 'Offline' }}</h5>
-                    <ng-container *ngIf="serverStatus">
-                        <p>Started: {{ serverStatus.started | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
-                        <p>Last Activity: {{ serverStatus.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
-                    </ng-container>
-                </c-card-body>
-
-                <c-card-footer class="bg-transparent">
-                    <div class="d-flex gap-1 flex-wrap">
-                        <button cButton color="danger" *ngIf="serverStatus" class="pull-right"
-                                (click)="destroyContainerModal.visible = true">
-                            <svg [cIcon]="icons.cilTrash" title="List Icon"></svg>
-                            Destroy
-                        </button>
-                        <button cButton color="danger" *ngIf="serverStatus" class="pull-right me-2"
-                                (click)="restartContainerModal.visible = true">
-                            <svg [cIcon]="icons.cilReload" title="List Icon"></svg>
-                            Restart
-                        </button>
-                        <button cButton color="success" *ngIf="!serverStatus" class="pull-right me-2"
-                                (click)="startContainerModal.visible = true">
-                            <svg [cIcon]="icons.cilMediaPlay" title="List Icon"></svg>
-                            Start
-                        </button>
-                    </div>
-                </c-card-footer>
-            </c-card>
-        </div>
-        <div class="col-lg-auto fixed-width" *ngIf="serverStatus">
-            <c-card>
-                <c-card-header>
-                    <span class="mb-0">Kernels</span>
-                </c-card-header>
-                <c-card-body>
-                    <h5 *ngIf="sessions.length === 0; else hasRunningKernels">No Kernel Running</h5>
-                    <ng-template #hasRunningKernels>
-                        <h5>Running Kernels ({{ sessions.length }})</h5>
-
-                        <table class="table table-hover table-striped">
-
-                            <thead>
-                            <tr>
-                                <th>Notebook</th>
-                                <th>Kernel</th>
-                                <th>Last Activity</th>
-                                <th>Status</th>
-                                <th>Connections</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr *ngFor="let session of sessions; index as i">
-                                <td>{{ notebookPaths[i] }}</td>
-                                <td>{{ session.kernel.name }}</td>
-                                <td>{{ session.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</td>
-                                <td>{{ session.kernel.execution_state }}</td>
-                                <td>{{ session.kernel.connections }}</td>
-                                <th></th>
-                            </tr>
-                            </tbody>
-
-                        </table>
-                    </ng-template>
-                </c-card-body>
-
-                <c-card-footer class="bg-transparent">
-                    <div class="pull-right">
-                        <button cButton color="danger" variant="outline" class="me-2" *ngIf="hasUnusedSessions"
-                                (click)="terminateUnusedSessionsModal.visible = true">
-                            Shut Down Unused
-                        </button>
-                        <button cButton color="danger" [disabled]="sessions.length === 0"
-                                (click)="terminateSessionsModal.visible = true">
-                            Shut Down All
-                        </button>
-                    </div>
-                </c-card-footer>
-            </c-card>
-        </div>
-    </c-row>
+                    </c-card-body>
+                    <c-card-footer class="bg-transparent">
+                        <div class="d-flex gap-1 flex-wrap">
+                            @if (serverStatus) {
+                                <button cButton color="danger" class="pull-right"
+                                        (click)="destroyContainerModal.visible = true">
+                                    <svg [cIcon]="icons.cilTrash" title="List Icon"></svg>
+                                    Destroy
+                                </button>
+                            }
+                            @if (serverStatus) {
+                                <button cButton color="danger" class="pull-right me-2"
+                                        (click)="restartContainerModal.visible = true">
+                                    <svg [cIcon]="icons.cilReload" title="List Icon"></svg>
+                                    Restart
+                                </button>
+                            }
+                            @if (!serverStatus) {
+                                <button cButton color="success" class="pull-right me-2"
+                                        (click)="startContainerModal.visible = true">
+                                    <svg [cIcon]="icons.cilMediaPlay" title="List Icon"></svg>
+                                    Start
+                                </button>
+                            }
+                        </div>
+                    </c-card-footer>
+                </c-card>
+            </div>
+            @if (serverStatus) {
+                <div class="col-lg-auto fixed-width">
+                    <c-card>
+                        <c-card-header>
+                            <span class="mb-0">Kernels</span>
+                        </c-card-header>
+                        <c-card-body>
+                            @if (sessions.length === 0) {
+                                <h5>No Kernel Running</h5>
+                            } @else {
+                                <h5>Running Kernels ({{ sessions.length }})</h5>
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Notebook</th>
+                                        <th>Kernel</th>
+                                        <th>Last Activity</th>
+                                        <th>Status</th>
+                                        <th>Connections</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (session of sessions; track session.id; let i = $index) {
+                                            <tr>
+                                                <td>{{ notebookPaths[i] }}</td>
+                                                <td>{{ session.kernel.name }}</td>
+                                                <td>{{ session.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</td>
+                                                <td>{{ session.kernel.execution_state }}</td>
+                                                <td>{{ session.kernel.connections }}</td>
+                                                <th></th>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </c-card-body>
+                        <c-card-footer class="bg-transparent">
+                            <div class="pull-right">
+                                @if (hasUnusedSessions) {
+                                    <button cButton color="danger" variant="outline" class="me-2"
+                                            (click)="terminateUnusedSessionsModal.visible = true">
+                                        Shut Down Unused
+                                    </button>
+                                }
+                                <button cButton color="danger" [disabled]="sessions.length === 0"
+                                        (click)="terminateSessionsModal.visible = true">
+                                    Shut Down All
+                                </button>
+                            </div>
+                        </c-card-footer>
+                    </c-card>
+                </div>
+            }
+        </c-row>
+    } @else {
+        <p>The Jupyter Plugin is not loaded. Refresh the page to try again.</p>
+    }
 </div>
 
-<ng-template #pluginOffline>
-    <p>The Jupyter Plugin is not loaded. Refresh the page to try again.</p>
-</ng-template>
 
 <c-modal #terminateSessionsModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="terminateSessionsModal" aria-hidden="true">
@@ -113,8 +122,12 @@
             <button cButton color="secondary" type="button" (click)="terminateSessionsModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="terminateSessions(false)"
                     [disabled]="deleting">
-                <span *ngIf="!deleting">Shut Down All</span>
-                <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!deleting) {
+                    <span>Shut Down All</span>
+                }
+                @if (deleting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
@@ -137,8 +150,12 @@
             </button>
             <button cButton color="danger" type="button" (click)="terminateSessions(true)"
                     [disabled]="deleting">
-                <span *ngIf="!deleting">Shut Down Unused</span>
-                <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!deleting) {
+                    <span>Shut Down Unused</span>
+                }
+                @if (deleting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
@@ -198,22 +215,32 @@
         Select the Docker instance to use:
         <select cSelect name="instanceId" #selectedInstance class="form-control"
                 [disabled]="instances.length === 0">
-            <option *ngIf="instances.length === 0">No instances available</option>
-            <option *ngFor="let instance of instances" [value]="instance.id">{{ instance.host.alias }}</option>
+            @if (instances.length === 0) {
+                <option>No instances available</option>
+            }
+            @for (instance of instances; track instance.id) {
+                <option [value]="instance.id">{{ instance.host.alias }}</option>
+            }
         </select>
-        <div *ngIf="instances.length === 0" class="alert alert-info mt-3">
-            To add a Docker instance go to Config &gt; Docker.
-        </div>
-        <div *ngIf="instances.length > 0" class="alert alert-warning mt-3">
-            The Jupyter image is very large, it might take some time to download.
-        </div>
+        @if (instances.length === 0) {
+            <div class="alert alert-info mt-3">
+                To add a Docker instance go to Config &gt; Docker.
+            </div>
+        }
+        @if (instances.length > 0) {
+            <div class="alert alert-warning mt-3">
+                The Jupyter image is very large, it might take some time to download.
+            </div>
+        }
     </c-modal-body>
     <c-modal-footer>
         <button cButton color="secondary" type="button" (click)="startContainerModal.visible = false">Cancel</button>
         <button cButton color="success" type="button" (click)="createContainer(+(selectedInstance.value))"
                 [disabled]="creating || instances.length === 0">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"
-                  *ngIf="creating"></span>
+            @if (creating) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"
+                ></span>
+            }
             <span>Start</span>
         </button>
     </c-modal-footer>

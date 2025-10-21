@@ -1,330 +1,332 @@
-<c-accordion class="mb-2" *ngIf="mappings()?.length > 0">
-    @for (mapping of mappings(); track $index) {
-        <c-accordion-item #item="cAccordionItem" [visible]="false" class="overflow-visible">
-            <ng-template cTemplateId="accordionHeaderTemplate">
-                <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton class="p-2">
-                    <div class="me-3">
-                        <app-delete-confirm (delete)="deleteMapping($index)" (click)="$event.stopPropagation()"
-                                            *ngIf="isEditable()"></app-delete-confirm>
-                    </div>
-                    Input {{ mapping.inputIdx }} <span class="mx-2 fa fa-long-arrow-right"></span>
-                    @if (mapping.edgeOnly) {
-                        Edge
-                        <ng-container *ngIf="mapping.edge.edgeLabels[0]?.length > 0">({{ mapping.edge.edgeLabels }})</ng-container>
-                    } @else {
-                        Node
-                        <ng-container *ngIf="mapping.nodeLabels[0]?.length > 0">({{ mapping.nodeLabels }})</ng-container>
-                        @if (mapping.edges.length > 0) {
-                            with {{ mapping.edges.length }} Edge{{ mapping.edges.length === 1 ? '' : 's' }}
+@if (mappings()?.length > 0) {
+    <c-accordion class="mb-2">
+        @for (mapping of mappings(); track $index) {
+            <c-accordion-item #item="cAccordionItem" [visible]="false" class="overflow-visible">
+                <ng-template cTemplateId="accordionHeaderTemplate">
+                    <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton class="p-2">
+                        <div class="me-3">
+                            @if (isEditable()) {
+                                <app-delete-confirm (delete)="deleteMapping($index)" (click)="$event.stopPropagation()"
+                                ></app-delete-confirm>
+                            }
+                        </div>
+                        Input {{ mapping.inputIdx }} <span class="mx-2 fa fa-long-arrow-right"></span>
+                        @if (mapping.edgeOnly) {
+                            Edge
+                            @if (mapping.edge.edgeLabels[0]?.length > 0) {
+                                ({{ mapping.edge.edgeLabels }})
+                            }
+                        } @else {
+                            Node
+                            @if (mapping.nodeLabels[0]?.length > 0) {
+                                ({{ mapping.nodeLabels }})
+                            }
+                            @if (mapping.edges.length > 0) {
+                                with {{ mapping.edges.length }} Edge{{ mapping.edges.length === 1 ? '' : 's' }}
+                            }
                         }
-                    }
-                </button>
-            </ng-template>
-            <ng-template cTemplateId="accordionBodyTemplate">
-                <div class="accordion-body">
-                    @if (mapping.edgeOnly) {
-                        <!--Edge only (i.e. join table)-->
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <!--Edge Labels-->
-                            @if (mapping.edge.dynamicEdgeLabels) {
+                    </button>
+                </ng-template>
+                <ng-template cTemplateId="accordionBodyTemplate">
+                    <div class="accordion-body">
+                        @if (mapping.edgeOnly) {
+                            <!--Edge only (i.e. join table)-->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <!--Edge Labels-->
+                                @if (mapping.edge.dynamicEdgeLabels) {
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="suggestions()[mapping.inputIdx]"
+                                                      [value]="mapping.edge.edgeLabels[0] || ''" (valueChange)="mapping.edge.edgeLabels[0] = $event"
+                                                      [placeholder]="'labelField'"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                } @else {
+                                    <input cFormControl sizing="sm" id="edge-labels" placeholder="LABEL1,LABEL2,..."
+                                           type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
+                                           [ngModel]="mapping.edge.edgeLabels.join(',')" (ngModelChange)="mapping.edge.edgeLabels = $event.split(',')">
+                                }
+                                <c-form-check [switch]="true" class="ms-2">
+                                    <input cFormCheckInput type="checkbox" [(ngModel)]="mapping.edge.dynamicEdgeLabels"
+                                           id="dynamic-edge-label" (change)="valueChanged()" [disabled]="!isEditable()">
+                                    <label cFormCheckLabel for="dynamic-edge-label" class="text-nowrap">Dynamic Label</label>
+                                </c-form-check>
+                            </div>
+                            <!--direction-->
+                            <c-form-check [switch]="true" class="mb-3">
+                                <input cFormCheckInput type="checkbox" [(ngModel)]="mapping.edge.invertDirection"
+                                       id="invert-direction" (change)="valueChanged()" [disabled]="!isEditable()">
+                                <label cFormCheckLabel for="invert-direction" class="text-nowrap">Invert Direction</label>
+                            </c-form-check>
+                            <!--left target-->
+                            <h6>Source Node</h6>
+                            <div class="mb-1">
                                 <app-autocomplete (changed)="valueChanged()"
                                                   [data]="suggestions()[mapping.inputIdx]"
-                                                  [value]="mapping.edge.edgeLabels[0] || ''" (valueChange)="mapping.edge.edgeLabels[0] = $event"
-                                                  [placeholder]="'labelField'"
+                                                  [(value)]="mapping.edge.leftField"
+                                                  [placeholder]="'thisJoinField'"
                                                   [disabled]="!isEditable()">
                                 </app-autocomplete>
+                            </div>
+                            <c-input-group class="mb-1" sizing="sm">
+                                <span cInputGroupText>Input Index</span>
+                                <select cSelect id="source-index" [disabled]="!isEditable()" (change)="valueChanged()"
+                                        [ngModel]="mapping.edge.leftTargetIdx" (ngModelChange)="mapping.edge.leftTargetIdx = parseInt($event, 10)">
+                                    @if (def().canExtendGraph) {
+                                        <option [value]="-1">Existing Graph</option>
+                                    }
+                                    @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
+                                        <option [value]="targetIdx">{{ targetIdx }}</option>
+                                    }
+                                </select>
+                            </c-input-group>
+                            @if (mapping.edge.leftTargetIdx === -1) {
+                                <div class="d-flex align-items-center">
+                                    <div class="me-1 flex-grow-1">
+                                        <app-autocomplete (changed)="valueChanged()"
+                                                          [data]="graphLabels()"
+                                                          [value]="getLabel(mapping.edge.leftTargetField)"
+                                                          (valueChange)="mapping.edge.leftTargetField = replaceLabel(mapping.edge.leftTargetField, $event)"
+                                                          placeholder="label"
+                                                          [disabled]="!isEditable()">
+                                        </app-autocomplete>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <app-autocomplete (changed)="valueChanged()"
+                                                          [data]="graphProps()"
+                                                          [value]="getProperty(mapping.edge.leftTargetField)"
+                                                          (valueChange)="mapping.edge.leftTargetField = replaceProperty(mapping.edge.leftTargetField, $event)"
+                                                          placeholder="property"
+                                                          [disabled]="!isEditable()">
+                                        </app-autocomplete>
+                                    </div>
+                                </div>
                             } @else {
-                                <input cFormControl sizing="sm" id="edge-labels" placeholder="LABEL1,LABEL2,..."
-                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
-                                       [ngModel]="mapping.edge.edgeLabels.join(',')" (ngModelChange)="mapping.edge.edgeLabels = $event.split(',')">
+                                <app-autocomplete (changed)="valueChanged()"
+                                                  [data]="suggestions()[mapping.edge.leftTargetIdx] || []"
+                                                  [(value)]="mapping.edge.leftTargetField"
+                                                  placeholder="otherJoinField"
+                                                  [disabled]="!isEditable()">
+                                </app-autocomplete>
                             }
-
-                            <c-form-check [switch]="true" class="ms-2">
-                                <input cFormCheckInput type="checkbox" [(ngModel)]="mapping.edge.dynamicEdgeLabels"
-                                       id="dynamic-edge-label" (change)="valueChanged()" [disabled]="!isEditable()">
-                                <label cFormCheckLabel for="dynamic-edge-label" class="text-nowrap">Dynamic Label</label>
-                            </c-form-check>
-                        </div>
-
-                        <!--direction-->
-                        <c-form-check [switch]="true" class="mb-3">
-                            <input cFormCheckInput type="checkbox" [(ngModel)]="mapping.edge.invertDirection"
-                                   id="invert-direction" (change)="valueChanged()" [disabled]="!isEditable()">
-                            <label cFormCheckLabel for="invert-direction" class="text-nowrap">Invert Direction</label>
-                        </c-form-check>
-
-                        <!--left target-->
-                        <h6>Source Node</h6>
-                        <div class="mb-1">
-                            <app-autocomplete (changed)="valueChanged()"
-                                              [data]="suggestions()[mapping.inputIdx]"
-                                              [(value)]="mapping.edge.leftField"
-                                              [placeholder]="'thisJoinField'"
-                                              [disabled]="!isEditable()">
-                            </app-autocomplete>
-                        </div>
-
-                        <c-input-group class="mb-1" sizing="sm">
-                            <span cInputGroupText>Input Index</span>
-                            <select cSelect id="source-index" [disabled]="!isEditable()" (change)="valueChanged()"
-                                    [ngModel]="mapping.edge.leftTargetIdx" (ngModelChange)="mapping.edge.leftTargetIdx = parseInt($event, 10)">
-                                <option [value]="-1" *ngIf="def().canExtendGraph">Existing Graph</option>
-                                @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
-                                    <option [value]="targetIdx">{{ targetIdx }}</option>
-                                }
-                            </select>
-                        </c-input-group>
-
-                        @if (mapping.edge.leftTargetIdx === -1) {
-                            <div class="d-flex align-items-center">
-                                <div class="me-1 flex-grow-1">
-                                    <app-autocomplete (changed)="valueChanged()"
-                                                      [data]="graphLabels()"
-                                                      [value]="getLabel(mapping.edge.leftTargetField)"
-                                                      (valueChange)="mapping.edge.leftTargetField = replaceLabel(mapping.edge.leftTargetField, $event)"
-                                                      placeholder="label"
-                                                      [disabled]="!isEditable()">
-                                    </app-autocomplete>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <app-autocomplete (changed)="valueChanged()"
-                                                      [data]="graphProps()"
-                                                      [value]="getProperty(mapping.edge.leftTargetField)"
-                                                      (valueChange)="mapping.edge.leftTargetField = replaceProperty(mapping.edge.leftTargetField, $event)"
-                                                      placeholder="property"
-                                                      [disabled]="!isEditable()">
-                                    </app-autocomplete>
-                                </div>
-                            </div>
-                        } @else {
-                            <app-autocomplete (changed)="valueChanged()"
-                                              [data]="suggestions()[mapping.edge.leftTargetIdx] || []"
-                                              [(value)]="mapping.edge.leftTargetField"
-                                              placeholder="otherJoinField"
-                                              [disabled]="!isEditable()">
-                            </app-autocomplete>
-                        }
-
-                        <!--right target-->
-                        <h6 class="mt-3">Target Node</h6>
-                        <div class="mb-1">
-                            <app-autocomplete (changed)="valueChanged()"
-                                              [data]="suggestions()[mapping.inputIdx]"
-                                              [(value)]="mapping.edge.rightField"
-                                              [placeholder]="'thisJoinField'"
-                                              [disabled]="!isEditable()">
-                            </app-autocomplete>
-                        </div>
-
-                        <c-input-group class="mb-1" sizing="sm">
-                            <span cInputGroupText>Input Index</span>
-                            <select cSelect id="target-index" [disabled]="!isEditable()" (change)="valueChanged()"
-                                    [ngModel]="mapping.edge.rightTargetIdx" (ngModelChange)="mapping.edge.rightTargetIdx = parseInt($event, 10)">
-                                <option [value]="-1" *ngIf="def().canExtendGraph">Existing Graph</option>
-                                @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
-                                    <option [value]="targetIdx">{{ targetIdx }}</option>
-                                }
-                            </select>
-                        </c-input-group>
-
-                        @if (mapping.edge.rightTargetIdx === -1) {
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="flex-grow-1 me-1">
-                                    <app-autocomplete (changed)="valueChanged()"
-                                                      [data]="graphLabels()"
-                                                      [value]="getLabel(mapping.edge.rightTargetField)"
-                                                      (valueChange)="mapping.edge.rightTargetField = replaceLabel(mapping.edge.rightTargetField, $event)"
-                                                      placeholder="label"
-                                                      [disabled]="!isEditable()">
-                                    </app-autocomplete>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <app-autocomplete (changed)="valueChanged()"
-                                                      [data]="graphProps()"
-                                                      [value]="getProperty(mapping.edge.rightTargetField)"
-                                                      (valueChange)="mapping.edge.rightTargetField = replaceProperty(mapping.edge.rightTargetField, $event)"
-                                                      placeholder="property"
-                                                      [disabled]="!isEditable()">
-                                    </app-autocomplete>
-                                </div>
-                            </div>
-                        } @else {
-                            <app-autocomplete (changed)="valueChanged()"
-                                              [data]="suggestions()[mapping.edge.rightTargetIdx] || []"
-                                              [(value)]="mapping.edge.rightTargetField"
-                                              placeholder="otherJoinField"
-                                              [disabled]="!isEditable()">
-                            </app-autocomplete>
-                        }
-
-
-                    } @else {
-                        <!--Node with Edges-->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            @if (mapping.dynamicNodeLabels) {
+                            <!--right target-->
+                            <h6 class="mt-3">Target Node</h6>
+                            <div class="mb-1">
                                 <app-autocomplete (changed)="valueChanged()"
                                                   [data]="suggestions()[mapping.inputIdx]"
-                                                  [value]="mapping.nodeLabels[0] || ''" (valueChange)="mapping.nodeLabels[0] = $event"
-                                                  [placeholder]="'labelField'"
+                                                  [(value)]="mapping.edge.rightField"
+                                                  [placeholder]="'thisJoinField'"
                                                   [disabled]="!isEditable()">
                                 </app-autocomplete>
+                            </div>
+                            <c-input-group class="mb-1" sizing="sm">
+                                <span cInputGroupText>Input Index</span>
+                                <select cSelect id="target-index" [disabled]="!isEditable()" (change)="valueChanged()"
+                                        [ngModel]="mapping.edge.rightTargetIdx" (ngModelChange)="mapping.edge.rightTargetIdx = parseInt($event, 10)">
+                                    @if (def().canExtendGraph) {
+                                        <option [value]="-1">Existing Graph</option>
+                                    }
+                                    @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
+                                        <option [value]="targetIdx">{{ targetIdx }}</option>
+                                    }
+                                </select>
+                            </c-input-group>
+                            @if (mapping.edge.rightTargetIdx === -1) {
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1 me-1">
+                                        <app-autocomplete (changed)="valueChanged()"
+                                                          [data]="graphLabels()"
+                                                          [value]="getLabel(mapping.edge.rightTargetField)"
+                                                          (valueChange)="mapping.edge.rightTargetField = replaceLabel(mapping.edge.rightTargetField, $event)"
+                                                          placeholder="label"
+                                                          [disabled]="!isEditable()">
+                                        </app-autocomplete>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <app-autocomplete (changed)="valueChanged()"
+                                                          [data]="graphProps()"
+                                                          [value]="getProperty(mapping.edge.rightTargetField)"
+                                                          (valueChange)="mapping.edge.rightTargetField = replaceProperty(mapping.edge.rightTargetField, $event)"
+                                                          placeholder="property"
+                                                          [disabled]="!isEditable()">
+                                        </app-autocomplete>
+                                    </div>
+                                </div>
                             } @else {
-                                <input cFormControl sizing="sm" id="node-labels-{{$index}}" placeholder="label1,label2,..."
-                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
-                                       [ngModel]="mapping.nodeLabels.join(',')" (ngModelChange)="mapping.nodeLabels = $event.split(',')">
+                                <app-autocomplete (changed)="valueChanged()"
+                                                  [data]="suggestions()[mapping.edge.rightTargetIdx] || []"
+                                                  [(value)]="mapping.edge.rightTargetField"
+                                                  placeholder="otherJoinField"
+                                                  [disabled]="!isEditable()">
+                                </app-autocomplete>
                             }
-
-                            <c-form-check [switch]="true" class="ms-2">
-                                <input cFormCheckInput type="checkbox" [(ngModel)]="mapping.dynamicNodeLabels"
-                                       id="dynamic-node-label-{{$index}}" (change)="valueChanged()" [disabled]="!isEditable()">
-                                <label cFormCheckLabel for="dynamic-node-label-{{$index}}" class="text-nowrap">Dynamic Label</label>
-                            </c-form-check>
-                        </div>
-                        <h6>Outgoing Edges</h6>
-                        <c-card class="list-container border border-secondary bg-light mb-2" *ngIf="mapping.edges.length > 0">
-                            <ul cListGroup flush="true">
-                                @for (edge of mapping.edges; track idx; let idx = $index) {
-                                    <li cListGroupItem class="bg-light list-entry border-secondary">
-                                        <c-row gutter=false>
-                                            <c-col [xs]="11">
-                                                <!--Edge Labels-->
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    @if (edge.dynamicEdgeLabels) {
-                                                        <app-autocomplete (changed)="valueChanged()"
-                                                                          [data]="suggestions()[mapping.inputIdx]"
-                                                                          [value]="edge.edgeLabels[0] || ''" (valueChange)="edge.edgeLabels[0] = $event"
-                                                                          [placeholder]="'field'"
-                                                                          [disabled]="!isEditable()">
-                                                        </app-autocomplete>
-                                                    } @else {
-                                                        <input cFormControl sizing="sm" id="edge-labels-{{idx}}" placeholder="LABEL1,LABEL2,..."
-                                                               type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
-                                                               [ngModel]="edge.edgeLabels.join(',')" (ngModelChange)="edge.edgeLabels = $event.split(',')">
-                                                    }
-
-                                                    <c-form-check [switch]="true" class="ms-2">
-                                                        <input cFormCheckInput type="checkbox" [(ngModel)]="edge.dynamicEdgeLabels"
-                                                               id="dynamic-edge-label-{{idx}}" (change)="valueChanged()" [disabled]="!isEditable()">
-                                                        <label cFormCheckLabel for="dynamic-edge-label-{{idx}}" class="text-nowrap">Dynamic Label</label>
-                                                    </c-form-check>
-                                                </div>
-
-                                                <!--Properties-->
-                                                @if (isEditable()) {
-                                                    <angular2-multiselect id="edge-properties-{{idx}}" [data]="fieldsData()[mapping.inputIdx]"
-                                                                          [ngModel]="propertiesData.get(mapping.inputIdx + '_' + idx)" (ngModelChange)="propertyDataChange(edge, $event)"
-                                                                          [settings]="propertiesSettings" (onAddFilterNewItem)="addProperty(edge, $event)">
-                                                        <c-item>
-                                                            <ng-template let-item="item">
-                                                                <span>{{ item.itemName }}</span>
-                                                            </ng-template>
-                                                        </c-item>
-                                                    </angular2-multiselect>
-                                                } @else {
-                                                    <!--[disabled] does not work on angular2-multiselect-->
-                                                    <input cFormControl sizing="sm" type="text" autocomplete="off" [disabled]="true"
-                                                           [ngModel]="edge.propertyFields.join(', ')">
-                                                }
-                                                <!--direction-->
-                                                <c-form-check [switch]="true" class="mb-3">
-                                                    <input cFormCheckInput type="checkbox" [(ngModel)]="edge.invertDirection"
-                                                           id="invert-direction-{{idx}}" (change)="valueChanged()" [disabled]="!isEditable()">
-                                                    <label cFormCheckLabel for="invert-direction-{{idx}}" class="text-nowrap">Invert Direction</label>
-                                                </c-form-check>
-
-                                                <h6>This Node</h6>
-                                                <!--rightField-->
-                                                <div class="mb-3">
-                                                    <app-autocomplete (changed)="valueChanged()"
-                                                                      [data]="suggestions()[mapping.inputIdx]"
-                                                                      [(value)]="edge.rightField"
-                                                                      [placeholder]="'thisJoinField'"
-                                                                      [disabled]="!isEditable()">
-                                                    </app-autocomplete>
-                                                </div>
-
-                                                <!--target-->
-                                                <h6>Other Node</h6>
-                                                <c-input-group class="mb-1" sizing="sm">
-                                                    <span cInputGroupText>Input Index</span>
-                                                    <select cSelect id="target-index-{{idx}}" [disabled]="!isEditable()" (change)="valueChanged()"
-                                                            [ngModel]="edge.rightTargetIdx" (ngModelChange)="edge.rightTargetIdx = parseInt($event, 10)">
-                                                        <option [value]="-1" *ngIf="def().canExtendGraph">Existing Graph</option>
-                                                        @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
-                                                            <option [value]="targetIdx">{{ targetIdx }}</option>
+                        } @else {
+                            <!--Node with Edges-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                @if (mapping.dynamicNodeLabels) {
+                                    <app-autocomplete (changed)="valueChanged()"
+                                                      [data]="suggestions()[mapping.inputIdx]"
+                                                      [value]="mapping.nodeLabels[0] || ''" (valueChange)="mapping.nodeLabels[0] = $event"
+                                                      [placeholder]="'labelField'"
+                                                      [disabled]="!isEditable()">
+                                    </app-autocomplete>
+                                } @else {
+                                    <input cFormControl sizing="sm" id="node-labels-{{$index}}" placeholder="label1,label2,..."
+                                           type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
+                                           [ngModel]="mapping.nodeLabels.join(',')" (ngModelChange)="mapping.nodeLabels = $event.split(',')">
+                                }
+                                <c-form-check [switch]="true" class="ms-2">
+                                    <input cFormCheckInput type="checkbox" [(ngModel)]="mapping.dynamicNodeLabels"
+                                           id="dynamic-node-label-{{$index}}" (change)="valueChanged()" [disabled]="!isEditable()">
+                                    <label cFormCheckLabel for="dynamic-node-label-{{$index}}" class="text-nowrap">Dynamic Label</label>
+                                </c-form-check>
+                            </div>
+                            <h6>Outgoing Edges</h6>
+                            @if (mapping.edges.length > 0) {
+                                <c-card class="list-container border border-secondary bg-light mb-2">
+                                    <ul cListGroup flush="true">
+                                        @for (edge of mapping.edges; track idx; let idx = $index) {
+                                            <li cListGroupItem class="bg-light list-entry border-secondary">
+                                                <c-row gutter=false>
+                                                    <c-col [xs]="11">
+                                                        <!--Edge Labels-->
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            @if (edge.dynamicEdgeLabels) {
+                                                                <app-autocomplete (changed)="valueChanged()"
+                                                                                  [data]="suggestions()[mapping.inputIdx]"
+                                                                                  [value]="edge.edgeLabels[0] || ''" (valueChange)="edge.edgeLabels[0] = $event"
+                                                                                  [placeholder]="'field'"
+                                                                                  [disabled]="!isEditable()">
+                                                                </app-autocomplete>
+                                                            } @else {
+                                                                <input cFormControl sizing="sm" id="edge-labels-{{idx}}" placeholder="LABEL1,LABEL2,..."
+                                                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
+                                                                       [ngModel]="edge.edgeLabels.join(',')" (ngModelChange)="edge.edgeLabels = $event.split(',')">
+                                                            }
+                                                            <c-form-check [switch]="true" class="ms-2">
+                                                                <input cFormCheckInput type="checkbox" [(ngModel)]="edge.dynamicEdgeLabels"
+                                                                       id="dynamic-edge-label-{{idx}}" (change)="valueChanged()" [disabled]="!isEditable()">
+                                                                <label cFormCheckLabel for="dynamic-edge-label-{{idx}}" class="text-nowrap">Dynamic Label</label>
+                                                            </c-form-check>
+                                                        </div>
+                                                        <!--Properties-->
+                                                        @if (isEditable()) {
+                                                            <angular2-multiselect id="edge-properties-{{idx}}" [data]="fieldsData()[mapping.inputIdx]"
+                                                                                  [ngModel]="propertiesData.get(mapping.inputIdx + '_' + idx)" (ngModelChange)="propertyDataChange(edge, $event)"
+                                                                                  [settings]="propertiesSettings" (onAddFilterNewItem)="addProperty(edge, $event)">
+                                                                <c-item>
+                                                                    <ng-template let-item="item">
+                                                                        <span>{{ item.itemName }}</span>
+                                                                    </ng-template>
+                                                                </c-item>
+                                                            </angular2-multiselect>
+                                                        } @else {
+                                                            <!--[disabled] does not work on angular2-multiselect-->
+                                                            <input cFormControl sizing="sm" type="text" autocomplete="off" [disabled]="true"
+                                                                   [ngModel]="edge.propertyFields.join(', ')">
                                                         }
-                                                    </select>
-                                                </c-input-group>
-
-                                                @if (edge.rightTargetIdx === -1) {
-                                                    <div class="d-flex align-items-center mb-2">
-
-                                                        <div class="flex-grow-1 me-1">
+                                                        <!--direction-->
+                                                        <c-form-check [switch]="true" class="mb-3">
+                                                            <input cFormCheckInput type="checkbox" [(ngModel)]="edge.invertDirection"
+                                                                   id="invert-direction-{{idx}}" (change)="valueChanged()" [disabled]="!isEditable()">
+                                                            <label cFormCheckLabel for="invert-direction-{{idx}}" class="text-nowrap">Invert Direction</label>
+                                                        </c-form-check>
+                                                        <h6>This Node</h6>
+                                                        <!--rightField-->
+                                                        <div class="mb-3">
                                                             <app-autocomplete (changed)="valueChanged()"
-                                                                              [data]="graphLabels()"
-                                                                              [value]="getLabel(edge.rightTargetField)"
-                                                                              (valueChange)="edge.rightTargetField = replaceLabel(edge.rightTargetField, $event)"
-                                                                              placeholder="label"
+                                                                              [data]="suggestions()[mapping.inputIdx]"
+                                                                              [(value)]="edge.rightField"
+                                                                              [placeholder]="'thisJoinField'"
                                                                               [disabled]="!isEditable()">
                                                             </app-autocomplete>
                                                         </div>
-                                                        <div class="flex-grow-1">
+                                                        <!--target-->
+                                                        <h6>Other Node</h6>
+                                                        <c-input-group class="mb-1" sizing="sm">
+                                                            <span cInputGroupText>Input Index</span>
+                                                            <select cSelect id="target-index-{{idx}}" [disabled]="!isEditable()" (change)="valueChanged()"
+                                                                    [ngModel]="edge.rightTargetIdx" (ngModelChange)="edge.rightTargetIdx = parseInt($event, 10)">
+                                                                @if (def().canExtendGraph) {
+                                                                    <option [value]="-1">Existing Graph</option>
+                                                                }
+                                                                @for (s of suggestions(); track targetIdx; let targetIdx = $index) {
+                                                                    <option [value]="targetIdx">{{ targetIdx }}</option>
+                                                                }
+                                                            </select>
+                                                        </c-input-group>
+                                                        @if (edge.rightTargetIdx === -1) {
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <div class="flex-grow-1 me-1">
+                                                                    <app-autocomplete (changed)="valueChanged()"
+                                                                                      [data]="graphLabels()"
+                                                                                      [value]="getLabel(edge.rightTargetField)"
+                                                                                      (valueChange)="edge.rightTargetField = replaceLabel(edge.rightTargetField, $event)"
+                                                                                      placeholder="label"
+                                                                                      [disabled]="!isEditable()">
+                                                                    </app-autocomplete>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <app-autocomplete (changed)="valueChanged()"
+                                                                                      [data]="graphProps()"
+                                                                                      [value]="getProperty(edge.rightTargetField)"
+                                                                                      (valueChange)="edge.rightTargetField = replaceProperty(edge.rightTargetField, $event)"
+                                                                                      placeholder="property"
+                                                                                      [disabled]="!isEditable()">
+                                                                    </app-autocomplete>
+                                                                </div>
+                                                            </div>
+                                                        } @else {
                                                             <app-autocomplete (changed)="valueChanged()"
-                                                                              [data]="graphProps()"
-                                                                              [value]="getProperty(edge.rightTargetField)"
-                                                                              (valueChange)="edge.rightTargetField = replaceProperty(edge.rightTargetField, $event)"
-                                                                              placeholder="property"
+                                                                              [data]="suggestions()[edge.rightTargetIdx] || []"
+                                                                              [(value)]="edge.rightTargetField"
+                                                                              placeholder="otherJoinField"
                                                                               [disabled]="!isEditable()">
                                                             </app-autocomplete>
-                                                        </div>
-                                                    </div>
-                                                } @else {
-                                                    <app-autocomplete (changed)="valueChanged()"
-                                                                      [data]="suggestions()[edge.rightTargetIdx] || []"
-                                                                      [(value)]="edge.rightTargetField"
-                                                                      placeholder="otherJoinField"
-                                                                      [disabled]="!isEditable()">
-                                                    </app-autocomplete>
-                                                }
+                                                        }
+                                                    </c-col>
+                                                    @if (isEditable()) {
+                                                        <c-col [xs]="1" class="text-end p-0">
+                                                            <app-delete-confirm (delete)="deleteEdge(mapping, idx)"></app-delete-confirm>
+                                                        </c-col>
+                                                    }
+                                                </c-row>
+                                            </li>
+                                        }
+                                    </ul>
+                                </c-card>
+                            }
+                            @if (isEditable()) {
+                                <button cButton color="light" (click)="addEdge(mapping)" size="sm">
+                                    Add Edge
+                                </button>
+                            }
+                        }
+                    </div>
+                </ng-template>
+            </c-accordion-item>
+        }
+    </c-accordion>
+}
 
-
-                                            </c-col>
-                                            <c-col [xs]="1" class="text-end p-0" *ngIf="isEditable()">
-                                                <app-delete-confirm (delete)="deleteEdge(mapping, idx)"></app-delete-confirm>
-                                            </c-col>
-                                        </c-row>
-                                    </li>
-                                }
-                            </ul>
-                        </c-card>
-                        <button cButton color="light" *ngIf="isEditable()" (click)="addEdge(mapping)" size="sm">
-                            Add Edge
-                        </button>
+@if (isEditable() && remainingInputs().length > 0) {
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+            <c-input-group class="" sizing="sm">
+                <span cInputGroupText>Input Index</span>
+                <select cSelect id="add-index" [(ngModel)]="addIdx">
+                    @for (i of remainingInputs(); track i) {
+                        <option [value]="i">{{ i }}</option>
                     }
-                </div>
-            </ng-template>
-        </c-accordion-item>
-    }
-</c-accordion>
-
-<div class="d-flex justify-content-between" *ngIf="isEditable() && remainingInputs().length > 0">
-    <div class="d-flex align-items-center">
-        <c-input-group class="" sizing="sm">
-            <span cInputGroupText>Input Index</span>
-            <select cSelect id="add-index" [(ngModel)]="addIdx">
-                <option *ngFor="let i of remainingInputs()" [value]="i">{{ i }}</option>
-            </select>
-        </c-input-group>
-
-        <c-form-check [switch]="true" class="ms-2">
-            <input cFormCheckInput type="checkbox" [(ngModel)]="addEdgeOnly"
-                   id="edge-only-mapping" (change)="valueChanged()">
-            <label cFormCheckLabel for="edge-only-mapping" class="text-nowrap">Map to Edge</label>
-        </c-form-check>
+                </select>
+            </c-input-group>
+            <c-form-check [switch]="true" class="ms-2">
+                <input cFormCheckInput type="checkbox" [(ngModel)]="addEdgeOnly"
+                       id="edge-only-mapping" (change)="valueChanged()">
+                <label cFormCheckLabel for="edge-only-mapping" class="text-nowrap">Map to Edge</label>
+            </c-form-check>
+        </div>
+        <button cButton color="light" (click)="addMapping()" size="sm" class="ms-2">
+            Add Mapping
+        </button>
     </div>
-
-    <button cButton color="light" (click)="addMapping()" size="sm" class="ms-2">
-        Add Mapping
-    </button>
-</div>
+}

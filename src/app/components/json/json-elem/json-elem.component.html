@@ -1,6 +1,8 @@
 <ng-container>
     <c-input-group class="mt-2" sizing="sm">
-        <div cInputGroupText *ngFor="let x of fakeArray(indent)" class="px-2 bg-white border-0"></div>
+        @for (x of fakeArray( indent ); track $index) {
+            <div cInputGroupText class="px-2 bg-white border-0"></div>
+        }
 
         <c-dropdown variant="btn-group">
             <button cDropdownToggle size="sm" variant="ghost" cButton [disabled]="length === 1 && isValue()"
@@ -13,55 +15,70 @@
                         <i class="cil-trash"></i>Remove
                     </div>
                 </li>
-                <li *ngIf="!isValue()">
-                    <div cDropdownItem (click)="addInitialColumn(asString(index), 0)">
-                        <i class="cil-plus"></i>Add Key-Value
-                    </div>
-                </li>
-                <li *ngIf="!isValue()">
-                    <div cDropdownItem (click)="addInitialColumn(asString(index), 1)">
-                        <i class="cil-plus"></i>Add Key-Object
-                    </div>
-                </li>
-                <li *ngIf="index !== 0 && index !== length - 1">
-                    <hr cDropdownDivider>
-                </li>
-                <li *ngIf="index !== 0">
-                    <div cDropdownItem (click)="upColumn(asString(index))">
-                        <i class="cil-chevron-top"></i>Move Up
-                    </div>
-                </li>
-                <li *ngIf="index !== length - 1">
-                    <div cDropdownItem (click)="downColumn(asString(index))">
-                        <i class="cil-chevron-bottom"></i>Move Down
-                    </div>
-                </li>
+                @if (!isValue()) {
+                    <li>
+                        <div cDropdownItem (click)="addInitialColumn(asString(index), 0)">
+                            <i class="cil-plus"></i>Add Key-Value
+                        </div>
+                    </li>
+                }
+                @if (!isValue()) {
+                    <li>
+                        <div cDropdownItem (click)="addInitialColumn(asString(index), 1)">
+                            <i class="cil-plus"></i>Add Key-Object
+                        </div>
+                    </li>
+                }
+                @if (index !== 0 && index !== length - 1) {
+                    <li>
+                        <hr cDropdownDivider>
+                    </li>
+                }
+                @if (index !== 0) {
+                    <li>
+                        <div cDropdownItem (click)="upColumn(asString(index))">
+                            <i class="cil-chevron-top"></i>Move Up
+                        </div>
+                    </li>
+                }
+                @if (index !== length - 1) {
+                    <li>
+                        <div cDropdownItem (click)="downColumn(asString(index))">
+                            <i class="cil-chevron-bottom"></i>Move Down
+                        </div>
+                    </li>
+                }
             </ul>
         </c-dropdown>
         <input type="text" sizing="sm" [(ngModel)]="el.key" (change)="changeHappened()" (ngModelChange)="inputChanged()"
                [class]="isSelfValid() && !isDuplicate ? '' : ' is-invalid'" aria-label="First name"
                cFormControl class="json-editor-key" placeholder="key">
-        <span *ngIf="!isObject(el.value)" cInputGroupText class="">:</span>
-        <input cFormControl *ngIf="!isObject(el.value)" sizing="sm" type="text" [(ngModel)]="el.value" (change)="changeHappened()"
-               aria-label="Last name" class="json-editor-val" placeholder="value">
+        @if (!isObject( el.value )) {
+            <span cInputGroupText class="">:</span>
+        }
+        @if (!isObject( el.value )) {
+            <input cFormControl sizing="sm" type="text" [(ngModel)]="el.value" (change)="changeHappened()"
+                   aria-label="Last name" class="json-editor-val" placeholder="value">
+        }
         <c-form-feedback class="text-right">{{ isDuplicate ? dupKeyError : '' }}</c-form-feedback>
     </c-input-group>
-    <ng-container *ngIf="isObject(el.value)">
-        <app-json-elem class="mt-1"
-                       *ngFor="let el2 of el.value; let i=index"
-                       [el]="asPair(el2)"
-                       [type]="getType(el2)"
-                       [length]="el.value.length"
-                       [indent]="indent + 1"
-                       [index]="i"
-                       [isDuplicate]="getIsDuplicate(i)"
-                       (up)="upColumn(index + '_' + i)"
-                       (down)="downColumn(index + '_' + i)"
-                       (add)="addColumn($event)"
-                       (remove)="removeColumn(index + '_' + i)"
-                       (changed)="changeHappened()"
-                       (validChanged)="inputChanged()" (inputChange)="updateChildren()">
-        </app-json-elem>
-    </ng-container>
+    @if (isObject( el.value )) {
+        @for (el2 of el.value; track i; let i = $index) {
+            <app-json-elem class="mt-1"
+                           [el]="asPair(el2)"
+                           [type]="getType(el2)"
+                           [length]="el.value.length"
+                           [indent]="indent + 1"
+                           [index]="i"
+                           [isDuplicate]="getIsDuplicate(i)"
+                           (up)="upColumn(index + '_' + i)"
+                           (down)="downColumn(index + '_' + i)"
+                           (add)="addColumn($event)"
+                           (remove)="removeColumn(index + '_' + i)"
+                           (changed)="changeHappened()"
+                           (validChanged)="inputChanged()" (inputChange)="updateChildren()">
+            </app-json-elem>
+        }
+    }
 </ng-container>
 

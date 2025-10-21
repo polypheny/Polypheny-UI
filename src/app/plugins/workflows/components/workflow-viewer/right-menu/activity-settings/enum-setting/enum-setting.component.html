@@ -2,7 +2,9 @@
     @case ('DROPDOWN') {
         <div class="mb-3">
             <c-input-group>
-                <label *ngIf="def().label" cInputGroupText for="enum-options">{{ def().label }}</label>
+                @if (def().label) {
+                    <label cInputGroupText for="enum-options">{{ def().label }}</label>
+                }
                 <select cSelect id="enum-options" [ngModel]="value()" (ngModelChange)="value.set($event)"
                         (change)="hasChanged.emit()" [disabled]="!isEditable()">
                     @for (option of options(); track option[0]) {
@@ -10,16 +12,20 @@
                     }
                 </select>
             </c-input-group>
-            <div cFormText *ngIf="description()">
-                {{ description() }}
-            </div>
+            @if (description()) {
+                <div cFormText>
+                    {{ description() }}
+                </div>
+            }
         </div>
     }
     @case ('RADIO_BUTTON') {
         <div class="mb-3">
-            <p *ngIf="def().label" class="mb-1">
-                <strong>{{ def().label }}</strong>
-            </p>
+            @if (def().label) {
+                <p class="mb-1">
+                    <strong>{{ def().label }}</strong>
+                </p>
+            }
             <c-button-group size="sm" id="enum-radios">
                 @for (option of options(); track option[0]) {
                     <button cButton color="dark" [variant]="value() === option[0] ? null : 'outline'"
@@ -28,9 +34,11 @@
                     </button>
                 }
             </c-button-group>
-            <div cFormText *ngIf="description()">
-                {{ description() }}
-            </div>
+            @if (description()) {
+                <div cFormText>
+                    {{ description() }}
+                </div>
+            }
         </div>
     }
     @default {

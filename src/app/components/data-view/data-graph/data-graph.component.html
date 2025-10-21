@@ -1,29 +1,37 @@
-<div class="text-center" *ngIf="!$result() || !$result().data || $result().data.length == 0">
-    <span class="text-danger">(no data to show)</span>
-</div>
+@if (!$result() || !$result().data || $result().data.length == 0) {
+    <div class="text-center">
+        <span class="text-danger">(no data to show)</span>
+    </div>
+}
 
 <div class="card-wrapper">
     <div class="wrapper d-flex justify-content-center graph-wrapper">
         <div id="chart-area"></div>
-        <div *ngIf="showProperties()" class="graph-properties">
-            <c-card class="card text-center h-100">
-                <c-card-header>
-                    {{ detail.id }}
-                </c-card-header>
-                <c-card-body>
-                    <span *ngFor="let label of detail.labels" class="badge badge-pill"
-                          [style]="{ 'background-color': getLabelColor(label) }">{{ label }}</span>
-                    <div class="my-2"></div>
-                    <div *ngFor="let entry of detail.properties | keyvalue">
-                        <p><strong>{{ entry.key }}: </strong>{{ entry.value }}</p>
-                    </div>
-                </c-card-body>
-                <c-card-footer class="text-muted">
-                    <button cButton color="primary" (click)="showProperties.set(false)"><span
-                            class="cil-arrow-thick-from-left"></span></button>
-                </c-card-footer>
-            </c-card>
-        </div>
+        @if (showProperties()) {
+            <div class="graph-properties">
+                <c-card class="card text-center h-100">
+                    <c-card-header>
+                        {{ detail.id }}
+                    </c-card-header>
+                    <c-card-body>
+                        @for (label of detail.labels; track label) {
+                            <span class="badge badge-pill"
+                                  [style]="{ 'background-color': getLabelColor(label) }">{{ label }}</span>
+                        }
+                        <div class="my-2"></div>
+                        @for (entry of detail.properties | keyvalue; track entry.key) {
+                            <div>
+                                <p><strong>{{ entry.key }}: </strong>{{ entry.value }}</p>
+                            </div>
+                        }
+                    </c-card-body>
+                    <c-card-footer class="text-muted">
+                        <button cButton color="primary" (click)="showProperties.set(false)"><span
+                                class="cil-arrow-thick-from-left"></span></button>
+                    </c-card-footer>
+                </c-card>
+            </div>
+        }
         <div class="graph-bottom d-flex justify-content-start ps-1 pb-1">
             <button cButton color="primary" (click)="center()"><span class="cil-center-focus pe-1"></span>
                 Refocus
@@ -32,63 +40,86 @@
                 Reset
             </button>
         </div>
-        <div class="graph-loader" *ngIf="graphLoading">
-            <div class="spinner-border text-primary"></div>
-        </div>
+        @if (graphLoading) {
+            <div class="graph-loader">
+                <div class="spinner-border text-primary"></div>
+            </div>
+        }
     </div>
 
-    <c-card *ngIf="entityConfig().create && showInsertCard">
-        <c-card-header class="card-header">
-            Insert Data
-        </c-card-header>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let h of $result().header">
-                <app-input *ngIf="$result()?.dataModel === NamespaceType.RELATIONAL || h.name === '_id'"
-                           [header]="h"
-                           [showLabel]="true" [value]="insertValues.get(h.name)"
-                           (valueChange)="inputChange(h.name, $event)"
-                           (enter)="insertTuple()"></app-input>
-                <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="$result()?.dataModel === NamespaceType.DOCUMENT && h.name !== '_id'"
-                                 [empty]="true"
-                                 [json]="insertValues.get(h.name)"
-                                 (valueChange)="inputChange(h.name, $event)"></app-json-editor>
-            </li>
-            <li cListGroupItem>
-                <c-progress
-                        *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
-                    <c-progress-bar
-                            [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" variant="striped"
-                            color="primary"></c-progress-bar>
-                </c-progress>
-                <c-progress
-                        *ngIf="editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)">
-                    <c-progress-bar
-                            [animated]="true" [value]="100" variant="striped" color="primary"></c-progress-bar>
-                </c-progress>
-                <button cButton size="sm" color="light" *ngIf="uploadProgress === -1 || editing !== -1"
-                        (click)="showInsertCard = false">cancel
-                </button>
-                <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1 || editing !== -1"
-                        class="float-right"
-                        [disabled]="$result()?.dataModel === NamespaceType.DOCUMENT && !jsonValid"
-                        (click)="insertTuple()">
-                    save
-                </button>
-            </li>
-        </ul>
-    </c-card>
+    @if (entityConfig().create && showInsertCard) {
+        <c-card>
+            <c-card-header class="card-header">
+                Insert Data
+            </c-card-header>
+            <ul class="list-group list-group-flush">
+                @for (h of $result().header; track h.name) {
+                    <li class="list-group-item">
+                        @if ($result()?.dataModel === NamespaceType.RELATIONAL || h.name === '_id') {
+                            <app-input
+                                    [header]="h"
+                                    [showLabel]="true" [value]="insertValues.get(h.name)"
+                                    (valueChange)="inputChange(h.name, $event)"
+                                    (enter)="insertTuple()"></app-input>
+                        }
+                        @if ($result()?.dataModel === NamespaceType.DOCUMENT && h.name !== '_id') {
+                            <app-json-editor (validChange)="setJsonValid($event)"
+                                             [empty]="true"
+                                             [json]="insertValues.get(h.name)"
+                                             (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+                        }
+                    </li>
+                }
+                <li cListGroupItem>
+                    @if (editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0) {
+                        <c-progress
+                        >
+                            <c-progress-bar
+                                    [animated]="true" [value]="uploadProgress === 0 ? 100 : uploadProgress" variant="striped"
+                                    color="primary"></c-progress-bar>
+                        </c-progress>
+                    }
+                    @if (editing === -1 && uploadProgress > -1 && (uploadProgress === 100 || uploadProgress === 0)) {
+                        <c-progress
+                        >
+                            <c-progress-bar
+                                    [animated]="true" [value]="100" variant="striped" color="primary"></c-progress-bar>
+                        </c-progress>
+                    }
+                    @if (uploadProgress === -1 || editing !== -1) {
+                        <button cButton size="sm" color="light"
+                                (click)="showInsertCard = false">cancel
+                        </button>
+                    }
+                    @if (uploadProgress === -1 || editing !== -1) {
+                        <button cButton color="primary" size="sm"
+                                class="float-right"
+                                [disabled]="$result()?.dataModel === NamespaceType.DOCUMENT && !jsonValid"
+                                (click)="insertTuple()">
+                            save
+                        </button>
+                    }
+                </li>
+            </ul>
+        </c-card>
+    }
 
 </div>
 
-<c-row class="row" *ngIf="$result()">
-    <c-col class="col-lg-12">
-        <nav aria-label="Page navigation" class="float-right" *ngIf="$result().highestPage > 1">
-            <c-pagination>
-                <li cPageItem *ngFor="let p of pagination" [active]="p.active" [disabled]="p.disabled">
-                    <a cPageLink (click)="paginate(p)" [routerLink]="[]">{{ p.label }}</a>
-                </li>
-            </c-pagination>
-        </nav>
-    </c-col>
-</c-row>
+@if ($result()) {
+    <c-row class="row">
+        <c-col class="col-lg-12">
+            @if ($result().highestPage > 1) {
+                <nav aria-label="Page navigation" class="float-right">
+                    <c-pagination>
+                        @for (p of pagination; track p.label) {
+                            <li cPageItem [active]="p.active" [disabled]="p.disabled">
+                                <a cPageLink (click)="paginate(p)" [routerLink]="[]">{{ p.label }}</a>
+                            </li>
+                        }
+                    </c-pagination>
+                </nav>
+            }
+        </c-col>
+    </c-row>
+}

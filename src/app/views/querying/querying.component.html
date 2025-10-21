@@ -1,6 +1,16 @@
-<ng-container [ngSwitch]="route" class="h-100">
-    <app-graphical-querying *ngSwitchCase="'graphical-querying'"></app-graphical-querying>
-    <app-polyalg *ngSwitchCase="'polyalg'"></app-polyalg>
-    <app-explore-by-example *ngSwitchCase="'explore-by-example'"></app-explore-by-example>
-    <app-console *ngSwitchDefault></app-console>
+<ng-container class="h-100">
+    @switch (route) {
+        @case ('graphical-querying') {
+            <app-graphical-querying></app-graphical-querying>
+        }
+        @case ('polyalg') {
+            <app-polyalg></app-polyalg>
+        }
+        @case ('explore-by-example') {
+            <app-explore-by-example></app-explore-by-example>
+        }
+        @default {
+            <app-console></app-console>
+        }
+    }
 </ng-container>

@@ -5,72 +5,85 @@
             <p>Docker related settings and configurations.</p>
         </c-col>
     </c-row>
-    <c-row *ngIf="instances !== undefined || handshakes.length > 0" [gutter]="3">
-        <ng-container *ngFor="let instance of instances">
-            <c-col [md]="3">
-                <c-card>
-                    <c-card-header>
-                        {{ instance.host.alias }}
-                        <c-badge color="success" *ngIf="instance.connected" class="pull-right">connected</c-badge>
-                        <c-badge color="danger" *ngIf="!instance.connected" class="pull-right">not connected</c-badge>
-                    </c-card-header>
-
-                    <c-card-body>
-                        Host: {{ instance.host.hostname }}<br>
-                        <div *ngIf="instance.numberOfContainers !== -1">{{ instance.numberOfContainers }} {{ instance.numberOfContainers !== 1 ? 'containers' : 'container' }} deployed</div>
-                    </c-card-body>
-
-                    <c-card-footer class="bg-transparent">
-                        <button cButton color="danger" (click)="removeDockerInstance(instance);">Delete</button>
-                        <button cButton color="primary" class="pull-right" (click)="showModal(instance.id)">Edit</button>
-                    </c-card-footer>
-                </c-card>
-            </c-col>
-        </ng-container>
-        <ng-container *ngFor="let handshake of handshakes">
-            <c-col [md]="3">
-                <c-card>
-                    <c-card-header>
-                        {{ handshake.host.alias }}
-                        <c-badge color="warning" class="pull-right">draft</c-badge>
-                    </c-card-header>
-
-                    <c-card-body>
-                        Host: {{ handshake.host.hostname }}<br>
-                    </c-card-body>
-
-                    <c-card-footer class="bg-transparent">
-                        <button cButton color="danger" (click)="cancelHandshake(handshake);">Delete</button>
-                        <button cButton color="primary" class="pull-right" (click)="showHandshake(handshake)">Show</button>
-                    </c-card-footer>
-                </c-card>
-            </c-col>
-        </ng-container>
-
-        <div *ngIf="instances.length === 0 && handshakes.length === 0">
-            No connections yet!
-        </div>
-    </c-row>
-    <c-row *ngIf="instances === undefined">
-        <c-spinner></c-spinner>&nbsp;&nbsp;Loading instances...
-    </c-row>
+    @if (instances !== undefined || handshakes.length > 0) {
+        <c-row [gutter]="3">
+            @for (instance of instances; track instance.id) {
+                <c-col [md]="3">
+                    <c-card>
+                        <c-card-header>
+                            {{ instance.host.alias }}
+                            @if (instance.connected) {
+                                <c-badge color="success" class="pull-right">connected</c-badge>
+                            }
+                            @if (!instance.connected) {
+                                <c-badge color="danger" class="pull-right">not connected</c-badge>
+                            }
+                        </c-card-header>
+                        <c-card-body>
+                            Host: {{ instance.host.hostname }}<br>
+                            @if (instance.numberOfContainers !== -1) {
+                                <div>{{ instance.numberOfContainers }} {{ instance.numberOfContainers !== 1 ? 'containers' : 'container' }} deployed</div>
+                            }
+                        </c-card-body>
+                        <c-card-footer class="bg-transparent">
+                            <button cButton color="danger" (click)="removeDockerInstance(instance);">Delete</button>
+                            <button cButton color="primary" class="pull-right" (click)="showModal(instance.id)">Edit</button>
+                        </c-card-footer>
+                    </c-card>
+                </c-col>
+            }
+            @for (handshake of handshakes; track handshake.id) {
+                <c-col [md]="3">
+                    <c-card>
+                        <c-card-header>
+                            {{ handshake.host.alias }}
+                            <c-badge color="warning" class="pull-right">draft</c-badge>
+                        </c-card-header>
+                        <c-card-body>
+                            Host: {{ handshake.host.hostname }}<br>
+                        </c-card-body>
+                        <c-card-footer class="bg-transparent">
+                            <button cButton color="danger" (click)="cancelHandshake(handshake);">Delete</button>
+                            <button cButton color="primary" class="pull-right" (click)="showHandshake(handshake)">Show</button>
+                        </c-card-footer>
+                    </c-card>
+                </c-col>
+            }
+            @if (instances.length === 0 && handshakes.length === 0) {
+                <div>
+                    No connections yet!
+                </div>
+            }
+        </c-row>
+    }
+    @if (instances === undefined) {
+        <c-row>
+            <c-spinner></c-spinner>&nbsp;&nbsp;Loading instances...
+        </c-row>
+    }
 
     <c-row class="mt-5">
         <c-col>
             <button cButton color="success" class="me-2" (click)="showModal(null)">Connect to Docker Instance</button>
             <button cButton color="primary" class="me-2" (click)="showSettingsModal()">Global Settings</button>
-            <button cButton color="info" *ngIf="status.available && (!status.connected || autoConnectRunning)" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
-                <c-spinner *ngIf="status.running || autoConnectRunning" size="sm"></c-spinner>
-                Autoconnect to localhost
-            </button>
+            @if (status.available && (!status.connected || autoConnectRunning)) {
+                <button cButton color="info" (click)="autoDocker()" [disabled]="status.running || autoConnectRunning">
+                    @if (status.running || autoConnectRunning) {
+                        <c-spinner size="sm"></c-spinner>
+                    }
+                    Autoconnect to localhost
+                </button>
+            }
 
         </c-col>
     </c-row>
 </ng-container>
 
-<div *ngIf="error !== null" class="alert alert-danger">
-    Cannot load list of docker instances: {{ error }}
-</div>
+@if (error !== null) {
+    <div class="alert alert-danger">
+        Cannot load list of docker instances: {{ error }}
+    </div>
+}
 <c-modal class="fade" role="dialog" [visible]="activeModal === 'add_edit'" aria-labelledby="Add/Edit a Docker instance" aria-hidden="true" id="addNewInstance" (visibleChange)="onVisibleChange($event)">
     <app-dockerinstance [id]="modalInstanceId" [handshake]="modalHandshake" [visible]="activeModal === 'add_edit'" (done)="closeModal($event)"></app-dockerinstance>
 </c-modal>

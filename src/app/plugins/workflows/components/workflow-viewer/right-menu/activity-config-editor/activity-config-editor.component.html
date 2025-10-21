@@ -7,10 +7,12 @@
         }
 
         <!-- Save Button -->
-        <button class="ms-auto" cButton type="submit" color="primary" *ngIf="isEditable()"
-                [disabled]="!hasConfigChanged()">
-            Save
-        </button>
+        @if (isEditable()) {
+            <button class="ms-auto" cButton type="submit" color="primary"
+                    [disabled]="!hasConfigChanged()">
+                Save
+            </button>
+        }
 
     </div>
 
@@ -19,11 +21,13 @@
         @if (!isMetaActivity()) {
             <!-- Enforce Checkpoint -->
             <h5><span class="badge text-body bg-light">Disable Optimization</span></h5>
-            <c-form-check [switch]="true" class="ms-1 mb-5" *ngIf="def().outPorts.length > 0">
-                <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
-                <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
-                       name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
-            </c-form-check>
+            @if (def().outPorts.length > 0) {
+                <c-form-check [switch]="true" class="ms-1 mb-5">
+                    <label cFormCheckLabel for="form-check-input">Always create checkpoint</label>
+                    <input cFormCheckInput id="form-check-input" type="checkbox" [(ngModel)]="editableConfig().enforceCheckpoint"
+                           name="form-check-input" (change)="checkForChanges()" [disabled]="!isEditable()">
+                </c-form-check>
+            }
 
 
             <!-- Timeout-->
@@ -41,7 +45,9 @@
             <div class="mb-5">
                 <select cSelect id="expectedOutcome" [(ngModel)]="editableConfig().expectedOutcome" name="expectedOutcome"
                         (change)="checkForChanges()" [disabled]="!isEditable()">
-                    <option *ngFor="let type of expectedOutcomes" [value]="type">{{ type }}</option>
+                    @for (type of expectedOutcomes; track type) {
+                        <option [value]="type">{{ type }}</option>
+                    }
                 </select>
                 <div cFormText>
                     Used to determine the overall success of a workflow execution.
@@ -50,18 +56,22 @@
 
             <!-- Preferred Stores -->
             <h5><span class="badge text-body bg-light">Preferred Stores</span></h5>
-            <div class="mb-5" *ngIf="editableConfig().preferredStores?.length > 0">
-                @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
-                    <c-input-group class="mb-3">
-                        <label cInputGroupText for="preferred-{{i}}">{{ editableConfig().preferredStores.length === 1 ? 'Output' : 'Output ' + i }}</label>
-                        <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
-                                (change)="checkForChanges()" [disabled]="!isEditable()">
-                            <option [value]="''">Use workflow default</option>
-                            <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
-                        </select>
-                    </c-input-group>
-                }
-            </div>
+            @if (editableConfig().preferredStores?.length > 0) {
+                <div class="mb-5">
+                    @for (outputStore of editableConfig().preferredStores; track i; let i = $index) {
+                        <c-input-group class="mb-3">
+                            <label cInputGroupText for="preferred-{{i}}">{{ editableConfig().preferredStores.length === 1 ? 'Output' : 'Output ' + i }}</label>
+                            <select cSelect id="preferred-{{i}}" [(ngModel)]="editableConfig().preferredStores[i]" name="preferred-{{i}}"
+                                    (change)="checkForChanges()" [disabled]="!isEditable()">
+                                <option [value]="''">Use workflow default</option>
+                                @for (adapter of adapters(); track adapter.id) {
+                                    <option [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
+                                }
+                            </select>
+                        </c-input-group>
+                    }
+                </div>
+            }
         }
 
         <!-- Common Type -->
@@ -69,7 +79,9 @@
         <div class="mb-5">
             <select cSelect id="commonType" [(ngModel)]="editableConfig().commonType" name="commonType"
                     (change)="checkForChanges()" [disabled]="!isEditable() || lockCommonTransaction()">
-                <option *ngFor="let type of commonTypes" [value]="type">{{ type }}</option>
+                @for (type of commonTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                }
             </select>
             <div cFormText>
                 Common transactions provide atomicity, consistency and isolation guarantees over multiple activities. Guarantees do not hold for activities with
@@ -82,7 +94,9 @@
         <div class="mb-5">
             <select cSelect id="controlStateMerger" [(ngModel)]="editableConfig().controlStateMerger"
                     name="controlStateMerger" (change)="checkForChanges()" [disabled]="!isEditable()">
-                <option *ngFor="let merger of controlStateMergers" [value]="merger">{{ merger }}</option>
+                @for (merger of controlStateMergers; track merger) {
+                    <option [value]="merger">{{ merger }}</option>
+                }
             </select>
             <div cFormText>
                 Determines whether the activity gets executed in case of multiple control edges. AND_AND means all control edges must be active.
@@ -92,11 +106,13 @@
 
         <!-- Log Errors -->
         <h5><span class="badge text-body bg-light">Log Exception Stacktrace</span></h5>
-        <c-form-check [switch]="true" class="ms-1 mb-5" *ngIf="def().outPorts.length > 0">
-            <label cFormCheckLabel for="form-check-stacktrace">Log Exception if Activity Fails</label>
-            <input cFormCheckInput id="form-check-stacktrace" type="checkbox" [(ngModel)]="editableConfig().logErrors"
-                   name="form-check-stacktrace" (change)="checkForChanges()" [disabled]="!isEditable()">
-        </c-form-check>
+        @if (def().outPorts.length > 0) {
+            <c-form-check [switch]="true" class="ms-1 mb-5">
+                <label cFormCheckLabel for="form-check-stacktrace">Log Exception if Activity Fails</label>
+                <input cFormCheckInput id="form-check-stacktrace" type="checkbox" [(ngModel)]="editableConfig().logErrors"
+                       name="form-check-stacktrace" (change)="checkForChanges()" [disabled]="!isEditable()">
+            </c-form-check>
+        }
     </div>
 </form>
 

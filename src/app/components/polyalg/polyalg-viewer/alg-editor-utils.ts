@@ -4,7 +4,7 @@ import {Schemes} from './alg-editor';
 import {AlgNode} from '../algnode/alg-node.component';
 import {CustomConnection} from '../custom-connection/custom-connection.component';
 import {SocketData} from 'rete-connection-plugin';
-import {Position} from 'rete-angular-plugin/18/types';
+import {Position} from 'rete-angular-plugin/types';
 import {OperatorModel, OperatorTag} from '../models/polyalg-registry';
 import {PolyAlgService} from '../polyalg.service';
 import {PlanType} from '../../../models/information-page.model';
