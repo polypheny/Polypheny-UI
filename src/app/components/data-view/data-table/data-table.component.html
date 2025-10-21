@@ -73,7 +73,7 @@
                     }
                     @for (d1 of $result().data; track d1; let i = $index) {
                         <tr
-                                [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
+                                [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?' || this.userInput === null}">
                             @if (editing === i) {
                                 @for (d2 of d1; track d2; let j = $index) {
                                     <td>
