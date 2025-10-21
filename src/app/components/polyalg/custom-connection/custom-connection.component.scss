@@ -1,4 +1,3 @@
-@import "scss/style.scss";
 
 svg {
   overflow: visible !important;
@@ -9,7 +8,7 @@ svg {
 
   path {
     fill: none;
-    stroke: $primary;
+    stroke: var(--cui-primary);
     pointer-events: auto;
   }
 }

@@ -1,5 +1,5 @@
 @use "sass:math";
-@import "../vars";
+@use "../vars" as *;
 
 :host {
   display: block;

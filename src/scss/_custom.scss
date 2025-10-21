@@ -43,7 +43,7 @@ audio, video {
 }
 
 .bg-footer {
-  background-color: $footer-bg;
+  background-color: var(--cui-footer-bg);
 }
 
 
@@ -52,4 +52,103 @@ audio, video {
   height: 50px;
   margin-top: 90px;
   flex: 0;
+}
+
+
+/* .btn-circle from: https://bootstrapious.com/p/bootstrap-circle-button */
+.btn-circle {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.btn-circle i {
+  position: relative;
+}
+
+.form-check label {
+  user-select: none;
+}
+
+.navbar-toggler {
+  outline: none !important;
+}
+
+.nl2br {
+  white-space: pre-wrap;
+}
+
+.entity-name-input {
+  max-width: 250px;
+}
+
+/* rotating btn-circle */
+.rotating {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+
+/* rotation animation from: https://stackoverflow.com/questions/6410730/how-to-do-a-webkit-css-endless-rotation-animation */
+@-webkit-keyframes rotating /* Safari and Chrome */
+{
+  from {
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+  to {
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+  to {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+
+/* Node Editor for query plans and workflows */
+[rete-context-menu] {
+  width: 200px !important;
+  border-radius: 4px;
+
+  .block {
+    color: var(--cui-body-color) !important;
+    background: var(--cui-light) !important;
+    border-bottom: 1px solid #c8c9cb !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .block:hover {
+    background: #c8c9cb !important;
+  }
+
+  .block:last-child {
+    border: none !important;
+  }
+
+  .subitems {
+    width: 200px !important;
+  }
 }

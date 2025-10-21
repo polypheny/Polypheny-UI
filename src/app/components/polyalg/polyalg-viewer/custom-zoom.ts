@@ -76,7 +76,7 @@ export class CustomZoom extends Zoom {
         overlay.style.left = '0';
         overlay.style.width = '100%';
         overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
         overlay.style.color = 'white';
         overlay.style.fontSize = '24px';
         overlay.style.display = 'none'; // Hide by default

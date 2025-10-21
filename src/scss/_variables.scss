@@ -1,21 +1,20 @@
 // Variable overrides
 $aside-menu-width: 350px;
 
-// Override CoreUI 5 with CoreUI 4 theme colors
-$primary: #27aae1;
-$primary-bg-subtle: #e9f7fc;
-$primary-border-subtle: #bee6f6;
-$primary-text-emphasis: #2399cb;
+// Load CoreUI. This generates CSS based on overwritten variables
+@use "../node_modules/@coreui/coreui/scss/coreui" with (
 
-$dark: #4f5d73;
-$sidebar-bg: #3c4b64;
-$secondary: #8a93a2;
+  // Override CoreUI 5 with CoreUI 4 theme colors
+  $primary: #27aae1,
+  $primary-bg-subtle: #e9f7fc,
+  $primary-border-subtle: #bee6f6,
+  $primary-text-emphasis: #2399cb,
 
-.btn {
-  --cui-btn-color: white;
-}
+  $dark: #4f5d73,
+  $sidebar-bg: #3c4b64,
+  $secondary: #8a93a2,
+);
 
 .btn-primary {
   color: white !important;
 }
-
