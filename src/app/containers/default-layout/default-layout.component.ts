@@ -34,7 +34,6 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
 
 
     constructor(
-        public _sidebar: LeftSidebarService,
         public _information: InformationService,
         public _settings: WebuiSettingsService,
         public _crud: CrudService,
@@ -54,7 +53,6 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
             attributes: true,
             attributeFilter: ['class']
         });
-
     }
 
     ngOnInit(): void {
@@ -122,13 +120,5 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
             route = route.firstChild;
         }
         return route.snapshot.data;
-    }
-
-    changedVisible(isVisible: boolean) {
-        // find a better solution to keep the sidebar component hidden after rescaling the window?
-        if (isVisible && !this._left.isVisible()) {
-            this._left.isVisible.set(isVisible);
-            setTimeout(() => this._left.isVisible.set(!isVisible), 10);
-        }
     }
 }

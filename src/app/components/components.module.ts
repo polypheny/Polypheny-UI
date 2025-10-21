@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {GraphComponent} from './graph/graph.component';
-import {NgChartsModule} from 'ng2-charts';
+import {BaseChartDirective} from 'ng2-charts';
 
 import {
     AccordionButtonDirective,
@@ -63,6 +63,7 @@ import {
     TableDirective,
     TabPaneComponent,
     TemplateIdDirective,
+    TextBgColorDirective,
     TextColorDirective,
     ToastBodyComponent,
     ToastCloseDirective,
@@ -141,7 +142,7 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         //AppRoutingModule,
         RouterModule,
         CommonModule,
-        NgChartsModule,
+        BaseChartDirective,
         TypeaheadModule.forRoot(),
         TabsModule.forRoot(),
         ToasterComponent,
@@ -222,7 +223,7 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         ButtonToolbarComponent,
         BadgeComponent,
         FormCheckComponent,
-        AlertComponent, FormTextDirective
+        AlertComponent, FormTextDirective, TextBgColorDirective
     ],
     declarations: [
         BreadcrumbComponent,

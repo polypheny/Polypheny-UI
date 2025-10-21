@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, Output, signal, SimpleChanges, untracked, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, Output, signal, SimpleChanges, untracked, viewChild, ViewChild} from '@angular/core';
 import {createEditor, UserMode} from './alg-editor';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {PolyAlgService} from '../polyalg.service';
@@ -39,7 +39,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     @Input() planType: PlanType;
     @Input() isReadOnly: boolean;
     @Output() execute = new EventEmitter<[string, OperatorModel]>();
-    @ViewChild('rete') container!: ElementRef;
+    container = viewChild<ElementRef>('rete');
     @ViewChild('textEditor') textEditor: EditorComponent;
     @ViewChild('itemText') textAccordionItem: AccordionItemComponent;
 
@@ -92,7 +92,10 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
                 private _route: ActivatedRoute) {
 
         effect(() => {
-            const el = this.container.nativeElement;
+            if (!this.container()?.nativeElement) {
+                return;
+            }
+            const el = this.container().nativeElement;
 
             if (this.showNodeEditor() && this.polyAlgPlan() !== undefined && this.planTypeSignal() !== undefined && el) {
                 untracked(() => {

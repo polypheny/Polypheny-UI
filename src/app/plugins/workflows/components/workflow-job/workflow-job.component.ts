@@ -50,7 +50,7 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
                 this.session.set(null);
                 this.workflow.set(null);
             }
-        }, {allowSignalWrites: true});
+        });
     }
 
     ngOnInit(): void {

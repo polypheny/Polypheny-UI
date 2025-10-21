@@ -4,7 +4,8 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 import {LeftSidebarService} from '../../../../components/left-sidebar/left-sidebar.service';
 import {WorkflowsService} from '../../services/workflows.service';
 import {SessionModel} from '../../models/workflows.model';
-import {MarkdownService, MarkedRenderer} from 'ngx-markdown';
+import {MarkdownService} from 'ngx-markdown';
+import {Parser, Renderer, Tokens} from 'marked';
 
 @Component({
     selector: 'app-workflow-session',
@@ -125,24 +126,26 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
     }
 
     private initMarkdown() {
-        const renderer = new MarkedRenderer();
-        renderer.blockquote = (text: string) => {
+        const renderer = new Renderer();
+        renderer.parser = new Parser();
+
+        renderer.blockquote = ({tokens}: Tokens.Blockquote) => {
             return `<div class="callout callout-warning">
-                        ${text}
+                        ${renderer.parser.parse(tokens)}
                     </div>`;
         };
 
-        renderer.codespan = (code) => {
-            return `<kbd>${code}</kbd>`;
+        renderer.codespan = ({text}: Tokens.Codespan) => {
+            return `<kbd>${text}</kbd>`;
         };
 
         const defaultHeadingRenderer = renderer.heading.bind(renderer);
-        renderer.heading = (text: string, level: number, raw: string) => {
-            return defaultHeadingRenderer(text, level + 3, raw);
+        renderer.heading = (heading: Tokens.Heading) => {
+            return defaultHeadingRenderer({...heading, depth: heading.depth + 3});
         };
 
         const defaultLinkRenderer = renderer.link.bind(renderer);
-        renderer.link = (href, title, text) => {
+        renderer.link = ({href, title, text}: Tokens.Link) => {
             const link = defaultLinkRenderer(href, title, text);
             return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
         };
@@ -150,7 +153,7 @@ export class WorkflowSessionComponent implements OnInit, OnDestroy {
         // https://github.com/jfcere/ngx-markdown/issues/149#issuecomment-1008360616
         const baseUrl = 'assets/img/plugin/workflows';
         const defaultImageRenderer = renderer.image.bind(renderer);
-        renderer.image = (href: string | null, title: string | null, text) => {
+        renderer.image = ({href, title, text}: Tokens.Image) => {
             href = `${baseUrl}/${href}`;
             return defaultImageRenderer(href, title, text);
         };

@@ -3,7 +3,7 @@
         <c-col [lg]="9">
             <c-button-toolbar role="group" aria-label="Toolbar with button groups" class="row-gap-2">
                 <button cButton color="danger" variant="outline" class="me-4 flex-grow-0"
-                        (click)="closeNotebookModal.show()">Close
+                        (click)="closeNotebookModal.visible = true">Close
                 </button>
                 <c-button-group size="sm" class="me-2" role="group" aria-label="Save">
                     <button cButton color="light" type="button" (click)="uploadNotebook()"
@@ -26,7 +26,7 @@
                             >
                                 <span>Trust Notebook</span>
                             </a>
-                            <a class="dropdown-item" (click)="renameNotebookModal.show()">
+                            <a class="dropdown-item" (click)="renameNotebookModal.visible = true">
                                 <span>Rename</span>
                             </a>
                             <a class="dropdown-item" (click)="duplicateNotebook()">
@@ -43,7 +43,7 @@
                             >
                                 <span>Export</span>
                             </a>
-                            <a class="dropdown-item" (click)="deleteNotebookModal.show()">
+                            <a class="dropdown-item" (click)="deleteNotebookModal.visible = true">
                                 <span>Delete</span>
                             </a>
                         </div>
@@ -106,10 +106,10 @@
                             <a class="dropdown-item" (click)="requestRestart(true)">
                                 <span>Restart Kernel and Run All Cells</span>
                             </a>
-                            <a class="dropdown-item" (click)="terminateKernelModal.show()">
+                            <a class="dropdown-item" (click)="terminateKernelModal.visible = true">
                                 <span>Shut Down Kernel</span>
                             </a>
-                            <a class="dropdown-item" (click)="terminateAllKernelsModal.show()">
+                            <a class="dropdown-item" (click)="terminateAllKernelsModal.visible = true">
                                 <span>Shut Down All Kernels</span>
                             </a>
                         </div>
@@ -214,7 +214,7 @@
             Create New Kernel
         </button>
         <button cButton color="primary" type="button" class="ms-4" style="white-space: nowrap"
-                (click)="closeNotebookModal.show()">
+                (click)="closeNotebookModal.visible = true">
             Close Notebook
         </button>
 
@@ -222,12 +222,12 @@
 </ng-template>
 
 
-<c-modal bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #deleteNotebookModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="deleteNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Delete Notebook</h4>
-            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.hide()"
+            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.visible = false"
                     aria-label="Close"></button>
         </c-modal-header>
 
@@ -235,7 +235,7 @@
             <p>Are you sure you want to delete this notebook?</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="deleteNotebookModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="deleteNotebookModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="deleteNotebook()"
                     [disabled]="deleting">
                 <span *ngIf="!deleting">Delete</span>
@@ -245,12 +245,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #overwriteNotebookModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #overwriteNotebookModal tabindex="-1" role="dialog"
          aria-labelledby="deleteNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Notebook Changed</h4>
-            <button cButtonClose type="button" class="close" (click)="overwriteNotebookModal.hide()" aria-label="Close">
+            <button cButtonClose type="button" class="close" (click)="overwriteNotebookModal.visible = false" aria-label="Close">
             </button>
         </c-modal-header>
         <c-modal-body>
@@ -259,7 +259,7 @@
                 and revert to the version on disk.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="overwriteNotebookModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="overwriteNotebookModal.visible = false">Cancel</button>
             <button cButton color="secondary" type="button" (click)="revertNotebook()" [disabled]="overwriting">
                 <span *ngIf="!overwriting">Revert</span>
                 <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
@@ -273,19 +273,19 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #restartKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #restartKernelModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="restartKernelModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Restart Kernel</h4>
-            <button cButtonClose type="button" (click)="restartKernelModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="restartKernelModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body class="modal-body">
             <p>Are you sure you want to restart the kernel? All variables will be lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="restartKernelModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="restartKernelModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="restartKernel()"
                     [disabled]="deleting">Restart
             </button>
@@ -293,12 +293,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #renameNotebookModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #renameNotebookModal tabindex="-1" role="dialog"
          aria-labelledby="renameNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Rename File</h4>
-            <button cButtonClose type="button" (click)="renameNotebookModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="renameNotebookModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -311,7 +311,7 @@
             </form>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="renameNotebookModal.hide()">Close</button>
+            <button cButton color="secondary" type="button" (click)="renameNotebookModal.visible = false">Close</button>
             <button cButton color="primary" type="submit" class="pull-right" (click)="rename()"
                     [disabled]="!renameNotebookForm.valid">Rename
             </button>
@@ -319,7 +319,7 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #closeNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #closeNotebookModal class="modal" tabindex="-1" role="dialog" [keyboard]="false" [backdrop]="'static'"
          aria-labelledby="terminateKernelModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
@@ -356,13 +356,13 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #terminateKernelModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #terminateKernelModal tabindex="-1" role="dialog"
          aria-labelledby="terminateKernelModal" aria-hidden="true">
 
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Shut Down Kernel and Close Notebook</h4>
-            <button cButtonClose type="button" (click)="terminateKernelModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="terminateKernelModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -370,7 +370,7 @@
                 lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="terminateKernelModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="terminateKernelModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="closeAndTerminate(false)"
                     [disabled]="deleting">Shut Down
             </button>
@@ -378,12 +378,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #terminateAllKernelsModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #terminateAllKernelsModal tabindex="-1" role="dialog"
          aria-labelledby="terminateAllKernelsModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Shut Down All Kernels and Close Notebook</h4>
-            <button cButtonClose type="button" (click)="terminateAllKernelsModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="terminateAllKernelsModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -391,7 +391,7 @@
                 lost!</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="terminateAllKernelsModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="terminateAllKernelsModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="closeAndTerminate(true)"
                     [disabled]="deleting">Shut Down All
             </button>

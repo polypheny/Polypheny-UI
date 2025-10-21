@@ -1,5 +1,3 @@
-@import "scss/style.scss";
-
 .rete {
   min-height: 800px;
   border: 2px solid;
@@ -16,33 +14,33 @@
 
 // READONLY must be above CHANGED and INVALID. This way CHANGED and INVALID take priority
 .READONLY {
-  border-color: $secondary;
+  border-color: var(--cui-secondary);
 }
 
 button.accordion-button.READONLY {
-  background-color: $secondary !important;
+  background-color: var(--cui-secondary) !important;
 }
 
 .CHANGED {
-  border-color: $warning-50;
+  border-color: #fcd88a;
 }
 
 button.accordion-button.CHANGED {
-  background-color: $warning-50 !important;
+  background-color: #fcd88a !important;
 }
 
 .INVALID {
-  border-color: $danger-50;
+  border-color: #f2a9a9;
 }
 
 button.accordion-button.INVALID {
-  background-color: $danger-50 !important;
+  background-color: #f2a9a9 !important;
 }
 
 button.accordion-button {
   box-shadow: none !important;
   outline: none;
-  color: $body-color !important;
+  color: var(--cui-body-color) !important;
   background-color: white !important;
 }
 

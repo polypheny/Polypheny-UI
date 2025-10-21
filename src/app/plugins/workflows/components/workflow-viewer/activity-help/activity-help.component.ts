@@ -23,7 +23,7 @@ export class ActivityHelpComponent implements OnInit {
     };
 
     constructor() {
-        effect(() => this.activeSettingGroup.set(this.def().getFirstGroup()), {allowSignalWrites: true});
+        effect(() => this.activeSettingGroup.set(this.def().getFirstGroup()));
     }
 
     ngOnInit(): void {

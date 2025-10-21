@@ -10,7 +10,7 @@ import {ToastDuration, ToasterService} from '../../components/toast-exposer/toas
 import {RelationalResult, UiColumnDefinition} from '../../components/data-view/models/result-set.model';
 import {DbmsTypesService} from '../../services/dbms-types.service';
 import {Subscription} from 'rxjs';
-import {ModalDirective} from 'ngx-bootstrap/modal';
+import {ModalComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-uml',
@@ -37,7 +37,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     errorMsg: string;
     types: {};
 
-    @ViewChild('myModal', {static: false}) myModal: ModalDirective;
+    @ViewChild('myModal', {static: false}) myModal: ModalComponent;
     sourceTable;//schema.table
     sourceCol;
     targetTable;//schema.table
@@ -220,7 +220,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
                         self.fkForm.controls['delete'].setValue('RESTRICT');
                     }
                 }
-                self.myModal.show();
+                self.myModal.visible = true;
             }
             self.temporalLine = null;
             isDragging = false;
@@ -274,7 +274,7 @@ export class UmlComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     closeModal() {
-        this.myModal.hide();
+        this.myModal.visible = false;
         this.sourceTable = null;
         this.sourceCol = null;
         this.targetTable = null;

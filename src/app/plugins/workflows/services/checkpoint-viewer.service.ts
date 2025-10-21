@@ -46,7 +46,7 @@ export class CheckpointViewerService {
                 this.isWaitingForExecution.set(false);
                 this._websocket.getCheckpoint(this.selectedActivity().id, this.selectedOutput());
             }
-        }, {allowSignalWrites: true});
+        });
     }
 
     toggleModal() {

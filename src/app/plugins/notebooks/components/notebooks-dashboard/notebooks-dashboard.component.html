@@ -22,17 +22,17 @@
                 <c-card-footer class="bg-transparent">
                     <div class="d-flex gap-1 flex-wrap">
                         <button cButton color="danger" *ngIf="serverStatus" class="pull-right"
-                                (click)="destroyContainerModal.show()">
+                                (click)="destroyContainerModal.visible = true">
                             <svg [cIcon]="icons.cilTrash" title="List Icon"></svg>
                             Destroy
                         </button>
                         <button cButton color="danger" *ngIf="serverStatus" class="pull-right me-2"
-                                (click)="restartContainerModal.show()">
+                                (click)="restartContainerModal.visible = true">
                             <svg [cIcon]="icons.cilReload" title="List Icon"></svg>
                             Restart
                         </button>
                         <button cButton color="success" *ngIf="!serverStatus" class="pull-right me-2"
-                                (click)="startContainerModal.show()">
+                                (click)="startContainerModal.visible = true">
                             <svg [cIcon]="icons.cilMediaPlay" title="List Icon"></svg>
                             Start
                         </button>
@@ -80,11 +80,11 @@
                 <c-card-footer class="bg-transparent">
                     <div class="pull-right">
                         <button cButton color="danger" variant="outline" class="me-2" *ngIf="hasUnusedSessions"
-                                (click)="terminateUnusedSessionsModal.show()">
+                                (click)="terminateUnusedSessionsModal.visible = true">
                             Shut Down Unused
                         </button>
                         <button cButton color="danger" [disabled]="sessions.length === 0"
-                                (click)="terminateSessionsModal.show()">
+                                (click)="terminateSessionsModal.visible = true">
                             Shut Down All
                         </button>
                     </div>
@@ -98,19 +98,19 @@
     <p>The Jupyter Plugin is not loaded. Refresh the page to try again.</p>
 </ng-template>
 
-<c-modal bsModal #terminateSessionsModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #terminateSessionsModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="terminateSessionsModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Shut Down All Kernels</h4>
-            <button cButtonClose type="button" (click)="terminateSessionsModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="terminateSessionsModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
             <p>Are you sure you want to shut down all running kernels? Unsaved changes might be lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="terminateSessionsModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="terminateSessionsModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="terminateSessions(false)"
                     [disabled]="deleting">
                 <span *ngIf="!deleting">Shut Down All</span>
@@ -120,12 +120,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #terminateUnusedSessionsModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #terminateUnusedSessionsModal tabindex="-1" role="dialog"
          aria-labelledby="terminateSessionsModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Shut Down Unused Kernels</h4>
-            <button cButtonClose type="button" class="close" (click)="terminateUnusedSessionsModal.hide()"
+            <button cButtonClose type="button" class="close" (click)="terminateUnusedSessionsModal.visible = false"
                     aria-label="Close"></button>
         </c-modal-header>
 
@@ -133,7 +133,7 @@
             <p>Are you sure you want to shut down all kernels with no open connections?</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="terminateUnusedSessionsModal.hide()">Cancel
+            <button cButton color="secondary" type="button" (click)="terminateUnusedSessionsModal.visible = false">Cancel
             </button>
             <button cButton color="danger" type="button" (click)="terminateSessions(true)"
                     [disabled]="deleting">
@@ -144,12 +144,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #restartContainerModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #restartContainerModal tabindex="-1" role="dialog"
          aria-labelledby="terminateSessionsModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Restart Jupyter Server Container</h4>
-            <button cButtonClose type="button" class="close" (click)="restartContainerModal.hide()" aria-label="Close">
+            <button cButtonClose type="button" class="close" (click)="restartContainerModal.visible = false" aria-label="Close">
             </button>
         </c-modal-header>
 
@@ -158,7 +158,7 @@
                 kernels. Unsaved changes might be lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="restartContainerModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="restartContainerModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="restartContainer()">
                 <span>Restart</span>
             </button>
@@ -166,12 +166,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #destroyContainerModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #destroyContainerModal tabindex="-1" role="dialog"
          aria-labelledby="terminateSessionsModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header class="modal-header">
             <h4 cModalTitle>Destroy Jupyter Server Container</h4>
-            <button cButtonClose type="button" (click)="destroyContainerModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="destroyContainerModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -179,7 +179,7 @@
                 kernels. Unsaved changes might be lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="destroyContainerModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="destroyContainerModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="destroyContainer()">
                 <span>Destroy</span>
             </button>
@@ -187,36 +187,34 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #startContainerModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #startContainerModal tabindex="-1" role="dialog"
          aria-labelledby="terminateSessionsModal" aria-hidden="true">
-    <c-modal-content>
-        <c-modal-header>
-            <h4 cModalTitle>Deploy Jupyter Server Container</h4>
-            <button cButtonClose type="button" (click)="startContainerModal.hide()" aria-label="Close"></button>
-        </c-modal-header>
+    <c-modal-header>
+        <h4 cModalTitle>Deploy Jupyter Server Container</h4>
+        <button cButtonClose type="button" (click)="startContainerModal.visible = false" aria-label="Close"></button>
+    </c-modal-header>
 
-        <c-modal-body>
-            Select the Docker instance to use:
-            <select cSelect name="instanceId" #selectedInstance class="form-control"
-                    [disabled]="instances.length === 0">
-                <option *ngIf="instances.length === 0">No instances available</option>
-                <option *ngFor="let instance of instances" [value]="instance.id">{{ instance.host.alias }}</option>
-            </select>
-            <div *ngIf="instances.length === 0" class="alert alert-info mt-3">
-                To add a Docker instance go to Config &gt; Docker.
-            </div>
-            <div *ngIf="instances.length > 0" class="alert alert-warning mt-3">
-                The Jupyter image is very large, it might take some time to download.
-            </div>
-        </c-modal-body>
-        <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="startContainerModal.hide()">Cancel</button>
-            <button cButton color="success" type="button" (click)="createContainer(+(selectedInstance.value))"
-                    [disabled]="creating || instances.length === 0">
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"
-                      *ngIf="creating"></span>
-                <span>Start</span>
-            </button>
-        </c-modal-footer>
-    </c-modal-content>
+    <c-modal-body>
+        Select the Docker instance to use:
+        <select cSelect name="instanceId" #selectedInstance class="form-control"
+                [disabled]="instances.length === 0">
+            <option *ngIf="instances.length === 0">No instances available</option>
+            <option *ngFor="let instance of instances" [value]="instance.id">{{ instance.host.alias }}</option>
+        </select>
+        <div *ngIf="instances.length === 0" class="alert alert-info mt-3">
+            To add a Docker instance go to Config &gt; Docker.
+        </div>
+        <div *ngIf="instances.length > 0" class="alert alert-warning mt-3">
+            The Jupyter image is very large, it might take some time to download.
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" type="button" (click)="startContainerModal.visible = false">Cancel</button>
+        <button cButton color="success" type="button" (click)="createContainer(+(selectedInstance.value))"
+                [disabled]="creating || instances.length === 0">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"
+                  *ngIf="creating"></span>
+            <span>Start</span>
+        </button>
+    </c-modal-footer>
 </c-modal>

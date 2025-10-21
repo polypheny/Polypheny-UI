@@ -64,7 +64,7 @@ export class ActivityConfigEditorComponent implements OnInit {
             )];
         });
 
-        effect(() => this.serializedEditedConfig.set(this.serializedConfig()), {allowSignalWrites: true});
+        effect(() => this.serializedEditedConfig.set(this.serializedConfig()));
     }
 
     ngOnInit(): void {

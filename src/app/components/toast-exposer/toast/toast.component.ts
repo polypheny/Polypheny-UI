@@ -1,10 +1,9 @@
-import {ChangeDetectorRef, Component, ElementRef, forwardRef, inject, Input, Renderer2, ViewChild} from '@angular/core';
+import {Component, forwardRef, inject, Input, ViewChild} from '@angular/core';
 import {Toast} from '../toaster.model';
 import {KeyValue} from '@angular/common';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ResultException} from '../../data-view/models/result-set.model';
 
-import {ToastComponent as ToastParent, ToasterService} from '@coreui/angular';
+import {ModalComponent, ToastComponent as ToastParent} from '@coreui/angular';
 import {BehaviorSubject} from 'rxjs';
 import {UtilService} from '../../../services/util.service';
 
@@ -21,19 +20,15 @@ export class ToastComponent extends ToastParent {
     @Input() title = '';
 
     exception: ResultException;
-    @ViewChild('stackTraceModal', {static: false}) public stackTraceModal: ModalDirective;
+    @ViewChild('stackTraceModal', {static: false}) public stackTraceModal: ModalComponent;
 
     public toast: BehaviorSubject<Toast> = new BehaviorSubject<Toast>(null);
 
     public readonly _util = inject(UtilService);
     showCopied = false;
 
-    constructor(
-        public override hostElement: ElementRef,
-        public override renderer: Renderer2,
-        public override toasterService: ToasterService,
-        public override changeDetectorRef: ChangeDetectorRef) {
-        super(hostElement, renderer, toasterService, changeDetectorRef);
+    constructor() {
+        super();
     }
 
 
@@ -58,7 +53,7 @@ export class ToastComponent extends ToastParent {
     showStackTraceModal(toast: Toast) {
         if (toast.exception) {
             this.exception = toast.exception;
-            this.stackTraceModal.show();
+            this.stackTraceModal.visible = true;
         }
     }
 

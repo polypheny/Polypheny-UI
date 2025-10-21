@@ -58,9 +58,8 @@
               ]
             },
             "scripts": [
-              "node_modules/chart.js/dist/chart.min.js",
-                "node_modules/katex/dist/katex.min.js",
-              "node_modules/katex/dist/contrib/auto-render.min.js",
+                "node_modules/katex/dist/katex.js",
+                "node_modules/katex/dist/contrib/auto-render.js",
                 "node_modules/prismjs/prism.js",
                 "node_modules/prismjs/components/prism-css.min.js",
                 "node_modules/prismjs/components/prism-cypher.min.js",
@@ -69,7 +68,8 @@
                 "node_modules/prismjs/components/prism-java.min.js",
                 "node_modules/prismjs/components/prism-mongodb.min.js",
                 "node_modules/prismjs/components/prism-bash.min.js",
-                "node_modules/prismjs/components/prism-markdown.min.js"
+                "node_modules/prismjs/components/prism-markdown.min.js",
+                "node_modules/plyr/dist/plyr.js"
             ],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -128,7 +128,6 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
-              "node_modules/chart.js/dist/chart.min.js"
             ],
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",

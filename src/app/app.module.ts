@@ -16,7 +16,6 @@ import {AppRoutingModule} from './app-routing.module';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {TabsModule} from 'ngx-bootstrap/tabs';
-import {NgChartsModule} from 'ng2-charts';
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {
@@ -56,9 +55,10 @@ import {
     ProgressComponent,
     RowComponent,
     SidebarComponent,
+    SidebarFooterComponent,
     SidebarNavComponent,
     SidebarToggleDirective,
-    SidebarTogglerComponent,
+    SidebarTogglerDirective,
     ToastBodyComponent,
     ToastCloseDirective,
     ToastComponent,
@@ -79,6 +79,7 @@ import {NotebooksModule} from './plugins/notebooks/notebooks.module';
 import {IconDirective} from '@coreui/icons-angular';
 import {WorkflowsModule} from './plugins/workflows/workflows.module';
 import {MarkdownModule} from 'ngx-markdown';
+import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
 
 
 @NgModule({
@@ -96,12 +97,11 @@ import {MarkdownModule} from 'ngx-markdown';
         BrowserModule,
         BsDropdownModule.forRoot(),
         TabsModule.forRoot(),
-        NgChartsModule,
         // plugins
         NotebooksModule,
         WorkflowsModule,
         ToastComponent,
-        NgChartsModule,
+        BaseChartDirective,
         ToasterComponent,
         // coreui / bootstrap
         TooltipModule.forRoot(),
@@ -131,7 +131,6 @@ import {MarkdownModule} from 'ngx-markdown';
         DropdownItemDirective,
         DropdownMenuDirective,
         HeaderTogglerDirective,
-        SidebarTogglerComponent,
         SidebarNavComponent,
         IconDirective,
         RowComponent,
@@ -161,10 +160,16 @@ import {MarkdownModule} from 'ngx-markdown';
         CollapseDirective,
         NavbarBrandDirective,
         NavbarNavComponent,
-        MarkdownModule.forRoot()], providers: [{
-        provide: LocationStrategy,
-        useClass: HashLocationStrategy
-    }, provideHttpClient(withInterceptorsFromDi())]
+        MarkdownModule.forRoot(), SidebarFooterComponent, SidebarTogglerDirective
+    ],
+    providers: [
+        {
+            provide: LocationStrategy,
+            useClass: HashLocationStrategy
+        },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideCharts(withDefaultRegisterables())
+    ]
 })
 export class AppModule {
 }
