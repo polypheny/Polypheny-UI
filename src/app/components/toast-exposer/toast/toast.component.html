@@ -50,13 +50,13 @@
         <ng-container class="p-3">
             <ng-container>
                 <c-toast-header [closeButton]="true">
-                    <toast-sample-icon></toast-sample-icon>
+                    <!--<toast-sample-icon></toast-sample-icon>-->
                     <strong>{{ e.message }}</strong>
                 </c-toast-header>
                 <c-toast-body #toast [cToastClose]="toast.toast">
                     <p class="mb-1">This is a dynamic toast no {{ toast.toast?.index }} {{ toast.toast?.clock }}</p>
                     <ng-content></ng-content>
-                    <c-progress thin>
+                    <c-progress thin="">
                         <c-progress-bar [value]="25*(toast.toast?.clock ?? 1)"></c-progress-bar>
                     </c-progress>
                 </c-toast-body>

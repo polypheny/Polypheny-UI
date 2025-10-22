@@ -190,7 +190,7 @@
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-flush font-monospace small">
-                    @for (s of e.stackTrace; track $index) {
+                    @for (s of $any( e.stackTrace ); track $index) {
                         <li class="list-group-item">
                             <span class="text-secondary">at </span>
                             <span class="fw-bold">{{ s.className }}.{{ s.methodName }}</span>

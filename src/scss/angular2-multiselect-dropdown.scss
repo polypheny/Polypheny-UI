@@ -74,7 +74,7 @@ $selected-background: #e9f4ff;
   border: 1px solid #ccc;
   border-radius: $border-radius !important;
   background: #fff;
-  box-shadow: 0px 1px 5px $box-shadow-color;
+  box-shadow: 0 1px 5px $box-shadow-color;
 }
 
 .select-all {
@@ -149,7 +149,7 @@ $selected-background: #e9f4ff;
 
   input[type="checkbox"] + label:before {
     color: transparent !important;
-    border: 0px solid $base-color;
+    border: 0 solid $base-color;
   }
 
   input[type="checkbox"] + label:after {

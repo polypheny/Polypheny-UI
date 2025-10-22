@@ -3,7 +3,7 @@
         @if (!resultSet.error && resultSet.data) {
             <p [ngClass]="{'result-text': !resultSet.data, 'text-center': resultSet.data}"
             >
-                <i>Found: {{ resultSet.affectedRows }}</i>
+                <i>Found: {{ $any( resultSet ).affectedRows }}</i>
             </p>
         }
         @if (!resultSet.data && !resultSet.error) {
@@ -21,7 +21,7 @@
             @if (resultIsTooLong) {
                 <p class="text-center">
                     Result is too big to be displayed entirely. Only the first {{ resultSet.data.length }}
-                    of {{ resultSet.affectedRows }} entries are shown.
+                    of {{ $any( resultSet ).affectedRows }} entries are shown.
                 </p>
             }
             <app-data-view class="result-view" [result]="resultSet" [config]="tableConfig"></app-data-view>

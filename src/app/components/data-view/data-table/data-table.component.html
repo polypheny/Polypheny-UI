@@ -18,14 +18,14 @@
                             <th>
                   <span [tooltip]="getTooltip(h)" placement="bottom" [delay]="200" container="body"
                         [ngClass]="{'pk': h.primary}">{{ h.name }}</span>
-                                @if (false && entityConfig().sort && canOrder( h ) && h.name !== '_data') {
+                                <!--@if (false && entityConfig().sort && canOrder( h ) && h.name !== '_data') {
                                     <a
                                             [routerLink]="[]"
                                             [ngClass]="{'btn-primary' : h.sort.sorting, 'btn-light': !h.sort.sorting, 'btn btn-sm float-right': true}"
                                             (click)="sortTable(h.sort)">
                                         <i [ngClass]="h.sort.direction === 'ASC' ? 'icon-arrow-up' : 'icon-arrow-down'"></i>
                                     </a>
-                                }
+                                }-->
                             </th>
                         }
                     }
@@ -39,7 +39,7 @@
                 <tbody>
                     @if (entityConfig().search) {
                         <tr>
-                            @for (h of $result().header; track trackByFn( $index, h )) {
+                            @for (h of $result().header; track $index) {
                                 <td>
                                     @if (_types.isNumeric( h.dataType ) && !h.collectionsType) {
                                         <input
@@ -71,11 +71,11 @@
                             }
                         </tr>
                     }
-                    @for (d1 of $result().data; track d1; let i = $index) {
+                    @for (d1 of $result().data; track i + currentPage() * 1000; let i = $index) {
                         <tr
                                 [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?' || this.userInput === null}">
                             @if (editing === i) {
-                                @for (d2 of d1; track d2; let j = $index) {
+                                @for (d2 of d1; track j; let j = $index) {
                                     <td>
                                         <app-input class="editing" [header]="$result().header[j]"
                                                    [value]="updateValues.get($result().header[j].name)"
@@ -99,7 +99,7 @@
                             }
                             <!-- table which shows results  -->
                             @if (editing !== i) {
-                                @for (d2 of d1; track d2; let j = $index) {
+                                @for (d2 of d1; track j; let j = $index) {
                                     <td (dblclick)="triggerEditing(i)">
                                         @if (d2) {
                                             @switch (removeNull( $result().header[j].dataType )) {
@@ -122,7 +122,7 @@
                                                     </c-progress>
                                                 }
                                                 @case ('IMAGE') {
-                                                    <img [src]="getFileLink(d2)"
+                                                    <img [src]="getFileLink(d2)" alt=""
                                                          style="max-height:200px; max-width: 300px"/>
                                                 }
                                                 @case ('VIDEO') {
@@ -225,7 +225,7 @@
                                 [disabled]="p.disabled" [active]="p.active">
                                 <a cPageLink class="pe-auto page-link"
                                    [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
-                                   [routerLink]>{{ p.label }}</a>
+                                   [routerLink]="">{{ p.label }}</a>
                             </li>
                         }
                     </c-pagination>

@@ -63,7 +63,7 @@
         <c-form-feedback class="text-right">{{ isDuplicate ? dupKeyError : '' }}</c-form-feedback>
     </c-input-group>
     @if (isObject( el.value )) {
-        @for (el2 of el.value; track i; let i = $index) {
+        @for (el2 of $any( el.value ); track i; let i = $index) {
             <app-json-elem class="mt-1"
                            [el]="asPair(el2)"
                            [type]="getType(el2)"

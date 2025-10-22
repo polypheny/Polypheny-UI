@@ -1,15 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {NotebooksService} from './notebooks.service';
 import {BehaviorSubject, forkJoin, interval, Observable, of, Subject, Subscription} from 'rxjs';
-import {
-    Content,
-    DirectoryContent,
-    FileContent,
-    KernelSpec,
-    KernelSpecs,
-    NotebookContent,
-    SessionResponse
-} from '../models/notebooks-response.model';
+import {Content, DirectoryContent, FileContent, KernelSpec, KernelSpecs, NotebookContent, SessionResponse} from '../models/notebooks-response.model';
 import {UrlSegment} from '@angular/router';
 import {mergeMap, switchMap, tap} from 'rxjs/operators';
 import {Notebook} from '../models/notebook.model';
@@ -67,11 +59,12 @@ export class NotebooksContentService {
                 this.updateMetadata(res);
                 return this._notebooks.getContents(this._directoryPath, true);
             })
-        ).subscribe(
-            res => {
-                this.updateDirectory(<DirectoryContent>res);
-            },
-            () => this.invalidLocationSubject.next(null)
+        ).subscribe({
+                next: res => {
+                    this.updateDirectory(<DirectoryContent>res);
+                },
+                error: () => this.invalidLocationSubject.next(null)
+            }
         ).add(() => this.contentChange.next(null));
     }
 
@@ -104,13 +97,15 @@ export class NotebooksContentService {
     }
 
     updateAvailableKernels() {
-        this._notebooks.getKernelspecs().subscribe(res => this.kernelSpecs.next(res),
-            () => this.serverUnreachableSubject.next(null));
+        this._notebooks.getKernelspecs().subscribe({
+            next: res => this.kernelSpecs.next(res),
+            error: () => this.serverUnreachableSubject.next(null)
+        });
     }
 
     updateSessions() {
-        forkJoin([this._notebooks.getSessions(), this._notebooks.getOpenConnections()]).subscribe(
-            ([sessions, openConnections]) => {
+        forkJoin([this._notebooks.getSessions(), this._notebooks.getOpenConnections()]).subscribe({
+            next: ([sessions, openConnections]) => {
                 const modifiedSessions = sessions.map(session => { // insert correct connections number
                     if (session.kernel) {
                         session.kernel.connections = openConnections[session.kernel.id] || 0;
@@ -121,9 +116,10 @@ export class NotebooksContentService {
                 this.sessions.next(modifiedSessions);
 
             },
-            () => {
+            error: () => {
                 this.sessions.next([]);
                 this.serverUnreachableSubject.next(null);
+            }
             }
         );
     }
@@ -176,8 +172,8 @@ export class NotebooksContentService {
         let sessionIds = [];
         if (onlyUnused) {
             sessionIds = this.sessions.getValue()
-                .filter(session => session.kernel?.connections === 0)
-                .map(session => session.id);
+            .filter(session => session.kernel?.connections === 0)
+            .map(session => session.id);
         } else {
             sessionIds = this.sessions.getValue().map(session => session.id);
         }

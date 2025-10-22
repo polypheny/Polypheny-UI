@@ -2,18 +2,18 @@
     <div>
         @if (_choosenTables && _choosenTables['column'] && includesSchema( _choosenTables['column'], schema.key )) {
             <div>
-                <h5>Refinement Options</h5>
+                <h5>Refinement Options</h5> <!--TODO: Refinement Options currently does not work-->
                 @if (hasMultipleSchemas()) {
                     <h4 class="my-2">{{ 'Schema: ' + schema.key }}</h4>
                 }
                 <div class="card text-center">
                     <div class="card-header">
                         <ul class="c-header-nav nav-tabs card-header-tabs">
-                            @for (table of filterHeaders( stylingSet[schema.key], _choosenTables, schema.key ) | keyvalue; track table.key) {
+                            @for (table of $any( filterHeaders( stylingSet[schema.key], _choosenTables, schema.key ) ) | keyvalue; track table.key) {
                                 <li class="c-header-nav-item"
                                 >
                                     <a [className]="this.activeHeaders && this.activeHeaders[schema.key] === table.key ? 'nav-link active': 'nav-link'"
-                                       (click)="addToHeader(schema.key, table.key)">{{ table.key }}</a>
+                                       (click)="addToHeader(schema.key, $any(table.key))">{{ table.key }}</a>
                                 </li>
                             }
                         </ul>
@@ -21,10 +21,10 @@
                     <div class="card-body text-left">
                         @for (table of stylingSet[schema.key] | keyvalue; track table.key) {
                             <div>
-                                @if (_choosenTables && _choosenTables['column'] && includesTable( _choosenTables['column'], table.key ) && this.activeHeaders && this.activeHeaders[schema.key] === table.key) {
+                                @if (_choosenTables && _choosenTables['column'] && includesTable( _choosenTables['column'], $any( table.key ) ) && this.activeHeaders && this.activeHeaders[schema.key] === table.key) {
                                     <div class="refinement-table"
                                     >
-                                        @for (col of filterSet( stylingSet[schema.key][table.key] ) | keyvalue; track col.key; let i = $index) {
+                                        @for (col of $any( filterSet( stylingSet[schema.key][table.key] ) ) | keyvalue; track col.key; let i = $index) {
                                             <div class="refinement-column"
                                             >
                                                 @if (_choosenTables && _choosenTables['column'] && includes( _choosenTables['column'], col.value['qualifiedColumnName'] )) {
@@ -95,12 +95,12 @@
                                                                 <c-col class="col col-lg-4 col-md-6 col-sm-12"
                                                                 >
                                                                     <p>Min - Max</p>
-                                                                    <ngx-slider id="slider"
+                                                                    <!--<ngx-slider id="slider"
                                                                                 [(value)]="this.statisticSet[col.value['qualifiedColumnName']]['min']"
                                                                                 [(highValue)]="this.statisticSet[col.value['qualifiedColumnName']]['max']"
                                                                                 [options]="this.statisticSet[col.value['qualifiedColumnName']]['options']"
                                                                                 [(ngModel)]="this.filteredUserInput[col.value['qualifiedColumnName']]['minMax']"
-                                                                                (ngModelChange)="changeUserInput()"></ngx-slider>
+                                                                                (ngModelChange)="changeUserInput()"></ngx-slider>-->
                                                                 </c-col>
                                                             }
                                                             <!-- column value for search -->
@@ -124,7 +124,7 @@
                                                                 <div class="col col-lg-4 col-md-6 col-sm-12"
                                                                 >
                                                                     <p>Unique Values</p>
-                                                                    @for (val of this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues']; track val) {
+                                                                    @for (val of $any( this.statisticSet[col.value['qualifiedColumnName']]['uniqueValues'] ); track val) {
                                                                         <div>
                                                                             <div class="form-check">
                                                                                 <label class="form-check-label">

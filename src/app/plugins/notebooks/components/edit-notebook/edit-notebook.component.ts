@@ -292,8 +292,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     duplicateNotebook() {
-        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(() => this._content.update(),
-            err => this._toast.error(err.error.message, `Could not duplicate ${this.path}.`));
+        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe({
+            next: () => this._content.update(),
+            error: err => this._toast.error(err.error.message, `Could not duplicate ${this.path}.`)
+        });
     }
 
     downloadNotebook() {
@@ -305,12 +307,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._toast.warn('Please save your changes first before exporting the notebook.', 'Info');
             return;
         }
-        this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe(res => {
-                this._content.downloadNotebook(res.content, 'exported_' + this.name);
-            },
-            () => {
-                this._toast.warn('Unable to export the notebook.');
-            });
+        this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe({
+            next: res => this._content.downloadNotebook(res.content, 'exported_' + this.name),
+            error: () => this._toast.warn('Unable to export the notebook.')
+        });
     }
 
     trustNotebook() {
@@ -379,14 +379,14 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     return EMPTY;
                 }
             })
-        ).subscribe(res => {
-            if (showSuccessToast) {
-                this._toast.success('Notebook was saved.');
-            }
-            this.nb.markAsSaved(res.last_modified);
-        }, () => {
-            this._toast.error('An error occurred while uploading the notebook.');
-
+        ).subscribe({
+            next: res => {
+                if (showSuccessToast) {
+                    this._toast.success('Notebook was saved.');
+                }
+                this.nb.markAsSaved(res.last_modified);
+            },
+            error: () => this._toast.error('An error occurred while uploading the notebook.')
         });
     }
 
@@ -404,13 +404,14 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     return this._notebooks.updateNotebook(this.path, this.nb.notebook);
                 }
             })
-        ).subscribe(res => {
-            if (showSuccessToast) {
-                this._toast.success('Notebook was saved.');
-            }
-            this.nb.markAsSaved(res.last_modified);
-        }, () => {
-            this._toast.error('An error occurred while uploading the notebook.');
+        ).subscribe({
+            next: res => {
+                if (showSuccessToast) {
+                    this._toast.success('Notebook was saved.');
+                }
+                this.nb.markAsSaved(res.last_modified);
+            },
+            error: () => this._toast.error('An error occurred while uploading the notebook.')
         });
     }
 
@@ -420,13 +421,13 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
      */
     overwriteNotebook(showSuccessToast = true) {
         this.overwriting = true;
-        this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe(res => {
-            if (showSuccessToast) {
-                this._toast.success('Notebook was saved.');
-            }
-            this.nb?.markAsSaved(res.last_modified);
-        }, () => {
-            this._toast.error('An error occurred while uploading the notebook.');
+        this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe({
+            next: res => {
+                if (showSuccessToast) {
+                    this._toast.success('Notebook was saved.');
+                }
+                this.nb?.markAsSaved(res.last_modified);
+            }, error: () => this._toast.error('An error occurred while uploading the notebook.')
         }).add(() => {
             this.overwriteNotebookModal.visible = false;
             this.overwriting = false;
@@ -441,9 +442,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     interruptKernel() {
-        this._notebooks.interruptKernel(this.session.kernel.id).subscribe(() => {
-        }, () => {
-            this._toast.error('Unable to interrupt the kernel.');
+        this._notebooks.interruptKernel(this.session.kernel.id).subscribe({
+            error: () => {
+                this._toast.error('Unable to interrupt the kernel.');
+            }
         });
     }
 

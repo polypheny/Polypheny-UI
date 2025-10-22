@@ -31,7 +31,7 @@
                                 @if (i !== editing) {
                                     @switch (h.dataType) {
                                         @case ('IMAGE') {
-                                            <img [src]="getFileLink(d1[j])"/>
+                                            <img [src]="getFileLink(d1[j])" alt=""/>
                                         }
                                         @case ('VIDEO') {
                                             <app-media [src]="getFileLink(d1[j])"
@@ -200,7 +200,7 @@
                                 [disabled]="p.disabled" [active]="p.active">
                                 <a cPageLink class="pe-auto page-link"
                                    [style.cursor]="p.active || p.disabled ? 'inherit' : 'pointer'" (click)="paginate(p)"
-                                   [routerLink]>{{ p.label }}</a>
+                                   [routerLink]="">{{ p.label }}</a>
                             </li>
                         }
                     </c-pagination>

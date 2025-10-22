@@ -10,7 +10,7 @@
           <span cInputGroupText cTooltipPlacement="left" cTooltip="Internal ID of this Dockerinstance">
             ID
           </span>
-                    <input cFormControl type="text" id="idField" name="id" [(ngModel)]="id" readonly="true">
+                    <input cFormControl type="text" id="idField" name="id" [(ngModel)]="id" readonly="readonly">
                 </c-input-group>
             }
 
@@ -39,7 +39,7 @@
               <span cInputGroupText cTooltipPlacement="left" cTooltip="Is Polypheny connected to this instance?">
                 Connected
               </span>
-                    <input id="connectedField" [class]="'form-control ' + (connected === true ? 'bg-success-subtle' : connected === false ? 'bg-danger-subtle' : 'bg-secondary-subtle')" type="text" name="connected" [(ngModel)]="connected" readonly="true">
+                    <input id="connectedField" [class]="'form-control ' + (connected === true ? 'bg-success-subtle' : connected === false ? 'bg-danger-subtle' : 'bg-secondary-subtle')" type="text" name="connected" [(ngModel)]="connected" readonly="readonly">
                     <button cButton class="cil-reload" (click)="pingInstance()" [disabled]="lock"></button>
                 </c-input-group>
             }

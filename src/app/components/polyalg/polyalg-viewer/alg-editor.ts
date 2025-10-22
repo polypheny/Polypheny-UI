@@ -153,7 +153,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     if (oldTransform) {
         await area.area.zoom(oldTransform.k, oldTransform.x, oldTransform.y);
     } else {
-        AreaExtensions.zoomAt(area, editor.getNodes());
+        await AreaExtensions.zoomAt(area, editor.getNodes());
     }
 
     const modifyingEventTypes = new Set(['nodecreated', 'noderemoved', 'connectioncreated', 'connectionremoved']);
@@ -190,7 +190,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             await arrange.layout({
                 applier: undefined, options: layoutOpts
             });
-            AreaExtensions.zoomAt(area, editor.getNodes());
+            await AreaExtensions.zoomAt(area, editor.getNodes());
         },
         destroy: () => {
             area.destroy();

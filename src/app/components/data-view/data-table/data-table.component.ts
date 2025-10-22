@@ -45,10 +45,6 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
 
     protected readonly NamespaceType = DataModel;
 
-    trackByFn(index: any, item: any) {
-        return index;
-    }
-
     ngOnInit() {
         super.ngOnInit();
     }
