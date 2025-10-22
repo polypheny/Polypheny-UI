@@ -105,12 +105,12 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
         if (this.metadata.type === 'notebook' && this.sessions.length > 0) {
             this.terminateAllSessions();
         }
-        this._notebooks.deleteFile(this.metadata.path).subscribe(res => {
+        this._notebooks.deleteFile(this.metadata.path).subscribe({
+            next: () => {
                 const path = this.metadata.type === 'directory' ? this.parentPath : this.directoryPath;
                 this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')));
             },
-            err => {
-                this._toast.error(`Could not delete ${this.metadata.path}.`);
+            error: () => this._toast.error(`Could not delete ${this.metadata.path}.`)
             }
         );
     }
@@ -120,8 +120,10 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     }
 
     duplicateFile() {
-        this._notebooks.duplicateFile(this.metadata.path, this.directoryPath).subscribe(res => this._content.update(),
-            err => this._toast.error(`Could not duplicate ${this.metadata.path}.`));
+        this._notebooks.duplicateFile(this.metadata.path, this.directoryPath).subscribe({
+            next: () => this._content.update(),
+            error: () => this._toast.error(`Could not duplicate ${this.metadata.path}.`)
+        });
     }
 
     renameFile() {
@@ -149,11 +151,13 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     create() {
         this.creating = true;
         this._notebooks.createSession(this.metadata.name, this.metadata.path,
-            this.createKernelForm.value.kernel, true).subscribe(res => {
-                this._content.addSession(res);
-                this.openSession(res.id);
-            },
-            err => this._toast.error('Could not create session.')
+            this.createKernelForm.value.kernel, true).subscribe({
+                next: res => {
+                    this._content.addSession(res);
+                    this.openSession(res.id);
+                },
+                error: () => this._toast.error('Could not create session.')
+            }
         ).add(() => {
             this.creating = false;
             this.createKernelModal.visible = false;
@@ -164,7 +168,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
         const id = this.terminateSessionForm.value.session;
         this.deleting = true;
         this._content.deleteSession(id).subscribe(
-            res => {
+            () => {
                 this.deleting = false;
                 this.terminateSessionModal.visible = false;
             }
@@ -174,7 +178,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     terminateAllSessions() {
         this.deleting = true;
         this._content.deleteSessions(this.metadata.path).subscribe(
-            res => {
+            () => {
                 this.deleting = false;
                 this.terminateSessionModal.visible = false;
             }

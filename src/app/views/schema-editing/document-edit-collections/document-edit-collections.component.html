@@ -1,6 +1,6 @@
 <c-row>
     @if (collections() && collections().length > 0) {
-        <c-col xs="12" class="mb-3">
+        <c-col [xs]="12" class="mb-3">
             <h1>{{ namespace()?.name }}</h1>
             <table cTable striped="true" hover="true">
                 <thead>
@@ -73,7 +73,7 @@
 </c-row>
 
 <c-row class="mt-5">
-    <c-col xs="12">
+    <c-col [xs]="12">
         <h5>Create Collection</h5>
         <table cTable class="border-top">
             <tbody>

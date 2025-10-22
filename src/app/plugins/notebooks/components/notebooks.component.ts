@@ -67,7 +67,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
         );
         const sub2 = this._sidebar.onAddButtonClicked().subscribe(() => this.addNotebookModal.visible = true);
         const sub3 = this._sidebar.onUploadButtonClicked().subscribe(() => this.uploadNotebookModal.visible = true);
-        const sub4 = this._sidebar.onNotebookClicked().subscribe(([t, n, $e]) => this.notebookClicked(n));
+        const sub4 = this._sidebar.onNotebookClicked().subscribe(([_, n]) => this.notebookClicked(n));
         const sub5 = this._content.onInvalidLocation().subscribe(() => this.onPageNotFound());
         const sub6 = this._content.onKernelSpecsChange().subscribe(specs => this.updateAvailableKernels(specs));
         const sub7 = this._content.onServerUnreachable().subscribe(() => this.onServerUnreachable());
@@ -175,8 +175,6 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                     }
                 )
             ).subscribe({
-                next: res => {
-                },
                 error: err => {
                     console.log(err);
                     this._toast.error('Failed to open Notebook. The file might be corrupted or does no longer exist.');
@@ -275,15 +273,16 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                     }
                     return this._notebooks.moveFile(res.path, path);
                 }
-            ), mergeMap(res => {
+            ), mergeMap(() => {
                 if (val.type !== 'notebook') {
                     return EMPTY;
                 }
                 return this.startAndOpenNotebook(name, path, val.kernel);
             })
-        ).subscribe(res => {
-        }, err => {
-            this._toast.error(err.error.message, `Creation of '${fileName}' failed`);
+        ).subscribe({
+            error: err => {
+                this._toast.error(err.error.message, `Creation of '${fileName}' failed`);
+            }
         }).add(() => {
             if (val.type !== 'notebook') {
                 this._content.update(); // update for notebook happens automatically when navigating
@@ -324,7 +323,7 @@ export class NotebooksComponent implements OnInit, OnDestroy, CanDeactivate<Comp
                     const base64 = event.target.result.toString().split('base64,', 2)[1];
                     this._notebooks.updateFile(this._content.directoryPath + '/' + file.name, base64, 'base64', 'file')
                     .subscribe({
-                        next: res => {
+                        next: () => {
                             this._content.update();
                         },
                         error: err => {

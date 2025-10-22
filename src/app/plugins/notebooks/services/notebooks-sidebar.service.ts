@@ -135,18 +135,20 @@ export class NotebooksSidebarService {
             this._toast.warn('Cannot move a folder that contains notebooks with running kernels.');
             return;
         }
-        this._notebooks.moveFile(from, to).subscribe(res => {
-            if (this._content.isCurrentPath(from)) {
-                this.movedSubject.next(to);
-            } else {
-                this._content.update();
-            }
-            if (this._content.hasRunningKernel(from)) {
-                this._content.moveSessionsWithFile(from, res.name, to);
-            }
+        this._notebooks.moveFile(from, to).subscribe({
+            next: res => {
+                if (this._content.isCurrentPath(from)) {
+                    this.movedSubject.next(to);
+                } else {
+                    this._content.update();
+                }
+                if (this._content.hasRunningKernel(from)) {
+                    this._content.moveSessionsWithFile(from, res.name, to);
+                }
 
-        }, err => {
-            this._toast.error(err.error.message, `Failed to move '${from}'`);
+            }, error: err => {
+                this._toast.error(err.error.message, `Failed to move '${from}'`);
+            }
         });
 
     }

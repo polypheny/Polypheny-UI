@@ -704,7 +704,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @for (placement of placements(); track placement; let i = $index) {
+                        @for (placement of placements(); track placement.id; let i = $index) {
                             <tr>
                                 <td>{{ _catalog.getAdapter( placement.adapterId )?.name }}</td>
                                 <td>{{ _catalog.getAdapter( placement.adapterId )?.adapterName }}</td>

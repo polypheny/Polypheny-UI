@@ -18,44 +18,44 @@
             <li cListGroupItem class="p-2 list-element-container d-flex flex-row" [color]="data.depth > 0 && 'dark'">
                 <div class="list-element flex-grow-1">
                     @if (data.param.isEnum) {
-                        <app-enum-arg [data]="child"></app-enum-arg>
+                        <app-enum-arg [data]="$any(child)"></app-enum-arg>
                     }
 
                     @switch (data.value.innerType) {
                         @case (ParamType.REX) {
-                            <app-rex-arg [data]="child"></app-rex-arg>
+                            <app-rex-arg [data]="$any(child)"></app-rex-arg>
                         }
                         @case (ParamType.STRING) {
-                            <app-string-arg [data]="child"></app-string-arg>
+                            <app-string-arg [data]="$any(child)"></app-string-arg>
                         }
                         @case (ParamType.INTEGER) {
-                            <app-int-arg [data]="child"></app-int-arg>
+                            <app-int-arg [data]="$any(child)"></app-int-arg>
                         }
                         @case (ParamType.DOUBLE) {
-                            <app-double-arg [data]="child"></app-double-arg>
+                            <app-double-arg [data]="$any(child)"></app-double-arg>
                         }
                         @case (ParamType.FIELD) {
-                            <app-field-arg [data]="child"></app-field-arg>
+                            <app-field-arg [data]="$any(child)"></app-field-arg>
 
                         }
                         @case (ParamType.CORR_ID) {
-                            <app-correlation-arg [data]="child"></app-correlation-arg>
+                            <app-correlation-arg [data]="$any(child)"></app-correlation-arg>
                         }
                         @case (ParamType.COLLATION) {
-                            <app-collation-arg [data]="child"></app-collation-arg>
+                            <app-collation-arg [data]="$any(child)"></app-collation-arg>
                         }
                         @case (ParamType.AGGREGATE) {
-                            <app-agg-arg [data]="child"></app-agg-arg>
+                            <app-agg-arg [data]="$any(child)"></app-agg-arg>
                         }
                         @case (ParamType.LAX_AGGREGATE) {
-                            <app-lax-agg-arg [data]="child"></app-lax-agg-arg>
+                            <app-lax-agg-arg [data]="$any(child)"></app-lax-agg-arg>
                         }
                         @case (ParamType.WINDOW_GROUP) {
-                            <app-window-arg [data]="child"></app-window-arg>
+                            <app-window-arg [data]="$any(child)"></app-window-arg>
 
                         }
                         @case (ParamType.LIST) {
-                            <app-list-arg [data]="child"></app-list-arg>
+                            <app-list-arg [data]="$any(child)"></app-list-arg>
                         }
                         @default {
                             @if (!data.param.isEnum) {

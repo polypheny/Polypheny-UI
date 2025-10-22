@@ -34,7 +34,7 @@
             <p class="ms-2 mt-2"><i>(unknown operator)</i></p>
         }
         @for (control of data.controls | keyvalue: sortByIndex; track control.key) {
-            @if (!control.value.isHidden()) {
+            @if (!$any( control.value ).isHidden()) {
                 <div class="control"
                      refComponent [data]="{type: 'control', payload: control.value }"
                      [emit]="emit" [attr.data-testid]="'control-'+control.key"

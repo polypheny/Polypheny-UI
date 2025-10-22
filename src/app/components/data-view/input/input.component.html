@@ -52,7 +52,7 @@
             }
             <label [for]="'customFile'+randomId" class="form-control form-control-sm file-label">
                 <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
-                <input type="file" style="display: none;" [id]="'customFile'+randomId" (change)="onFileChange($event.target.files)" #fileInput>
+                <input type="file" style="display: none;" [id]="'customFile'+randomId" (change)="onFileChange($any($event.target).files)" #fileInput>
                 {{ inputFileName }}
             </label>
             @if (value !== null && header.nullable) {

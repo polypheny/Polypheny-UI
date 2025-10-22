@@ -5,11 +5,6 @@ import * as $ from 'jquery';
 import flatpickr from 'flatpickr';
 import {InputValidation} from '../models/sort-state.model';
 
-function getObjectId() {
-    // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
-    const s = 'abcdef0123456789';
-    return 'ObjectId(' + Array.apply(null, Array(24)).map(() => s.charAt(Math.floor(Math.random() * s.length))).join('') + ')';
-}
 
 @Component({
     selector: 'app-input',
@@ -65,7 +60,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         } else if (this._types.isDateTime(this.header.dataType) && (changes.value.currentValue == null || changes.value.currentValue === '') && this.flatpickrObj) {
             this.flatpickrObj.setDate(null);
         }
-        if (!changes.value.currentValue) {
+        if (!changes.value?.currentValue) {
             this.inputFileName = 'Choose file';
             if (this.fileInput) {
                 //see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4
@@ -174,7 +169,7 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         // https://flatpickr.js.org/options/
         const self = this;
 
-        function onChange(selectedDates, dateStr, instance) {
+        function onChange(_: any, dateStr: string, __: any) {
             self.onValueChange(dateStr);
         }
 

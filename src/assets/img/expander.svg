@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
         viewBox="0 0 600 600"
-        version="1.1"
         id="svg9724"
         width="600"
         height="600"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:svg="http://www.w3.org/2000/svg">
+        xmlns="http://www.w3.org/2000/svg">
     <defs
             id="defs9728"/>
 
@@ -22,7 +20,7 @@
                 transform="matrix(1.5092301,0,0,1.3955555,36.774048,-9.4503933)"
                 style="stroke-width:50.6951"/>
         <path
-                style="color:white;fill:white;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
+                style="color:white;fill:white;stroke-linecap:round;stroke-linejoin:round;"
                 d="M 29.830078,-12.726563 C 5.7112733,-14.099797 -14.601552,5.0862749 -14.605469,29.244141 V 575.97852 c 0.0049,31.25526 32.899706,51.57891 60.853516,37.59765 L 592.59961,340.20898 c 14.23447,-7.12574 23.22422,-21.67923 23.22422,-37.59766 0,-15.91842 -8.98975,-30.47191 -23.22422,-37.59765 L 46.248047,-8.3535156 C 41.130004,-10.913268 35.543301,-12.401327 29.830078,-12.726563 Z"
                 id="path559"/>
     </g>

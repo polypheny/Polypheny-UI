@@ -6,7 +6,7 @@ import {KernelDisplayData, KernelErrorMsg, KernelExecuteInput, KernelExecuteRepl
 import {interval, Subscription} from 'rxjs';
 
 export class NotebookWrapper {
-    private nb: Notebook;
+    private readonly nb: Notebook;
     private codeOrigin: Map<string, string> = new Map<string, string>();
     private copyNbJson: string;
     kernelStatus: 'unknown' | 'idle' | 'busy' | 'starting' = 'unknown';
@@ -30,13 +30,15 @@ export class NotebookWrapper {
             this.nb.metadata.polypheny = metadata;
         }
         this.busyCellIds.clear();
-        this.socket.onMessage().subscribe(msg => this.handleKernelMsg(msg),
-            err => {
+        this.socket.onMessage().subscribe({
+            next: msg => this.handleKernelMsg(msg),
+            error: err => {
                 console.warn('received error: ' + err);
-            }, () => {
+            }, complete: () => {
                 this.socket = null;
                 this.kernelStatus = 'unknown';
-            });
+            }
+        });
         this.socket.requestExecutionState();
         this.keepAlive = interval(10000).subscribe(() => this.socket?.requestExecutionState()); // prevent 300s timeout
     }

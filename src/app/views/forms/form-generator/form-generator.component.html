@@ -4,7 +4,7 @@
     <div xmlns="http://www.w3.org/1999/html">
         <form (ngSubmit)="onSubmit(form.value, $event)" [formGroup]="form" #formElement cForm>
             <c-row id="form-generator-main">
-                <c-col md="12">
+                <c-col [md]="12">
                     @if (form.dirty) {
                         <button type="submit" cButton color="primary" class="btn-circle mt-2 save-configs"><i
                                 class="fa fa-save"></i></button>
@@ -127,17 +127,17 @@
                                                             </div>
                                                         </c-col>
                                                         @for (el of filterPlugins( config.value.values ); track i; let i = $index) {
-                                                            <c-col xs="6">
+                                                            <c-col [xs]="6">
                                                                 <c-card>
                                                                     <c-card-body>
                                                                         <c-row>
-                                                                            <c-col class="left" xs="6">
+                                                                            <c-col class="left" [xs]="6">
                                                                                 <div class="image-wrapper m-2">
                                                                                     <img src="{{ el.imagePath ? el.imagePath : 'assets/img/plugin/plugin-placeholder.svg' }}"
-                                                                                         alt="">
+                                                                                         alt="Plugin Logo">
                                                                                 </div>
                                                                             </c-col>
-                                                                            <c-col class="right" xs="6">
+                                                                            <c-col class="right" [xs]="6">
                                                                                 <div class="plugin-header">
                                                                                     <div class="title">
                                                                                         {{ el.pluginId }}

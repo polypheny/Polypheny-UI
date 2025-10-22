@@ -27,7 +27,7 @@
                          (cdkDragEnded)="updateZIndex($event)" (cdkDragStarted)="onDragging($event)">
                         <div class="card-header tableName" cdkDragHandle>{{ table.tableName }}</div>
                         <div class="list-group list-group-flush">
-                            @for (col of table.columns; track $index) {
+                            @for (col of $any( table.columns ); track $index) {
                                 <div class="list-group-item cols"
                                      [id]="table.schema+'_'+table.tableName+'_'+col.name"
                                      [attr.colName]="col.name"
