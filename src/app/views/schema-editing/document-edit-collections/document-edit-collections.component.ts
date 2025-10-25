@@ -180,7 +180,11 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
             this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
             return;
         }
-        const query = `db.createCollection(${this.newCollectionName}).store(${this.selectedStore.name})`;
+        let query = `db.createCollection(${this.newCollectionName})`;
+        if (this.selectedStore) {
+            query += `.store(${this.selectedStore.name})`;
+        }
+
         const entityName = this.newCollectionName;
         //const request = new EditCollectionRequest(this.namespace.value.id, this.newCollectionName, null, 'create', this.selectedStore);
         this.creatingCollection = true;

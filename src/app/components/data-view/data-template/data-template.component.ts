@@ -93,6 +93,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         this.webSocket = new WebSocket();
         this._route.params.subscribe(route => {
             this.currentRoute.set(route['id']);
+            this.stopEditing();
         });
 
         this.entity = computed(() => {
@@ -380,6 +381,10 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             });
             this.editing = i;
         }
+    }
+
+    stopEditing() {
+        this.editing = -1;
     }
 
     getBoolean(value: any): Boolean {

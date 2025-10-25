@@ -137,9 +137,13 @@ export class WorkflowEditor {
                 return; // https://github.com/retejs/rete/issues/204
             } else if (context.type === 'nodetranslated') {
                 this.translateSubjects[this.nodeIdToActivityId.get(context.data.id)].next(context.data.position);
-            }/* else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate', 'unmount'].includes(context.type)) {
+            } else if (context.type === 'pointerdown' && context.data.event.button === 0) {
+                document.body.style.userSelect = 'none'; // ensure dragging out of the area does not select activity notes
+            } else if (context.type === 'pointerup' && context.data.event.button === 0) {
+                document.body.style.userSelect = ''; // restore userSelect
+            } /* else if (!['pointermove', 'render', 'rendered', 'rendered', 'zoom', 'zoomed', 'translate', 'translated', 'nodetranslate', 'unmount'].includes(context.type)) {
                 console.log(context);
-            }*/
+            } */
             return context;
         });
 

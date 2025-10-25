@@ -87,7 +87,7 @@
                             [animated]="true" [value]="100" color="primary"></c-progress-bar>
                 </c-progress>
 
-                <button cButton color="light" size="sm" *ngIf="uploadProgress === -1" (click)="editing = -1">
+                <button cButton color="light" size="sm" *ngIf="uploadProgress === -1" (click)="stopEditing()">
                     cancel
                 </button>
                 <button cButton color="primary" size="sm" *ngIf="uploadProgress === -1" (click)="updateTuple()"

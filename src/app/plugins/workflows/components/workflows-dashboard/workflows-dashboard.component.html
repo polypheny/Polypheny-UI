@@ -221,94 +221,45 @@
 
                 <ng-template cTemplateId="accordionBodyTemplate">
                     <div class="mx-2 my-2">
-                        <c-alert color="success" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-success">POST</span>
-                                    </h4>
-                                    <strong>/sessions</strong>
-                                </div>
-                                <span>Submit a <code>workflow.json</code> to create a new session</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="success" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-success">POST</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;/execute</strong>
-                                </div>
-                                <span>Execute the workflow</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="success" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-success">POST</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;/reset</strong>
-                                </div>
-                                <span>Reset workflow execution</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="primary" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-primary">GET</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;/state</strong>
-                                </div>
-                                <span>Get the execution state</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="primary" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-primary">GET</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;/workflow/statistics</strong>
-                                </div>
-                                <span>Get workflow execution statistics</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="primary" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-primary">GET</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;/workflow/&#123;activityId&#125;/statistics</strong>
-                                </div>
-                                <span>Get execution statistics for the specified activity</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="primary" class="mb-2 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-primary">GET</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;/workflow/&#123;activityId&#125;/&#123;outIdx&#125;</strong>
-                                </div>
-                                <span>Get a result preview for the specified output and activity</span>
-                            </div>
-                        </c-alert>
-                        <c-alert color="danger" class="mb-0 p-2">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="me-3 d-flex align-items-center">
-                                    <h4 class="me-3 mb-0">
-                                        <span class="badge bg-danger">DELETE</span>
-                                    </h4>
-                                    <strong>/sessions/&#123;sessionId&#125;</strong>
-                                </div>
-                                <span>Terminate the session</span>
-                            </div>
-                        </c-alert>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'POST', endpoint: '/sessions',
+                                description: 'Submit a <code>workflow.json</code> as body to create a new session. <br/> Specify <code>?execute=true</code> to run it immediately.'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'POST', endpoint: '/sessions/{sessionId}/execute',
+                                description: 'Execute the workflow.  <br/> Specify <code>?target=&#123;activityId&#125;</code> to only execute an activity and its dependencies.'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'POST', endpoint: '/sessions/{sessionId}/reset',
+                                description: 'Reset workflow execution'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'POST', endpoint: '/workflows/{workflowId}/{version}/open',
+                                description: 'Create a new session from a stored workflow version. <br/> Specify <code>?execute=true</code> to run it immediately.'
+                        }"></ng-container>
+
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/sessions',
+                                description: 'Get a list of active API sessions'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/sessions/{sessionId}/state',
+                                description: 'Get the execution state'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/sessions/{sessionId}/workflow/statistics',
+                                description: 'Get workflow execution statistics'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/sessions/{sessionId}/workflow/{activityId}/statistics',
+                                description: 'Get execution statistics for the specified activity'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/sessions/{sessionId}/workflow/{activityId}/{outIdx}',
+                                description: 'Get a result preview for the specified output and activity'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/workflows',
+                                description: 'Get a list of stored workflows'
+                        }"></ng-container>
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'GET', endpoint: '/workflows/{workflowId}/{version}',
+                                description: 'Get a stored workflow version'
+                        }"></ng-container>
+
+
+                        <ng-container *ngTemplateOutlet="apiEndpoint; context: { method: 'DELETE', endpoint: '/sessions/{sessionId}',
+                                description: 'Terminate the session'
+                        }"></ng-container>
                     </div>
                 </ng-template>
             </c-accordion-item>
@@ -371,6 +322,20 @@
             </button>
         </div>
     </li>
+</ng-template>
+
+<ng-template #apiEndpoint let-method="method" let-endpoint="endpoint" let-description="description">
+    <c-alert [color]="{'POST': 'success', 'GET': 'primary', 'DELETE': 'danger'}[method]" class="mb-2 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="me-3 d-flex align-items-center">
+                <h4 class="me-3 mb-0">
+                    <span class="badge" [ngClass]="{'POST': 'bg-success', 'GET': 'bg-primary', 'DELETE': 'bg-danger'}[method]">{{ method }}</span>
+                </h4>
+                <strong>{{ endpoint }}</strong>
+            </div>
+            <span [innerHTML]="description" class="text-end"></span>
+        </div>
+    </c-alert>
 </ng-template>
 
 <c-modal [visible]="showDeleteModal()" (visibleChange)="showDeleteModal.set($event)" *ngIf="workflowToDelete">

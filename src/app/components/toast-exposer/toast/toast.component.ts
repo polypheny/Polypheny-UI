@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, forwardRef, Input, Renderer2, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, forwardRef, inject, Input, Renderer2, ViewChild} from '@angular/core';
 import {Toast} from '../toaster.model';
 import {KeyValue} from '@angular/common';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -6,6 +6,7 @@ import {ResultException} from '../../data-view/models/result-set.model';
 
 import {ToastComponent as ToastParent, ToasterService} from '@coreui/angular';
 import {BehaviorSubject} from 'rxjs';
+import {UtilService} from '../../../services/util.service';
 
 @Component({
     selector: 'app-toast',
@@ -22,6 +23,9 @@ export class ToastComponent extends ToastParent {
     @ViewChild('stackTraceModal', {static: false}) public stackTraceModal: ModalDirective;
 
     public toast: BehaviorSubject<Toast> = new BehaviorSubject<Toast>(null);
+
+    public readonly _util = inject(UtilService);
+    showCopied = false;
 
     constructor(
         public override hostElement: ElementRef,
@@ -58,7 +62,9 @@ export class ToastComponent extends ToastParent {
     }
 
     copyGeneratedQuery(toast: Toast) {
-        //this._util.clipboard(toast.generatedQuery);
+        this._util.clipboard(toast.generatedQuery);
+        this.showCopied = true;
+        setTimeout(() => this.showCopied = false, 3500);
     }
 
 }

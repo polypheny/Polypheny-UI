@@ -65,8 +65,15 @@
                                    [attr.data-col]="$result().header[j].name"></app-input>
                     </td>
                     <td *ngIf="entityConfig().update || entityConfig().delete">
-                        <button cButton color="primary" *ngIf="uploadProgress === -1" id="editColSave"
-                                (click)="updateTuple()"><i class="fa fa-save"></i></button>
+                        @if (uploadProgress === -1) {
+                            <div class="flex">
+                                <button cButton color="secondary" variant="outline" id="editColCancel" class="me-1"
+                                        (click)="stopEditing()"><i class="fa fa-undo" aria-hidden="true"></i></button>
+                                <button cButton color="primary" id="editColSave"
+                                        (click)="updateTuple()"><i class="fa fa-save"></i></button>
+                            </div>
+
+                        }
                     </td>
                 </ng-container>
                 <!-- table which shows results  -->

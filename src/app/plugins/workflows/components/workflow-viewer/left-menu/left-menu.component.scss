@@ -3,6 +3,12 @@
   display: none !important;
 }
 
+.outer-row {
+  box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  position: relative;
+}
+
 .info-visible {
   width: 800px;
 }

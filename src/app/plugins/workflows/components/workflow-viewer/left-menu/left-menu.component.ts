@@ -94,4 +94,12 @@ export class LeftMenuComponent {
         }).map(type => this.registry.getDef(type))
         .sort((a, b) => a.displayName.localeCompare(b.displayName));
     }
+
+    toggleOpenedActivityDef(activity: ActivityDef) {
+        if (this.openedActivityDef?.type === activity.type) {
+            this.openedActivityDef = null;
+        } else {
+            this.openedActivityDef = activity;
+        }
+    }
 }

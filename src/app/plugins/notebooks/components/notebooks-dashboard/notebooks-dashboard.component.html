@@ -2,10 +2,14 @@
     <h1>Notebooks</h1>
     <br>
     <c-row *ngIf="pluginLoaded; else pluginOffline" [gutter]="4">
-        <div class="col-lg-4 fixed-width">
+        <div class="col-xl-4 fixed-width">
             <c-card>
                 <c-card-header>
-                    <span class="mb-0">Jupyter Server</span>
+                    <span class="mb-0">Jupyter Server
+                        @if (connectedInstance) {
+                            ({{ connectedInstance.host.alias }})
+                        }
+                    </span>
                 </c-card-header>
                 <c-card-body>
                     <h5>{{ serverStatus ? 'Online' : 'Offline' }}</h5>
@@ -16,21 +20,23 @@
                 </c-card-body>
 
                 <c-card-footer class="bg-transparent">
-                    <button cButton color="danger" *ngIf="serverStatus" class="pull-right"
-                            (click)="destroyContainerModal.show()">
-                        <svg [cIcon]="icons.cilTrash" title="List Icon"></svg>
-                        Destroy
-                    </button>
-                    <button cButton color="danger" *ngIf="serverStatus" class="pull-right me-2"
-                            (click)="restartContainerModal.show()">
-                        <svg [cIcon]="icons.cilReload" title="List Icon"></svg>
-                        Restart
-                    </button>
-                    <button cButton color="success" *ngIf="!serverStatus" class="pull-right me-2"
-                            (click)="startContainerModal.show()">
-                        <svg [cIcon]="icons.cilMediaPlay" title="List Icon"></svg>
-                        Start
-                    </button>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <button cButton color="danger" *ngIf="serverStatus" class="pull-right"
+                                (click)="destroyContainerModal.show()">
+                            <svg [cIcon]="icons.cilTrash" title="List Icon"></svg>
+                            Destroy
+                        </button>
+                        <button cButton color="danger" *ngIf="serverStatus" class="pull-right me-2"
+                                (click)="restartContainerModal.show()">
+                            <svg [cIcon]="icons.cilReload" title="List Icon"></svg>
+                            Restart
+                        </button>
+                        <button cButton color="success" *ngIf="!serverStatus" class="pull-right me-2"
+                                (click)="startContainerModal.show()">
+                            <svg [cIcon]="icons.cilMediaPlay" title="List Icon"></svg>
+                            Start
+                        </button>
+                    </div>
                 </c-card-footer>
             </c-card>
         </div>

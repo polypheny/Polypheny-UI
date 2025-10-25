@@ -38,6 +38,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     pluginLoaded = false;
     sessionSubscription = null;
     instances: DockerInstanceInfo[] = [];
+    connectedInstance: DockerInstanceInfo | null = null;
 
     constructor() {
     }
@@ -53,6 +54,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
             }
         });
         this.getPluginStatus();
+        this.updateDockerInstanceInfo();
 
         const sub = interval(10000).subscribe(() => {
             this.getServerStatus();
@@ -100,7 +102,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         });
         const paths = this.sessions.map(s => this._notebooks.getPathFromSession(s));
         this.notebookPaths = paths.map(p => p.replace('notebooks/', '')
-            .replace(/\//g, '/\u200B')); // zero-width space => allow soft line breaks after '/'
+        .replace(/\//g, '/\u200B')); // zero-width space => allow soft line breaks after '/'
         this.isPreferredSession = this.sessions.map((s, i) =>
             this._content.getPreferredSessionId(paths[i]) === s.id
         );
@@ -128,7 +130,10 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
                 this.creating = false;
                 console.log(err);
             }
-        }).add(() => this.getServerStatus());
+        }).add(() => {
+            this.getServerStatus();
+            this.updateDockerInstanceInfo();
+        });
     }
 
     destroyContainer() {
@@ -143,15 +148,19 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         this.serverRunning.emit(false);
         this.restartContainerModal.hide();
         this._notebooks.restartContainer().subscribe({
-            next: res => {
+            next: () => {
                 this._toast.success('Successfully restarted the container.');
                 this._content.updateSessions();
                 this._content.update();
             },
             error: err => {
+                console.log('server restart error', err);
                 this._toast.error('An error occurred while restarting the container!');
             }
-        }).add(() => this.getServerStatus());
+        }).add(() => {
+            this.getServerStatus();
+            this.updateDockerInstanceInfo();
+        });
     }
 
     getPluginStatus() {
@@ -182,6 +191,12 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
                 this._content.setAutoUpdate(false);
                 this.getPluginStatus();
             }
+        });
+    }
+
+    private updateDockerInstanceInfo() {
+        this._notebooks.getDockerInstance().subscribe({
+            next: res => this.connectedInstance = res
         });
     }
 
