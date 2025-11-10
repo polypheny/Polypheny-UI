@@ -1,0 +1,137 @@
+<div [hidden]="!visible()" class="no-select border-start h-100 d-flex flex-column menu" *ngIf="activity()">
+    <div class="px-3 py-2 bg-light border-bottom">
+        <div class="d-flex flex-column flex-grow-1">
+            <div class="d-flex flex-row align-items-center justify-content-between">
+                @if (!isEditingName()) {
+                    <h3 class="mb-0" [class.fst-italic]="activity().rendering().name != null">
+                        {{ activity().displayName() }}
+                        <small>
+                            <i class="fa fa-pencil ms-2 fa-xs text-secondary edit-name-button" *ngIf="isEditable()" (click)="editDisplayName()"></i>
+                        </small>
+                    </h3>
+                } @else {
+                    <div class="d-flex align-items-center w-100">
+                        <input cFormControl class="editable-name px-1 py-0 me-3" [class.fst-italic]="editableDisplayName !== activity().def.displayName"
+                               type="text" cBgColor="transparent"
+                               autocomplete="false"
+                               #editableName
+                               [(ngModel)]="editableDisplayName"
+                               (blur)="saveDisplayName()"
+                               (keyup.enter)="saveDisplayName()"
+                               (keyup.esc)="isEditingName.set(false)"
+                        />
+                        <button cButton color="danger" variant="outline" size="sm" (click)="resetDisplayName()" (pointerdown)="$event.preventDefault()">
+                            Reset
+                        </button>
+                    </div>
+
+                }
+            </div>
+            <ul class="nav nav-underline" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'settings'}"
+                       (click)="changeActiveTab('settings')"
+                       role="tab">Settings</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link d-flex align-items-center"
+                       [ngClass]="{'active': activeTab() === 'variables'}"
+                       (click)="changeActiveTab('variables')"
+                       role="tab">
+                        Variables
+                        <span class="cil-bolt ms-1"></span>
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'config'}"
+                       (click)="changeActiveTab('config')"
+                       role="tab">Configuration</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'execution'}"
+                       (click)="changeActiveTab('execution')"
+                       role="tab">Execution</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'help'}"
+                       (click)="changeActiveTab('help')"
+                       role="tab">
+                        <span class="px-1 fa fa-question-circle"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="px-3 pt-3 menu-body flex-grow-1">
+        @switch (activeTab()) {
+            @case ("settings") {
+                <app-activity-settings #settings [activity]="activity()" [isEditable]="isEditable()" [workflowVars]="workflowVars()">
+                </app-activity-settings>
+            }
+            @case ("variables") {
+                @if (activity().hasVariables()) {
+                    <div class="mb-4">
+                        <h5>Dynamic Variables</h5>
+                        @for (entry of basicVars() | keyvalue; track activity().id + entry.key) {
+                            <h5 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                <span class="badge text-body bg-light">{{ entry.key }}</span>
+                            </h5>
+                            <app-json-text [text]="entry.value | json"></app-json-text>
+                        } @empty {
+                            <p>None available</p>
+                        }
+                    </div>
+                    <div *ngIf="wfVars()" class="mb-4">
+                        <h5>Workflow Variables</h5>
+                        @for (entry of wfVars() | keyvalue; track activity().id + entry.key) {
+                            <h5 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                <span class="badge text-body bg-light">{{ entry.key }}</span>
+                            </h5>
+                            <app-json-text [text]="entry.value | json"></app-json-text>
+                        } @empty {
+                            <p>None available</p>
+                        }
+                    </div>
+                    <div *ngIf="envVars()">
+                        <h5>Environment Variables</h5>
+                        @for (entry of envVars() | keyvalue; track activity().id + entry.key) {
+                            <c-callout *ngIf="$first" color="primary">
+                                The (possibly sensitive) values of environment variables are never sent to the UI.
+                                Only the keys and types of variables are shown.
+                            </c-callout>
+                            <h5 [ngClass]="{'mt-3': !$first, 'mb-0': true}">
+                                <span class="badge text-body bg-light">{{ entry.key }}</span>
+                            </h5>
+                            <h6 class="ms-3">
+                                <span class="text-muted">{{ entry.value }}</span>
+                            </h6>
+
+                        } @empty {
+                            <p>None available</p>
+                        }
+                    </div>
+                } @else {
+                    <c-callout color="primary">
+                        No variables are currently available for this activity.
+                    </c-callout>
+                }
+            }
+            @case ("config") {
+                <app-activity-config-editor [config]="activity().config()" [def]="activity().def" #config
+                                            [isEditable]="isEditable()" (save)="save(null, $event, null)"
+                ></app-activity-config-editor>
+            }
+            @case ("execution") {
+                <app-activity-exec-stats [activity]="activity()"></app-activity-exec-stats>
+
+            }
+            @case ("help") {
+                <app-activity-help [def]="activity().def"></app-activity-help>
+            }
+        }
+    </div>
+</div>

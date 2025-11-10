@@ -119,7 +119,7 @@ select {
 #results .card-header:hover span {
   overflow: auto;
   max-height: 6em;
-  transition: max-height 0.5s;
+  transition: max-height 0.2s;
   transition-delay: 0.5s;
 }
 
@@ -136,10 +136,6 @@ select {
 }
 
 .del-hist-item {
-  position: absolute;
-  right: 1em;
-  top: 50%;
-  margin-top: -1em;
   display: none;
 }
 
@@ -168,4 +164,32 @@ select {
 
 .viewButton {
   margin-right: 0.5em;
+}
+
+.advanced-console-db-info {
+  display: inline-block;
+
+  option {
+    font-size: 10px;
+    font-style: italic;
+  }
+}
+
+.grey-bg {
+  background-color: #f0f3f5;
+  border: none;
+}
+
+.grey-border {
+  border: 1px rgba(0, 0, 0, .125) solid;
+}
+
+.advanced-console {
+  height: calc(240px - 66px);
+  margin: 1px;
+}
+
+.simple-console {
+  height: 240px;
+  margin-bottom: 0;
 }

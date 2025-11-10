@@ -1,24 +1,7 @@
 import {effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {
-    AdapterTemplateModel,
-    AllocationColumnModel,
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    AssetsModel,
-    CatalogState,
-    ColumnModel,
-    ConstraintModel,
-    EntityModel,
-    EntityType,
-    FieldModel,
-    IdEntity,
-    KeyModel,
-    LogicalSnapshotModel,
-    NamespaceModel
-} from '../models/catalog.model';
+import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
 import {DataModel} from '../models/ui-request.model';
 import {SidebarNode} from '../models/sidebar-node.model';
 import {combineLatestWith, Observable, Subject} from 'rxjs';
@@ -93,7 +76,6 @@ export class CatalogService {
 
     getSnapshot(): Observable<CatalogService> {
         return this._http.post(`${this.httpUrl}/getSnapshot`, this.snapshot ? this.snapshot.id : -1).pipe(map((snapshot: LogicalSnapshotModel) => {
-            console.log(snapshot);
             if (snapshot) {
                 this.updateSnapshot(snapshot);
             }
@@ -103,7 +85,8 @@ export class CatalogService {
     }
 
     private updateSnapshot(snapshot: LogicalSnapshotModel) {
-        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id)) {
+        if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id &&
+            this.snapshot.constraints.length === snapshot.constraints.length)) { // adding a constraint does not always increase the id for some reason
             return;
         }
 
@@ -151,10 +134,10 @@ export class CatalogService {
 
     private toIdListMap<T extends IdEntity, D>(idEntities: T[], extract: (entity: T) => D) {
         const map = new Map();
-        for (let idEntity of idEntities) {
+        for (const idEntity of idEntities) {
             const id = extract(idEntity);
             if (!map.has(id)) {
-                map.set(id, [])
+                map.set(id, []);
             }
             map.set(id, [idEntity, ...map.get(id)]);
         }
@@ -179,6 +162,9 @@ export class CatalogService {
     }
 
     getEntityFromName(namespace: string, name: string): EntityModel {
+        if (name === undefined) {
+            name = namespace;
+        }
         const namespaces = Array.from(this.namespaces().values()).filter(n => (n.caseSensitive ? n.name === namespace : n.name.toLowerCase() === namespace.toLowerCase())
             || n.dataModel === DataModel.GRAPH && name.toLowerCase() === n.name.toLowerCase() || namespace.toLowerCase() === n.name.toLowerCase());
         if (namespaces.length === 0) {
@@ -217,7 +203,9 @@ export class CatalogService {
             }
             nodes.push(namespaceNode);
         }
-
+        nodes.sort((a, b) =>
+            a.name === 'public' ? -1 : b.name === 'public' ? 1 : SidebarNode.sortNodes(a, b) // public namespace is first
+        );
         return nodes;
     }
 
@@ -240,6 +228,7 @@ export class CatalogService {
 
             nodes.push(collectionTree);
         }
+        nodes.sort(SidebarNode.sortNodes);
         namespaceNode.children.push(...nodes);
     }
 
@@ -270,6 +259,7 @@ export class CatalogService {
             nodes.push(tableNode);
 
         }
+        nodes.sort(SidebarNode.sortNodes);
         namespaceNode.children.push(...nodes);
         namespaceNode.routerLink = '';
     }
@@ -289,7 +279,7 @@ export class CatalogService {
     private getNamespaceIcon(dataModel: DataModel): string {
         if (!this.assets) {
             this.updateIfNecessary();
-            return "";
+            return '';
         }
         switch (dataModel) {
             case DataModel.DOCUMENT:

@@ -1,4 +1,4 @@
-<ng-container [ngSwitch]="route">
+<div [ngSwitch]="route" class="mb-3">
 
     <!-- availableQueryInterfaces -->
     <c-row *ngSwitchCase="'add'">
@@ -79,7 +79,7 @@
 
     </c-row>
 
-</ng-container>
+</div>
 
 
 <c-modal bsModal #QISettingsModal="bs-modal" class="fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"

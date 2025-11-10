@@ -1,17 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    EventEmitter,
-    inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    untracked,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Signal, signal, untracked, WritableSignal} from '@angular/core';
 import {RelationalResult, Result, UiColumnDefinition} from '../models/result-set.model';
 import {WebuiSettingsService} from '../../../services/webui-settings.service';
 import {CatalogService} from '../../../services/catalog.service';
@@ -65,7 +52,9 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         sort: true,
         update: true,
         delete: true,
-        exploring: false
+        exploring: false,
+        hideCreateView: false,
+        cardRelWidth: false
     });
     protected readonly currentRoute: WritableSignal<string> = signal(this._route.snapshot.paramMap.get('id'));
     protected readonly routeParams = toSignal(this._route.params);
@@ -104,6 +93,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         this.webSocket = new WebSocket();
         this._route.params.subscribe(route => {
             this.currentRoute.set(route['id']);
+            this.stopEditing();
         });
 
         this.entity = computed(() => {
@@ -132,7 +122,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this._sidebar.open();
+        //this._sidebar.open();
         //listen to results
         this.initWebsocket();
 
@@ -291,8 +281,8 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         return obj;
     }
 
-    deleteRow(values: string[], i) {
-        if (this.confirm !== i) {
+    deleteRow(values: string[], i: number | null) {
+        if (i !== null && this.confirm !== i) { // confirm functionality may be delegated to app-delete-confirm component
             this.confirm = i;
             return;
         }
@@ -371,7 +361,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             //when double-clicking the delete btn
             return;
         }
-        if (this.entityConfig.update) {
+        if (this.entityConfig().update) {
             this.updateValues.clear();
             this.$result().data[i].forEach((v, k) => {
                 if (this.$result().header[k].dataType === 'bool') {
@@ -391,6 +381,10 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             });
             this.editing = i;
         }
+    }
+
+    stopEditing() {
+        this.editing = -1;
     }
 
     getBoolean(value: any): Boolean {
@@ -425,7 +419,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const formData = new FormData();
         this.insertValues.forEach((v, k) => {
             //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
-            if (this.insertDirty.get(k) === true) {
+            if (this.insertDirty.get(k) === true && v !== null) { // null check prevents null being inserted as string "null"
                 let value;
                 if (isNaN(v)) {
                     value = v;
@@ -448,7 +442,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                     const result = <RelationalResult>res.body;
                     emitResult.emit(result);
                     if (result.error) {
-                        this._toast.exception(result, 'Could not insert the data', 'insert error');
+                        if (result.error.includes('PRIMARY KEY')) {
+                            this._toast.warn(`Insert failed: Duplicate primary key value.`);
+                        } else {
+                            this._toast.exception(result, 'Insert failed:');
+                        }
                     } else if (result.affectedTuples === 1) {
                         $('.insert-input').val('');
                         this.insertValues.clear();
@@ -458,9 +456,9 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                 }
             },
             error: err => {
-                this._toast.error('Could not insert the data.');
+                this._toast.error('Insert failed.');
                 console.log(err);
-                emitResult.emit(new RelationalResult('Could not insert the data.'));
+                emitResult.emit(new RelationalResult('Insert failed.'));
             }
         }).add(() => this.uploadProgress = -1);
         return emitResult;
@@ -585,7 +583,11 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                         }
                         this._toast.success('Updated ' + result.affectedTuples + rows, result.query, 'update', ToastDuration.SHORT);
                     } else if (result.error) {
-                        this._toast.exception(result, 'Could not update this tuple');
+                        if (result.error.includes('PRIMARY KEY')) {
+                            this._toast.warn(`Update failed: Duplicate primary key value.`);
+                        } else {
+                            this._toast.exception(result, 'Update failed:');
+                        }
                     }
                 }
             },

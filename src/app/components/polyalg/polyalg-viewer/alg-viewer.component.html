@@ -3,11 +3,12 @@
         <ng-template cTemplateId="accordionHeaderTemplate">
             <button (click)="toggleTextEditor()" [collapsed]="!itemText.visible" cAccordionButton
                     class="ps-1 py-0 fs-3" [class.READONLY]="textEditorIsLocked()"
-                    [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''" [placement]="'bottom left'">
-                Algebra {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[textEditorState()]}}
+                    [ngClass]="textEditorState()" [tooltip]="textEditorState() === 'INVALID' ? textErrorTooltip : ''"
+                    [placement]="'bottom left'">
+                Algebra {{ isReadOnly ? 'Viewer' : 'Editor' }} {{ stateText[textEditorState()] }}
                 <span class="fa fa-lock ms-3 pt-1" *ngIf="textEditorIsLocked()"></span>
                 <ng-template #textErrorTooltip>
-                    {{textEditorError()}}
+                    {{ textEditorError() }}
                 </ng-template>
             </button>
         </ng-template>
@@ -23,7 +24,8 @@
                             [readonly]="isReadOnly">
                 </app-editor>
             </div>
-            <p *ngIf="!isReadOnly && userMode() === UserMode.SIMPLE" class="mb-1"><i>PolyAlgebra can only be edited in advanced mode</i>.</p>
+            <p *ngIf="!isReadOnly && userMode() === UserMode.SIMPLE" class="mb-1"><i>PolyAlgebra can only be edited in
+                advanced mode</i>.</p>
         </ng-template>
     </c-accordion-item>
 </c-accordion>
@@ -49,14 +51,18 @@
         <div>
             <c-button-group class="m-1">
                 <input class="btn-check" id="radio1" type="radio" [checked]="userMode() === UserMode.SIMPLE"/>
-                <label (click)="setUserMode(UserMode.SIMPLE)" cButton cFormCheckLabel for="radio1" color="dark" [disabled]="planType === 'PHYSICAL'"
-                       variant="outline" container="body" tooltip="Only shows the most important operators and uses their simplified form.">
+                <label (click)="setUserMode(UserMode.SIMPLE)" cButton cFormCheckLabel for="radio1" color="dark"
+                       [disabled]="planType === 'PHYSICAL'"
+                       variant="outline" container="body"
+                       tooltip="Only shows the most important operators and uses their simplified form.">
                     Simple
                 </label>
 
                 <input class="btn-check" id="radio2" type="radio" [checked]="userMode() === UserMode.ADVANCED"/>
-                <label (click)="setUserMode(UserMode.ADVANCED)" cButton cFormCheckLabel for="radio2" color="dark" [disabled]="planType === 'PHYSICAL'"
-                       variant="outline" container="body" tooltip="Allows you to insert all operators and edit the Algebra representation.">
+                <label (click)="setUserMode(UserMode.ADVANCED)" cButton cFormCheckLabel for="radio2" color="dark"
+                       [disabled]="planType === 'PHYSICAL'"
+                       variant="outline" container="body"
+                       tooltip="Allows you to insert all operators and edit the Algebra representation.">
                     Advanced
                 </label>
             </c-button-group>
@@ -84,16 +90,19 @@
 <c-accordion [flush]="true" class="mt-3">
     <c-accordion-item #itemNode="cAccordionItem" [visible]="true" class="text-body">
         <ng-template cTemplateId="accordionHeaderTemplate">
-            <button (click)="itemNode.toggleItem()" [collapsed]="!itemNode.visible" cAccordionButton class="ps-1 py-0 fs-3"
-                    [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''" [placement]="'bottom left'">
-                Node {{isReadOnly ? 'Viewer' : 'Editor'}} {{stateText[nodeEditorState()]}}
+            <button (click)="itemNode.toggleItem()" [collapsed]="!itemNode.visible" cAccordionButton
+                    class="ps-1 py-0 fs-3"
+                    [ngClass]="nodeEditorState()" [tooltip]="nodeEditorState() === 'INVALID' ? nodeErrorTooltip : ''"
+                    [placement]="'bottom left'">
+                Node {{ isReadOnly ? 'Viewer' : 'Editor' }} {{ stateText[nodeEditorState()] }}
                 <ng-template #nodeErrorTooltip>
-                    {{nodeEditorError()}}
+                    {{ nodeEditorError() }}
                 </ng-template>
             </button>
         </ng-template>
         <ng-template cTemplateId="accordionBodyTemplate">
-            <div class="rete" #rete (focusout)="onNodeEditorBlur()" (focusin)="onNodeEditorFocus()" [ngClass]="nodeEditorState()"></div>
+            <div class="rete position-relative" #rete (focusout)="onNodeEditorBlur()" (focusin)="onNodeEditorFocus()"
+                 [ngClass]="nodeEditorState()"></div>
             <ng-container *ngIf="!isReadOnly">
                 <p>
                     <i>Open the context menu to add or remove nodes</i>

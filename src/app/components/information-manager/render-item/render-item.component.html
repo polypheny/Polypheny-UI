@@ -41,7 +41,7 @@
                 <strong>{{ li.label }}</strong>
             </div>
             <div class="float-right">
-                <small class="text-muted">{{ displayProgressValue(li) }}</small>
+                <small class="text-muted">{{ displayProgressValue( li ) }}</small>
             </div>
         </div>
         <div class="progress progress-xs">
@@ -85,11 +85,11 @@
 
         <div [ngClass]="{'duration': li.isChild || showTotalDuration(li), 'isParent': !li.isChild}">
             <strong *ngIf="showTotalDuration(li)">
-                total time: {{ displayTime(li.duration) }}
+                total time: {{ displayTime( li.duration ) }}
             </strong>
             <br *ngIf="showTotalDuration(li) && li.name">
             <span class="durationText" [ngClass]="{'text-danger': li.limit && li.duration > li.limit}" *ngIf="li.name">
-        {{ li.name }}: {{ displayTime(li.duration) }}
+        {{ li.name }}: {{ displayTime( li.duration ) }}
       </span>
             <div class="progress" *ngIf="!li.noProgressBar && li.children && li.children.length > 1">
                 <div
@@ -108,7 +108,7 @@
                 <br *ngIf="showTotalDuration(castDuration(duration)) && duration.name">
                 <span class="durationText"
                       [ngClass]="{'text-danger': duration.limit && duration.duration > duration.limit}">
-          {{ duration.name }}: {{ displayTime(duration.duration) }}
+          {{ duration.name }}: {{ displayTime( duration.duration ) }}
         </span>
                 <div class="progress"
                      *ngIf="!duration.noProgressBar && duration.children && duration.children.length > 1">
@@ -128,7 +128,7 @@
 
     <ng-container *ngIf="li.type == 'InformationStacktrace'">
         <div class="exception" *ngIf="li.exception">
-            <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception}"></ng-container>
+            <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: li.exception, errorMsg: li.error}"></ng-container>
         </div>
     </ng-container>
 
@@ -152,18 +152,36 @@
 </ng-container>
 
 
-<ng-template #exceptionTemplate let-e="e">
+<ng-template #exceptionTemplate let-e="e" let-errorMsg="errorMsg">
     <ng-container *ngIf="e">
-        <p *ngIf="e.detailMessage" class="font-weight-bold text-danger">{{ e.detailMessage }}</p>
-        <p *ngIf="e.message" class="font-weight-bold text-danger">{{ e.message }}</p>
-        <ul *ngIf="e.stackTrace">
-            <li *ngFor="let s of e.stackTrace">at {{ s.declaringClass }}.{{ s.methodName }}(<span
-                    class="text-primary">{{ s.fileName }}:{{ s.lineNumber }}</span>)
-            </li>
-        </ul>
-        <ng-container *ngIf="e.cause">
-            caused by:
-            <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause}"></ng-container>
-        </ng-container>
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header bg-secondary text-white py-2">
+                @if (e.detailMessage || e.message || errorMsg) {
+                    <strong class="text-danger ">{{ e.detailMessage || e.message || errorMsg }}</strong>
+                } @else {
+                    <strong>Exception </strong>
+                }
+
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush font-monospace small">
+                    <li *ngFor="let s of e.stackTrace" class="list-group-item">
+                        <span class="text-secondary">at </span>
+                        <span class="fw-bold">{{ s.className }}.{{ s.methodName }}</span>
+                        (<span class="text-primary">{{ s.fileName }}:{{ s.lineNumber }}</span>)
+
+                        <span *ngIf="s.moduleName" class="badge bg-light text-dark ms-2">
+                            {{ s.moduleName }} {{ s.moduleVersion || '' }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Cause (recursive) -->
+        <div class="ms-3 mt-2 border-start ps-3" *ngIf="e.cause">
+            <span class="fw-bold text-muted">Caused by:</span>
+            <ng-container *ngTemplateOutlet="exceptionTemplate; context:{e: e.cause, errorMsg: null}"></ng-container>
+        </div>
     </ng-container>
 </ng-template>

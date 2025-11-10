@@ -1,15 +1,19 @@
 <app-loading-screen></app-loading-screen>
 
-<app-notebooks-dashboard *ngIf="_content.isRoot"></app-notebooks-dashboard>
+@if (editNotebookSession !== '') {
+    <app-edit-notebook #editNotebook [sessionId]="editNotebookSession"
+                       (openChangeSessionModal)="openChangeSessionModal($event.name, $event.path)">
+    </app-edit-notebook>
 
-<ng-container *ngIf="!_content.isRoot">
-    <app-manage-notebook *ngIf="editNotebookSession==''; else elseEditNotebook"></app-manage-notebook>
-    <ng-template #elseEditNotebook>
-        <app-edit-notebook #editNotebook [sessionId]="editNotebookSession"
-                           (openChangeSessionModal)="openChangeSessionModal($event.name, $event.path)">
-        </app-edit-notebook>
-    </ng-template>
-</ng-container>
+} @else {
+    <c-container class="mt-3">
+        @if (_content.isRoot) {
+            <app-notebooks-dashboard (serverRunning)="serverRunningChanged($event)"></app-notebooks-dashboard>
+        } @else {
+            <app-manage-notebook></app-manage-notebook>
+        }
+    </c-container>
+}
 
 <c-modal bsModal #addNotebookModal="bs-modal" tabindex="-1" role="dialog"
          aria-labelledby="addNotebookModal" aria-hidden="true">
@@ -43,7 +47,8 @@
                     <select cSelect formControlName="kernel" id="selected-kernel">
                         <option *ngIf="availableKernels.length === 0" value="">No kernels available</option>
                         <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
-                            {{ kernel.spec.display_name }}</option>
+                            {{ kernel.spec.display_name }}
+                        </option>
                     </select>
                 </c-input-group>
                 <div *ngIf="this.createFileForm.get('type').value === 'notebook' && availableKernels.length === 0">
@@ -79,7 +84,7 @@
                         <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
                         <input type="file" multiple style="display: none;" id="notebookUploadFileInput"
                                (change)="onFileChange($event.target['files'])" #fileInput>
-                        {{inputFileName}}
+                        {{ inputFileName }}
                     </label>
                     <button cButton size="sm" color="light" class="mb-0">Browse</button>
                 </c-input-group>
@@ -121,7 +126,8 @@
                     <label cInputGroupText for="createSession-session">Running</label>
                     <select cSelect class="form-control" formControlName="session" id="createSession-session">
                         <option *ngFor="let session of createSessionForm.get('sessions').value" [value]="session.id">
-                            {{ session.kernel.name }}</option>
+                            {{ session.kernel.name }}
+                        </option>
                     </select>
                 </c-input-group>
 
@@ -131,7 +137,8 @@
                     <select cSelect formControlName="kernel" id="createSession-kernel">
                         <option *ngIf="availableKernels.length === 0" value="">No kernels available</option>
                         <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
-                            {{ kernel.spec.display_name }}</option>
+                            {{ kernel.spec.display_name }}
+                        </option>
                     </select>
                 </c-input-group>
                 <div *ngIf="availableKernels.length === 0">
@@ -139,9 +146,9 @@
                 </div>
             </form>
             <ng-container *ngIf="selectedSession != null && !createSessionForm.get('isNew').value">
-                <p>Status: {{selectedSession.kernel.execution_state}}</p>
-                <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
-                <p>Connections: {{selectedSession.kernel.connections}}</p>
+                <p>Status: {{ selectedSession.kernel.execution_state }}</p>
+                <p>Last Activity: {{ selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
+                <p>Connections: {{ selectedSession.kernel.connections }}</p>
             </ng-container>
         </c-modal-body>
         <c-modal-footer>

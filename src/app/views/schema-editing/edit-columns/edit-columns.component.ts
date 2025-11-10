@@ -1,61 +1,23 @@
-import {
-    Component,
-    computed,
-    effect,
-    HostListener,
-    inject,
-    Injector,
-    Input,
-    OnDestroy,
-    OnInit,
-    signal,
-    Signal,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, effect, HostListener, inject, Injector, input, Input, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import {CrudService} from '../../../services/crud.service';
-import {
-    FieldType,
-    IndexMethodModel,
-    IndexModel,
-    ModifyPartitionRequest,
-    PartitionFunctionModel,
-    PartitioningRequest,
-    PolyType,
-    RelationalResult,
-    TableConstraint,
-    UiColumnDefinition
-} from '../../../components/data-view/models/result-set.model';
+import {FieldType, IndexMethodModel, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {
-    ColumnRequest,
-    ConstraintRequest,
-    EditTableRequest,
-    MaterializedRequest,
-    Method
-} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel, AdapterType, PlacementType} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    ConstraintModel,
-    ConstraintType,
-    DeployMode,
-    EntityModel,
-    EntityType,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
-import {toSignal} from '@angular/core/rxjs-interop';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, ConstraintType, DeployMode, EntityModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {map} from 'rxjs/operators';
+import {Router} from '@angular/router';
+import {ConfigService} from '../../../services/config.service';
 
 const INITIAL_TYPE = 'BIGINT';
+const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics'] as const;
+type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
 
 
 @Component({
@@ -66,14 +28,122 @@ const INITIAL_TYPE = 'BIGINT';
 
 export class EditColumnsComponent implements OnInit, OnDestroy {
 
+    @Input() set entityIn(entity: EntityModel) {
+        this.entity.set(entity as TableModel);
+    }
+
+    @Input() set route(currentRoute: string) {
+        this.currentRoute.set(currentRoute);
+    }
+
+    currentTab = input.required<string>();
+
+    activeTab = computed<Tabs>(() =>
+        (tabs.includes(this.currentTab() as Tabs) ? this.currentTab() : 'column') as Tabs
+    );
+
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
     public readonly _catalog = inject(CatalogService);
     private readonly _toast = inject(ToasterService);
+    private readonly _router = inject(Router);
+    private readonly _config = inject(ConfigService);
 
-    constructor(
-        private injector: Injector
-    ) {
+    readonly entity: WritableSignal<TableModel> = signal(null);
+
+    @Input()
+    readonly namespace: Signal<NamespaceModel>;
+
+    readonly currentRoute: WritableSignal<string> = signal('');
+
+    @Input()
+    readonly placements: Signal<AllocationPlacementModel[]>;
+
+    @Input()
+    readonly partitions: Signal<AllocationPartitionModel[]>;
+
+    @Input()
+    readonly allocations: Signal<AllocationEntityModel[]>;
+
+    @Input()
+    readonly stores: Signal<AdapterModel[]>;
+
+    @Input()
+    readonly addableStores: Signal<AdapterModel[]>;
+
+    foreignKeys: ForeignKey[] = [];
+
+    entityTitle = computed(() => {
+        switch (this.entity().entityType) {
+            case EntityType.VIEW:
+                return `${this.entity().name} (View)`;
+            case EntityType.MATERIALIZED_VIEW:
+                return `${this.entity().name} (Materialized View)`;
+        }
+        return this.entity().name;
+    });
+    types: PolyType[] = [];
+    editColumn = -1;
+    createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
+    confirm = -1;
+    readonly oldColumns: Signal<Map<string, UiColumnDefinition>>;
+    updateColumn = new UntypedFormGroup({name: new UntypedFormControl('')});
+
+    readonly constraints: Signal<ConstraintModel[]>;
+    confirmConstraint = -1;
+    newPrimaryKey: UiColumnDefinition[];
+
+    uniqueConstraintName = '';
+    proposedConstraintName = 'constraintName';
+    isUniqueConstraintEnforced = false;
+    isForeignKeyEnforced = false;
+
+    readonly indexHeaders: WritableSignal<string[]> = signal([]);
+    readonly indexDefinitions: WritableSignal<string[][]> = signal([]);
+    readonly hasPolyIndex = computed(() => this.indexDefinitions().some(idx => idx[2] === 'Polypheny-DB'));
+    newIndexCols = new Map<string, boolean>();
+    selectedStoreForIndex: AdapterModel;
+    newIndexForm: UntypedFormGroup;
+    indexSubmitted = false;
+    proposedIndexName = 'indexName';
+    addingIndex = false;
+    isPolyIndexEnabled = signal(false);
+
+    materializedInfo: any;
+
+    //data placement handling
+    readonly availableStoresForIndexes: Signal<AdapterModel[]>;
+    selectedStore: AdapterModel;
+
+
+    columnPlacement: UntypedFormGroup;
+    placementMethod: Method;
+    isAddingPlacement = false;
+
+    //partition handling
+    partitionTypes: string[];
+    partitioningRequest: PartitioningRequest = new PartitioningRequest();
+    isMergingPartitions = false;
+    partitionsToModify: { partitionName: string, selected: boolean }[];
+    partitionFunctionParams: PartitionFunctionModel;
+    fieldTypes: typeof FieldType = FieldType;
+
+    subscriptions = new Subscription();
+
+    placementModal = false;
+    partitioningModal = false;
+    partitionFunctionModal = false;
+
+
+    public readonly EntityType = EntityType;
+
+    protected readonly Method = Method;
+
+    protected readonly PlacementType = PlacementType;
+
+    protected readonly ConstraintType = ConstraintType;
+
+    constructor(private injector: Injector) {
         this.newIndexForm = new UntypedFormGroup({
             name: new UntypedFormControl('', this._crud.getNameValidator()),
             method: new UntypedFormControl('')
@@ -147,9 +217,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 return [];
             }
             let locations = Array.from(stores).filter(store => placements.includes(store.id));
-            let adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL);
-            adapterModel.indexMethods = [new IndexMethodModel('hash', 'Hash')];
-            locations = [adapterModel, ...locations];
+            if (this.isPolyIndexEnabled()) {
+                const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL);
+                adapterModel.indexMethods = [new IndexMethodModel('hash', 'Hash')];
+                locations = [adapterModel, ...locations];
+            }
             return locations;
         });
 
@@ -180,104 +252,33 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
             if (stores?.length > 0) {
                 this.selectedStoreForIndex = stores[0];
-                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0]);
+                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0].name);
             } else {
                 this.selectedStoreForIndex = null;
             }
         }, {injector: this.injector});
 
+        this._config.getConfig('runtime/uniqueConstraintEnforcement').subscribe(res => {
+            this.isUniqueConstraintEnforced = res.value;
+        });
+        this._config.getConfig('runtime/foreignKeyEnforcement').subscribe(res => {
+            this.isForeignKeyEnforced = res.value;
+        });
+        this._config.getConfig('runtime/polystoreIndexesEnabled').subscribe(res => {
+            this.isPolyIndexEnabled.set(res.value);
+        });
+
     }
-
-    readonly entity: WritableSignal<TableModel> = signal(null);
-
-    @Input() set entityIn(entity: EntityModel) {
-        this.entity.set(entity as TableModel);
-    }
-
-    @Input()
-    readonly namespace: Signal<NamespaceModel>;
-
-    readonly currentRoute: WritableSignal<string> = signal('');
-
-    @Input() set route(currentRoute: string) {
-        this.currentRoute.set(currentRoute);
-    }
-
-    @Input()
-    readonly placements: Signal<AllocationPlacementModel[]>;
-
-    @Input()
-    readonly partitions: Signal<AllocationPartitionModel[]>;
-
-    @Input()
-    readonly allocations: Signal<AllocationEntityModel[]>;
-
-    @Input()
-    readonly stores: Signal<AdapterModel[]>;
-
-    @Input()
-    readonly addableStores: Signal<AdapterModel[]>;
-
-    foreignKeys: ForeignKey[] = [];
-
-    types: PolyType[] = [];
-    editColumn = -1;
-    createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
-    confirm = -1;
-    readonly oldColumns: Signal<Map<string, UiColumnDefinition>>;
-    updateColumn = new UntypedFormGroup({name: new UntypedFormControl('')});
-
-    readonly constraints: Signal<ConstraintModel[]>;
-    confirmConstraint = -1;
-    newPrimaryKey: UiColumnDefinition[];
-
-    uniqueConstraintName = '';
-    proposedConstraintName = 'constraintName';
-
-    readonly indexHeaders: WritableSignal<string[]> = signal([]);
-    readonly indexDefinitions: WritableSignal<string[][]> = signal([]);
-    newIndexCols = new Map<string, boolean>();
-    selectedStoreForIndex: AdapterModel;
-    newIndexForm: UntypedFormGroup;
-    indexSubmitted = false;
-    proposedIndexName = 'indexName';
-    addingIndex = false;
-
-    materializedInfo: Signal<{}>;
-
-    //data placement handling
-    readonly availableStoresForIndexes: Signal<AdapterModel[]>;
-    selectedStore: AdapterModel;
-
-
-    columnPlacement: UntypedFormGroup;
-    placementMethod: Method;
-    isAddingPlacement = false;
-
-    //partition handling
-    partitionTypes: string[];
-    partitioningRequest: PartitioningRequest = new PartitioningRequest();
-    isMergingPartitions = false;
-    partitionsToModify: { partitionName: string, selected: boolean }[];
-    partitionFunctionParams: PartitionFunctionModel;
-    fieldTypes: typeof FieldType = FieldType;
-
-    subscriptions = new Subscription();
-
-    placementModal = false;
-    partitioningModal = false;
-    partitionFunctionModal = false;
-
-
-    public readonly EntityType = EntityType;
-
-    protected readonly Method = Method;
-
-    protected readonly PlacementType = PlacementType;
 
     ngOnInit() {
         this.getPartitionTypes();
         this.getGeneratedNames();
+
+        if (this.entity()) {
+            if (this.entity().entityType === EntityType.MATERIALIZED_VIEW) {
+                this.subscribeMaterializedInfo();
+            }
+        }
     }
 
     ngOnDestroy() {
@@ -301,11 +302,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     columnValidation(columnName: string, editing: string = null) {
         if (editing) {
-            if (Array.from(this.oldColumns().values()).filter((h) => h.name === columnName && h.name !== editing).length > 0) {
+            if (Array.from(this.oldColumns().values()).filter((h) => h.name.toLowerCase() === columnName.toLowerCase() &&
+                h.name.toLowerCase() !== editing.toLowerCase()).length > 0) {
                 return 'is-invalid';
             }
         } else {
-            if (Array.from(this.oldColumns().values()).filter((h) => h.name === columnName).length > 0) {
+            if (Array.from(this.oldColumns().values()).filter((h) => h.name.toLowerCase() === columnName.toLowerCase()).length > 0) {
                 return 'is-invalid';
             }
         }
@@ -337,14 +339,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     subscribeMaterializedInfo() {
-        this.materializedInfo = computed(() => {
-            const entity = this.entity;
-            if (!entity) {
-                return this.materializedInfo();
-            }
-            return toSignal(this._crud.getMaterializedInfo(new EditTableRequest(this.namespace().id, this.entity().id)))();
 
-        });
+        this._crud.getMaterializedInfo(new EditTableRequest(this.namespace().id, this.entity().id)).subscribe(
+            res => this.materializedInfo = res
+        );
     }
 
     updateMaterialized() {
@@ -687,7 +685,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     onSelectingIndexStore(store: AdapterModel) {
         this.selectedStoreForIndex = store;
-        this.newIndexForm.controls['method'].setValue(store.indexMethods[0]);
+        this.newIndexForm.controls['method'].setValue(store.indexMethods[0].name);
     }
 
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
@@ -782,7 +780,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
      * Whether the table is partitioned
      */
     isPartitioned() {
-        return this.placements()?.length > 1;
+        return this.placements()?.filter(p => p.partitionType).length > 1;
     }
 
     getPartitionFunctionModel() {
@@ -940,6 +938,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                         this._toast.exception(res, 'Could not create index:');
                     }
                 }, error: err => {
+                    this._toast.exception(err.error, 'Could not create index:');
                     console.log(err);
                 }
             }).add(() => this.addingIndex = false);
@@ -1003,7 +1002,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     getOrNull(index: number) {
-        return this.materializedInfo()[index] || null;
+        return this.materializedInfo?.[index] || null;
     }
 
     getColumnsOfKey(constraint: ConstraintModel): Signal<string[]> {
@@ -1015,5 +1014,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         return Array.from(values);
     }
 
-    protected readonly ConstraintType = ConstraintType;
+    openDataView() {
+        this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    setTab(tab: Tabs) {
+        this._router.navigate(['/views/schema-editing/', this.currentRoute(), tab]).then();
+    }
 }

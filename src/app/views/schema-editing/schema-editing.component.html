@@ -1,18 +1,12 @@
-<div *ngIf="currentRoute()">
-    <app-statistics-column *ngIf="isStatistic()"></app-statistics-column>
-    <app-edit-entity [currentRoute]="currentRoute"></app-edit-entity>
-</div>
-
-<c-container class="pt-3 px-3" *ngIf="currentRoute()?.trim() === ''">
+@if (currentRoute()?.trim() === '') {
     <c-row>
         <h1>Namespaces</h1>
         <p>Select an item from the left sidebar to edit its entities.</p>
         <br>
     </c-row>
 
-
-    <c-row>
-        <c-col lg="6" class="fixed-width">
+    <c-row class="mb-3">
+        <c-col [lg]="6" class="fixed-width">
             <c-card>
                 <c-card-header>
                     <span class="mb-0">Create Namespace</span>
@@ -29,7 +23,7 @@
                                    required
                                    type="text"
                                    placeholder="namespace name">
-                            <c-form-feedback valid="false">{{createNamespaceFeedback}}</c-form-feedback>
+                            <c-form-feedback valid="false">{{ createNamespaceFeedback }}</c-form-feedback>
                         </c-input-group>
                         <c-input-group class="mb-3">
                             <label cInputGroupText for="namespace-type">Type</label>
@@ -42,7 +36,7 @@
                         <c-input-group class="mb-3" *ngIf="this.createForm.get('type').value === 'graph'">
                             <label cInputGroupText for="namespace-type">Store</label>
                             <select formControlName="stores" id="graph-store" cSelect>
-                                <option *ngFor="let store of stores()" value="{{ store.name }}">{{store.name}}</option>
+                                <option *ngFor="let store of stores()" value="{{ store.name }}">{{ store.name }}</option>
                             </select>
                         </c-input-group>
                         <c-input-group class="mb-0 justify-content-end">
@@ -56,7 +50,7 @@
             </c-card>
         </c-col>
 
-        <c-col lg="6" class="fixed-width">
+        <c-col [lg]="6" class="fixed-width">
             <c-card>
                 <c-card-header>
                     <span class="mb-0">Drop Namespace</span>
@@ -78,7 +72,7 @@
                         <c-input-group class="mb-0 justify-content-end">
                             <button color="danger" type="submit"
                                     [ngClass]="{'progress-bar-striped progress-bar-animated': dropSubmitted}"
-                                    [disabled]="dropSubmitted"
+                                    [disabled]="dropSubmitted || !canDrop()"
                                     cButton>Drop
                             </button>
                         </c-input-group>
@@ -87,4 +81,8 @@
             </c-card>
         </c-col>
     </c-row>
-</c-container>
+} @else {
+    <div class="mb-3">
+        <app-edit-entity [currentRoute]="currentRoute()" [currentTab]="currentTab()"></app-edit-entity>
+    </div>
+}

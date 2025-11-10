@@ -1,14 +1,4 @@
-import {
-    Component,
-    computed,
-    EventEmitter,
-    inject,
-    Output,
-    Signal,
-    signal,
-    ViewEncapsulation,
-    WritableSignal
-} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Output, Signal, signal, ViewEncapsulation, WritableSignal} from '@angular/core';
 import {Freshness, TimeUnits, ViewType} from '../data-view.model';
 import {AdapterModel} from '../../../views/adapters/adapter.model';
 import {CatalogService} from '../../../services/catalog.service';
@@ -16,8 +6,8 @@ import {ViewInformation} from '../data-view.component';
 import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
 import {DataModel, QueryRequest} from '../../../models/ui-request.model';
 import {Result} from '../models/result-set.model';
-import {CrudService} from "../../../services/crud.service";
-import {firstValueFrom} from "rxjs";
+import {CrudService} from '../../../services/crud.service';
+import {firstValueFrom} from 'rxjs';
 
 @Component({
     selector: 'poly-create-view',
@@ -69,6 +59,7 @@ export class ViewComponent {
     public readonly $freshnessMerged: Signal<string>;
 
     protected readonly ViewType = ViewType;
+    protected readonly viewTypes = Object.values(ViewType);
     protected readonly Freshness = Freshness;
     protected readonly TimeUnits = TimeUnits;
 
@@ -82,7 +73,7 @@ export class ViewComponent {
         this.$query.set(result.query);
     }
 
-    createViewCode(doExecute: boolean) {
+    createViewCode(doExecute: boolean, doInsert: boolean) {
 
         if (this.checkIfPossible()) {
             const info = new ViewInformation(this.$type(), this.$viewName());
@@ -102,35 +93,36 @@ export class ViewComponent {
 
             info.fullQuery = fullQuery;
 
-            this.viewQueryConsumer.emit(info);
-
             if (doExecute) {
                 this.executeQuery(fullQuery)
                     .then(res => {
                         if (res && res[0] && res[0].hasOwnProperty('error')) {
-                            this._toast.error(res[0]['error'])
+                            this._toast.error(res[0]['error']);
                             this.$showView.set(false);
                         } else {
                             this.$showView.set(false);
-                            this._toast.success((this.$type() === ViewType.MATERIALIZED ? 'Materialized View "' : 'View "') + this.$viewName() + '" has been created successfully.', "Successfully Created View");
+                            this._toast.success((this.$type() === ViewType.MATERIALIZED ? 'Materialized View "' : 'View "') + this.$viewName() + '" has been created successfully.', 'Successfully Created View');
                         }
 
 
                     }).catch(reason => {
-                        this._toast.error(reason)
+                    this._toast.error(reason);
                         this.$showView.set(false);
                     }
-                )
+                );
                 return;
-            } else {
-                this._toast.success('Query for view ' + this.$viewName() + ' has been inserted into editor.', "Query Inserted");
+            }
+
+            if (doInsert) {
+                this.viewQueryConsumer.emit(info);
+                this._toast.success('Query for view ' + this.$viewName() + ' has been inserted into editor.', 'Query Inserted');
             }
             this.$showView.set(false);
         }
     }
 
     executeQuery(fullQuery: string) {
-        const request = new QueryRequest(fullQuery, false, true, this.$result().dataModel == DataModel.RELATIONAL ? 'sql' : 'mql', 'public');
+        const request = new QueryRequest(fullQuery, false, true, this.$result().dataModel === DataModel.RELATIONAL ? 'sql' : 'mql', 'public');
 
         return firstValueFrom(this._crud.anyQueryBlocking(request));
     }
@@ -193,7 +185,7 @@ export class ViewComponent {
     }
 
     handleModalChange($event: boolean) {
-        if (!$event && !this.$showView()) {
+        if (!$event && this.$showView()) {
             this.$showView.set(false);
         }
     }

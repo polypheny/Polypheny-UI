@@ -9,13 +9,15 @@ Polypheny-UI supports a wide range of features including:
 
 * Monitoring the current status
 * Modifying settings
-* Modify the schema
-* Model foreign key relationships
+* Defining and modify the schema
+* Create and modify constraints
+* Model relationships
 * View and edit stored data
 * Execute arbitrary queries
 * Analyze query execution
 * Graphically build query plans
-* Explore-by-example based data exploration
+* Define Workflows
+* Work with Polypheny Notebooks
 
 
 ## Roadmap ##

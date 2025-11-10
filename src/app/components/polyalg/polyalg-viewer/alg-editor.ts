@@ -18,7 +18,14 @@ import {PolyAlgService} from '../polyalg.service';
 import {DataflowEngine} from 'rete-engine';
 import {Position} from 'rete-angular-plugin/17/types';
 import {Subject} from 'rxjs';
-import {canCreateConnection, findRootNodeId, getContextMenuNodes, getMagneticConnectionProps, updateMultiConnAfterCreate, updateMultiConnAfterRemove} from './alg-editor-utils';
+import {
+    canCreateConnection,
+    findRootNodeId,
+    getContextMenuNodes,
+    getMagneticConnectionProps,
+    updateMultiConnAfterCreate,
+    updateMultiConnAfterRemove
+} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
@@ -26,6 +33,8 @@ import {AlgMetadata} from '../algnode/alg-metadata/alg-metadata.component';
 import {Transform} from 'rete-area-plugin/_types/area';
 import {PlanType} from '../../../models/information-page.model';
 import {OperatorModel} from '../models/polyalg-registry';
+import {CustomZoom} from './custom-zoom';
+import {CustomDrag} from './custom-drag';
 
 export type Schemes = GetSchemes<AlgNode, CustomConnection<AlgNode>>;
 type AreaExtra = AngularArea2D<Schemes> | ContextMenuExtra;
@@ -126,6 +135,8 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         useMagneticConnection(connection, getMagneticConnectionProps(editor));
     }
 
+    area.area.setZoomHandler(new CustomZoom(0.1, 0.3, true));
+    area.area.setDragHandler(new CustomDrag(container)); // horizontal scrolling
     AreaExtensions.simpleNodesOrder(area);
     addCustomBackground(area);
     AreaExtensions.restrictor(area, {scaling: {min: 0.03, max: 5}}); // Restrict Zoom

@@ -1,0 +1,41 @@
+<c-card class="list-container border bg-light mb-3" *ngIf="val()?.length > 0">
+    <ul cListGroup cdkDropList (cdkDropListDropped)="drop($event)" flush="true">
+        @for (agg of val(); track $index) {
+            <li cListGroupItem cdkDrag [cdkDragDisabled]="!isEditable()" class="bg-white list-entry" [class.draggable]="isEditable()">
+                <c-row gutter=false>
+                    <c-col [xs]="10">
+                        <div class="d-flex mb-2 align-items-center">
+                            <app-autocomplete (changed)="valueChanged()"
+                                              [data]="suggestions()"
+                                              [(value)]="agg.target"
+                                              [placeholder]="'target ' + fieldType()"
+                                              [disabled]="!isEditable()"
+                                              (mousedown)="$event.stopPropagation()">
+                            </app-autocomplete>
+                            <div class="ms-2">
+                                <input cFormControl sizing="sm" id="agg-alias" [placeholder]="'Alias (optional)'"
+                                       type="text" autocomplete="off" [disabled]="!isEditable()" (input)="valueChanged()"
+                                       [(ngModel)]="agg.alias">
+                            </div>
+                        </div>
+                        <c-input-group sizing="sm">
+                            <label cInputGroupText for="selectDir">Function</label>
+                            <select cSelect id="selectDir" [(ngModel)]="agg.function" (change)="valueChanged()"
+                                    [disabled]="!isEditable()" (mousedown)="$event.stopPropagation()">
+                                <option *ngFor="let choice of def().allowedFunctions" [value]="choice">{{ displayFunctions[choice] }}</option>
+                            </select>
+                        </c-input-group>
+                    </c-col>
+                    <c-col [xs]="2" class="text-end p-0" *ngIf="isEditable()">
+                        <app-delete-confirm (delete)="deleteField($index)" (mousedown)="$event.stopPropagation()"></app-delete-confirm>
+                    </c-col>
+                </c-row>
+            </li>
+        }
+    </ul>
+
+</c-card>
+
+<button cButton color="light" *ngIf="isEditable()" (click)="addField()" size="sm">
+    Add {{ fieldType() }}
+</button>

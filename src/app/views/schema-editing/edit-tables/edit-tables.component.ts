@@ -1,26 +1,8 @@
-import {
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    Input,
-    OnDestroy,
-    OnInit,
-    QueryList,
-    Renderer2,
-    Signal,
-    ViewChildren
-} from '@angular/core';
+import {Component, computed, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, Renderer2, Signal, ViewChildren} from '@angular/core';
 import {CrudService} from '../../../services/crud.service';
 import {EditTableRequest} from '../../../models/ui-request.model';
 import {Router} from '@angular/router';
-import {
-    EntityMeta,
-    PolyType,
-    RelationalResult,
-    Status,
-    UiColumnDefinition
-} from '../../../components/data-view/models/result-set.model';
+import {EntityMeta, PolyType, RelationalResult, Status, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
@@ -29,14 +11,7 @@ import {Subscription} from 'rxjs';
 import {DbTable} from '../../uml/uml.model';
 import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.service';
 import {CatalogService} from '../../../services/catalog.service';
-import {
-    AllocationEntityModel,
-    AllocationPartitionModel,
-    AllocationPlacementModel,
-    EntityType,
-    NamespaceModel,
-    TableModel
-} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 
 const INITIAL_TYPE = 'BIGINT';
@@ -146,39 +121,33 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
     }
 
-
     /**
-     * get the right class for the 'drop' and 'truncate' buttons
      * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
      */
-    dropTruncateClass(action: string, table: Table) {
-        if (action === 'drop' && (table.drop === table.name || table.drop === 'drop ' + table.name)) {
-            return 'btn-danger';
-        } else if (action === 'truncate' && (table.truncate === table.name || table.truncate === 'truncate ' + table.name)) {
-            return 'btn-danger';
-        }
-        return 'btn-light disabled';
+    isDropTruncateEnabled(action: 'drop' | 'truncate', table: Table) {
+        return action === 'drop' && (table.drop === table.name || table.drop === 'drop ' + table.name) ||
+            action === 'truncate' && (table.truncate === table.name || table.truncate === 'truncate ' + table.name);
     }
 
     /**
      * send a request to either drop or truncate a table
      */
-    sendDropTruncateRequest(action, table: Table) {
-        let request;
+    sendDropTruncateRequest(action: 'drop' | 'truncate', table: Table) {
+        let request: EditTableRequest;
         let type: string;
-        if (this.dropTruncateClass(action, table) === 'btn-danger') {
-            if (table.tableType !== EntityType.VIEW) {
-                request = new EditTableRequest(this.namespace().id, table.id, null, action);
-                console.log(request);
-                type = ' the Table ';
-            } else {
-                request = new EditTableRequest(this.namespace().id, table.id, null, action, null, null, EntityType.VIEW);
-                type = ' the View ';
-            }
-
-        } else {
+        if (!this.isDropTruncateEnabled(action, table)) {
             return;
         }
+
+        if (table.tableType !== EntityType.VIEW) {
+            request = new EditTableRequest(this.namespace().id, table.id, null, action);
+            console.log(request);
+            type = ' the Table ';
+        } else {
+            request = new EditTableRequest(this.namespace().id, table.id, null, action, null, null, EntityType.VIEW);
+            type = ' the View ';
+        }
+
         this._crud.dropTruncateTable(request).subscribe({
             next: (result: RelationalResult) => {
 
@@ -190,7 +159,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                         toastAction = 'Dropped';
                         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                     }
-                    this._toast.success(toastAction + type + request.table);
+                    table.truncate = '';
+                    table.drop = '';
+                    this._toast.success(toastAction + type + table.name);
                     //this._catalog.updateIfNecessary();
                 }
             }, error: err => {
@@ -279,7 +250,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
         this._crud.renameTable(meta).subscribe({
             next: (r: RelationalResult) => {
-                if (r.exception) {
+                if (r.error) {
                     this._toast.exception(r);
                 } else {
                     this._toast.success('Renamed' + type + table.name + ' to ' + table.newName);
@@ -287,7 +258,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
             }, error: err => {
-                this._toast.error('Could not rename the' + type + table.name);
+                this._toast.error('Could not rename the ' + type + table.name);
                 console.log(err);
             }
         });
@@ -329,6 +300,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
         }
     }
 
+    columnValidation(columnName: string, editing: string) {
+        if (columnName.length === 0) {
+            return '';
+        }
+        if (Array.from(this.newColumns.values()).filter((h) => h.name.toLowerCase() === columnName.toLowerCase()).length > 1) {
+            return 'is-invalid';
+        }
+        return this._crud.getValidationClass(columnName);
+    }
+
     addNewColumn() {
         this.newColumns.set(this.counter++, new UiColumnDefinition(-1, '', false, true, INITIAL_TYPE, '', null, null));
     }
@@ -365,6 +346,11 @@ export class EditTablesComponent implements OnInit, OnDestroy {
                 this.newColumns.get(0).dataType = INITIAL_TYPE;
             }
         );
+    }
+
+    openDetails(table: Table) {
+        this._router.navigate(['/views/schema-editing/' + this.namespace().name + '.' + table.name]).then();
+        this._leftSidebar.reset(false);
     }
 }
 

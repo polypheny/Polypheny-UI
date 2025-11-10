@@ -30,7 +30,7 @@ import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {EditSourceColumnsComponent} from './schema-editing/edit-source-columns/edit-source-columns.component';
-import {SearchFilterPipe, ValuePipe} from '../pipes/pipes';
+import {MapValuesPipe, SearchFilterPipe, ValuePipe} from '../pipes/pipes';
 import {DocumentEditCollectionsComponent} from './schema-editing/document-edit-collections/document-edit-collections.component';
 import {DocumentEditCollectionComponent} from './schema-editing/document-edit-collection/document-edit-collection.component';
 import {StatisticsColumnComponent} from './schema-editing/statistics-column/statistics-column.component';
@@ -90,21 +90,22 @@ import {
 import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.component';
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.component';
-import {GisComponent} from "./querying/gis/gis.component";
-import {MapLayersComponent} from "./querying/gis/components/layers/map-layers.component";
+import {NgChartsModule} from 'ng2-charts';
+import {GisComponent} from './querying/gis/gis.component';
+import {MapLayersComponent} from './querying/gis/components/layers/map-layers.component';
 import {
     SubmitQueryButtonComponent
-} from "./querying/console/components/submit-query-button/submit-query-button.component";
-import {QueryEditor} from "./querying/console/components/code-editor/query-editor.component";
-import {ConfigSectionComponent} from "./querying/gis/components/config-section/config-section.component";
-import {AreaShapeComponent} from "./querying/gis/components/visualization/area-shape/area-shape.component";
-import {ColorComponent} from "./querying/gis/components/visualization/color/color.component";
-import {EmptyComponent} from "./querying/gis/components/visualization/empty/empty.component";
-import {LabelComponent} from "./querying/gis/components/visualization/label/label.component";
-import {PointShapeComponent} from "./querying/gis/components/visualization/point-shape/point-shape.component";
-import {NgxJsonViewerModule} from "ngx-json-viewer";
-import {DataPreviewComponent} from "./querying/gis/components/configuration/data-preview/data-preview.component";
-import {FilterComponent} from "./querying/gis/components/configuration/filter/filter.component";
+} from './querying/console/components/submit-query-button/submit-query-button.component';
+import {QueryEditor} from './querying/console/components/code-editor/query-editor.component';
+import {ConfigSectionComponent} from './querying/gis/components/config-section/config-section.component';
+import {AreaShapeComponent} from './querying/gis/components/visualization/area-shape/area-shape.component';
+import {ColorComponent} from './querying/gis/components/visualization/color/color.component';
+import {EmptyComponent} from './querying/gis/components/visualization/empty/empty.component';
+import {LabelComponent} from './querying/gis/components/visualization/label/label.component';
+import {PointShapeComponent} from './querying/gis/components/visualization/point-shape/point-shape.component';
+import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {DataPreviewComponent} from './querying/gis/components/configuration/data-preview/data-preview.component';
+import {FilterComponent} from './querying/gis/components/configuration/filter/filter.component';
 
 
 @NgModule({
@@ -175,11 +176,9 @@ import {FilterComponent} from "./querying/gis/components/configuration/filter/fi
         ProgressBarComponent,
         CollapseDirective,
         ButtonToolbarComponent,
-        CollapseDirective,
-        NgxJsonViewerModule,
-        PopoverDirective,
-        FormLabelDirective,
         AlertComponent,
+        NgChartsModule,
+        NgxJsonViewerModule
     ],
     declarations: [
         EditColumnsComponent,
@@ -223,10 +222,7 @@ import {FilterComponent} from "./querying/gis/components/configuration/filter/fi
         DataPreviewComponent,
         FilterComponent,
     ],
-    exports: [
-        QueryEditor,
-        SubmitQueryButtonComponent
-    ]
+    exports: []
 })
 export class ViewsModule {
 }

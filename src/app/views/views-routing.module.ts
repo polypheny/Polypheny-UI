@@ -13,6 +13,9 @@ import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.comp
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
 import {UnsavedChangesGuard} from '../plugins/notebooks/services/unsaved-changes.guard';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
+import {WorkflowsDashboardComponent} from '../plugins/workflows/components/workflows-dashboard/workflows-dashboard.component';
+import {WorkflowSessionComponent} from '../plugins/workflows/components/workflow-session/workflow-session.component';
+import {WorkflowJobComponent} from '../plugins/workflows/components/workflow-job/workflow-job.component';
 
 const routes: Routes = [
     {
@@ -99,17 +102,17 @@ const routes: Routes = [
         pathMatch: 'full'
     },
     {
-        path: 'schema-editing/:id',
+        path: 'schema-editing/:id/:tab',
         component: SchemaEditingComponent,
         data: {
             title: 'Namespaces'
         }
     },
     {
-        path: 'schema-editing/:id/statistics-column',
+        path: 'schema-editing/:id',
         component: SchemaEditingComponent,
         data: {
-            title: 'Statistics'
+            title: 'Namespaces'
         }
     },
     {
@@ -175,12 +178,40 @@ const routes: Routes = [
                 path: '**',
                 component: NotebooksComponent,
                 data: {
-                    title: 'Notebooks'
+                    title: 'Notebooks',
+                    isFullWidth: true
                 },
                 canDeactivate: [UnsavedChangesGuard]
             }
         ]
     },
+    {
+        path: 'workflows',
+        redirectTo: 'workflows/dashboard',
+        pathMatch: 'full'
+    },
+    {
+        path: 'workflows/sessions/:sessionId',
+        component: WorkflowSessionComponent,
+        data: {
+            title: 'Workflow Session',
+            isFullWidth: true
+        }
+    },
+    {
+        path: 'workflows/jobs/:jobId',
+        component: WorkflowJobComponent,
+        data: {
+            title: 'Workflow Job'
+        }
+    },
+    {
+        path: 'workflows/:route',
+        component: WorkflowsDashboardComponent,
+        data: {
+            title: 'Workflows Dashboard'
+        }
+    }
 ];
 
 @NgModule({

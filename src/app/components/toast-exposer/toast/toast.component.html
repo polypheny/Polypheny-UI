@@ -1,16 +1,24 @@
 <ng-container>
     <div class="p-3">
         <c-toast-header [closeButton]="true" [class]="(toast|async)?.type">
-            <strong class="me-auto" [ngClass]="{'hasGeneratedQuery': (toast | async)?.generatedQuery}"
-                    (click)="copyGeneratedQuery(toast.value)">
-                {{(toast | async)?.title}}
-                <i class="fa fa-code" *ngIf="(toast | async)?.generatedQuery"></i>
+
+            <strong class="me-2">
+                {{ (toast | async)?.title }}
             </strong>
+            @if ((toast | async)?.generatedQuery) {
+                <span class="me-3 copy-query-btn" title="Copy query" (click)="copyGeneratedQuery(toast.value)">
+                    @if (showCopied) {
+                        <span>Copied!</span>
+                    } @else {
+                        <i class="fa fa-code" *ngIf="(toast | async)?.generatedQuery"></i>
+                    }
+                </span>
+            }
         </c-toast-header>
         <c-toast-body #t [cToastClose]="t.toast" class="text-bg-light">
 
             <div (click)="showStackTraceModal(toast.value)">
-                {{(toast | async)?.message}}
+                {{ (toast | async)?.message }}
             </div>
             <ng-content></ng-content>
             <c-progress thin="true">
@@ -42,10 +50,10 @@
         <ng-container>
             <c-toast-header [closeButton]="true">
                 <toast-sample-icon></toast-sample-icon>
-                <strong>{{e.message}}</strong>
+                <strong>{{ e.message }}</strong>
             </c-toast-header>
             <c-toast-body #toast [cToastClose]="toast.toast">
-                <p class="mb-1">This is a dynamic toast no {{toast.toast?.index}} {{toast.toast?.clock}}</p>
+                <p class="mb-1">This is a dynamic toast no {{ toast.toast?.index }} {{ toast.toast?.clock }}</p>
                 <ng-content></ng-content>
                 <c-progress thin>
                     <c-progress-bar [value]="25*(toast.toast?.clock ?? 1)"></c-progress-bar>

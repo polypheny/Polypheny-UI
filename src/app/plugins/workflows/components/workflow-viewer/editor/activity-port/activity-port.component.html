@@ -1,0 +1,27 @@
+<div class="port-wrapper {{'state-' + data.activityState().toLowerCase()}}" [ngClass]="{
+    'control-port': data.isControl,
+    'data-port': !data.isControl,
+    'in-port': data.isInput,
+    'out-port': !data.isInput,
+    'success-control': data.controlType === 'success',
+    'fail-control': data.controlType === 'fail',
+    'in-control': data.controlType === 'in',
+    'is-optional': data.portDef?.['isOptional'],
+    'is-multi': data.isMulti
+}">
+    @switch (data.controlType) {
+        @case ('in') {
+            <span class="fa fa-circle-o port-icon"></span>
+        }
+        @case ('success') {
+            <span class="fa fa-check port-icon"></span>
+        }
+        @case ('fail') {
+            <span class="fa fa-times port-icon"></span>
+        }
+        @default {
+
+        }
+
+    }
+</div>

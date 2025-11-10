@@ -55,7 +55,7 @@
         <c-spinner></c-spinner>&nbsp;&nbsp;Loading instances...
     </c-row>
 
-    <c-row class="mt-2">
+    <c-row class="mt-5">
         <c-col>
             <button cButton color="success" class="me-2" (click)="showModal(null)">Connect to Docker Instance</button>
             <button cButton color="primary" class="me-2" (click)="showSettingsModal()">Global Settings</button>
@@ -75,6 +75,6 @@
     <app-dockerinstance [id]="modalInstanceId" [handshake]="modalHandshake" [visible]="activeModal === 'add_edit'" (done)="closeModal($event)"></app-dockerinstance>
 </c-modal>
 
-<c-modal class="fade" role="dialog" [visible]="activeModal === 'settings'" aria-labelledby="Edit global Docker settings" aria-hidden="true" id="dockerSettings">
+<c-modal class="fade" role="dialog" [visible]="activeModal === 'settings'" aria-labelledby="Edit global Docker settings" aria-hidden="true" id="dockerSettings" (visibleChange)="onVisibleChange($event)">
     <app-dockersettings (done)="closeSettingsModal()"></app-dockersettings>
 </c-modal>

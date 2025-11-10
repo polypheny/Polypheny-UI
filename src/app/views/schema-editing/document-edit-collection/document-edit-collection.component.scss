@@ -116,3 +116,9 @@ table tr td:hover .modify-placement-btn {
 .buffer {
   width: 50%;
 }
+
+/*Tabs*/
+.nav-link {
+  cursor: pointer;
+  user-select: none;
+}

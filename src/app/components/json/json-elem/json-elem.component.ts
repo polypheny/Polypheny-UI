@@ -1,13 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges,} from '@angular/core';
 import {Info, Pair, Type} from '../json-editor.component';
 
 @Component({
@@ -44,7 +35,6 @@ export class JsonElemComponent implements OnInit, OnChanges {
     childDupStatus = [];
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log(changes);
     }
 
     ngOnInit(): void {
@@ -176,7 +166,6 @@ export class JsonElemComponent implements OnInit, OnChanges {
             return;
         }
         const keys = (this.el.value as Pair[]).map(e => e.key);
-        console.log(keys);
         const temp = [];
         const copy = keys;
 
@@ -191,14 +180,10 @@ export class JsonElemComponent implements OnInit, OnChanges {
                 temp.push(key);
                 status.push(copy.includes(key));
             }
-            console.log(copy);
-            console.log(temp);
-            console.log(status);
             count++;
         }
 
         this.childDupStatus = status;
-        console.log(this.childDupStatus);
 
     }
 

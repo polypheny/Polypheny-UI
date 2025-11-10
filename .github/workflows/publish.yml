@@ -1,4 +1,4 @@
-name: Publish to DBIS Nexus
+name: Publish to artifacts.polypheny.com
 
 on:
   push:
@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
       - name: Build with Gradle
         run: ./gradlew --no-daemon build packageDistribution
       - name: Publish Zip to artifacts.polypheny.com
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: artifacts.polypheny.com
           username: ${{ secrets.FTP_USERNAME }}

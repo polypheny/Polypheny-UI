@@ -28,6 +28,8 @@ export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
     currentPage: number;
     highestPage: number;
     affectedTuples: number;
+    xid?: string;
+    isRolledBack?: boolean;
 }
 
 
@@ -98,42 +100,47 @@ export class StatisticSet {
     }
 }
 
-export class StatisticTableSet {
-    table: null;
+export interface TableStatistics {
+    tableId: number;
+    tableName: string;
+    entityType: EntityType;
+    numberOfRows: number;
     calls: TableCallSet;
-    numberOfRows: null;
-    alphabeticColumn: StatisticColumnSet;
-    numericalColumn: StatisticColumnSet;
-    temporalColumn: StatisticColumnSet;
-    tableType: string;
-
-    constructor() {
-    }
+    columns: StatisticColumn[];
 }
 
-export class TableCallSet {
+export interface StatisticColumn {
+    columnId: number;
+    columnName: string;
+    type: string;
+    full: boolean;
+    uniqueValues: PolyValue[];
+
+    // NumericalStatisticColumn
+    count?: PolyValue;
+    min?: PolyValue;
+    max?: PolyValue;
+    minCache?: PolyValue[];
+    maxCache?: PolyValue[];
+
+    // AlphabeticStatisticColumn
+    uniqueValuesCache?: PolyValue[];
+    cacheFull?: boolean;
+
+    // TemporalStatisticColumn (in addition to min, max, minCache, maxCache)
+    temporalType: string;
+}
+
+export interface PolyValue {
+    '@type': string;
+    value: number | string | boolean;
+}
+
+export interface TableCallSet {
     numberOfSelects: number;
     numberOfInserts: number;
     numberOfDeletes: number;
     numberOfUpdates: number;
-
-    constructor() {
-    }
-}
-
-
-export class StatisticColumnSet {
-
-    [column: string]: {
-        column: null,
-        min: null,
-        max: null,
-        uniqueValues: null,
-        full: null,
-    }
-
-    constructor() {
-    }
 }
 
 /**

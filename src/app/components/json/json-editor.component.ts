@@ -146,7 +146,7 @@ export class JsonEditorComponent implements OnInit {
             }
 
         } catch (e) {
-            console.log('could not translate');
+            console.log('could not translate', e);
         }
 
         if (this.empty && this.data.length === 0) {

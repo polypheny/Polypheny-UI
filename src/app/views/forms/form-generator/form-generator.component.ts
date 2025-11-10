@@ -138,6 +138,17 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
 
                     this.pageNotFound = false;
                     this.serverError = null;
+
+                    this._route.fragment.subscribe(fragment => {
+                        if (fragment) {
+                            setTimeout(() => { // ensure elements are rendered
+                                const el = document.getElementById(fragment);
+                                if (el) {
+                                    el.scrollIntoView({behavior: 'smooth', block: 'start'});
+                                }
+                            }, 1);
+                        }
+                    });
                 },
                 error: err => {
                     this.serverError = err;

@@ -19,16 +19,18 @@
               "lodash",
               "jquery",
               "jquery-ui",
-              "highlightjs",
               "chart.js",
-              "graphlib-dot",
               "dagre-d3",
               "ansi_up",
               "ace-builds",
               "mobx",
               "flatpickr",
               "plyr",
-              "moment"
+              "moment",
+              "elkjs",
+              "json-pointer",
+              "@tweenjs/tween.js",
+              "@babel/runtime/regenerator"
             ],
             "outputPath": "dist",
             "index": "src/index.html",
@@ -52,6 +54,7 @@
               "node_modules/@ali-hm/angular-tree-component/css/angular-tree-component.css",
               "node_modules/katex/dist/katex.min.css",
               "node_modules/prismjs/themes/prism-okaidia.css",
+              "src/scss/angular2-multiselect-dropdown.scss",
               "src/app/components/data-view/data-map/leaflet.css",
               "node_modules/leaflet-draw/dist/leaflet.draw.css"
             ],
@@ -63,6 +66,7 @@
             "scripts": [
               "node_modules/chart.js/dist/chart.min.js",
                 "node_modules/katex/dist/katex.min.js",
+              "node_modules/katex/dist/contrib/auto-render.min.js",
                 "node_modules/prismjs/prism.js",
                 "node_modules/prismjs/components/prism-css.min.js",
                 "node_modules/prismjs/components/prism-cypher.min.js",

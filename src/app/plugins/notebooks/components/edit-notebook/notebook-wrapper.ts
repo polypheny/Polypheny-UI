@@ -1,28 +1,8 @@
 import {KernelSpec, NotebookContent} from '../../models/notebooks-response.model';
-import {
-    CellDisplayDataOutput,
-    CellErrorOutput,
-    CellExecuteResultOutput,
-    CellOutputType,
-    CellStreamOutput,
-    Notebook,
-    NotebookCell
-} from '../../models/notebook.model';
+import {CellDisplayDataOutput, CellErrorOutput, CellExecuteResultOutput, CellOutputType, CellStreamOutput, Notebook, NotebookCell} from '../../models/notebook.model';
 import * as uuid from 'uuid';
 import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
-import {
-    KernelDisplayData,
-    KernelErrorMsg,
-    KernelExecuteInput,
-    KernelExecuteReply,
-    KernelExecuteResult,
-    KernelInterruptReply,
-    KernelMsg,
-    KernelShutdownReply,
-    KernelStatus,
-    KernelStream,
-    KernelUpdateDisplayData
-} from '../../models/kernel-response.model';
+import {KernelDisplayData, KernelErrorMsg, KernelExecuteInput, KernelExecuteReply, KernelExecuteResult, KernelInterruptReply, KernelMsg, KernelShutdownReply, KernelStatus, KernelStream, KernelUpdateDisplayData} from '../../models/kernel-response.model';
 import {interval, Subscription} from 'rxjs';
 
 export class NotebookWrapper {
@@ -58,7 +38,7 @@ export class NotebookWrapper {
                 this.kernelStatus = 'unknown';
             });
         this.socket.requestExecutionState();
-        this.keepAlive = interval(60000).subscribe(() => this.socket?.requestExecutionState()); // prevent 300s timeout
+        this.keepAlive = interval(10000).subscribe(() => this.socket?.requestExecutionState()); // prevent 300s timeout
     }
 
     closeSocket() {

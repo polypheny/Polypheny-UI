@@ -1,0 +1,104 @@
+<c-modal [visible]="showModal()" (visibleChange)="showModal.set($event)" *ngIf="config()" scrollable="true">
+    <c-modal-header>
+        <h5 cModalTitle>Workflow Config</h5>
+        <button (click)="toggleModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body *ngIf="showModal()">
+        <form cForm>
+
+            <!-- Preferred Stores -->
+            <div class="mb-5">
+                <h5><span class="badge text-body bg-light">Preferred Stores</span></h5>
+
+                @for (entry of editableConfig().preferredStores | keyvalue; track entry.key) {
+                    <c-input-group class="mb-1" sizing="sm">
+                        <label cInputGroupText for="preferred-{{entry.key}}">{{ entry.key }}</label>
+                        <select cSelect id="preferred-{{entry.key}}" [(ngModel)]="editableConfig().preferredStores[entry.key]" name="preferred-{{entry.key}}"
+                                (change)="checkForChanges()" [disabled]="!isEditable()">
+                            <option *ngFor="let adapter of adapters()" [value]="adapter.name">{{ adapter.name + ' (' + adapter.adapterName + ')' }}</option>
+                        </select>
+                    </c-input-group>
+                }
+            </div>
+
+            <div class=mb-5>
+                <!-- Fusion / Pipelining -->
+                <h5><span class="badge text-body bg-light">Optimization</span></h5>
+                <c-form-check [switch]="true" class="mb-3">
+                    <input cFormCheckInput id="fusion-check" type="checkbox" [(ngModel)]="editableConfig().fusionEnabled"
+                           name="fusion-check" (change)="checkForChanges()" [disabled]="!isEditable()">
+                    <label cFormCheckLabel for="fusion-check">Enable Activity Fusion</label>
+                    <div cFormText>
+                        Fusion can increase performance by reducing the number of materialized checkpoints and more opportunities for query optimization.
+                    </div>
+                </c-form-check>
+                <c-form-check [switch]="true" class="mb-3">
+                    <input cFormCheckInput id="pipe-check" type="checkbox" [(ngModel)]="editableConfig().pipelineEnabled"
+                           name="pipe-check" (change)="checkForChanges()" [disabled]="!isEditable()">
+                    <label cFormCheckLabel for="pipe-check">Enable Activity Pipelining</label>
+                    <div cFormText>
+                        Pipelining can increase performance by reducing the number of materialized checkpoints and increasing the degree of concurrency.
+                    </div>
+                </c-form-check>
+
+
+                <!-- Drop Checkpoints -->
+                <c-form-check [switch]="true" class="mb-3">
+                    <input cFormCheckInput id="drop-check" type="checkbox" [(ngModel)]="editableConfig().dropUnusedCheckpoints"
+                           name="drop-check" (change)="checkForChanges()" [disabled]="!isEditable()">
+                    <label cFormCheckLabel for="drop-check">Drop unused checkpoints</label>
+                    <div cFormText>
+                        Reduce storage requirements by dropping no longer required checkpoints.
+                        Checkpoints of individual activities can be enforced in their config.
+                    </div>
+                </c-form-check>
+            </div>
+
+
+            <!-- Max Workers-->
+            <div class="mb-5">
+                <h5><span class="badge text-body bg-light">Worker Threads</span></h5>
+                <input cFormControl type="number" id="maxWorkers" [(ngModel)]="editableConfig().maxWorkers" name="maxWorkers"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="1">
+                <div cFormText>
+                    The maximum number of activities that can be executed concurrently (pipelined or fused activities count as 1).
+                    An upper limit is given by the <code>globalWorkers</code> Polypheny config value.
+                </div>
+            </div>
+
+            <!-- Timeout-->
+            <div class="mb-5">
+                <h5><span class="badge text-body bg-light">Timeout</span></h5>
+                <input cFormControl type="number" id="timeout" [(ngModel)]="editableConfig().timeoutSeconds" name="timeout"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="0">
+                <div cFormText>
+                    Activity execution timeout in seconds, or 0 to disable.
+                </div>
+            </div>
+
+            <!-- Queue Capacity-->
+            <div class="mb-5">
+                <h5><span class="badge text-body bg-light">Pipeline Queue Capacity</span></h5>
+                <input cFormControl type="number" id="queueCapacity" [(ngModel)]="editableConfig().pipelineQueueCapacity" name="queueCapacity"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="1">
+            </div>
+
+            <!-- Log Capacity-->
+            <div class="mb-5">
+                <h5><span class="badge text-body bg-light">Log Capacity per Activity</span></h5>
+                <input cFormControl type="number" id="logCapacity" [(ngModel)]="editableConfig().logCapacity" name="logCapacity"
+                       (change)="checkForChanges()" [disabled]="!isEditable()" min="10">
+            </div>
+
+        </form>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleModal()" cButton color="secondary">Close</button>
+        <div>
+            <button cButton color="primary" (click)="saveConfig()" [disabled]="!hasConfigChanged()">
+                Save Config
+            </button>
+        </div>
+        <p class="text-muted" *ngIf="hasConfigChanged()">Changes only apply to already executed activities after a reset.</p>
+    </c-modal-footer>
+</c-modal>

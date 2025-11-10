@@ -15,11 +15,12 @@ export class WebuiSettingsService {
 
 
         // tslint:disable:no-unused-expression
-        new Setting(this.settings, 'host', 'blue04.maas.dmi.unibas.ch');
-        new Setting(this.settings, 'webUI.port', '7659');
-        new Setting(this.settings, 'config.prefix', 'config');
-        new Setting(this.settings, 'information.prefix', 'info');
-        new Setting(this.settings, 'reconnection.timeout', '500');
+        new Setting(this.settings, 'host', 'localhost', true, 'Host');
+        new Setting(this.settings, 'webUI.port', '7659', true, 'Port');
+        new Setting(this.settings, 'config.prefix', 'config', false);
+        new Setting(this.settings, 'information.prefix', 'info', false);
+        new Setting(this.settings, 'reconnection.timeout', '500', true, 'Reconnection Timeout');
+        new Setting(this.settings, 'websocket.keepalive', '10000', false, 'Websocket Keepalive');
 
         this.host = localStorage.getItem('host');
 
@@ -42,6 +43,10 @@ export class WebuiSettingsService {
             'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/webSocket');
         this.connections.set('notebooks.file',
             'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/notebooks/file');
+        this.connections.set('workflows.rest',
+            'http://' + this.host + ':' + localStorage.getItem('webUI.port') + '/workflows');
+        this.connections.set('workflows.socket',
+            'ws://' + this.host + ':' + localStorage.getItem('webUI.port') + '/workflows/webSocket');
 
     }
 
@@ -49,8 +54,12 @@ export class WebuiSettingsService {
         return this.connections.get(key);
     }
 
-    public getSettings() {
-        return this.settings;
+    public getConfigurableSettings() {
+        return new Map(
+            Array.from(this.settings.entries()).filter(
+                ([_, value]) => value.configurable
+            )
+        );
     }
 
 
@@ -86,11 +95,15 @@ export class Setting {
     key: string;
     value: string;
     default: string;
+    configurable: boolean; // if true, the user can change the value of this setting from the right sidebar
+    displayName: string;
     order: number;
 
-    constructor(map: Map<string, Setting>, key: string, defaultValue: string, order = 1) {
+    constructor(map: Map<string, Setting>, key: string, defaultValue: string, configurable: boolean, displayName: string = null, order = 1) {
         this.key = key;
         this.default = defaultValue;
+        this.configurable = configurable;
+        this.displayName = displayName === null ? key : displayName;
         if (localStorage.getItem(key) === null) {
             this.value = defaultValue;
             localStorage.setItem(key, defaultValue);

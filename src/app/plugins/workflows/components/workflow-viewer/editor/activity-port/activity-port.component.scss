@@ -1,0 +1,103 @@
+@use "sass:math";
+@import "../vars";
+
+:host {
+  cursor: pointer;
+  vertical-align: middle;
+  z-index: 2;
+  box-sizing: border-box;
+
+}
+
+.port-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.control-port {
+    width: $control-port-size;
+    height: $control-port-size;
+    border-radius: 3px;
+
+    &:hover {
+      filter: brightness(120%);
+    }
+  }
+
+  &.data-port {
+    width: $data-port-size;
+    height: $data-port-size;
+    border-radius: calc(#{$data-port-size} / 2);
+    background: var(--cui-dark);
+    border: 2px solid var(--cui-dark);
+
+    &.is-multi {
+      margin-left: calc((#{$data-port-size} - #{$multi-width}) / 2);
+      height: $multi-height;
+      width: $multi-width;
+    }
+
+    &.out-port.state-finished {
+      background: repeating-linear-gradient(
+              135deg,
+              var(--cui-dark),
+              var(--cui-dark) 3px,
+              var(--cui-secondary) 3px,
+              var(--cui-secondary) 6px
+      );
+
+      &:hover {
+        background: repeating-linear-gradient(
+                135deg,
+                var(--cui-secondary),
+                var(--cui-secondary) 3px,
+                var(--cui-light) 3px,
+                var(--cui-light) 6px
+        )
+      }
+    }
+
+    &.is-optional {
+      background: var(--cui-secondary);
+
+      &:hover {
+        background: var(--cui-light);
+      }
+    }
+
+    &:hover {
+      background: var(--cui-secondary);
+    }
+  }
+
+  &.success-control {
+    background: var(--cui-success);
+
+    .port-icon {
+      font-size: $control-port-size - 4px;
+      padding-top: 1px;
+    }
+  }
+
+  &.fail-control {
+    background: var(--cui-danger);
+
+    .port-icon {
+      font-size: $control-port-size - 4px;
+      padding-top: 1px;
+    }
+  }
+
+  &.in-control {
+    background: var(--cui-dark);
+
+    .port-icon {
+      font-size: $control-port-size - 5px;
+      padding-top: 1px;
+    }
+  }
+
+  .port-icon {
+    color: var(--cui-light)
+  }
+}

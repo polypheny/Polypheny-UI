@@ -3,33 +3,35 @@
         <!-- multiple cases: from: https://stackoverflow.com/questions/40176061/two-switch-case-values-in-angular2/40177408#40177408 -->
         <ng-container *ngSwitchCase="_types.numericTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
             <!-- use input type text to prevent problems when having current values such as "12." (dot at the end) -->
-            <span cInputGroupText *ngIf="showLabel">{{header.name}}</span>
+            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
 
             <input cFormControl sizing="sm" type="text" inputmode="decimal" [value]="value"
                    [disabled]="value === null && header.nullable === true" #inputElement
-                   [ngClass]="validate(inputElement)?.cssClass" (keyup)="onValueChange(inputElement.value, $event)">
+                   [ngClass]="validate(inputElement)?.cssClass" (keyup)="onValueChange(inputElement.value, $event)"
+                   (keydown)="restrictNumericInput($event)"
+                   (paste)="sanitizePastedInput($event)">
 
             <button cButton size="sm" *ngIf="header.nullable"
                     [ngClass]="{'btn-primary': value === null || value == undefined, 'btn-light': value !== null}"
                     (click)="onValueChange( triggerNull(value), inputElement )">null
             </button>
 
-            <c-form-feedback *ngIf="validate(inputElement)?.message">{{validate( inputElement )?.message}}</c-form-feedback>
+            <c-form-feedback *ngIf="validate(inputElement)?.message">{{ validate( inputElement )?.message }}</c-form-feedback>
         </ng-container>
 
         <ng-container *ngSwitchCase="_types.booleanTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-            <span cInputGroupText *ngIf="showLabel">{{header.name}}</span>
+            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
             <c-button-group aria-label="boolean entry" class="mx-auto" role="group" size="sm">
-                <button cButton color="primary" style="border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important;" (click)="onValueChange(true)" [variant]="value === true ? undefined:'outline'">true</button>
-                <button cButton color="primary" (click)="onValueChange(false)" [variant]="value === false ? undefined:'outline'">false</button>
-                @if (header.nullable){
-                    <button cButton color="primary" (click)="onValueChange(null)" [variant]="value === null ? undefined:'outline'" >null</button>
+                <button cButton color="primary" style="border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important;" (click)="onValueChange(true)" [variant]="value === true || value === 'true' ? undefined:'outline'">true</button>
+                <button cButton color="primary" (click)="onValueChange(false)" [variant]="value === false || value === 'false' ? undefined:'outline'">false</button>
+                @if (header.nullable) {
+                    <button cButton color="primary" (click)="onValueChange(null)" [variant]="value === null ? undefined:'outline'">null</button>
                 }
             </c-button-group>
         </ng-container>
 
         <ng-container *ngSwitchCase="_types.dateTimeTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
-            <span *ngIf="showLabel" cInputGroupText>{{header.name}}</span>
+            <span *ngIf="showLabel" cInputGroupText>{{ header.name }}</span>
 
             <input type="text" cFormControl sizing="sm" class="fPickerInput" [value]="value"
                    [placeholder]="header.dataType.toLowerCase() === 'time' ? 'Select time..': 'Select date..'"
@@ -42,12 +44,12 @@
 
         <ng-container *ngSwitchCase="_types.multimediaTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
 
-            <span *ngIf="showLabel" cInputGroupText>{{header.name}}</span>
+            <span *ngIf="showLabel" cInputGroupText>{{ header.name }}</span>
 
             <label [for]="'customFile'+randomId" class="form-control form-control-sm file-label">
                 <!-- see https://stackoverflow.com/questions/49976714/how-to-upload-the-same-file-in-angular4 -->
                 <input type="file" style="display: none;" [id]="'customFile'+randomId" (change)="onFileChange($event.target.files)" #fileInput>
-                {{inputFileName}}
+                {{ inputFileName }}
             </label>
 
             <button cButton size="sm" color="primary" class="mb-0" *ngIf="value !== null && header.nullable"
@@ -60,7 +62,7 @@
         </ng-container>
 
         <ng-container *ngSwitchDefault>
-            <span cInputGroupText *ngIf="showLabel">{{header.name}}</span>
+            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
             <input cFormControl sizing="sm" type="text" [value]="value"
                    [maxLength]="header.precision || 524288"
                    [disabled]="value === null && header.nullable === true"
@@ -74,7 +76,7 @@
                     (click)="onValueChange( triggerNull(value) )">null
             </button>
 
-            <c-form-feedback *ngIf="validate(defaultInput)?.message">{{validate( defaultInput )?.message}}</c-form-feedback>
+            <c-form-feedback *ngIf="validate(defaultInput)?.message">{{ validate( defaultInput )?.message }}</c-form-feedback>
         </ng-container>
 
     </ng-container>

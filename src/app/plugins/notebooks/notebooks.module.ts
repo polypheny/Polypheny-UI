@@ -13,8 +13,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NbCellComponent} from './components/edit-notebook/nb-cell/nb-cell.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {MarkdownModule, MARKED_OPTIONS, MarkedRenderer} from 'ngx-markdown';
-import {WebuiSettingsService} from '../../services/webui-settings.service';
+import {MarkdownModule} from 'ngx-markdown';
 import {NbInputEditorComponent} from './components/edit-notebook/nb-input-editor/nb-input-editor.component';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {NbOutputDataComponent} from './components/edit-notebook/nb-output-data/nb-output-data.component';
@@ -65,13 +64,7 @@ import {IconDirective} from '@coreui/icons-angular';
         ModalModule.forRoot(),
         BsDropdownModule,
         TooltipModule,
-        MarkdownModule.forRoot({
-            markedOptions: {
-                provide: MARKED_OPTIONS,
-                useFactory: markedOptionsFactory,
-                deps: [WebuiSettingsService]
-            }
-        }),
+        MarkdownModule,
         TreeModule,
         NgxJsonViewerModule, ModalHeaderComponent, ModalContentComponent, ModalDialogComponent, ModalComponent, InputGroupComponent, CardBodyComponent, ModalFooterComponent, ButtonDirective, InputGroupTextDirective, FormSelectDirective, FormControlDirective, ModalTitleDirective, ButtonCloseDirective, ModalBodyComponent, CardFooterComponent, CardHeaderComponent, RowComponent, CardComponent, IconDirective, ButtonGroupComponent, ColComponent, BadgeComponent, ContainerComponent, BgColorDirective, ButtonToolbarComponent, TooltipDirective, GutterDirective, FormDirective, FormTextDirective, RowDirective
     ],
@@ -98,22 +91,3 @@ import {IconDirective} from '@coreui/icons-angular';
 export class NotebooksModule {
 }
 
-// https://stackoverflow.com/questions/69218645/dynamic-configuration-for-angular-module-imports
-export function markedOptionsFactory(_settings: WebuiSettingsService) {
-    const renderer = new MarkedRenderer();
-
-    renderer.blockquote = (text: string) => {
-        return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
-    };
-
-    const defaultLinkRenderer = renderer.link.bind(renderer);
-    renderer.link = (href, title, text) => {
-        const link = defaultLinkRenderer(href, title, text);
-        return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
-    };
-
-    return {
-        renderer: renderer,
-        baseUrl: _settings.getConnection('notebooks.file') + '/notebooks/'
-    };
-}

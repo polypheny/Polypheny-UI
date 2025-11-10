@@ -64,7 +64,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     }
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
-        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/notebooks'];
+        '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/notebooks', '/views/workflows'];
 
     private readonly _router = inject(Router);
     public readonly _sidebar = inject(LeftSidebarService);
@@ -102,7 +102,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             nodes => {
                 this.nodes = nodes;
                 if (nodes.length === 0) {
-                    this.treeComponent.treeModel.activeNodeIds = {};
+                    this.deselectAll();
                     // this.treeComponent.treeModel.setFocusedNode(null);
                     // this.treeComponent.treeModel.expandedNodeIds = {};
                 }
@@ -123,7 +123,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
                 if (collapse === true) {
                     this.reset();
                 } else {
-                    this.treeComponent.treeModel.activeNodeIds = {};
+                    this.deselectAll();
                 }
             }
         );
@@ -155,7 +155,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         // from: https://angular2-tree.readme.io/discuss/583cc18bf0f9af0f007218ff
         this.treeComponent.treeModel.setFocusedNode(null);
         this.treeComponent.treeModel.expandedNodeIds = {};
-        this.treeComponent.treeModel.activeNodeIds = {};
+        this.deselectAll();
     }
 
     needsButton() {
@@ -169,5 +169,9 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
             }
         }
         return false;
+    }
+
+    deselectAll() {
+        this.treeComponent.treeModel.activeNodeIds = {};
     }
 }

@@ -12,6 +12,12 @@
   position: relative;
 }
 
+.rel-width {
+  .card {
+    width: 75%;
+  }
+}
+
 .delete-card, .edit-card {
   display: none;
   position: absolute;

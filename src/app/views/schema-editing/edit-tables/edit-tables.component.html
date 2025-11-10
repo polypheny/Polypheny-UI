@@ -1,7 +1,9 @@
-<table cTable [hover]="true" [striped]="true" *ngIf="tables() && tables().length > 0">
+<h1>{{ namespace()?.name }}</h1>
+<table cTable [hover]="true" [striped]="true" *ngIf="tables() && tables().length > 0" class="mb-5">
     <thead>
     <tr>
         <th>Table</th>
+        <th></th> <!--Details-->
         <th>Truncate</th>
         <th>Drop</th>
     </tr>
@@ -11,8 +13,8 @@
         [class.editing]="table.editing">
         <td>
             <span *ngIf="!table.editing">
-              {{table.name}}
-                <i class="cil-pencil edit-table-name ms-2" (click)="table.editing = !table.editing"></i>
+              {{ table.name }}
+                <i class="cil-pencil show-on-hover ms-2" (click)="table.editing = !table.editing"></i>
             </span>
 
             <c-input-group sizing="sm" *ngIf="table.editing" style="max-width: 200px" [class.editings]="table.editing" #editing>
@@ -27,11 +29,17 @@
             </c-input-group>
         </td>
         <td>
+            <button cButton color="secondary" size="sm" class="show-on-hover" (click)="openDetails(table)">
+                Details
+            </button>
+        </td>
+        <td>
             <c-input-group class="confirm-group" sizing="sm" *ngIf="table.modifiable">
                 <input cFormControl type="text" placeholder="truncate {{table.name}}"
                        [(ngModel)]="table.truncate" (keyup.enter)="sendDropTruncateRequest('truncate', table)">
 
-                <button cButton color="primary" size="sm" [ngClass]="dropTruncateClass('truncate', table)" type="button"
+                <button cButton color="primary" size="sm" [ngClass]="isDropTruncateEnabled('truncate', table) ? 'btn-danger' : 'btn-secondary'"
+                        [disabled]="!isDropTruncateEnabled('truncate', table)"
                         (click)="sendDropTruncateRequest('truncate', table)">truncate
                 </button>
             </c-input-group>
@@ -41,7 +49,8 @@
                 <input cFormControl type="text" placeholder="drop {{table.name}}"
                        [(ngModel)]="table.drop" (keyup.enter)="sendDropTruncateRequest('drop', table)">
 
-                <button cButton size="sm" [ngClass]="dropTruncateClass('drop', table)" type="button"
+                <button cButton size="sm" [ngClass]="isDropTruncateEnabled('drop', table) ? 'btn-danger' : 'btn-secondary'"
+                        [disabled]="!isDropTruncateEnabled('drop', table)"
                         (click)="sendDropTruncateRequest('drop', table)">drop
                 </button>
             </c-input-group>
@@ -53,10 +62,9 @@
 <br>
 
 <c-row>
-    <br><br>
     <c-col class="col-lg-12">
-        <h5>Create New Table</h5>
-        <p>Columns without "column name" will be ignored.</p>
+        <h5>Create Table</h5>
+        <p>Columns without a column name will be ignored.</p>
         <table class="table table-hover table-striped" cTable>
             <thead>
             <tr>
@@ -75,17 +83,19 @@
                 <td>
                     <input type="text" class="form-control form-control-sm" placeholder="column name"
                            [(ngModel)]="col.value.name" #columnName
-                           [ngClass]="_crud.getValidationClass(columnName.value)" [tabIndex]="i+1">
+                           [ngClass]="columnValidation(columnName.value, col.value.name)" [tabIndex]="i+1">
                 </td>
-                <td>
-                    <input type="checkbox" [(ngModel)]="col.value.primary">
+                <td class="align-middle">
+                    <input cFormCheckInput type="checkbox" id="check-primary-{{col.key}}"
+                           [(ngModel)]="col.value.primary">
                 </td>
-                <td>
-                    <input type="checkbox" [(ngModel)]="col.value.nullable">
+                <td class="align-middle">
+                    <input cFormCheckInput type="checkbox" id="check-nullable-{{col.key}}"
+                           [(ngModel)]="col.value.nullable">
                 </td>
                 <td>
                     <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
-                        <option *ngFor="let t of types" [ngValue]="t.name">{{t.name}}</option>
+                        <option *ngFor="let t of types" [ngValue]="t.name">{{ t.name }}</option>
                     </select>
                 </td>
                 <td>
@@ -98,7 +108,7 @@
                 <td class="data-type-parameters">
                     <!-- precision -->
                     <c-input-group class="mb-1" sizing="sm" *ngIf="_types.supportsPrecision(col.value.dataType)">
-                        <span cInputGroupText>{{_types.precisionPlaceholder( col.value.dataType )}}</span>
+                        <span cInputGroupText>{{ _types.precisionPlaceholder( col.value.dataType ) }}</span>
                         <input cFormControl sizing="sm" [id]="'precision'+i" type="number"
                                [placeholder]="_types.precisionPlaceholder(col.value.dataType)"
                                [(ngModel)]="col.value.precision">
@@ -124,29 +134,26 @@
                 </td>
                 <td>
                     <c-input-group sizing="sm">
-                        <ng-container [ngSwitch]="col.value.dataType" *ngIf="col.value.dataType">
-                            <input *ngSwitchCase="_types.numericTypes().includes(col.value.dataType.toLowerCase()) && col.value.collectionsType !== 'ARRAY' ? col.value.dataType : ''"
-                                   cFormControl
-                                   type="number" placeholder="default value"
-                                   [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
-                            <ng-container
-                                    *ngSwitchCase="_types.booleanTypes().includes(col.value.dataType.toLowerCase()) ? col.value.dataType : ''">
-                                <div class="form-check form-check-inline">
-                                    <label *ngIf="col.value.defaultValue === null" disabled
-                                           [for]="'default'+col.value.name" cFormCheckLabel>null&nbsp;</label>
-                                    <label *ngIf="col.value.defaultValue === true" class="form-check-label"
-                                           [for]="'default'+col.value.name" cFormCheckLabel>true&nbsp;</label>
-                                    <label *ngIf="col.value.defaultValue === false" class="form-check-label"
-                                           [for]="'default'+col.value.name" cFormCheckLabel>false&nbsp;</label>
-                                    <input type="checkbox" cFormCheckInput [(ngModel)]="col.value.defaultValue"
-                                           [id]="'default'+col.value.name" [disabled]="col.value.defaultValue === null">
-                                </div>
-                            </ng-container>
-                            <input *ngSwitchDefault type="text" placeholder="default value"
-                                   cFormControl
-                                   [(ngModel)]="col.value.defaultValue"
-                                   [disabled]="col.value.defaultValue === null">
-                        </ng-container>
+                        @if (col.value.dataType) {
+                            @if (_types.numericTypes().includes( col.value.dataType.toLowerCase() ) && col.value.collectionsType !== 'ARRAY') {
+                                <input cFormControl [id]="'default'+col.value.name"
+                                       type="number" placeholder="default value"
+                                       [(ngModel)]="col.value.defaultValue" [disabled]="col.value.defaultValue === null">
+
+                            } @else if (_types.booleanTypes().includes( col.value.dataType.toLowerCase() )) {
+                                <select cSelect [id]="'default'+col.value.name" [(ngModel)]="col.value.defaultValue"
+                                        [disabled]="col.value.defaultValue === null">
+                                    <option [ngValue]=null>{{ "default value" }}</option>
+                                    <option [ngValue]=true>{{ "true" }}</option>
+                                    <option [ngValue]=false>{{ "false" }}</option>
+                                </select>
+                            } @else {
+                                <input type="text" placeholder="default value"
+                                       cFormControl
+                                       [(ngModel)]="col.value.defaultValue"
+                                       [disabled]="col.value.defaultValue === null">
+                            }
+                        }
                         <button class="btn btn-sm" cButton
                                 [ngClass]="{'btn-primary': col.value.defaultValue === null, 'btn-light': col.value.defaultValue !== null}"
                                 (click)="triggerDefaultNull( col.value )">null
@@ -154,21 +161,21 @@
                     </c-input-group>
                 </td>
                 <td>
-                    <i class="cil-trash del" (click)="removeNewColumn(col.key)"></i>
+                    <div class="pt-1">
+                        <app-delete-confirm (delete)="removeNewColumn(col.key)"></app-delete-confirm>
+                    </div>
                 </td>
             </tr>
             <tr>
                 <td colspan="3">
-                    <button size="sm" class="btn btn-light" (click)="addNewColumn()">add column</button>
+                    <button size="sm" class="btn btn-light" (click)="addNewColumn()">Add Column</button>
                 </td>
                 <td colspan="4">
                     <c-input-group class="d-flex justify-content-end" sizing="sm">
 
                         <c-dropdown direction="center" variant="btn-group">
                             <button cButton cDropdownToggle type="button" class="btn btn-light text-black">
-                                <span *ngIf="!selectedStore">Select store</span>
-                                <span *ngIf="selectedStore">{{ selectedStore.name }}</span>
-                                <span class="caret"></span>
+                                {{ selectedStore ? selectedStore.name : 'Store' }}
                             </button>
                             <ul cDropdownMenu>
                                 <ng-container *ngIf="stores()?.length > 0">

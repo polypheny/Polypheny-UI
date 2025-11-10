@@ -1,0 +1,171 @@
+<c-modal [visible]="showModal()" (visibleChange)="showModal.set($event)" scrollable="true" size="lg">
+    <c-modal-header>
+        <h5 cModalTitle>Execution Statistics</h5>
+        <button (click)="toggleModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body *ngIf="showModal()">
+        @if (isLoading()) {
+            <div class="d-flex justify-content-center">
+                <c-spinner></c-spinner>
+            </div>
+        } @else if (monitor()) {
+            <c-row>
+                <c-col [xs]="6">
+                    <strong>Success:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span>{{ monitor().isSuccess }}</span>
+                </c-col>
+            </c-row>
+            <c-row>
+                <c-col [xs]="6">
+                    <strong>Start Time:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span>{{ monitor().startTime | date:'medium' }}</span>
+                </c-col>
+            </c-row>
+            <c-row>
+                <c-col [xs]="6">
+                    <strong>Total Duration:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span>{{ monitor().totalDuration }} ms</span>
+                </c-col>
+            </c-row>
+            <c-row>
+                <c-col [xs]="6">
+                    <strong>Tuples Written:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span>{{ monitor().tuplesWritten }} ({{ tuplesPerSecond() }} t/s)</span>
+                </c-col>
+            </c-row>
+            <c-row *ngIf="monitor().targetActivity">
+                <c-col [xs]="6">
+                    <strong>Target Activity:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span>{{ workflow.getActivity( monitor().targetActivity )?.displayName() }}</span>
+                </c-col>
+            </c-row>
+            <c-row>
+                <c-col [xs]="6">
+                    <strong>Total Activities:</strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span>{{ monitor().totalCount }}</span>
+                </c-col>
+            </c-row>
+            <c-row>
+                <c-col [xs]="6">
+                    <strong>Success / cancel / fail: </strong>
+                </c-col>
+                <c-col [xs]="'auto'">
+                    <span class="text-success">{{ monitor().successCount }}</span> /
+                    <span class="text-warning">{{ monitor().skipCount }}</span> /
+                    <span class="text-danger">{{ monitor().failCount }}</span>
+                </c-col>
+            </c-row>
+
+            <h5 class="mt-5">Activity Count by Executor Type</h5>
+            <table cTable small="true">
+                <thead cTableColor="light">
+                <tr>
+                    <th scope="col">Executor</th>
+                    <th scope="col">Activity Count</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (entry of monitor().countByExecutorType | keyvalue; track entry.key) {
+                        <tr>
+                            <th scope="row">{{ entry.key }}</th>
+                            <td>{{ entry.value }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <h5 class="mt-5">Submitted Execution Trees</h5>
+            <c-accordion flush="true">
+                @for (info of monitor().infos; track $index) {
+                    <c-accordion-item #item="cAccordionItem" [visible]="false">
+                        <ng-template cTemplateId="accordionHeaderTemplate">
+                            <button (click)="item.toggleItem()" [collapsed]="!item.visible" class="py-2" cAccordionButton>
+                                <c-row class="flex-grow-1">
+                                    <c-col [sm]="2" class="remove-padding">
+                                        <span>{{ info.submissionTime | date:'mediumTime' }}</span>
+                                    </c-col>
+                                    <c-col [xs]="3" [md]="2" class="text-end">
+                                        <span>{{ infoDurationsSeconds()[$index] }} s</span>
+                                    </c-col>
+                                    <c-col [sm]="5" [offset]="{xs: 0, sm: 1}">
+                                        <strong>{{ info.executorType }}</strong>
+                                        <span> ({{ info.activities.length > 1 ? info.activities.length : workflow.getActivity( info.root )?.displayName() }})</span>
+                                    </c-col>
+                                    <c-col [sm]="2" class="remove-padding">
+                                        <span [ngClass]="{'text-success': info.state === 'DONE' && info.isSuccess, 'text-danger': info.state === 'DONE' && !info.isSuccess}">
+                                            {{ info.state }}
+                                        </span>
+                                    </c-col>
+                                </c-row>
+                            </button>
+                        </ng-template>
+                        <ng-template cTemplateId="accordionBodyTemplate">
+                            <div class="accordion-body">
+                                <c-callout *ngIf="!info.isSuccess" color="danger" class="text-danger">
+                                    The execution was unsuccessful.
+                                </c-callout>
+                                <p class="mb-1" *ngIf="info.tuplesWritten >= 0">
+                                    <strong>Tuples written:</strong>
+                                    {{ info.tuplesWritten }}
+                                </p>
+                                <h5 class="mt-3">Duration</h5>
+                                <table cTable small="true">
+                                    <thead cTableColor="light">
+                                    <tr>
+                                        <th scope="col">Phase</th>
+                                        <th scope="col">Time (ms)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (execState of orderedExecutionStates; track execState) {
+                                            <tr>
+                                                <th scope="row">{{ execState }}</th>
+                                                <td>{{ info.durations[execState] | number:'1.2-2' }}</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                <span><strong>Total Duration:</strong> {{ info.totalDuration }} ms</span>
+
+                                <h5 class="mt-3">Activities in Execution Tree</h5>
+                                <ul cListGroup flush="true">
+                                    <li cListGroupItem *ngFor="let activity of info.activities" class="d-flex justify-content-between">
+                                        <span>
+                                            {{ workflow.getActivity( activity )?.displayName() }}
+                                            <span class="badge bg-secondary ms-2" *ngIf="info.activities.length > 1 && info.root === activity">root</span>
+                                        </span>
+
+                                        <!--<span class="text-muted">{{ activity }}</span>-->
+                                        <button cButton color="primary" size="sm" *ngIf="canOpen"
+                                                (click)="toggleModal(); openActivity.emit(activity)">
+                                            Open
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </ng-template>
+                    </c-accordion-item>
+                }
+            </c-accordion>
+
+
+        } @else {
+            <p>Workflow has not yet been executed.</p>
+        }
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="toggleModal()" cButton color="secondary">Close</button>
+    </c-modal-footer>
+</c-modal>

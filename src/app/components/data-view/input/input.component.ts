@@ -1,16 +1,4 @@
-import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    EventEmitter,
-    inject,
-    Input,
-    OnChanges,
-    OnInit,
-    Output,
-    SimpleChanges,
-    ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {FieldDefinition, UiColumnDefinition} from '../models/result-set.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
@@ -244,4 +232,57 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
         this.valueChange.emit(file);
     }
 
+    // Somewhat hacky fix to restrict input to numbers without relying on type="number".
+    restrictNumericInput(event: KeyboardEvent) {
+        const allowedKeys = [
+            'Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
+        ];
+
+        // Allow navigation and control keys
+        if (allowedKeys.includes(event.key)) {
+            return;
+        }
+
+        // Allow digits, one dot, and one minus at the start
+        const current = (event.target as HTMLInputElement).value;
+        const key = event.key;
+
+        // Prevent multiple dots
+        if (key === '.' && current.includes('.')) {
+            event.preventDefault();
+            return;
+        }
+
+        // Prevent minus except at the beginning
+        if (key === '-' && current.length > 0) {
+            event.preventDefault();
+            return;
+        }
+
+        // Prevent non-numeric characters
+        if (!/[0-9.-]/.test(key)) {
+            event.preventDefault();
+        }
+    }
+
+    // Enables pasting via context menu
+    sanitizePastedInput(event: ClipboardEvent) {
+        const pasted = event.clipboardData?.getData('text') ?? '';
+        const sanitized = pasted.replace(/[^0-9.-]/g, '');
+
+        event.preventDefault();
+
+        const input = event.target as HTMLInputElement;
+        const {selectionStart, selectionEnd, value} = input;
+
+        // Replace selected text with sanitized paste
+        input.value =
+            value.slice(0, selectionStart ?? 0) +
+            sanitized +
+            value.slice(selectionEnd ?? 0);
+
+        // Trigger manual input event
+        const nativeInputEvent = new Event('input', {bubbles: true});
+        input.dispatchEvent(nativeInputEvent);
+    }
 }

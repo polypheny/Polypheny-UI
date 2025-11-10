@@ -55,6 +55,8 @@ export interface InformationObject extends Duration {
     parameters: any;
     //exception
     exception: ResultException;
+    //error message for exception
+    error?: string;
     //keyValuePair
     keyValuePairs: Map<string, string>;
     //InformationText

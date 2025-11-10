@@ -1,17 +1,20 @@
-<h2>{{metadata.name}}</h2>
+<h1 class="mb-3">{{ metadata.name }}</h1>
 <c-row class="row">
     <c-col class="col-lg-4 fixed-width">
         <c-card>
             <c-card-header>
-                <span class="mb-0">Manage {{metadata.type.charAt(0).toUpperCase() + metadata.type.slice(1)}}</span>
+                <span class="mb-0">Manage {{ metadata.type.charAt( 0 ).toUpperCase() + metadata.type.slice( 1 ) }}</span>
             </c-card-header>
             <c-card-body>
-                <p *ngIf="metadata.type!=='directory'">Size: {{_util.humanFileSize(metadata.size)}}</p>
-                <p>Created: {{metadata.created  | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
-                <p>Last modified: {{metadata.last_modified  | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
+                <p *ngIf="metadata.type!=='directory'">Size: {{ _util.humanFileSize( metadata.size ) }}</p>
+                <p>Created: {{ metadata.created  | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
+                <p>Last modified: {{ metadata.last_modified  | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
             </c-card-body>
             <c-card-footer class="bg-transparent">
                 <div class="pull-right" role="group">
+                    <button cButton color="danger" class="me-2" (click)="deleteFile()" (mouseleave)="resetDeleteConfirm()">
+                        <i [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
+                    </button>
                     <button cButton color="primary" class="me-2" (click)="renameFileModal.show()">Rename</button>
                     <button cButton color="secondary" class=" me-2" *ngIf="metadata.type!=='directory'"
                             (click)="duplicateFile()">Duplicate
@@ -21,9 +24,6 @@
                     </button>
                 </div>
                 <c-row>
-                    <button cButton color="danger" (click)="deleteFile()" (mouseleave)="resetDeleteConfirm()">
-                        <i [ngClass]="{'cil-trash': !confirmingDeletion, 'fa fa-warning': confirmingDeletion}"></i>
-                    </button>
                 </c-row>
             </c-card-footer>
         </c-card>
@@ -35,15 +35,15 @@
                     <span class="mb-0">Execution</span>
                 </c-card-header>
                 <c-card-body>
-                    <b>Status: {{statusText}}</b>
+                    <b>Status: {{ statusText }}</b>
                     <p></p>
                 </c-card-body>
                 <c-card-footer class="bg-transparent">
-                    <button cButton color="danger" [disabled]="sessions.length === 0"
-                            (click)="terminateSessionModal.show()">
-                        Shut Down
-                    </button>
                     <div class="pull-right" role="group">
+                        <button cButton color="danger" class="me-2" [disabled]="sessions.length === 0"
+                                (click)="terminateSessionModal.show()">
+                            Shut Down
+                        </button>
                         <button cButton variant="outline" color="primary" class="me-2" (click)="connectSessionModal.show()"
                                 *ngIf="sessions.length > 0">Connect
                         </button>
@@ -107,14 +107,15 @@
                         </div>
                         <select class="form-control" formControlName="session" id="terminate-session">
                             <option *ngFor="let session of sessions" [value]="session.id">
-                                {{ session.kernel.name }}</option>
+                                {{ session.kernel.name }}
+                            </option>
                         </select>
                     </div>
                 </form>
                 <ng-container *ngIf="selectedSession != null">
-                    <p>Status: {{selectedSession.kernel.execution_state}}</p>
-                    <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
-                    <p>Connections: {{selectedSession.kernel.connections}}</p>
+                    <p>Status: {{ selectedSession.kernel.execution_state }}</p>
+                    <p>Last Activity: {{ selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
+                    <p>Connections: {{ selectedSession.kernel.connections }}</p>
                 </ng-container>
             </div>
             <div class="modal-footer">
@@ -154,14 +155,15 @@
                         </div>
                         <select class="form-control" formControlName="session" id="selected-session">
                             <option *ngFor="let session of sessions" [value]="session.id">
-                                {{ session.kernel.name }}</option>
+                                {{ session.kernel.name }}
+                            </option>
                         </select>
                     </div>
                 </form>
                 <ng-container *ngIf="selectedSession != null">
-                    <p>Status: {{selectedSession.kernel.execution_state}}</p>
-                    <p>Last Activity: {{selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS'}}</p>
-                    <p>Connections: {{selectedSession.kernel.connections}}</p>
+                    <p>Status: {{ selectedSession.kernel.execution_state }}</p>
+                    <p>Last Activity: {{ selectedSession.kernel.last_activity | date: 'yyyy-MM-dd HH:mm:SS' }}</p>
+                    <p>Connections: {{ selectedSession.kernel.connections }}</p>
                 </ng-container>
             </div>
             <div class="modal-footer">
@@ -193,11 +195,12 @@
                         </div>
                         <select class="form-control" formControlName="kernel" id="selected-kernel">
                             <option *ngFor="let kernel of availableKernels" [value]="kernel.name">
-                                {{ kernel.spec.display_name }}</option>
+                                {{ kernel.spec.display_name }}
+                            </option>
                         </select>
                     </div>
                 </form>
-                <p>Language: {{createKernelForm.get('kernel').value}}</p>
+                <p>Language: {{ createKernelForm.get( 'kernel' ).value }}</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" (click)="createKernelModal.hide()">Cancel</button>

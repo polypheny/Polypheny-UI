@@ -112,3 +112,13 @@ table tr td:hover .modify-placement-btn {
 #partitionParamsTable tr td {
   vertical-align: middle;
 }
+
+select:disabled {
+  color: #626B78; /* CoreUI disabled input color */
+}
+
+/*Tabs*/
+.nav-link {
+  cursor: pointer;
+  user-select: none;
+}

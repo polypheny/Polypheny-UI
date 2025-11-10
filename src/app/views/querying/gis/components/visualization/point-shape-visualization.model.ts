@@ -14,11 +14,6 @@ export class PointShapeVisualization implements Visualization, MapLayerConfigura
     selectedMode: Mode;
     size: number;
 
-    // TODO: Currently deactivated, because it required too much client-side logic. It is easier to just apply
-    //       the filter when specifying the query, and then applying the selectedMode to the whole layer, instead
-    //       of comparing the field here.
-    // fieldName = '';
-
     constructor(size: number) {
         this.size = size;
         this.selectedMode = this.modes[0];

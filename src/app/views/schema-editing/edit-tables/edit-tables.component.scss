@@ -59,15 +59,19 @@ label.disabled {
   color: black;
 }
 
-tr .edit-table-name {
+tr .show-on-hover {
   visibility: hidden;
 }
 
-tr:hover .edit-table-name {
+tr:hover .show-on-hover {
   visibility: visible;
   cursor: pointer;
 }
 
 .confirm-group {
   max-width: 350px;
+}
+
+select:disabled {
+  color: #626B78; /* CoreUI disabled input color */
 }

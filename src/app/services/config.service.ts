@@ -2,6 +2,8 @@ import {EventEmitter, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {webSocket} from 'rxjs/webSocket';
 import {WebuiSettingsService} from './webui-settings.service';
+import {JavaUiConfig} from '../views/forms/form-generator/form-generator.component';
+import {Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -15,17 +17,20 @@ export class ConfigService {
     public connected = false;
     private reconnected = new EventEmitter<boolean>();
     httpUrl;
-    httpOptions;
+    httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
     constructor() {
         this.initWebSocket();
         this.httpUrl = this._settings.getConnection('config.rest');
-        this.httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
     }
 
 
     getPage(pageId: string) {
         return this._http.post(`${this.httpUrl}/getPage`, pageId, this.httpOptions);
+    }
+
+    getConfig(configKey: string): Observable<JavaUiConfig> {
+        return this._http.post<JavaUiConfig>(`${this.httpUrl}/getConfig`, configKey, this.httpOptions);
     }
 
     getPageList() {

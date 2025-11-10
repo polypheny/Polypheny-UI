@@ -20,13 +20,7 @@ export class InformationManagerComponent implements OnInit {
     refreshingPage = false;
     refreshingGroup = [];
     width = signal(1080);
-    zoom = computed(() => {
-        if (this.width() < 1200 || this.$data().fullWidth) {
-            return 12;
-        } else {
-            return 6;
-        }
-    });
+    isFullWidth = computed(() => this.width() < 1200 || this.$data().fullWidth);
 
     @HostListener('window:resize', ['$event'])
     onResize(event?) {

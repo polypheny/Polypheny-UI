@@ -7,6 +7,7 @@ import {
     AccordionButtonDirective,
     AccordionComponent,
     AccordionItemComponent,
+    AlertComponent,
     BadgeComponent,
     BgColorDirective,
     BreadcrumbComponent as BreadCrumb,
@@ -33,6 +34,7 @@ import {
     FormDirective,
     FormFeedbackComponent,
     FormSelectDirective,
+    FormTextDirective,
     GutterDirective,
     InputGroupComponent,
     InputGroupTextDirective,
@@ -108,7 +110,6 @@ import {ToastComponent as Toast} from './toast-exposer/toast/toast.component';
 import {ReloadButtonComponent} from '../views/util/reload-button/reload-button.component';
 import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
-import {DataMapComponent} from "./data-view/data-map/data-map.component";
 import {AlgViewerComponent} from './polyalg/polyalg-viewer/alg-viewer.component';
 import {AlgNodeComponent} from './polyalg/algnode/alg-node.component';
 import {ReteModule} from 'rete-angular-plugin/17';
@@ -132,8 +133,10 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.component';
 import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.component';
 import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
+import {AutocompleteComponent} from './autocomplete/autocomplete.component';
+import {DataMapComponent} from './data-view/data-map/data-map.component';
+import {MapValuesPipe} from '../pipes/pipes';
 
-//import 'hammerjs';
 
 @NgModule({
     imports: [
@@ -210,8 +213,18 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         ContainerComponent,
         ReteModule,
         AutocompleteLibModule,
+        FormCheckLabelDirective,
+        AccordionComponent,
+        AccordionItemComponent,
+        AccordionButtonDirective,
+        TemplateIdDirective,
+        CollapseDirective,
+        PopoverDirective,
+        PopoverModule,
+        ButtonToolbarComponent,
+        BadgeComponent,
         FormCheckComponent,
-        FormCheckLabelDirective, AccordionComponent, AccordionItemComponent, AccordionButtonDirective, TemplateIdDirective, CollapseDirective, PopoverDirective, PopoverModule, ButtonToolbarComponent, BadgeComponent
+        AlertComponent, FormTextDirective
     ],
     declarations: [
         BreadcrumbComponent,
@@ -261,7 +274,9 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         MagneticConnectionComponent,
         AlgMetadataComponent,
         DoubleArgComponent,
-        WindowArgComponent
+        WindowArgComponent,
+        AutocompleteComponent,
+        MapValuesPipe
     ],
     exports: [
         BreadcrumbComponent,
@@ -285,8 +300,11 @@ import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.compo
         Toast,
         ReloadButtonComponent,
         DockerInstanceComponent,
+        AlgViewerComponent,
         DataMapComponent,
-        AlgViewerComponent
+        JsonTextComponent,
+        AutocompleteComponent,
+        MapValuesPipe
     ]
 })
 export class ComponentsModule {

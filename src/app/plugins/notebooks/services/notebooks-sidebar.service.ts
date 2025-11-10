@@ -54,7 +54,6 @@ export class NotebooksSidebarService {
         ));
         breadcrumbs.push(new BreadcrumbItem(renamedSegments[renamedSegments.length - 1]));
         this._breadcrumb.setBreadcrumbs(breadcrumbs);
-        this._breadcrumb.hideZoom();
     }
 
     /**
@@ -157,7 +156,10 @@ export class NotebooksSidebarService {
         this.subscriptions = new Subscription();
         this.subscriptions.add(this._content.onContentChange().subscribe(() => this.update()));
         this.subscriptions.add(this._content.onSessionsChange().subscribe(() => this.updateSidebar()));
-        this._leftSidebar.open();
+        if (!this._leftSidebar.isVisible()) {
+            this._leftSidebar.open();
+            this.update();
+        }
     }
 
     close() {

@@ -36,7 +36,7 @@
                 <span cInputGroupText cTooltipPlacement="left" cTooltip="Is Polypheny connected to this instance?">
                     Connected
                 </span>
-                <input id="idField" [class]="'form-control ' + (connected === true ? 'bg-success-subtle' : connected === false ? 'bg-danger-subtle' : 'bg-secondary-subtle')" type="text" name="connected" [(ngModel)]="connected" readonly="true">
+                <input id="connectedField" [class]="'form-control ' + (connected === true ? 'bg-success-subtle' : connected === false ? 'bg-danger-subtle' : 'bg-secondary-subtle')" type="text" name="connected" [(ngModel)]="connected" readonly="true">
                 <button cButton class="cil-reload" (click)="pingInstance()" [disabled]="lock"></button>
             </c-input-group>
 
@@ -51,7 +51,7 @@
                            [(ngModel)]="registry" [disabled]="lock"
                            required
                            placeholder="Use global default">
-                    <div class="form-text">Leave empty to use the default registry for this Polypheny instance</div>
+                    <div class="form-text mb-3">Leave empty to use the default registry for this Polypheny instance</div>
                 </c-input-group>
 
                 <c-input-group>
@@ -64,7 +64,7 @@
                            [(ngModel)]="communicationPort" [disabled]="!isNew() || lock"
                            placeholder="7001">
                 </c-input-group>
-                <div class="form-text">Leave empty to use the default port</div>
+                <div class="form-text mb-3">Leave empty to use the default port</div>
 
                 <c-input-group>
                     <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for handshake">
@@ -76,7 +76,7 @@
                            [(ngModel)]="handshakePort" [disabled]="!isNew() || lock"
                            placeholder="7002">
                 </c-input-group>
-                <div class="form-text">Leave empty to use the default port</div>
+                <div class="form-text mb-3">Leave empty to use the default port</div>
 
                 <c-input-group>
                     <span cInputGroupText cTooltipPlacement="left" cTooltip="Port for proxy">
@@ -88,16 +88,16 @@
                            [(ngModel)]="proxyPort" [disabled]="!isNew() || lock"
                            placeholder="7003">
                 </c-input-group>
-                <div class="form-text">Leave empty to use the default port</div>
+                <div class="form-text mb-3">Leave empty to use the default port</div>
             </details>
         </form>
         <app-dockerhandshake *ngIf="handshake !== null" (cancel)="cancelHandshake()" (redo)="restartHandshake()" [handshake]="handshake"></app-dockerhandshake>
     </c-modal-body>
     <c-modal-footer>
+        <button cButton color="secondary" (click)="close()">Close</button>
         <input cButton *ngIf="isNew()" color="success" class="me-2" (click)="addDockerInstance()" type="submit" value="Add" [disabled]="lock">
-        <button cButton *ngIf="!isNew()" color="success" class="me-2" (click)="updateDockerInstance()" [disabled]="!modified || lock">Save</button>
+        <button cButton *ngIf="!isNew()" color="primary" class="me-2" (click)="updateDockerInstance()" [disabled]="!modified || lock">Save</button>
         <button cButton color="primary" *ngIf="!connected && handshake === null" class="me-2" (click)="reconnectToDockerInstance()" [disabled]="lock">Reconnect</button>
         <!--<button cButton color="danger" class="me-2" (click)="removeDockerInstance();" [disabled]="lock || handshake !== null">Delete</button>-->
-        <button cButton color="secondary" (click)="close()">Close</button>
     </c-modal-footer>
 </c-modal-content>

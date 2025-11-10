@@ -17,7 +17,7 @@ export class AggArgComponent implements OnInit {
     constructor(private _registry: PolyAlgService) {
     }
 
-    @Input() data: AggControl; // TODO: support multiple args, colls
+    @Input() data: AggControl; // support multiple args, colls in the future
     fChoices: string[] = [];
     fChoicesSimple = ['AVG', 'COUNT', 'MAX', 'MIN', 'SUM'].sort();
 

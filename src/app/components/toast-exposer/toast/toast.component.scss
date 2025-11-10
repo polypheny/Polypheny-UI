@@ -1,0 +1,12 @@
+.copy-query-btn {
+  cursor: pointer;
+}
+
+.copy-query-btn .fa-code {
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.copy-query-btn:hover .fa-code {
+  transform: scale(1.1);
+  color: black;
+}

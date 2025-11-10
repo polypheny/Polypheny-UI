@@ -27,8 +27,10 @@ export class ToastExposerComponent implements OnInit {
                     color: toast.type,
                     autohide: true
                 };
-                const componentRef: ComponentRef<ToastComponent> = this.toaster.addToast(ToastComponent, {...options});
-                componentRef.instance.toast.next(toast);
+                if (this.toaster) {
+                    const componentRef: ComponentRef<ToastComponent> = this.toaster.addToast(ToastComponent, {...options});
+                    componentRef.instance.toast.next(toast);
+                }
             }
         });
     }

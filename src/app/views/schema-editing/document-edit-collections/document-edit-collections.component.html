@@ -1,9 +1,11 @@
 <c-row>
     <c-col xs="12" class="mb-3" *ngIf="collections() && collections().length > 0">
+        <h1>{{ namespace()?.name }}</h1>
         <table cTable striped="true" hover="true">
             <thead>
             <tr>
                 <th>Collection</th>
+                <th></th> <!--Details-->
                 <th>Truncate</th>
                 <th>Drop</th>
             </tr>
@@ -13,8 +15,8 @@
                 [class.editing]="collection.editing">
                 <td>
                     <span *ngIf="!collection.editing">
-                      {{collection.name}}
-                        <i class="cil-pencil edit-table-name ms-2" (click)="collection.editing = !collection.editing"></i>
+                      {{ collection.name }}
+                        <i class="cil-pencil show-on-hover ms-2" (click)="collection.editing = !collection.editing"></i>
                     </span>
                     <c-input-group sizing="sm" *ngIf="collection.editing" tabindex="-1" style="max-width: 200px" #editing>
                         <input cFormControl type="text" placeholder="newName"
@@ -28,27 +30,29 @@
                     </c-input-group>
                 </td>
                 <td>
-                    <div class="input-group confirm-group" *ngIf="collection.modifiable">
-                        <input type="text" class="form-control form-control-sm" placeholder="truncate {{collection.name}}"
-                               [(ngModel)]="collection.truncate" (keyup.enter)="sendRequest(Method.TRUNCATE, collection)">
-                        <div class="input-group-append">
-                            <button class="btn btn-sm" [ngClass]="dropTruncateClass(Method.TRUNCATE, collection)" type="button"
-                                    (click)="sendRequest(Method.TRUNCATE, collection)">truncate
-                            </button>
-                        </div>
-                    </div>
+                    <button cButton color="secondary" size="sm" class="show-on-hover" (click)="openDetails(collection)">
+                        Details
+                    </button>
                 </td>
                 <td>
-                    <div class="input-group confirm-group" *ngIf="collection.tableType !== 'SOURCE'">
-                        <input type="text" class="form-control form-control-sm" placeholder="drop {{collection.name}}"
+                    <c-input-group class="confirm-group" sizing="sm" *ngIf="collection.modifiable">
+                        <input cFormControl type="text" placeholder="truncate {{collection.name}}"
+                               [(ngModel)]="collection.truncate" (keyup.enter)="sendRequest(Method.TRUNCATE, collection)">
+                        <button cButton [ngClass]="isDropTruncateEnabled(Method.TRUNCATE, collection) ? 'btn-danger' : 'btn-secondary'"
+                                [disabled]="!isDropTruncateEnabled(Method.TRUNCATE, collection)"
+                                (click)="sendRequest(Method.TRUNCATE, collection)">truncate
+                        </button>
+                    </c-input-group>
+                </td>
+                <td>
+                    <c-input-group class="confirm-group" sizing="sm" *ngIf="collection.tableType !== 'SOURCE'">
+                        <input cFormControl type="text" placeholder="drop {{collection.name}}"
                                [(ngModel)]="collection.drop" (keyup.enter)="sendRequest(Method.DROP, collection)">
-                        <div class="input-group-append">
-                            <button cButton size="sm" [ngClass]="dropTruncateClass(Method.DROP, collection)"
-                                    type="button"
-                                    (click)="sendRequest(Method.DROP, collection)">drop
-                            </button>
-                        </div>
-                    </div>
+                        <button cButton [ngClass]="isDropTruncateEnabled(Method.DROP, collection) ? 'btn-danger' : 'btn-secondary'"
+                                [disabled]="!isDropTruncateEnabled(Method.DROP, collection)"
+                                (click)="sendRequest(Method.DROP, collection)">drop
+                        </button>
+                    </c-input-group>
                 </td>
                 <td></td>
             </tr>
@@ -56,11 +60,11 @@
         </table>
 
     </c-col>
+</c-row>
 
-
-    <br><br>
+<c-row class="mt-5">
     <c-col xs="12">
-        <h5>Create New Collection</h5>
+        <h5>Create Collection</h5>
         <table cTable class="border-top">
             <tbody>
             <tr>
@@ -69,7 +73,7 @@
                         <c-dropdown direction="dropup" variant="btn-group">
                             <button cButton color="light" cDropdownToggle type="button"
                                     class="text-black dropdown-toggle">
-                                {{ selectedStore ? selectedStore : 'Select store' }}
+                                {{ selectedStore ? selectedStore.name : 'Store' }}
                             </button>
 
                             <ul cDropdownMenu>
@@ -79,7 +83,7 @@
                                     </li>
                                     <li cDropdownDivider></li>
                                     <li role="menuitem" *ngFor="let store of stores()">
-                                        <button cDropdownItem (click)="selectedStore = store.name">{{ store.name }}
+                                        <button cDropdownItem (click)="selectedStore = store">{{ store.name }}
                                         </button>
                                     </li>
                                 </ng-container>

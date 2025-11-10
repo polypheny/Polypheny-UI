@@ -1,0 +1,30 @@
+.col-md-6.fixed-width {
+  max-width: 400px;
+}
+
+.workflow-name {
+  word-wrap: break-word;
+}
+
+.limit-name-width {
+  max-width: min(1000px, 50vw);
+}
+
+.session-name {
+  word-wrap: break-word;
+}
+
+h4 .badge {
+  width: 90px;
+}
+
+.expanded-description {
+  white-space: pre-line;
+  max-height: 12em;
+  overflow-y: auto;
+}
+
+.description-textarea {
+  height: 12em;
+  resize: none;
+}

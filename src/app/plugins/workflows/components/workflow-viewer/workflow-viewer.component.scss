@@ -1,0 +1,45 @@
+.rete {
+  height: 100%;
+}
+
+.editor-container {
+  border-top: 1px lightgray solid;
+}
+
+.workflow-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-name-btn:hover {
+  background-color: var(--cui-light);
+  border-radius: var(--cui-border-radius);
+  cursor: pointer;
+}
+
+[rete-context-menu] {
+  // Also see global style.scss
+  .block {
+    background: var(--cui-dark) !important;
+    color: var(--cui-white) !important;
+    border-bottom: 1px solid #c8c9cb !important;
+  }
+
+  .block:hover {
+    background: var(--cui-secondary) !important;
+    color: var(--cui-body-color) !important;
+  }
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.description-textarea {
+  height: 12em !important;
+  resize: none;
+}

@@ -16,7 +16,6 @@ export class SidebarNode {
     allowDropTo = false;
     children: SidebarNode[] = [];
     isSeparator = false;
-    dataModel: string;
     action: (tree, node, $event) => any = null;
     private dropAction: (tree: TreeModel, node: TreeNode, $event: any, {from, to}: {
         from: any;
@@ -62,6 +61,16 @@ export class SidebarNode {
             }
         }
         return sidebarNode;
+    }
+
+    static sortNodes(a: SidebarNode, b: SidebarNode) {
+        if (a.name < b.name) {
+            return -1;
+        }
+        if (a.name > b.name) {
+            return 1;
+        }
+        return 0;
     }
 
     setChildren(children: SidebarNode[]) {

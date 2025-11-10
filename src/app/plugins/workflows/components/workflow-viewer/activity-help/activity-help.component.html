@@ -1,0 +1,97 @@
+<div class="activity-help">
+    <div class="d-flex justify-content-end">
+        <span class="badge bg-success me-1 mb-1" *ngIf="def().fusable"
+              cTooltip="Supports the Activity Fusion Optimization" cTooltipPlacement="top">
+            <span class="fa fa-code-fork fa-rotate-270"></span>
+        </span>
+        <span class="badge bg-success me-1 mb-1" *ngIf="def().pipeable"
+              cTooltip="Supports the Activity Pipelining Optimization" cTooltipPlacement="top">
+            <span class="cil-stream"></span>
+        </span>
+        <span class="badge bg-success me-1 mb-1" *ngIf="def().variableWriter"
+              cTooltip="Writes Variables" cTooltipPlacement="top">
+            <span class="cil-bolt"></span>
+        </span>
+    </div>
+
+    @if (requiresMarkdown()) {
+        <markdown katex [katexOptions]="options"
+                  [data]="def().longDescription">
+        </markdown>
+    } @else {
+        <p>{{ def().longDescription }}</p>
+    }
+
+    <div class="ports-section">
+        @if (def().inPorts.length > 0) {
+            <h4>Inputs</h4>
+            <c-card class="mb-3">
+                <ul cListGroup flush="true">
+                    @for (inPort of def().inPorts; track $index) {
+                        <li cListGroupItem>
+                            <h5>{{ $index }}:
+                                <small class="text-medium-emphasis">
+                                    <span *ngIf="inPort.isMulti" class="text-medium-emphasis">Multiple </span>
+                                    {{ portTypeToDataModel( inPort.type ) }}
+                                    <span *ngIf="inPort.isOptional" class="text-medium-emphasis"> (optional)</span>
+                                </small>
+                            </h5>
+                            <markdown katex [katexOptions]="options" [data]="inPort.description"></markdown>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+        }
+
+        @if (def().outPorts.length > 0) {
+            <h4>Outputs</h4>
+            <c-card class="mb-3">
+                <ul cListGroup flush="true">
+                    @for (outPort of def().outPorts; track $index) {
+                        <li cListGroupItem>
+                            <h5>{{ $index }}:
+                                <small class="text-medium-emphasis">
+                                    {{ portTypeToDataModel( outPort.type ) }}
+                                </small>
+                            </h5>
+                            <markdown katex [katexOptions]="options" [data]="outPort.description"></markdown>
+                        </li>
+                    }
+                </ul>
+            </c-card>
+        }
+    </div>
+
+    <div class="settings-section mt-4" *ngIf="activeSettingGroup()">
+        <h4 [class]="{'mb-3': def().nonEmptyGroupCount <= 1}">Settings</h4>
+
+        <ul class="nav nav-underline" role="tablist" *ngIf="def().nonEmptyGroupCount > 1">
+            @for (group of def().groups; track group.key) {
+                <li class="nav-item" role="presentation" *ngIf="!group.isEmpty">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeSettingGroup() === group}"
+                       (click)="activeSettingGroup.set(group)"
+                       role="tab">{{ group.displayName }}</a>
+                </li>
+            }
+        </ul>
+
+        @for (subgroup of activeSettingGroup().subgroups; track subgroup.key) {
+            <ng-container *ngIf="!subgroup.isEmpty">
+                <h5 *ngIf="!subgroup.isDefault() || true">{{ subgroup.displayName }}</h5>
+                <c-card class="mb-3">
+                    <ul cListGroup flush="true">
+                        @for (setting of subgroup.settings; track setting.key) {
+                            <li cListGroupItem>
+                                <h6>{{ setting.displayName }}
+                                    <span class="text-medium-emphasis">({{ setting.key }}: {{ setting.type }})</span>
+                                </h6>
+                                <markdown katex [katexOptions]="options" [data]="setting.longDescription"></markdown>
+                            </li>
+                        }
+                    </ul>
+                </c-card>
+            </ng-container>
+        }
+    </div>
+</div>
