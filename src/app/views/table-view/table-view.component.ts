@@ -5,7 +5,8 @@ import {Router} from '@angular/router';
 @Component({
     selector: 'app-table-view',
     templateUrl: './table-view.component.html',
-    styleUrls: ['./table-view.component.scss']
+    styleUrls: ['./table-view.component.scss'],
+    standalone: false
 })
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 

@@ -8,7 +8,8 @@ import {round} from 'lodash';
 @Component({
     selector: 'app-right-sidebar',
     templateUrl: './right-sidebar.component.html',
-    styleUrls: ['./right-sidebar.component.scss']
+    styleUrls: ['./right-sidebar.component.scss'],
+    standalone: false
 })
 export class RightSidebarComponent implements OnInit, OnDestroy {
 

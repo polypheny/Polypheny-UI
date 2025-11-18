@@ -6,7 +6,8 @@ import JsonPointer from 'json-pointer';
 @Component({
     selector: 'app-add-variable',
     templateUrl: './add-variable.component.html',
-    styleUrl: './add-variable.component.scss'
+    styleUrl: './add-variable.component.scss',
+    standalone: false
 })
 export class AddVariableComponent {
     references = input.required<VariableReference[]>();

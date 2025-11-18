@@ -4,7 +4,8 @@ import {Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
 @Component({
     selector: 'app-json-editor',
     templateUrl: './json-editor.component.html',
-    styleUrls: ['./json-editor.component.scss']
+    styleUrls: ['./json-editor.component.scss'],
+    standalone: false
 })
 
 export class JsonEditorComponent implements OnInit {
@@ -138,11 +139,13 @@ export class JsonEditorComponent implements OnInit {
 
     addInitialValues() {
         try {
-            const data = JSON.parse(this.json.toString().replace('"', '\"'));
             this.data = [];
-            for (const [key, value] of Object.entries(data)) {
-                const val = JsonEditorComponent.getPair(value);
-                this.data.push(new Pair(key, val));
+            if (this.json) {
+                const data = JSON.parse(this.json.toString().replace('"', '\"'));
+                for (const [key, value] of Object.entries(data)) {
+                    const val = JsonEditorComponent.getPair(value);
+                    this.data.push(new Pair(key, val));
+                }
             }
 
         } catch (e) {

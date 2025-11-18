@@ -8,7 +8,8 @@ import * as d3 from 'd3';
 @Component({
     selector: 'app-data-graph',
     templateUrl: './data-graph.component.html',
-    styleUrls: ['./data-graph.component.scss']
+    styleUrls: ['./data-graph.component.scss'],
+    standalone: false
 })
 export class DataGraphComponent extends DataTemplateComponent {
 
@@ -137,7 +138,7 @@ export class DataGraphComponent extends DataTemplateComponent {
             .force('center', d3.forceCenter(width / 2, height / 2))
             .force('charge', d3.forceManyBody().strength(-this.initialNodeIds.size))
             .force('collide', d3.forceCollide(100).strength(0.9).radius(40))
-        .force('link', d3.forceLink().id(d => d.id).distance(160));
+        .force('link', d3.forceLink().id(d => d['id']).distance(160));
 
 
         // disable charge after initial setup
@@ -295,9 +296,11 @@ export class DataGraphComponent extends DataTemplateComponent {
 
             els.exit().remove();
 
+            const innerRadius = size + overlayStroke;
+            const outerRadius = size + overlayStroke + overlaySize;
             const arc = d3.arc()
-                .innerRadius(size + overlayStroke)
-                .outerRadius(size + overlayStroke + overlaySize);
+            .innerRadius(innerRadius)
+            .outerRadius(outerRadius);
 
             newText = g.selectAll('.name')
                 .append('g')
@@ -338,13 +341,13 @@ export class DataGraphComponent extends DataTemplateComponent {
             t = newOverlay.append('path').attr('fill', 'transparent')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'transparent')
-                .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3)}));
+            .attr('d', arc({startAngle: -(Math.PI / 3), endAngle: (Math.PI / 3), innerRadius, outerRadius}));
 
             right = newOverlay.append('path').attr('fill', 'grey')
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                .attr('d', arc({startAngle: 0, endAngle: Math.PI}))
+            .attr('d', arc({startAngle: 0, endAngle: Math.PI, innerRadius, outerRadius}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -371,7 +374,7 @@ export class DataGraphComponent extends DataTemplateComponent {
                 .attr('stroke-width', overlayStroke)
                 .attr('stroke', 'white')
                 .style('cursor', 'pointer')
-                .attr('d', arc({startAngle: -Math.PI, endAngle: 0}))
+            .attr('d', arc({startAngle: -Math.PI, endAngle: 0, innerRadius, outerRadius}))
                 .on('mouseover', function (d) {
                     d3.select(this).attr('fill', 'darkgray');
                 })
@@ -519,13 +522,11 @@ export class DataGraphComponent extends DataTemplateComponent {
         function activate() {
             // Attach nodes to the simulation, add listener on the "tick" event
             simulation
-                .nodes(graph.nodes)
+            .nodes(graph.nodes as d3.SimulationNodeDatum[])
                 .on('tick', onTick);
 
             // Associate the lines with the "link" force
-            simulation
-                .force('link')
-                .links(graph.edges);
+            (simulation.force('link') as d3.ForceLink<any, any>).links(graph.edges);
 
             simulation.alpha(1).alphaTarget(0).restart();
         }

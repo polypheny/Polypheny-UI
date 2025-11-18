@@ -18,7 +18,8 @@ type Tabs = (typeof tabs)[number]; // returns the type of any element in the tab
 @Component({
     selector: 'app-edit-source-columns',
     templateUrl: './edit-source-columns.component.html',
-    styleUrls: ['./edit-source-columns.component.scss']
+    styleUrls: ['./edit-source-columns.component.scss'],
+    standalone: false
 })
 export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 

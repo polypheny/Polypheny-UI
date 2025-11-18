@@ -14,7 +14,8 @@ import {PluginStatus} from '../../../models/ui-request.model';
 @Component({
     selector: 'app-form-generator',
     templateUrl: './form-generator.component.html',
-    styleUrls: ['./form-generator.component.scss']
+    styleUrls: ['./form-generator.component.scss'],
+    standalone: false
 })
 
 export class FormGeneratorComponent implements OnInit, OnDestroy {
@@ -90,7 +91,7 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
             } else {
                 //console.log('could not update from WebSocket');
             }
-        }, err => {
+        }, () => {
             setTimeout(() => {
                 this.initWebSocket();
             }, +this._settings.getSetting('reconnection.timeout'));
@@ -222,12 +223,13 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
     private onPageNotFound() {
         this.pageNotFound = true;
         this.serverError = null;
-        this._config.getPageList().subscribe(
-            res => {
+        this._config.getPageList().subscribe({
+            next: res => {
                 this.pageList = res;
             },
-            err => {
+            error: err => {
                 this.serverError = err;
+            }
             }
         );
     }

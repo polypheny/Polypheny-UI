@@ -5,7 +5,8 @@ import {UtilService} from '../../../services/util.service';
 @Component({
     selector: 'app-dockerhandshake',
     templateUrl: './dockerhandshake.component.html',
-    styleUrls: ['./dockerhandshake.component.scss']
+    styleUrls: ['./dockerhandshake.component.scss'],
+    standalone: false
 })
 export class DockerhandshakeComponent implements OnInit {
 

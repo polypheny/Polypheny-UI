@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .uml {
   width: auto;
   min-width: 100px;
@@ -20,7 +22,7 @@
 }
 
 .cols:hover {
-  background: darken(#fff, 10%);
+  background: color.adjust(#fff, $lightness: -10%);
 }
 
 .cols {

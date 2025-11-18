@@ -44,7 +44,7 @@ export class SidebarNode {
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) {
                 if (key === 'action') {
-                    continue;
+                    // continue;
                 } else if (key === 'children' && sidebarNode.children) {
                     sidebarNode.children = [];
                     for (const c of obj.children) {

@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-int-arg',
     templateUrl: './int-arg.component.html',
-    styleUrl: './int-arg.component.scss'
+    styleUrl: './int-arg.component.scss',
+    standalone: false
 })
 export class IntArgComponent {
     @Input() data: IntControl;

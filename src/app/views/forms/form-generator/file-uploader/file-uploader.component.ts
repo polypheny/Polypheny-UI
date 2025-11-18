@@ -5,7 +5,8 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 @Component({
     selector: 'app-file-uploader',
     templateUrl: './file-uploader.component.html',
-    styleUrls: ['./file-uploader.component.scss']
+    styleUrls: ['./file-uploader.component.scss'],
+    standalone: false
 })
 export class FileUploaderComponent implements OnInit {
     public readonly _plugin = inject(PluginService);

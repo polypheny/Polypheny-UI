@@ -23,7 +23,8 @@ type Tabs = (typeof tabs)[number]; // returns the type of any element in the tab
 @Component({
     selector: 'app-edit-columns',
     templateUrl: './edit-columns.component.html',
-    styleUrls: ['./edit-columns.component.scss']
+    styleUrls: ['./edit-columns.component.scss'],
+    standalone: false
 })
 
 export class EditColumnsComponent implements OnInit, OnDestroy {

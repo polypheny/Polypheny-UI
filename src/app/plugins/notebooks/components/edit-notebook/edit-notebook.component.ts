@@ -7,7 +7,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {EMPTY, Observable, Subject, Subscription, timer} from 'rxjs';
 import {NotebooksWebSocket} from '../../services/notebooks-webSocket';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {NbCellComponent} from './nb-cell/nb-cell.component';
 import {CellType, NotebookWrapper} from './notebook-wrapper';
@@ -16,12 +15,15 @@ import {LoadingScreenService} from '../../../../components/loading-screen/loadin
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {WebuiSettingsService} from '../../../../services/webui-settings.service';
-import {MarkdownService, MarkedRenderer} from 'ngx-markdown';
+import {MarkdownService} from 'ngx-markdown';
+import {Parser, Renderer, Tokens} from 'marked';
+import {ModalComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-edit-notebook',
     templateUrl: './edit-notebook.component.html',
-    styleUrls: ['./edit-notebook.component.scss']
+    styleUrls: ['./edit-notebook.component.scss'],
+    standalone: false
 })
 export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     private readonly _notebooks = inject(NotebooksService);
@@ -51,14 +53,14 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     namespaces: string[] = [];
     expand = false;
     private copiedCell: string; // stringified NotebookCell
-    @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalDirective;
-    @ViewChild('restartKernelModal') public restartKernelModal: ModalDirective;
+    @ViewChild('deleteNotebookModal') public deleteNotebookModal: ModalComponent;
+    @ViewChild('restartKernelModal') public restartKernelModal: ModalComponent;
     private executeAllAfterRestart = false;
-    @ViewChild('overwriteNotebookModal') public overwriteNotebookModal: ModalDirective;
-    @ViewChild('renameNotebookModal') public renameNotebookModal: ModalDirective;
-    @ViewChild('closeNotebookModal') public closeNotebookModal: ModalDirective;
-    @ViewChild('terminateKernelModal') public terminateKernelModal: ModalDirective;
-    @ViewChild('terminateAllKernelsModal') public terminateAllKernelsModal: ModalDirective;
+    @ViewChild('overwriteNotebookModal') public overwriteNotebookModal: ModalComponent;
+    @ViewChild('renameNotebookModal') public renameNotebookModal: ModalComponent;
+    @ViewChild('closeNotebookModal') public closeNotebookModal: ModalComponent;
+    @ViewChild('terminateKernelModal') public terminateKernelModal: ModalComponent;
+    @ViewChild('terminateAllKernelsModal') public terminateAllKernelsModal: ModalComponent;
     @ViewChildren('nbCell') cellComponents: QueryList<NbCellComponent>;
     renameNotebookForm: FormGroup;
     closeNotebookForm: FormGroup;
@@ -96,7 +98,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                         this.closeEdit(true);
                         return;
                     }
-                    if (!this.renameNotebookModal.isShown) {
+                    if (!this.renameNotebookModal.visible) {
                         this.renameNotebookForm.patchValue({name: this.name});
                     }
                     this._content.setPreferredSessionId(this.path, this.sessionId);
@@ -208,13 +210,11 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
      * @return a boolean Subject that emits true if the close operation is confirmed and false when aborted
      */
     confirmClose(): Subject<boolean> | boolean {
-        if (this.closeNotebookModal.isShown) {
+        if (this.closeNotebookModal.visible) {
             return false;
         }
         this.closeNbSubject = new Subject<boolean>();
-        this.closeNotebookModal.config.keyboard = false;
-        this.closeNotebookModal.config.backdrop = 'static';
-        this.closeNotebookModal.show();
+        this.closeNotebookModal.visible = true;
         return this.closeNbSubject;
     }
 
@@ -224,7 +224,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this.closeNbSubject?.complete();
         this.closeNbSubject = null;
         this._sidebar.deselect();
-        this.closeNotebookModal.hide();
+        this.closeNotebookModal.visible = false;
     }
 
 
@@ -235,7 +235,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this._notebooks.deleteFile(this.path).subscribe().add(() => {
             this._content.update();
             this.deleting = false;
-            this.deleteNotebookModal.hide();
+            this.deleteNotebookModal.visible = false;
         });
 
     }
@@ -256,17 +256,17 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this.closeEdit(true);
         }
         this.closeNbSubject = null;
-        this.closeNotebookModal.hide();
+        this.closeNotebookModal.visible = false;
     }
 
     closeAndTerminate(terminateAll: boolean) {
         this.closeEdit();
         if (terminateAll) {
             this.terminateSessions();
-            this.terminateAllKernelsModal.hide();
+            this.terminateAllKernelsModal.visible = false;
         } else {
             this.terminateSession();
-            this.terminateKernelModal.hide();
+            this.terminateKernelModal.visible = false;
         }
     }
 
@@ -288,12 +288,14 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         }
         const dirPath = this._content.directoryPath;
         this._sidebar.moveFile(this.path, dirPath + '/' + fileName);
-        this.renameNotebookModal.hide();
+        this.renameNotebookModal.visible = false;
     }
 
     duplicateNotebook() {
-        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe(() => this._content.update(),
-            err => this._toast.error(err.error.message, `Could not duplicate ${this.path}.`));
+        this._notebooks.duplicateFile(this.path, this._content.directoryPath).subscribe({
+            next: () => this._content.update(),
+            error: err => this._toast.error(err.error.message, `Could not duplicate ${this.path}.`)
+        });
     }
 
     downloadNotebook() {
@@ -305,12 +307,10 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             this._toast.warn('Please save your changes first before exporting the notebook.', 'Info');
             return;
         }
-        this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe(res => {
-                this._content.downloadNotebook(res.content, 'exported_' + this.name);
-            },
-            () => {
-                this._toast.warn('Unable to export the notebook.');
-            });
+        this._notebooks.getExportedNotebook(this.path, this.kernelSpec?.name).subscribe({
+            next: res => this._content.downloadNotebook(res.content, 'exported_' + this.name),
+            error: () => this._toast.warn('Unable to export the notebook.')
+        });
     }
 
     trustNotebook() {
@@ -379,14 +379,14 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
                     return EMPTY;
                 }
             })
-        ).subscribe(res => {
-            if (showSuccessToast) {
-                this._toast.success('Notebook was saved.');
-            }
-            this.nb.markAsSaved(res.last_modified);
-        }, () => {
-            this._toast.error('An error occurred while uploading the notebook.');
-
+        ).subscribe({
+            next: res => {
+                if (showSuccessToast) {
+                    this._toast.success('Notebook was saved.');
+                }
+                this.nb.markAsSaved(res.last_modified);
+            },
+            error: () => this._toast.error('An error occurred while uploading the notebook.')
         });
     }
 
@@ -398,19 +398,20 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
         this._notebooks.getContents(this.path, true).pipe(
             mergeMap(res => {
                 if (this.nb.lastSaveDiffersFrom((<NotebookContent>res).content)) {
-                    this.overwriteNotebookModal.show();  // show confirm dialog
+                    this.overwriteNotebookModal.visible = true;  // show confirm dialog
                     return EMPTY;
                 } else {
                     return this._notebooks.updateNotebook(this.path, this.nb.notebook);
                 }
             })
-        ).subscribe(res => {
-            if (showSuccessToast) {
-                this._toast.success('Notebook was saved.');
-            }
-            this.nb.markAsSaved(res.last_modified);
-        }, () => {
-            this._toast.error('An error occurred while uploading the notebook.');
+        ).subscribe({
+            next: res => {
+                if (showSuccessToast) {
+                    this._toast.success('Notebook was saved.');
+                }
+                this.nb.markAsSaved(res.last_modified);
+            },
+            error: () => this._toast.error('An error occurred while uploading the notebook.')
         });
     }
 
@@ -420,15 +421,15 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
      */
     overwriteNotebook(showSuccessToast = true) {
         this.overwriting = true;
-        this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe(res => {
-            if (showSuccessToast) {
-                this._toast.success('Notebook was saved.');
-            }
-            this.nb?.markAsSaved(res.last_modified);
-        }, () => {
-            this._toast.error('An error occurred while uploading the notebook.');
+        this._notebooks.updateNotebook(this.path, this.nb.notebook).subscribe({
+            next: res => {
+                if (showSuccessToast) {
+                    this._toast.success('Notebook was saved.');
+                }
+                this.nb?.markAsSaved(res.last_modified);
+            }, error: () => this._toast.error('An error occurred while uploading the notebook.')
         }).add(() => {
-            this.overwriteNotebookModal.hide();
+            this.overwriteNotebookModal.visible = false;
             this.overwriting = false;
         });
     }
@@ -436,20 +437,21 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     revertNotebook() {
         this.loadNotebook();
         this._toast.success('Notebook was reverted.');
-        this.overwriteNotebookModal.hide();
+        this.overwriteNotebookModal.visible = false;
 
     }
 
     interruptKernel() {
-        this._notebooks.interruptKernel(this.session.kernel.id).subscribe(() => {
-        }, () => {
-            this._toast.error('Unable to interrupt the kernel.');
+        this._notebooks.interruptKernel(this.session.kernel.id).subscribe({
+            error: () => {
+                this._toast.error('Unable to interrupt the kernel.');
+            }
         });
     }
 
     requestRestart(executeAll: boolean = false) {
         this.executeAllAfterRestart = executeAll;
-        this.restartKernelModal.show();
+        this.restartKernelModal.visible = true;
     }
 
     restartKernel() {
@@ -466,7 +468,7 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
             },
             error: () => this._toast.error('Unable to restart the kernel.')
         });
-        this.restartKernelModal.hide();
+        this.restartKernelModal.visible = false;
     }
 
     insertCell(id: string, below: boolean, editMode = true) {
@@ -751,25 +753,28 @@ export class EditNotebookComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private initMarkdown() {
-        const renderer = new MarkedRenderer();
+        const renderer = new Renderer();
+        renderer.parser = new Parser();
 
         // enforce usage of default renderer, since heading is changed in workflow
         renderer.heading = renderer.heading.bind(renderer);
 
-        renderer.blockquote = (text: string) => {
-            return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
+        renderer.blockquote = ({tokens}: Tokens.Blockquote) => {
+            return '<blockquote class="blockquote"><p>' +
+                renderer.parser.parse(tokens) + '</p>' +
+                '</blockquote>';
         };
 
         const defaultLinkRenderer = renderer.link.bind(renderer);
-        renderer.link = (href, title, text) => {
-            const link = defaultLinkRenderer(href, title, text);
+        renderer.link = ({href, title, tokens}: Tokens.Link) => {
+            const link = defaultLinkRenderer({href, title, tokens});
             return link.startsWith('<a') ? '<a target="_blank"' + link.slice(2) : link;
         };
 
         // https://github.com/jfcere/ngx-markdown/issues/149#issuecomment-1008360616
         const baseUrl = this._settings.getConnection('notebooks.file') + '/notebooks';
         const defaultImageRenderer = renderer.image.bind(renderer);
-        renderer.image = (href: string | null, title: string | null, text) => {
+        renderer.image = ({href, title, text}: Tokens.Image) => {
             href = `${baseUrl}/${href}`;
             return defaultImageRenderer(href, title, text);
         };

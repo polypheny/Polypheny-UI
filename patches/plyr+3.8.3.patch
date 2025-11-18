@@ -1,0 +1,12 @@
+diff --git a/node_modules/plyr/src/js/plyr.d.ts b/node_modules/plyr/src/js/plyr.d.ts
+index d9df4ec..387c05b 100644
+--- a/node_modules/plyr/src/js/plyr.d.ts
++++ b/node_modules/plyr/src/js/plyr.d.ts
+@@ -724,6 +724,6 @@ declare namespace Plyr {
+   }
+ }
+ 
+-export = Plyr;
++// export = Plyr; This fixes TS1203:  Export assignment cannot be used when targeting ECMAScript modules.
+ export as namespace Plyr;
+ export default Plyr;

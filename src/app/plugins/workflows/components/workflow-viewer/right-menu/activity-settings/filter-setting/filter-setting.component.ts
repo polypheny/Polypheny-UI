@@ -7,7 +7,8 @@ import {getSuggestions} from '../../../workflow';
 @Component({
     selector: 'app-filter-setting',
     templateUrl: './filter-setting.component.html',
-    styleUrl: './filter-setting.component.scss'
+    styleUrl: './filter-setting.component.scss',
+    standalone: false
 })
 export class FilterSettingComponent {
     isEditable = input.required<boolean>();

@@ -1,15 +1,17 @@
 <div id="editor-wrapper">
-    <form #formType="ngForm" *ngFor="let el of data; let i=index;">
-        <app-json-elem [el]="el" [index]="i" [length]="data.length" [indent]="0"
-                       [type]="getType(el)"
-                       [isDuplicate]="getIsDuplicate(i)"
-                       (changed)="changeHappened()"
-                       (remove)="removeColumn($event)"
-                       (up)="changeOrder($event, -1)"
-                       (down)="changeOrder($event, 1)"
-                       (add)="addColumn($event)"
-                       (validChanged)="validChanged()"></app-json-elem>
-    </form>
+    @for (el of data; track el.key; let i = $index) {
+        <form #formType="ngForm">
+            <app-json-elem [el]="el" [index]="i" [length]="data.length" [indent]="0"
+                           [type]="getType(el)"
+                           [isDuplicate]="getIsDuplicate(i)"
+                           (changed)="changeHappened()"
+                           (remove)="removeColumn($event)"
+                           (up)="changeOrder($event, -1)"
+                           (down)="changeOrder($event, 1)"
+                           (add)="addColumn($event)"
+                           (validChanged)="validChanged()"></app-json-elem>
+        </form>
+    }
     <div class="justify-content-center d-flex">
         <c-input-group>
             <c-dropdown class="mx-auto" variant="btn-group" direction="center">

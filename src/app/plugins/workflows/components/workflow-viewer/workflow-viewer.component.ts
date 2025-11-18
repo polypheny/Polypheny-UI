@@ -4,7 +4,7 @@ import {ToasterService} from '../../../../components/toast-exposer/toaster.servi
 import {WorkflowEditor} from './editor/workflow-editor';
 import {ActivityUpdateResponse, ErrorResponse, ProgressUpdateResponse, RenderingUpdateResponse, ResponseType, StateUpdateResponse, WsResponse} from '../../models/ws-response.model';
 import {filter, Subscription} from 'rxjs';
-import {Position} from 'rete-angular-plugin/17/types';
+import {Position} from 'rete-angular-plugin/types';
 import {Activity, Workflow} from './workflow';
 import {ActivityState, SessionModel, WorkflowDefModel, WorkflowState} from '../../models/workflows.model';
 import {RightMenuComponent} from './right-menu/right-menu.component';
@@ -24,6 +24,8 @@ import {WORKFLOW_DESCRIPTION_LENGTH} from '../workflows-dashboard/workflows-dash
     styleUrl: './workflow-viewer.component.scss',
     providers: [WorkflowsWebSocketService, CheckpointViewerService],
     encapsulation: ViewEncapsulation.None // required to be able to style the rete context menu
+    ,
+    standalone: false
 })
 export class WorkflowViewerComponent implements OnInit, OnDestroy {
     @Input() sessionId: string;

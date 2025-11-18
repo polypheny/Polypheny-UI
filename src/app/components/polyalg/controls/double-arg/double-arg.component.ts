@@ -7,7 +7,8 @@ import {PlanType} from '../../../../models/information-page.model';
 @Component({
     selector: 'app-double-arg',
     templateUrl: './double-arg.component.html',
-    styleUrl: './double-arg.component.scss'
+    styleUrl: './double-arg.component.scss',
+    standalone: false
 })
 export class DoubleArgComponent {
     @Input() data: DoubleControl;

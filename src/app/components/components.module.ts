@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {GraphComponent} from './graph/graph.component';
-import {NgChartsModule} from 'ng2-charts';
+import {BaseChartDirective} from 'ng2-charts';
 
 import {
     AccordionButtonDirective,
@@ -63,6 +63,7 @@ import {
     TableDirective,
     TabPaneComponent,
     TemplateIdDirective,
+    TextBgColorDirective,
     TextColorDirective,
     ToastBodyComponent,
     ToastCloseDirective,
@@ -78,7 +79,6 @@ import {LeftSidebarComponent} from './left-sidebar/left-sidebar.component';
 import {RightSidebarComponent} from './right-sidebar/right-sidebar.component';
 import {RouterModule} from '@angular/router';
 import {DataTableComponent} from './data-view/data-table/data-table.component';
-import {DynamicFormsComponent} from './dynamic-forms/dynamic-forms.component';
 import {RenderItemComponent} from './information-manager/render-item/render-item.component';
 import {InformationManagerComponent} from './information-manager/information-manager.component';
 import {InputComponent} from './data-view/input/input.component';
@@ -112,7 +112,7 @@ import {ViewComponent} from './data-view/view/view.component';
 import {DockerInstanceComponent} from './docker/dockerinstance/dockerinstance.component';
 import {AlgViewerComponent} from './polyalg/polyalg-viewer/alg-viewer.component';
 import {AlgNodeComponent} from './polyalg/algnode/alg-node.component';
-import {ReteModule} from 'rete-angular-plugin/17';
+import {ReteModule} from 'rete-angular-plugin/20';
 import {EntityArgComponent} from './polyalg/controls/entity-arg/entity-arg.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {ListArgComponent} from './polyalg/controls/list-arg/list-arg.component';
@@ -141,7 +141,7 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         //AppRoutingModule,
         RouterModule,
         CommonModule,
-        NgChartsModule,
+        BaseChartDirective,
         TypeaheadModule.forRoot(),
         TabsModule.forRoot(),
         ToasterComponent,
@@ -222,11 +222,10 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         ButtonToolbarComponent,
         BadgeComponent,
         FormCheckComponent,
-        AlertComponent, FormTextDirective
+        AlertComponent, FormTextDirective, TextBgColorDirective
     ],
     declarations: [
         BreadcrumbComponent,
-        DynamicFormsComponent,
         GraphComponent,
         LeftSidebarComponent,
         RightSidebarComponent,
@@ -279,7 +278,6 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         DataViewComponent,
         DataTableComponent,
         DataCardComponent,
-        DynamicFormsComponent,
         GraphComponent,
         LeftSidebarComponent,
         RightSidebarComponent,

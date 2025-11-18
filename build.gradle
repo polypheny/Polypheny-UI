@@ -16,7 +16,7 @@ version = versionMajor + "." + versionMinor + versionQualifier
 
 
 node {
-  version = '20.11.0'
+    version = '22.20.0'
   //npmVersion = '6.14.11'
   download = true
 }
@@ -59,9 +59,6 @@ tasks.register('packageDistribution', Zip) {
     from file('dist')
 }
 packageDistribution.dependsOn('build')
-
-
-import org.apache.tools.ant.taskdefs.condition.Os
 
 task publishToDotPolypheny {
     def polyphenyHome

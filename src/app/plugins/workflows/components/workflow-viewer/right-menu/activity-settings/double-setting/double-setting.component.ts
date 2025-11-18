@@ -5,7 +5,8 @@ import {TypePreviewModel} from '../../../../../models/workflows.model';
 @Component({
     selector: 'app-double-setting',
     templateUrl: './double-setting.component.html',
-    styleUrl: './double-setting.component.scss'
+    styleUrl: './double-setting.component.scss',
+    standalone: false
 })
 export class DoubleSettingComponent {
     isEditable = input.required<boolean>();

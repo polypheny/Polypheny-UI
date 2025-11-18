@@ -1,5 +1,5 @@
-import {AfterContentChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {DOCUMENT} from '@angular/common';
+import {AfterContentChecked, ChangeDetectorRef, Component, DOCUMENT, Inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+
 import {navItems} from '../../_nav';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {InformationService} from '../../services/information.service';
@@ -15,7 +15,8 @@ import {SidebarComponent} from '@coreui/angular';
 @Component({
     selector: 'app-dashboard',
     templateUrl: './default-layout.component.html',
-    styleUrls: ['./default-layout.component.scss']
+    styleUrls: ['./default-layout.component.scss'],
+    standalone: false
 })
 export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentChecked {
     @ViewChild('leftSidebar') leftSidebarComponent: SidebarComponent;
@@ -33,7 +34,6 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
 
 
     constructor(
-        public _sidebar: LeftSidebarService,
         public _information: InformationService,
         public _settings: WebuiSettingsService,
         public _crud: CrudService,
@@ -53,7 +53,6 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
             attributes: true,
             attributeFilter: ['class']
         });
-
     }
 
     ngOnInit(): void {
@@ -121,13 +120,5 @@ export class DefaultLayoutComponent implements OnInit, OnDestroy, AfterContentCh
             route = route.firstChild;
         }
         return route.snapshot.data;
-    }
-
-    changedVisible(isVisible: boolean) {
-        // find a better solution to keep the sidebar component hidden after rescaling the window?
-        if (isVisible && !this._left.isVisible()) {
-            this._left.isVisible.set(isVisible);
-            setTimeout(() => this._left.isVisible.set(!isVisible), 10);
-        }
     }
 }

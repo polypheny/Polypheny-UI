@@ -8,7 +8,8 @@ import {hasValidStructure, sanitizeAlias} from '../arg-control-utils';
 @Component({
     selector: 'app-rex-arg',
     templateUrl: './rex-arg.component.html',
-    styleUrl: './rex-arg.component.scss'
+    styleUrl: './rex-arg.component.scss',
+    standalone: false
 })
 export class RexArgComponent {
     @Input() data: RexControl;

@@ -3,24 +3,25 @@ import {NotebooksService} from '../../services/notebooks.service';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {interval, Subscription} from 'rxjs';
 import {SessionResponse, StatusResponse} from '../../models/notebooks-response.model';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
 import {cilMediaPlay, cilReload, cilTrash} from '@coreui/icons';
 import {DockerInstanceInfo} from '../../../../models/docker.model';
+import {ModalComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-notebooks-dashboard',
     templateUrl: './notebooks-dashboard.component.html',
-    styleUrls: ['./notebooks-dashboard.component.scss']
+    styleUrls: ['./notebooks-dashboard.component.scss'],
+    standalone: false
 })
 export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     @Output() serverRunning = new EventEmitter<boolean>(false);
 
-    @ViewChild('terminateSessionsModal') public terminateSessionsModal: ModalDirective;
-    @ViewChild('terminateUnusedSessionsModal') public terminateUnusedSessionsModal: ModalDirective;
-    @ViewChild('restartContainerModal') public restartContainerModal: ModalDirective;
-    @ViewChild('destroyContainerModal') public destroyContainerModal: ModalDirective;
-    @ViewChild('startContainerModal') public startContainerModal: ModalDirective;
+    @ViewChild('terminateSessionsModal') public terminateSessionsModal: ModalComponent;
+    @ViewChild('terminateUnusedSessionsModal') public terminateUnusedSessionsModal: ModalComponent;
+    @ViewChild('restartContainerModal') public restartContainerModal: ModalComponent;
+    @ViewChild('destroyContainerModal') public destroyContainerModal: ModalComponent;
+    @ViewChild('startContainerModal') public startContainerModal: ModalComponent;
 
     private readonly _notebooks = inject(NotebooksService);
     private readonly _content = inject(NotebooksContentService);
@@ -87,8 +88,8 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         this.deleting = true;
         this._content.deleteAllSessions(onlyUnused).subscribe().add(() => {
             this.deleting = false;
-            this.terminateSessionsModal.hide();
-            this.terminateUnusedSessionsModal.hide();
+            this.terminateSessionsModal.visible = false;
+            this.terminateUnusedSessionsModal.visible = false;
         });
     }
 
@@ -123,7 +124,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
         this.creating = true;
         this._notebooks.createContainer(id).subscribe({
             next: res => {
-                this.startContainerModal.hide();
+                this.startContainerModal.visible = false;
                 this.creating = false;
             },
             error: err => {
@@ -138,7 +139,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
 
     destroyContainer() {
         this._notebooks.destroyContainer().subscribe({
-            next: res => this.destroyContainerModal.hide(),
+            next: () => this.destroyContainerModal.visible = false,
             error: err => console.log(err),
         }).add(() => this.getServerStatus());
     }
@@ -146,7 +147,7 @@ export class NotebooksDashboardComponent implements OnInit, OnDestroy {
     restartContainer() {
         this.serverStatus = null;
         this.serverRunning.emit(false);
-        this.restartContainerModal.hide();
+        this.restartContainerModal.visible = false;
         this._notebooks.restartContainer().subscribe({
             next: () => {
                 this._toast.success('Successfully restarted the container.');

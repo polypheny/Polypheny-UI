@@ -13,8 +13,8 @@ import {firstValueFrom} from 'rxjs';
     selector: 'poly-create-view',
     templateUrl: './view.component.html',
     styleUrls: ['./view.component.scss'],
-    encapsulation: ViewEncapsulation.None, // new elements in sortable should have margin as well
-
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class ViewComponent {
 

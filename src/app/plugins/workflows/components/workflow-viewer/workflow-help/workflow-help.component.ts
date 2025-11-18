@@ -8,7 +8,8 @@ type HelpTabs = 'intro' | 'control' | 'variables' | 'optimization' | 'nested';
 @Component({
     selector: 'app-workflow-help',
     templateUrl: './workflow-help.component.html',
-    styleUrl: './workflow-help.component.scss'
+    styleUrl: './workflow-help.component.scss',
+    standalone: false
 })
 export class WorkflowHelpComponent {
 

@@ -1,50 +1,62 @@
-<div *ngIf="handshake.status === 'NOT_RUNNING' || handshake.status === 'FAILED'" class="pt-3">
-    <div *ngIf="handshake.lastErrorMessage !== ''" class="alert alert-danger">
-        <strong>Connection attempt failed:</strong>
-        {{ handshake.lastErrorMessage }}
-    </div>
-    <button cButton (click)="redoHandshake()">Try again</button>
-</div>
-
-<div *ngIf="handshake.status === 'RUNNING' || handshake.status === 'NOT_RUNNING'" class="pt-3">
-    <div *ngIf="handshake.status === 'RUNNING'" class="pb-3">
-        <div class="d-flex align-items-center">
-            <div class="spinner-border"></div>
-            <div class="ms-2">Attempting to connect</div>
-            <button cButton color="danger" class="ms-2" (click)="cancelHandshake()">Cancel</button>
-        </div>
-    </div>
-
-    <div *ngIf="handshake.status === 'RUNNING'">
-        Run the following command on <strong>{{ handshake.host.hostname }}:</strong><br>
-        <div *ngIf="handshake.containerExistsGuess">
-            <div class="handshake-string p-2 mt-2">
-                <samp>{{ handshake.execCommand }}</samp><br>
+@if (handshake.status === 'NOT_RUNNING' || handshake.status === 'FAILED') {
+    <div class="pt-3">
+        @if (handshake.lastErrorMessage !== '') {
+            <div class="alert alert-danger">
+                <strong>Connection attempt failed:</strong>
+                {{ handshake.lastErrorMessage }}
             </div>
-            <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
-            <details>
-                <summary>No <tt>polypheny-docker-connector</tt> container exists?</summary>
-                Use this command:
-                <div class="handshake-string p-2">
-                    <samp>{{ handshake.runCommand }}</samp><br>
-                </div>
-                <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
-            </details>
-        </div>
-
-        <div *ngIf="!handshake.containerExistsGuess">
-            <div class="handshake-string p-2 mt-2">
-                <samp>{{ handshake.runCommand }}</samp><br>
-            </div>
-            <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
-            <details>
-                <summary>Is there a <tt>polypheny-docker-connector</tt> already running?</summary>
-                Use this command:
-                <div class="handshake-string p-2">
-                    <samp class="bg-secondary">{{ handshake.execCommand }}</samp><br>
-                </div>
-                <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
-            </details>
-        </div>
+        }
+        <button cButton (click)="redoHandshake()">Try again</button>
     </div>
-</div>
+}
+
+@if (handshake.status === 'RUNNING' || handshake.status === 'NOT_RUNNING') {
+    <div class="pt-3">
+        @if (handshake.status === 'RUNNING') {
+            <div class="pb-3">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border"></div>
+                    <div class="ms-2">Attempting to connect</div>
+                    <button cButton color="danger" class="ms-2" (click)="cancelHandshake()">Cancel</button>
+                </div>
+            </div>
+        }
+        @if (handshake.status === 'RUNNING') {
+            <div>
+                Run the following command on <strong>{{ handshake.host.hostname }}:</strong><br>
+                @if (handshake.containerExistsGuess) {
+                    <div>
+                        <div class="handshake-string p-2 mt-2">
+                            <samp>{{ handshake.execCommand }}</samp><br>
+                        </div>
+                        <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
+                        <details>
+                            <summary>No <tt>polypheny-docker-connector</tt> container exists?</summary>
+                            Use this command:
+                            <div class="handshake-string p-2">
+                                <samp>{{ handshake.runCommand }}</samp><br>
+                            </div>
+                            <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
+                        </details>
+                    </div>
+                }
+                @if (!handshake.containerExistsGuess) {
+                    <div>
+                        <div class="handshake-string p-2 mt-2">
+                            <samp>{{ handshake.runCommand }}</samp><br>
+                        </div>
+                        <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.runCommand)">Copy</button>
+                        <details>
+                            <summary>Is there a <tt>polypheny-docker-connector</tt> already running?</summary>
+                            Use this command:
+                            <div class="handshake-string p-2">
+                                <samp class="bg-secondary">{{ handshake.execCommand }}</samp><br>
+                            </div>
+                            <button cButton color="secondary" class="mt-2" (click)="_util.clipboard(handshake.execCommand)">Copy</button>
+                        </details>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}

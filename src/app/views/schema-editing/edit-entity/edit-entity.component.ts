@@ -9,7 +9,8 @@ import {AdapterModel} from '../../adapters/adapter.model';
 @Component({
     selector: 'app-edit-entity',
     templateUrl: './edit-entity.component.html',
-    styleUrls: ['./edit-entity.component.scss']
+    styleUrls: ['./edit-entity.component.scss'],
+    standalone: false
 })
 
 export class EditEntityComponent {

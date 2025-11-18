@@ -13,49 +13,60 @@
 
         </div>
 
-        <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="planType" [isReadOnly]="false"
-                        [initialUserMode]="initialUserMode" (execute)="executePolyAlg($event)" *ngIf="planType"
-        ></app-alg-viewer>
+        @if (planType) {
+            <app-alg-viewer #algViewer [polyAlg]="polyAlg" [planType]="planType" [isReadOnly]="false"
+                            [initialUserMode]="initialUserMode" (execute)="executePolyAlg($event)"
+            ></app-alg-viewer>
+        }
     </div>
 
 
-    <app-information-manager
-            *ngIf="queryAnalysis && showingAnalysis"
-            [data]="queryAnalysis"></app-information-manager>
+    @if (queryAnalysis && showingAnalysis) {
+        <app-information-manager
+                [data]="queryAnalysis"></app-information-manager>
+    }
 </div>
 
 <div>
-    <c-card class="my-3" *ngIf="result() && !showingAnalysis " id="alg-result" scrollTo>
-        <c-card-header>
-            <span>{{ result().query }}</span>
-            <span class="badge pull-right" *ngIf="result().error"
-                  [ngClass]="{'badge-secondary': !result().error, 'badge-danger': result().error}">
-            <ng-container *ngIf="result().error">!</ng-container>
-            </span>
-        </c-card-header>
-
-        <c-card-body>
-            <div class="text-danger" *ngIf="result() && result().error">
-                <strong>Error:</strong>
-                <p class="mb-3">{{ result().error }}</p>
-            </div>
-
-            <div class="query-info">
-                <p *ngIf="result() && !result().data && !result().error" class="mb-3">
-                    <i>Successfully executed</i>
-                </p>
-            </div>
-
-            <c-row *ngIf="result() && result().data" [hidden]="showingAnalysis">
-                <c-col lg="lg">
-                    <app-data-view [result]="result()"
-                                   [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
-                                   [loading]="loading()"></app-data-view>
-                </c-col>
-            </c-row>
-        </c-card-body>
-
-    </c-card>
+    @if (result() && !showingAnalysis) {
+        <c-card class="my-3" id="alg-result" scrollTo>
+            <c-card-header>
+                <span>{{ result().query }}</span>
+                @if (result().error) {
+                    <span class="badge pull-right"
+                          [ngClass]="{'badge-secondary': !result().error, 'badge-danger': result().error}">
+            @if (result().error) {
+                !
+            }
+          </span>
+                }
+            </c-card-header>
+            <c-card-body>
+                @if (result() && result().error) {
+                    <div class="text-danger">
+                        <strong>Error:</strong>
+                        <p class="mb-3">{{ result().error }}</p>
+                    </div>
+                }
+                <div class="query-info">
+                    @if (result() && !result().data && !result().error) {
+                        <p class="mb-3">
+                            <i>Successfully executed</i>
+                        </p>
+                    }
+                </div>
+                @if (result() && result().data) {
+                    <c-row [hidden]="showingAnalysis">
+                        <c-col lg="lg">
+                            <app-data-view [result]="result()"
+                                           [config]="{create: false, update: false, delete: false, sort: false, search: false, exploring: true}"
+                                           [loading]="loading()"></app-data-view>
+                        </c-col>
+                    </c-row>
+                }
+            </c-card-body>
+        </c-card>
+    }
 </div>
 
 <c-modal [visible]="showPlanTypeModal()" (visibleChange)="handlePlanTypeModalChange($event)">
@@ -127,35 +138,33 @@
     </c-modal-header>
     <c-modal-body>
         Please specify the dynamic parameters:
-        <c-input-group *ngFor="let param of physicalExecForm.params; let i = index" class="mb-2">
-            <span cInputGroupText id="input-{{i}}">{{param[0]}}:{{param[1]}}</span>
-            <ng-container [ngSwitch]="param[2]">
-                <ng-container *ngSwitchCase="['INTEGER', 'TINYINT', 'SMALLINT', 'BIGINT'].includes(param[2]) ? param[2] : '' ">
-                    <input cFormControl sizing="sm" type="number" autocomplete="off" step="1"
-                           placeholder="0" [(ngModel)]="physicalExecForm.values[i]">
-                </ng-container>
-
-                <ng-container *ngSwitchCase="['DECIMAL', 'REAL', 'DOUBLE', 'FLOAT'].includes(param[2]) ? param[2] : '' ">
-                    <input cFormControl sizing="sm" type="number" autocomplete="off" step="any"
-                           placeholder="0.0" [(ngModel)]="physicalExecForm.values[i]">
-                </ng-container>
-
-                <ng-container *ngSwitchCase="'BOOLEAN'">
-                    <span cInputGroupText>
-                        <c-form-check>
-                          <input cFormCheckInput type="checkbox"
-                                 [checked]="physicalExecForm.values[i]" (change)="physicalExecForm.values[i] = !physicalExecForm.values[i]"/>
-                        </c-form-check>
-                    </span>
-                </ng-container>
-
-                <ng-container *ngSwitchDefault>
-                    <input aria-describedby="input-{{i}}" aria-label="Username" cFormControl autocomplete="off"
-                           placeholder="Enter Value" [(ngModel)]="physicalExecForm.values[i]"/>
-                </ng-container>
-            </ng-container>
-
-        </c-input-group>
+        @for (param of physicalExecForm.params; track i; let i = $index) {
+            <c-input-group class="mb-2">
+                <span cInputGroupText id="input-{{i}}">{{ param[0] }}:{{ param[1] }}</span>
+                @switch (param[2]) {
+                    @case (['INTEGER', 'TINYINT', 'SMALLINT', 'BIGINT'].includes( param[2] ) ? param[2] : '') {
+                        <input cFormControl sizing="sm" type="number" autocomplete="off" step="1"
+                               placeholder="0" [(ngModel)]="physicalExecForm.values[i]">
+                    }
+                    @case (['DECIMAL', 'REAL', 'DOUBLE', 'FLOAT'].includes( param[2] ) ? param[2] : '') {
+                        <input cFormControl sizing="sm" type="number" autocomplete="off" step="any"
+                               placeholder="0.0" [(ngModel)]="physicalExecForm.values[i]">
+                    }
+                    @case ('BOOLEAN') {
+                        <span cInputGroupText>
+                  <c-form-check>
+                    <input cFormCheckInput type="checkbox"
+                           [checked]="physicalExecForm.values[i]" (change)="physicalExecForm.values[i] = !physicalExecForm.values[i]"/>
+                    </c-form-check>
+                  </span>
+                    }
+                    @default {
+                        <input aria-describedby="input-{{i}}" aria-label="Username" cFormControl autocomplete="off"
+                               placeholder="Enter Value" [(ngModel)]="physicalExecForm.values[i]"/>
+                    }
+                }
+            </c-input-group>
+        }
 
         <button (click)="clearParamsModal()" cButton color="light" size="sm">Clear all</button>
 

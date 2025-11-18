@@ -5,7 +5,7 @@ import {Declaration, OperatorModel, SimpleType} from '../models/polyalg-registry
 import {PlanArgument} from '../models/polyalg-plan.model';
 import {getControl} from '../controls/arg-control-utils';
 import {ArgControl} from '../controls/arg-control';
-import {Position} from 'rete-angular-plugin/17/types';
+import {Position} from 'rete-angular-plugin/types';
 import {AlgNodeSocket} from '../custom-socket/custom-socket.component';
 import {AlgMetadata} from './alg-metadata/alg-metadata.component';
 import {getModelPrefix} from '../polyalg-viewer/alg-editor-utils';
@@ -16,7 +16,8 @@ type SortValue<N extends ClassicPreset.Node> = (N['controls'] | N['inputs'] | N[
 @Component({
     selector: 'app-alg-node',
     templateUrl: './alg-node.component.html',
-    styleUrl: './alg-node.component.scss'
+    styleUrl: './alg-node.component.scss',
+    standalone: false
 })
 export class AlgNodeComponent implements OnChanges {
     @Input() data!: AlgNode;

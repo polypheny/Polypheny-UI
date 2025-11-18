@@ -24,7 +24,8 @@ const INITIAL_TYPE = 'BIGINT';
 @Component({
     selector: 'data-template',
     templateUrl: './data-template.component.html',
-    styleUrls: ['./data-template.component.scss']
+    styleUrls: ['./data-template.component.scss'],
+    standalone: false
 })
 export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
@@ -133,7 +134,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         }
 
         //listen to parameter changes
-        this._route.params.subscribe((params) => {
+        this._route.params.subscribe(() => {
             this.currentPage.set(+this._route.snapshot.paramMap.get('page') || 1);
 
             this.$result?.update(res => {
@@ -468,7 +469,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const entity = this.entity();
         switch (method) {
             case Method.ADD:
-                const data = this.insertValues.get('_id');
+                const data = this.insertValues.get('Document');
                 const add = `db.${entity.name}.insert(${data})`;
 
                 this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.$result().namespace));
@@ -481,7 +482,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
                     values.set(this.$result().header[i].name, this.$result().data[this.editing][i]);
                     i++;
                 }
-                const updated = this.updateValues.get('_id');
+                const updated = this.updateValues.get('Document');
                 const parsed = JSON.parse(updated);
                 if (parsed.hasOwnProperty('_id')) {
                     const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;

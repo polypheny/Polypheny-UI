@@ -4,16 +4,17 @@ import {Content, KernelSpec, KernelSpecs, SessionResponse} from '../../models/no
 import {NotebooksService} from '../../services/notebooks.service';
 import {Router} from '@angular/router';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {NotebooksContentService} from '../../services/notebooks-content.service';
 import {Subscription} from 'rxjs';
 import {UtilService} from '../../../../services/util.service';
 import {ToasterService} from '../../../../components/toast-exposer/toaster.service';
+import {ModalComponent} from '@coreui/angular';
 
 @Component({
     selector: 'app-manage-notebook',
     templateUrl: './manage-notebook.component.html',
-    styleUrls: ['./manage-notebook.component.scss']
+    styleUrls: ['./manage-notebook.component.scss'],
+    standalone: false
 })
 export class ManageNotebookComponent implements OnInit, OnDestroy {
 
@@ -38,10 +39,10 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     terminateSessionForm: FormGroup;
     connectSessionForm: FormGroup;
     createKernelForm: FormGroup;
-    @ViewChild('renameFileModal', {static: false}) public renameFileModal: ModalDirective;
-    @ViewChild('terminateSessionModal', {static: false}) public terminateSessionModal: ModalDirective;
-    @ViewChild('connectSessionModal', {static: false}) public connectSessionModal: ModalDirective;
-    @ViewChild('createKernelModal', {static: false}) public createKernelModal: ModalDirective;
+    @ViewChild('renameFileModal', {static: false}) public renameFileModal: ModalComponent;
+    @ViewChild('terminateSessionModal', {static: false}) public terminateSessionModal: ModalComponent;
+    @ViewChild('connectSessionModal', {static: false}) public connectSessionModal: ModalComponent;
+    @ViewChild('createKernelModal', {static: false}) public createKernelModal: ModalComponent;
     private subscriptions = new Subscription();
 
     constructor() {
@@ -54,7 +55,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
             this.metadata = this._content.metadata;
             this.parentPath = this._content.parentPath;
             this.directoryPath = this._content.directoryPath;
-            if (!this.renameFileModal.isShown) {
+            if (!this.renameFileModal.visible) {
                 this.renameFileForm.patchValue({name: this.metadata.name});
             }
             this.updateSessions(this._content.onSessionsChange().getValue());
@@ -104,12 +105,12 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
         if (this.metadata.type === 'notebook' && this.sessions.length > 0) {
             this.terminateAllSessions();
         }
-        this._notebooks.deleteFile(this.metadata.path).subscribe(res => {
+        this._notebooks.deleteFile(this.metadata.path).subscribe({
+            next: () => {
                 const path = this.metadata.type === 'directory' ? this.parentPath : this.directoryPath;
                 this._router.navigate([this._sidebar.baseUrl].concat(path.split('/')));
             },
-            err => {
-                this._toast.error(`Could not delete ${this.metadata.path}.`);
+            error: () => this._toast.error(`Could not delete ${this.metadata.path}.`)
             }
         );
     }
@@ -119,8 +120,10 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     }
 
     duplicateFile() {
-        this._notebooks.duplicateFile(this.metadata.path, this.directoryPath).subscribe(res => this._content.update(),
-            err => this._toast.error(`Could not duplicate ${this.metadata.path}.`));
+        this._notebooks.duplicateFile(this.metadata.path, this.directoryPath).subscribe({
+            next: () => this._content.update(),
+            error: () => this._toast.error(`Could not duplicate ${this.metadata.path}.`)
+        });
     }
 
     renameFile() {
@@ -133,7 +136,7 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
         }
         const path = this.metadata.type === 'directory' ? this.parentPath : this.directoryPath;
         this._sidebar.moveFile(this.metadata.path, path + '/' + fileName);
-        this.renameFileModal.hide();
+        this.renameFileModal.visible = false;
     }
 
     downloadFile() {
@@ -141,21 +144,23 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     }
 
     connect() {
-        this.connectSessionModal.hide();
+        this.connectSessionModal.visible = false;
         this.openSession(this.connectSessionForm.value.session);
     }
 
     create() {
         this.creating = true;
         this._notebooks.createSession(this.metadata.name, this.metadata.path,
-            this.createKernelForm.value.kernel, true).subscribe(res => {
-                this._content.addSession(res);
-                this.openSession(res.id);
-            },
-            err => this._toast.error('Could not create session.')
+            this.createKernelForm.value.kernel, true).subscribe({
+                next: res => {
+                    this._content.addSession(res);
+                    this.openSession(res.id);
+                },
+                error: () => this._toast.error('Could not create session.')
+            }
         ).add(() => {
             this.creating = false;
-            this.createKernelModal.hide();
+            this.createKernelModal.visible = false;
         });
     }
 
@@ -163,9 +168,9 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
         const id = this.terminateSessionForm.value.session;
         this.deleting = true;
         this._content.deleteSession(id).subscribe(
-            res => {
+            () => {
                 this.deleting = false;
-                this.terminateSessionModal.hide();
+                this.terminateSessionModal.visible = false;
             }
         );
     }
@@ -173,9 +178,9 @@ export class ManageNotebookComponent implements OnInit, OnDestroy {
     terminateAllSessions() {
         this.deleting = true;
         this._content.deleteSessions(this.metadata.path).subscribe(
-            res => {
+            () => {
                 this.deleting = false;
-                this.terminateSessionModal.hide();
+                this.terminateSessionModal.visible = false;
             }
         );
     }

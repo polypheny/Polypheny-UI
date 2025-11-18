@@ -14,7 +14,8 @@ export const WORKFLOW_DESCRIPTION_LENGTH = 1024;
 @Component({
     selector: 'app-workflows-dashboard',
     templateUrl: './workflows-dashboard.component.html',
-    styleUrl: './workflows-dashboard.component.scss'
+    styleUrl: './workflows-dashboard.component.scss',
+    standalone: false
 })
 export class WorkflowsDashboardComponent implements OnInit, OnDestroy {
     private readonly _route = inject(ActivatedRoute);

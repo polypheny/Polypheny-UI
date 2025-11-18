@@ -16,8 +16,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {TabsModule} from 'ngx-bootstrap/tabs';
-import {NgChartsModule} from 'ng2-charts';
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {ComponentsModule} from './components/components.module';
 import {
     AvatarComponent,
@@ -56,9 +55,10 @@ import {
     ProgressComponent,
     RowComponent,
     SidebarComponent,
+    SidebarFooterComponent,
     SidebarNavComponent,
     SidebarToggleDirective,
-    SidebarTogglerComponent,
+    SidebarTogglerDirective,
     ToastBodyComponent,
     ToastCloseDirective,
     ToastComponent,
@@ -66,7 +66,7 @@ import {
     ToastHeaderComponent,
     TooltipDirective
 } from '@coreui/angular';
-import {DefaultLayoutComponent} from './containers/default-layout';
+import {DefaultLayoutComponent} from './containers';
 import {P404Component} from './views/error/404.component';
 import {P500Component} from './views/error/500.component';
 import {LoginComponent} from './views/login/login.component';
@@ -79,22 +79,29 @@ import {NotebooksModule} from './plugins/notebooks/notebooks.module';
 import {IconDirective} from '@coreui/icons-angular';
 import {WorkflowsModule} from './plugins/workflows/workflows.module';
 import {MarkdownModule} from 'ngx-markdown';
+import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
 
 
 @NgModule({
-    imports: [
-        ComponentsModule,
+    declarations: [
+        AppComponent,
+        DefaultLayoutComponent,
+        P404Component,
+        P500Component,
+        LoginComponent
+    ],
+    bootstrap: [AppComponent],
+    exports: [], imports: [ComponentsModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
         BsDropdownModule.forRoot(),
         TabsModule.forRoot(),
-        NgChartsModule,
         // plugins
         NotebooksModule,
         WorkflowsModule,
         ToastComponent,
-        NgChartsModule,
+        BaseChartDirective,
         ToasterComponent,
         // coreui / bootstrap
         TooltipModule.forRoot(),
@@ -103,7 +110,6 @@ import {MarkdownModule} from 'ngx-markdown';
         ReactiveFormsModule,
         BsDropdownModule,
         TypeaheadModule.forRoot(),
-        HttpClientModule,
         ViewsModule,
         PopoverModule.forRoot(),
         ModalModule.forRoot(),
@@ -125,7 +131,6 @@ import {MarkdownModule} from 'ngx-markdown';
         DropdownItemDirective,
         DropdownMenuDirective,
         HeaderTogglerDirective,
-        SidebarTogglerComponent,
         SidebarNavComponent,
         IconDirective,
         RowComponent,
@@ -155,21 +160,16 @@ import {MarkdownModule} from 'ngx-markdown';
         CollapseDirective,
         NavbarBrandDirective,
         NavbarNavComponent,
-        MarkdownModule.forRoot()
+        MarkdownModule.forRoot(), SidebarFooterComponent, SidebarTogglerDirective
     ],
-    declarations: [
-        AppComponent,
-        DefaultLayoutComponent,
-        P404Component,
-        P500Component,
-        LoginComponent
-    ],
-    providers: [{
-        provide: LocationStrategy,
-        useClass: HashLocationStrategy
-    }],
-    bootstrap: [AppComponent],
-    exports: []
+    providers: [
+        {
+            provide: LocationStrategy,
+            useClass: HashLocationStrategy
+        },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideCharts(withDefaultRegisterables())
+    ]
 })
 export class AppModule {
 }

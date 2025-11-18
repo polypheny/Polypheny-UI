@@ -16,18 +16,22 @@
                    (click)="setTab('column')"
                    role="tab">Columns</a>
             </li>
-            <li class="nav-item" role="presentation" *ngIf="entity()?.entityType !== EntityType.VIEW">
-                <a class="nav-link"
-                   [ngClass]="{'active': activeTab() === 'source'}"
-                   (click)="setTab('source')"
-                   role="tab">Source</a>
-            </li>
-            <li class="nav-item" role="presentation" *ngIf="foreignKeys() && foreignKeys().length > 0 && entity()?.entityType !== EntityType.MATERIALIZED_VIEW">
-                <a class="nav-link"
-                   [ngClass]="{'active': activeTab() === 'foreign'}"
-                   (click)="setTab('foreign')"
-                   role="tab">Foreign Keys</a>
-            </li>
+            @if (entity()?.entityType !== EntityType.VIEW) {
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'source'}"
+                       (click)="setTab('source')"
+                       role="tab">Source</a>
+                </li>
+            }
+            @if (foreignKeys() && foreignKeys().length > 0 && entity()?.entityType !== EntityType.MATERIALIZED_VIEW) {
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link"
+                       [ngClass]="{'active': activeTab() === 'foreign'}"
+                       (click)="setTab('foreign')"
+                       role="tab">Foreign Keys</a>
+                </li>
+            }
             <li class="nav-item" role="presentation">
                 <a class="nav-link"
                    [ngClass]="{'active': activeTab() === 'statistics'}"
@@ -40,153 +44,208 @@
 
 <c-row>
     <c-col [hidden]="activeTab() !== 'column'">
-        <table cTable striped="true" hover="true" id="sourceTable" *ngIf="entity()">
-            <thead>
-            <tr>
-                <th class="small-col">PK</th>
-                <th>Name</th>
-                <th>Nullable</th>
-                <th>Type</th>
-                <th>Collection</th>
-                <th>Parameters</th>
-                <th class="small-col"></th>
-            </tr>
-            </thead>
-            <tbody>
-                @for (col of columns(); track col.id; let i = $index) {
-                    <tr [ngClass]="{'editing': editingCol === col.name}">
-                        <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
-                        <td>
-                            <span *ngIf="editingCol !== col.name">{{ col.name }}</span>
-                            <i *ngIf="editingCol !== col.name" class="cil-pencil rename ms-2"
-                               (click)="editingCol = col.name"></i>
-                            <c-input-group sizing="sm"
-                                           *ngIf="editingCol === col.name"
-                                           style="max-width: 200px">
-                                <input type="text" cFormControl [placeholder]="col.name" autofocus
-                                       (keyup.enter)="renameColumn(columnNameInput, col, columnNameInput.value, entity().entityType)"
-                                       #columnNameInput>
-
-                                <button cButton size="sm" color="primary"
-                                        [disabled]="!validTableName(columnNameInput.value)"
-                                        (click)="renameColumn(columnNameInput,col,columnNameInput.value,entity().entityType)">
-                                    rename
-                                </button>
-
-                            </c-input-group>
-                        </td>
-                        <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
-                        <td>{{ col.dataType }}</td>
-                        <td>{{ col.collectionsType }}</td>
-                        <td>
-                    <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder( col.dataType ) }}
-                        : {{ col.precision }}</span>
-                            <span class="parameter" *ngIf="col.scale">scale: {{ col.scale }}</span>
-                            <span class="parameter" *ngIf="col.dimension !== -1">dimension: {{ col.dimension }}</span>
-                            <span class="parameter"
-                                  *ngIf="col.cardinality !== -1">cardinality: {{ col.cardinality }}</span>
-                        </td>
-                        <th class="small-col">
-                            <app-delete-confirm *ngIf="(placements != null && entity()?.entityType !== EntityType.VIEW)"
-                                                (delete)="dropColumn(col)"></app-delete-confirm>
-                        </th>
-                    </tr>
-                }
-                @for (col of getAddableColumns() | async; track col.id) {
-                    <tr class="hidden-col" [ngClass]="{'editing': editingCol === col.name}">
-                        <ng-container *ngIf="editingCol !== col.name">
-                            <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
-                            <td>{{ col.name }}</td>
-                            <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
+        @if (entity()) {
+            <table cTable striped="true" hover="true" id="sourceTable">
+                <thead>
+                <tr>
+                    <th class="small-col">PK</th>
+                    <th>Name</th>
+                    <th>Nullable</th>
+                    <th>Type</th>
+                    <th>Collection</th>
+                    <th>Parameters</th>
+                    <th class="small-col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (col of columns(); track col.id; let i = $index) {
+                        <tr [ngClass]="{'editing': editingCol === col.name}">
+                            <td class="small-col">@if (col.primary) {
+                                <i class="icon-key"></i>
+                            }</td>
+                            <td>
+                                @if (editingCol !== col.name) {
+                                    <span>{{ col.name }}</span>
+                                }
+                                @if (editingCol !== col.name) {
+                                    <i class="cil-pencil rename ms-2"
+                                       (click)="editingCol = col.name"></i>
+                                }
+                                @if (editingCol === col.name) {
+                                    <c-input-group sizing="sm"
+                                                   style="max-width: 200px">
+                                        <input type="text" cFormControl [placeholder]="col.name" autofocus
+                                               (keyup.enter)="renameColumn(columnNameInput, col, columnNameInput.value, entity().entityType)"
+                                               #columnNameInput>
+                                        <button cButton size="sm" color="primary"
+                                                [disabled]="!validTableName(columnNameInput.value)"
+                                                (click)="renameColumn(columnNameInput,col,columnNameInput.value,entity().entityType)">
+                                            rename
+                                        </button>
+                                    </c-input-group>
+                                }
+                            </td>
+                            <td>@if (col.nullable) {
+                                <i class="fa fa-check"></i>
+                            }</td>
                             <td>{{ col.dataType }}</td>
                             <td>{{ col.collectionsType }}</td>
                             <td>
-                        <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder( col.dataType ) }}
-                            : {{ col.precision }}</span>
-                                <span class="parameter" *ngIf="col.scale">scale: {{ col.scale }}</span>
-                                <span class="parameter" *ngIf="col.dimension">dimension: {{ col.dimension }}</span>
-                                <span class="parameter"
-                                      *ngIf="col.cardinality">cardinality: {{ col.cardinality }}</span>
+                                @if (col.precision) {
+                                    <span class="parameter">{{ _types.precisionPlaceholder( col.dataType ) }}
+                                        : {{ col.precision }}</span>
+                                }
+                                @if (col.scale) {
+                                    <span class="parameter">scale: {{ col.scale }}</span>
+                                }
+                                @if (col.dimension !== -1) {
+                                    <span class="parameter">dimension: {{ col.dimension }}</span>
+                                }
+                                @if (col.cardinality !== -1) {
+                                    <span class="parameter"
+                                    >cardinality: {{ col.cardinality }}</span>
+                                }
                             </td>
-                            <td>{{ col.defaultValue }}</td>
-                            <th class="small-col"><i class="fa fa-eye add-col" (click)="editingCol = col.name"></i></th>
-                        </ng-container>
-                        <ng-container *ngIf="editingCol === col.name">
-                            <td class="small-col"><i class="icon-key" *ngIf="col.primary"></i></td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm" style="max-width: 250px"
-                                       [value]="col.name" placeholder="name" #newName
-                                       (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
-                            </td>
-                            <td><i class="fa fa-check" *ngIf="col.nullable"></i></td>
-                            <td>{{ col.dataType }}</td>
-                            <td>{{ col.collectionsType }}</td>
-                            <td>
-                        <span class="parameter" *ngIf="col.precision">{{ _types.precisionPlaceholder( col.dataType ) }}
-                            : {{ col.precision }}</span>
-                                <span class="parameter" *ngIf="col.scale">scale: {{ col.scale }}</span>
-                                <span class="parameter" *ngIf="col.dimension">dimension: {{ col.dimension }}</span>
-                                <span class="parameter"
-                                      *ngIf="col.cardinality">cardinality: {{ col.cardinality }}</span>
-                            </td>
-                            <td class="testing"
-                                [hidden]="!(placements != null && entity()?.entityType !== EntityType.VIEW)">
-                                <input type="text" class="form-control form-control-sm" placeholder="default value"
-                                       style="max-width: 250px" #newDefault
-                                       (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
-                            </td>
-                            <th class="small-col"><i class="fa fa-save add-col btn btn-primary btn-sm"
-                                                     (click)="addColumn(col, newName.value, newDefault.value)"></i></th>
-                        </ng-container>
+                            <th class="small-col">
+                                @if ((placements != null && entity()?.entityType !== EntityType.VIEW)) {
+                                    <app-delete-confirm
+                                            (delete)="dropColumn(col)"></app-delete-confirm>
+                                }
+                            </th>
+                        </tr>
+                    }
+                    @for (col of getAddableColumns() | async; track col.id) {
+                        <tr class="hidden-col" [ngClass]="{'editing': editingCol === col.name}">
+                            @if (editingCol !== col.name) {
+                                <td class="small-col">@if (col.primary) {
+                                    <i class="icon-key"></i>
+                                }</td>
+                                <td>{{ col.name }}</td>
+                                <td>@if (col.nullable) {
+                                    <i class="fa fa-check"></i>
+                                }</td>
+                                <td>{{ col.dataType }}</td>
+                                <td>{{ col.collectionsType }}</td>
+                                <td>
+                                    @if (col.precision) {
+                                        <span class="parameter">{{ _types.precisionPlaceholder( col.dataType ) }}
+                                            : {{ col.precision }}</span>
+                                    }
+                                    @if (col.scale) {
+                                        <span class="parameter">scale: {{ col.scale }}</span>
+                                    }
+                                    @if (col.dimension) {
+                                        <span class="parameter">dimension: {{ col.dimension }}</span>
+                                    }
+                                    @if (col.cardinality) {
+                                        <span class="parameter"
+                                        >cardinality: {{ col.cardinality }}</span>
+                                    }
+                                </td>
+                                <td>{{ col.defaultValue }}</td>
+                                <th class="small-col"><i class="fa fa-eye add-col" (click)="editingCol = col.name"></i></th>
+                            }
+                            @if (editingCol === col.name) {
+                                <td class="small-col">@if (col.primary) {
+                                    <i class="icon-key"></i>
+                                }</td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm" style="max-width: 250px"
+                                           [value]="col.name" placeholder="name" #newName
+                                           (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
+                                </td>
+                                <td>@if (col.nullable) {
+                                    <i class="fa fa-check"></i>
+                                }</td>
+                                <td>{{ col.dataType }}</td>
+                                <td>{{ col.collectionsType }}</td>
+                                <td>
+                                    @if (col.precision) {
+                                        <span class="parameter">{{ _types.precisionPlaceholder( col.dataType ) }}
+                                            : {{ col.precision }}</span>
+                                    }
+                                    @if (col.scale) {
+                                        <span class="parameter">scale: {{ col.scale }}</span>
+                                    }
+                                    @if (col.dimension) {
+                                        <span class="parameter">dimension: {{ col.dimension }}</span>
+                                    }
+                                    @if (col.cardinality) {
+                                        <span class="parameter"
+                                        >cardinality: {{ col.cardinality }}</span>
+                                    }
+                                </td>
+                                <td class="testing"
+                                    [hidden]="!(placements != null && entity()?.entityType !== EntityType.VIEW)">
+                                    <input type="text" class="form-control form-control-sm" placeholder="default value"
+                                           style="max-width: 250px" #newDefault
+                                           (keyup.enter)="addColumn(col, newName.value, newDefault.value)">
+                                </td>
+                                <th class="small-col"><i class="fa fa-save add-col btn btn-primary btn-sm"
+                                                         (click)="addColumn(col, newName.value, newDefault.value)"></i></th>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </c-col>
+
+    @if (entity()?.entityType !== EntityType.VIEW) {
+        <c-col [hidden]="activeTab() !== 'source'">
+            @if (columns()) {
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>Unique name</th>
+                        <th>Adapter</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </c-col>
+                    </thead>
+                    <tbody>
+                        @for (store of getAdapters()(); track store.id) {
+                            <tr>
+                                <td>{{ store.name }}</td>
+                                <td>{{ store.adapterName }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </c-col>
+    }
 
-    <c-col [hidden]="activeTab() !== 'source'" *ngIf="entity()?.entityType !== EntityType.VIEW">
-        <table class="table table-hover table-striped" *ngIf="columns()">
-            <thead>
-            <tr>
-                <th>Unique name</th>
-                <th>Adapter</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let store of getAdapters()()">
-                <td>{{ store.name }}</td>
-                <td>{{ store.adapterName }}</td>
-            </tr>
-            </tbody>
-        </table>
-    </c-col>
+    @if (foreignKeys() && foreignKeys().length > 0) {
+        <c-col>
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>FK Name</th>
+                    <th>Column Name</th>
+                    <th>Target Table</th>
+                    <th>Target Column</th>
+                    <th>Update Enforcement</th>
+                    <th>Delete Enforcement</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (fk of foreignKeys(); track fk; let i = $index) {
+                        <tr>
+                            <td>{{ fk.fkName }}</td>
+                            <td>{{ fk.sourceColumn }}</td>
+                            <td>{{ fk.targetTable }}</td>
+                            <td>{{ fk.targetColumn }}</td>
+                            <td>{{ fk.onUpdate }}</td>
+                            <td>{{ fk.onDelete }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </c-col>
+    }
 
-    <c-col *ngIf="foreignKeys() && foreignKeys().length > 0">
-        <table class="table table-hover table-striped">
-            <thead>
-            <tr>
-                <th>FK Name</th>
-                <th>Column Name</th>
-                <th>Target Table</th>
-                <th>Target Column</th>
-                <th>Update Enforcement</th>
-                <th>Delete Enforcement</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let fk of foreignKeys(); let i = index">
-                <td>{{ fk.fkName }}</td>
-                <td>{{ fk.sourceColumn }}</td>
-                <td>{{ fk.targetTable }}</td>
-                <td>{{ fk.targetColumn }}</td>
-                <td>{{ fk.onUpdate }}</td>
-                <td>{{ fk.onDelete }}</td>
-            </tr>
-            </tbody>
-        </table>
-    </c-col>
-
-    <c-col *ngIf="activeTab() === 'statistics'">
-        <app-statistics-column [entity]="entity()"></app-statistics-column>
-    </c-col>
+    @if (activeTab() === 'statistics') {
+        <c-col>
+            <app-statistics-column [entity]="entity()"></app-statistics-column>
+        </c-col>
+    }
 </c-row>

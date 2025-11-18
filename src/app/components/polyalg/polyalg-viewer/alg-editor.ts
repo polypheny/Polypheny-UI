@@ -2,7 +2,7 @@ import {Injector, WritableSignal} from '@angular/core';
 import {GetSchemes, NodeEditor} from 'rete';
 import {AreaExtensions, AreaPlugin, BaseAreaPlugin} from 'rete-area-plugin';
 import {ConnectionPlugin, Presets as ConnectionPresets} from 'rete-connection-plugin';
-import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/17';
+import {AngularArea2D, AngularPlugin, Presets} from 'rete-angular-plugin/20';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {AutoArrangePlugin} from 'rete-auto-arrange-plugin';
 import {AlgNode, AlgNodeComponent} from '../algnode/alg-node.component';
@@ -16,16 +16,9 @@ import {getDOMSocketPosition} from 'rete-render-utils';
 import {ContextMenuExtra, ContextMenuPlugin, Presets as ContextMenuPresets} from 'rete-context-menu-plugin';
 import {PolyAlgService} from '../polyalg.service';
 import {DataflowEngine} from 'rete-engine';
-import {Position} from 'rete-angular-plugin/17/types';
+import {Position} from 'rete-angular-plugin/types';
 import {Subject} from 'rxjs';
-import {
-    canCreateConnection,
-    findRootNodeId,
-    getContextMenuNodes,
-    getMagneticConnectionProps,
-    updateMultiConnAfterCreate,
-    updateMultiConnAfterRemove
-} from './alg-editor-utils';
+import {canCreateConnection, findRootNodeId, getContextMenuNodes, getMagneticConnectionProps, updateMultiConnAfterCreate, updateMultiConnAfterRemove} from './alg-editor-utils';
 import {setupPanningBoundary} from './panning-boundary';
 import {useMagneticConnection} from './magnetic-connection';
 import {MagneticConnectionComponent} from './magnetic-connection/magnetic-connection.component';
@@ -160,7 +153,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     if (oldTransform) {
         await area.area.zoom(oldTransform.k, oldTransform.x, oldTransform.y);
     } else {
-        AreaExtensions.zoomAt(area, editor.getNodes());
+        await AreaExtensions.zoomAt(area, editor.getNodes());
     }
 
     const modifyingEventTypes = new Set(['nodecreated', 'noderemoved', 'connectioncreated', 'connectionremoved']);
@@ -197,7 +190,7 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
             await arrange.layout({
                 applier: undefined, options: layoutOpts
             });
-            AreaExtensions.zoomAt(area, editor.getNodes());
+            await AreaExtensions.zoomAt(area, editor.getNodes());
         },
         destroy: () => {
             area.destroy();

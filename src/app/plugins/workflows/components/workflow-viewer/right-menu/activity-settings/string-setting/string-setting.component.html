@@ -17,9 +17,11 @@
         </app-autocomplete>
     </div>
     @if (def().autoComplete === 'WORKFLOW_NAMES') {
-        <div cFormText *ngIf="workflowNamesToId.get(value())">
-            ID: <span class="user-select-all">{{ workflowNamesToId.get( value() ) }}</span>
-        </div>
+        @if (workflowNamesToId.get( value() )) {
+            <div cFormText>
+                ID: <span class="user-select-all">{{ workflowNamesToId.get( value() ) }}</span>
+            </div>
+        }
     }
 } @else {
     <input cFormControl sizing="sm" id="setting" [placeholder]="def().containsRegex ? 'regex' : 'value'"

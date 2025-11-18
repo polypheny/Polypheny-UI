@@ -3,7 +3,7 @@
         <c-col [lg]="9">
             <c-button-toolbar role="group" aria-label="Toolbar with button groups" class="row-gap-2">
                 <button cButton color="danger" variant="outline" class="me-4 flex-grow-0"
-                        (click)="closeNotebookModal.show()">Close
+                        (click)="closeNotebookModal.visible = true">Close
                 </button>
                 <c-button-group size="sm" class="me-2" role="group" aria-label="Save">
                     <button cButton color="light" type="button" (click)="uploadNotebook()"
@@ -26,7 +26,7 @@
                             >
                                 <span>Trust Notebook</span>
                             </a>
-                            <a class="dropdown-item" (click)="renameNotebookModal.show()">
+                            <a class="dropdown-item" (click)="renameNotebookModal.visible = true">
                                 <span>Rename</span>
                             </a>
                             <a class="dropdown-item" (click)="duplicateNotebook()">
@@ -43,7 +43,7 @@
                             >
                                 <span>Export</span>
                             </a>
-                            <a class="dropdown-item" (click)="deleteNotebookModal.show()">
+                            <a class="dropdown-item" (click)="deleteNotebookModal.visible = true">
                                 <span>Delete</span>
                             </a>
                         </div>
@@ -60,10 +60,10 @@
                             <a class="dropdown-item" (click)="toggleExpansion()"
                                cTooltip="Toggle the ability to expand '${var_name}' by its value. Use with care, as this can lead to unwanted query injections!"
                             >
-                            <span>
-                                <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
-                                Variable Expansion
-                            </span>
+                <span>
+                  <i class="fa" [ngClass]="{'fa-square-o': !expand, 'fa-check-square-o': expand}"></i>
+                  Variable Expansion
+                </span>
                             </a>
                             <a class="dropdown-item" (click)="executeSelected(true)">
                                 <span>Run Selected Cell</span>
@@ -106,10 +106,10 @@
                             <a class="dropdown-item" (click)="requestRestart(true)">
                                 <span>Restart Kernel and Run All Cells</span>
                             </a>
-                            <a class="dropdown-item" (click)="terminateKernelModal.show()">
+                            <a class="dropdown-item" (click)="terminateKernelModal.visible = true">
                                 <span>Shut Down Kernel</span>
                             </a>
-                            <a class="dropdown-item" (click)="terminateAllKernelsModal.show()">
+                            <a class="dropdown-item" (click)="terminateAllKernelsModal.visible = true">
                                 <span>Shut Down All Kernels</span>
                             </a>
                         </div>
@@ -144,7 +144,7 @@
                     </button>
                 </c-button-group>
                 <div class="btn-group" role="group">
-                    <select cButton class="form-select me-1 bg-light text-black pe-5" aria-label="Select Cell Type"
+                    <select cSelect class="bg-light border-0 me-1 pe-5" aria-label="Select Cell Type"
                             (change)="onTypeChange($event)"
                             [(ngModel)]="selectedCellType">
                         <option value="code">Code</option>
@@ -167,45 +167,49 @@
         </c-col>
     </c-row>
 </c-container>
-<div class="nb-scroll" *ngIf="session; else elseNoSession" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
-    <h1 class="nb-title mx-4">{{ name }}</h1>
-    <div class="nb-background mt-4 mx-3 pt-4">
-        <ng-container *ngIf="nb">
-            <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
-                <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
-                     *ngFor="let cell of nb.cells; let i = index; trackBy:identify">
-                    <app-nb-cell #nbCell
-                                 [id]="cell.id"
-                                 [cell]="cell"
-                                 [isFocused]="cell.id === selectedCell.id"
-                                 [isExecuting]="busyCellIds.has(cell.id)"
-                                 [isFirst]="i === 0"
-                                 [isLast]="i === nb.cells.length-1"
-                                 [selectedCellType]="selectedCellType"
-                                 [(mode)]="mode"
-                                 [nbLanguage]="kernelSpec?.spec?.language || 'python'"
-                                 [isTrusted]="nb.trustedCellIds.has(cell.id)"
-                                 (execute)="nb.executeCell($event)"
-                                 (insert)="insertCell(cell.id, $event)"
-                                 (move)="moveCell(i, $event)"
-                                 (duplicate)="duplicateCell(cell.id)"
-                                 (delete)="deleteCell($event)"
-                                 (selected)="selectCell($event)"
-                                 (changeType)="onTypeChange($event)">
-                        <div class="nb-drag-handle" cdkDragHandle></div>
-                    </app-nb-cell>
-                    <div *cdkDragPreview class="drop-preview">
-                        <span class="text-secondary me-4" *ngIf="cell.cell_type === 'code'">[ ]:</span>
-                        <span>{{ getPreviewText( cell ) }}</span>
-                    </div>
-                    <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
+@if (session) {
+    <div class="nb-scroll" tabindex="-1" id="notebook" (keydown)="keyDown($event)">
+        <h1 class="nb-title mx-4">{{ name }}</h1>
+        <div class="nb-background mt-4 mx-3 pt-4">
+            @if (nb) {
+                <div cdkDropList class="drop-list" (cdkDropListDropped)="drop($event)">
+                    @for (cell of nb.cells; track identify( i, cell ); let i = $index) {
+                        <div class="drop-box" cdkDrag cdkDragBoundary=".nb-background"
+                        >
+                            <app-nb-cell #nbCell
+                                         [id]="cell.id"
+                                         [cell]="cell"
+                                         [isFocused]="cell.id === selectedCell.id"
+                                         [isExecuting]="busyCellIds.has(cell.id)"
+                                         [isFirst]="i === 0"
+                                         [isLast]="i === nb.cells.length-1"
+                                         [selectedCellType]="selectedCellType"
+                                         [(mode)]="mode"
+                                         [nbLanguage]="kernelSpec?.spec?.language || 'python'"
+                                         [isTrusted]="nb.trustedCellIds.has(cell.id)"
+                                         (execute)="nb.executeCell($event)"
+                                         (insert)="insertCell(cell.id, $event)"
+                                         (move)="moveCell(i, $event)"
+                                         (duplicate)="duplicateCell(cell.id)"
+                                         (delete)="deleteCell($event)"
+                                         (selected)="selectCell($event)"
+                                         (changeType)="onTypeChange($event)">
+                                <div class="nb-drag-handle" cdkDragHandle></div>
+                            </app-nb-cell>
+                            <div *cdkDragPreview class="drop-preview">
+                                @if (cell.cell_type === 'code') {
+                                    <span class="text-secondary me-4">[ ]:</span>
+                                }
+                                <span>{{ getPreviewText( cell ) }}</span>
+                            </div>
+                            <div class="example-custom-placeholder bg-primary" *cdkDragPlaceholder></div>
+                        </div>
+                    }
                 </div>
-            </div>
-
-        </ng-container>
+            }
+        </div>
     </div>
-</div>
-<ng-template #elseNoSession>
+} @else {
     <c-container>
         <h1 class="nb-title">The Selected Kernel No Longer Exists</h1>
         <p>You can either close the notebook (you can save your changes if you want), or start a new kernel</p>
@@ -214,20 +218,19 @@
             Create New Kernel
         </button>
         <button cButton color="primary" type="button" class="ms-4" style="white-space: nowrap"
-                (click)="closeNotebookModal.show()">
+                (click)="closeNotebookModal.visible = true">
             Close Notebook
         </button>
-
     </c-container>
-</ng-template>
+}
 
 
-<c-modal bsModal #deleteNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #deleteNotebookModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="deleteNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Delete Notebook</h4>
-            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.hide()"
+            <button cButtonClose type="button" class="close" (click)="deleteNotebookModal.visible = false"
                     aria-label="Close"></button>
         </c-modal-header>
 
@@ -235,22 +238,26 @@
             <p>Are you sure you want to delete this notebook?</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="deleteNotebookModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="deleteNotebookModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="deleteNotebook()"
                     [disabled]="deleting">
-                <span *ngIf="!deleting">Delete</span>
-                <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!deleting) {
+                    <span>Delete</span>
+                }
+                @if (deleting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #overwriteNotebookModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #overwriteNotebookModal tabindex="-1" role="dialog"
          aria-labelledby="deleteNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Notebook Changed</h4>
-            <button cButtonClose type="button" class="close" (click)="overwriteNotebookModal.hide()" aria-label="Close">
+            <button cButtonClose type="button" class="close" (click)="overwriteNotebookModal.visible = false" aria-label="Close">
             </button>
         </c-modal-header>
         <c-modal-body>
@@ -259,33 +266,41 @@
                 and revert to the version on disk.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="overwriteNotebookModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="overwriteNotebookModal.visible = false">Cancel</button>
             <button cButton color="secondary" type="button" (click)="revertNotebook()" [disabled]="overwriting">
-                <span *ngIf="!overwriting">Revert</span>
-                <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!overwriting) {
+                    <span>Revert</span>
+                }
+                @if (overwriting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
             <button cButton color="danger" type="button" (click)="overwriteNotebook()"
                     [disabled]="overwriting">
-                <span *ngIf="!overwriting">Overwrite</span>
-                <span *ngIf="overwriting" class="spinner-border spinner-border-sm" role="status"></span>
+                @if (!overwriting) {
+                    <span>Overwrite</span>
+                }
+                @if (overwriting) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
             </button>
         </c-modal-footer>
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #restartKernelModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #restartKernelModal class="modal" tabindex="-1" role="dialog"
          aria-labelledby="restartKernelModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Restart Kernel</h4>
-            <button cButtonClose type="button" (click)="restartKernelModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="restartKernelModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body class="modal-body">
             <p>Are you sure you want to restart the kernel? All variables will be lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="restartKernelModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="restartKernelModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="restartKernel()"
                     [disabled]="deleting">Restart
             </button>
@@ -293,12 +308,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #renameNotebookModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #renameNotebookModal tabindex="-1" role="dialog"
          aria-labelledby="renameNotebookModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Rename File</h4>
-            <button cButtonClose type="button" (click)="renameNotebookModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="renameNotebookModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -311,7 +326,7 @@
             </form>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="renameNotebookModal.hide()">Close</button>
+            <button cButton color="secondary" type="button" (click)="renameNotebookModal.visible = false">Close</button>
             <button cButton color="primary" type="submit" class="pull-right" (click)="rename()"
                     [disabled]="!renameNotebookForm.valid">Rename
             </button>
@@ -319,7 +334,7 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #closeNotebookModal="bs-modal" class="modal" tabindex="-1" role="dialog"
+<c-modal #closeNotebookModal class="modal" tabindex="-1" role="dialog" [keyboard]="false" [backdrop]="'static'"
          aria-labelledby="terminateKernelModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
@@ -338,13 +353,15 @@
                         Save Changes (overwriting the file on disk)
                     </label>
                 </div>
-                <div class="form-check" *ngIf="session">
-                    <input class="form-check-input" type="checkbox" formControlName="shutDown"
-                           id="shutDown-chkbx">
-                    <label class="form-check-label" for="shutDown-chkbx">
-                        Shut Down Kernel
-                    </label>
-                </div>
+                @if (session) {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" formControlName="shutDown"
+                               id="shutDown-chkbx">
+                        <label class="form-check-label" for="shutDown-chkbx">
+                            Shut Down Kernel
+                        </label>
+                    </div>
+                }
             </form>
         </c-modal-body>
         <c-modal-footer>
@@ -356,13 +373,13 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #terminateKernelModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #terminateKernelModal tabindex="-1" role="dialog"
          aria-labelledby="terminateKernelModal" aria-hidden="true">
 
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Shut Down Kernel and Close Notebook</h4>
-            <button cButtonClose type="button" (click)="terminateKernelModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="terminateKernelModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -370,7 +387,7 @@
                 lost.</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="terminateKernelModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="terminateKernelModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="closeAndTerminate(false)"
                     [disabled]="deleting">Shut Down
             </button>
@@ -378,12 +395,12 @@
     </c-modal-content>
 </c-modal>
 
-<c-modal bsModal #terminateAllKernelsModal="bs-modal" tabindex="-1" role="dialog"
+<c-modal #terminateAllKernelsModal tabindex="-1" role="dialog"
          aria-labelledby="terminateAllKernelsModal" aria-hidden="true">
     <c-modal-content>
         <c-modal-header>
             <h4 cModalTitle>Shut Down All Kernels and Close Notebook</h4>
-            <button cButtonClose type="button" (click)="terminateAllKernelsModal.hide()" aria-label="Close"></button>
+            <button cButtonClose type="button" (click)="terminateAllKernelsModal.visible = false" aria-label="Close"></button>
         </c-modal-header>
 
         <c-modal-body>
@@ -391,7 +408,7 @@
                 lost!</p>
         </c-modal-body>
         <c-modal-footer>
-            <button cButton color="secondary" type="button" (click)="terminateAllKernelsModal.hide()">Cancel</button>
+            <button cButton color="secondary" type="button" (click)="terminateAllKernelsModal.visible = false">Cancel</button>
             <button cButton color="danger" type="button" (click)="closeAndTerminate(true)"
                     [disabled]="deleting">Shut Down All
             </button>

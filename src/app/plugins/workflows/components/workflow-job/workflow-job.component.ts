@@ -11,7 +11,8 @@ import {Workflow} from '../workflow-viewer/workflow';
 @Component({
     selector: 'app-workflow-job',
     templateUrl: './workflow-job.component.html',
-    styleUrl: './workflow-job.component.scss'
+    styleUrl: './workflow-job.component.scss',
+    standalone: false
 })
 export class WorkflowJobComponent implements OnInit, OnDestroy {
     private readonly _route = inject(ActivatedRoute);
@@ -49,7 +50,7 @@ export class WorkflowJobComponent implements OnInit, OnDestroy {
                 this.session.set(null);
                 this.workflow.set(null);
             }
-        }, {allowSignalWrites: true});
+        });
     }
 
     ngOnInit(): void {

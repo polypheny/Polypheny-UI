@@ -1,3 +1,4 @@
+@use "sass:color";
 
 #collapse, #expand {
   color: black;
@@ -5,7 +6,13 @@
 
 #search-tree {
   border: none;
+
+  &::placeholder {
+    color: var(--cui-dark);
+    opacity: 1;
+  }
 }
+
 
 #search-group, .btn-group {
   margin-bottom: 0.5rem;
@@ -46,7 +53,7 @@
   margin-left: 1rem;
 
   &:hover {
-    background: lighten(#20a8d8, 30%);
+    background: color.adjust(#20a8d8, $lightness: 30%);
     cursor: pointer;
   }
 }
@@ -96,5 +103,9 @@
 
 .node-content-wrapper:hover {
   background: #ebedef;
+  color: #3d434a;
+}
+
+.node-content-wrapper-active {
   color: #3d434a;
 }

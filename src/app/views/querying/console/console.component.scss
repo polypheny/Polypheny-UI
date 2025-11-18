@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .btn-group {
   margin-bottom: 1em;
 }
@@ -31,13 +33,13 @@ select {
 
 
   .empty {
-    color: lighten(#000, 66%);
+    color: color.adjust(#000, $lightness: 66%);
     border: none;
   }
 
   .time {
     //font-size: 0.5em;
-    color: lighten(#000, 66%);
+    color: color.adjust(#000, $lightness: 66%);
   }
 
   .history-item {
