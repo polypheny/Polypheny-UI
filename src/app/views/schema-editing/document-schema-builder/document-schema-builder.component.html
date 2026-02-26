@@ -1,0 +1,270 @@
+<c-modal
+        [visible]="visible"
+        (visibleChange)="setVisible($event)"
+        size="xl"
+        alignment="center"
+        backdrop="static"
+>
+    <c-modal-header>
+        <h5 cModalTitle>Document schema builder</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+    </c-modal-header>
+
+    <c-modal-body>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="btn-group btn-group-sm">
+                <button cButton [color]="activeTab === 'builder' ? 'primary' : 'light'" (click)="switchTab('builder')">Builder</button>
+                <button cButton [color]="activeTab === 'json' ? 'primary' : 'light'" (click)="switchTab('json')">JSON</button>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <label class="form-label mb-0">validationAction</label>
+                <select class="form-select form-select-sm" style="max-width: 160px" [(ngModel)]="validationAction" (ngModelChange)="onBuilderChange()">
+                    <option value="off">off</option>
+                    <option value="warn">warn</option>
+                    <option value="strict">strict</option>
+                </select>
+
+                <div class="form-check ms-2">
+                    <input class="form-check-input" type="checkbox" id="additionalProps" [(ngModel)]="additionalProperties" (ngModelChange)="onBuilderChange()">
+                    <label class="form-check-label" for="additionalProps">allow additional properties</label>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="parseError" class="alert alert-warning py-2">
+            {{parseError}}
+        </div>
+
+        <div class="row g-3">
+            <!-- LEFT -->
+            <div class="col-lg-7">
+
+                <!-- Builder tab -->
+                <div *ngIf="activeTab === 'builder'">
+
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <strong>Fields</strong>
+                        <button cButton color="primary" size="sm" (click)="addTopLevelField()">Add field</button>
+                    </div>
+
+                    <div *ngIf="fields.length === 0" class="text-muted small">
+                        No fields yet. Add your first field.
+                    </div>
+
+                    <!-- Node template (for array items etc., no name, no remove) -->
+                    <ng-template #nodeTpl let-node let-level="level">
+                        <div class="schema-node" [style.marginLeft.px]="level * 14">
+                            <div class="d-flex align-items-start flex-wrap gap-2">
+                                <select class="form-select form-select-sm kind-select"
+                                        [(ngModel)]="node.kind"
+                                        (ngModelChange)="setKind(node, $event)">
+                                    <option value="scalar">scalar</option>
+                                    <option value="object">object</option>
+                                    <option value="array">array</option>
+                                </select>
+
+                                <!-- Scalar -->
+                                <ng-container *ngIf="node.kind === 'scalar'">
+                                    <select class="form-select form-select-sm type-select"
+                                            [(ngModel)]="node.scalarType"
+                                            (ngModelChange)="setScalarType(node, $event)">
+                                        <option value="text">text</option>
+                                        <option value="string">string</option>
+                                        <option value="number">number</option>
+                                        <option value="boolean">boolean</option>
+                                        <option value="null">null</option>
+                                    </select>
+
+                                    <ng-container *ngIf="isStringType(node.scalarType)">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="minLength"
+                                               [(ngModel)]="node.minLength" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="maxLength"
+                                               [(ngModel)]="node.maxLength" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint-wide" type="text" placeholder="pattern (regex)"
+                                               [(ngModel)]="node.pattern" (ngModelChange)="onBuilderChange()">
+                                    </ng-container>
+
+                                    <ng-container *ngIf="isNumberType(node.scalarType)">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="minimum"
+                                               [(ngModel)]="node.minimum" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="exclusiveMinimum"
+                                               [(ngModel)]="node.exclusiveMinimum" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="maximum"
+                                               [(ngModel)]="node.maximum" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="exclusiveMaximum"
+                                               [(ngModel)]="node.exclusiveMaximum" (ngModelChange)="onBuilderChange()">
+                                    </ng-container>
+                                </ng-container>
+
+                                <!-- Object -->
+                                <ng-container *ngIf="node.kind === 'object'">
+                                    <button cButton color="light" size="sm" (click)="addChildToNode(node)">Add child</button>
+                                    <span class="text-muted small">All declared properties are required.</span>
+                                </ng-container>
+
+                                <!-- Array -->
+                                <ng-container *ngIf="node.kind === 'array'">
+                                    <input class="form-control form-control-sm constraint" type="number" placeholder="minItems"
+                                           [(ngModel)]="node.minItems" (ngModelChange)="onBuilderChange()">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" [(ngModel)]="node.uniqueItems"
+                                               (ngModelChange)="onBuilderChange()" id="unique-node-{{level}}">
+                                        <label class="form-check-label small" for="unique-node-{{level}}">uniqueItems</label>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+
+                        <!-- object children -->
+                        <div *ngIf="node.kind === 'object' && node.properties && node.properties.length > 0" class="mt-1">
+                            <ng-container *ngFor="let child of node.properties; let ci = index">
+                                <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: child, level: level + 1, parentList: node.properties, index: ci }"></ng-container>
+                            </ng-container>
+                        </div>
+
+                        <!-- array items -->
+                        <div *ngIf="node.kind === 'array' && node.items" class="mt-1">
+                            <div class="items-label text-muted small" [style.marginLeft.px]="(level + 1) * 14">items</div>
+                            <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node.items, level: level + 1 }"></ng-container>
+                        </div>
+                    </ng-template>
+
+                    <!-- Field template -->
+                    <ng-template #fieldTpl let-field let-level="level" let-parentList="parentList" let-index="index">
+                        <div class="schema-node" [style.marginLeft.px]="level * 14">
+                            <div class="d-flex align-items-start flex-wrap gap-2">
+
+                                <input class="form-control form-control-sm field-name"
+                                       type="text"
+                                       placeholder="field name"
+                                       [(ngModel)]="field.name"
+                                       (ngModelChange)="onBuilderChange()">
+
+                                <select class="form-select form-select-sm kind-select"
+                                        [(ngModel)]="field.kind"
+                                        (ngModelChange)="setKind(field, $event)">
+                                    <option value="scalar">scalar</option>
+                                    <option value="object">object</option>
+                                    <option value="array">array</option>
+                                </select>
+
+                                <!-- Scalar -->
+                                <ng-container *ngIf="field.kind === 'scalar'">
+                                    <select class="form-select form-select-sm type-select"
+                                            [(ngModel)]="field.scalarType"
+                                            (ngModelChange)="setScalarType(field, $event)">
+                                        <option value="text">text</option>
+                                        <option value="string">string</option>
+                                        <option value="number">number</option>
+                                        <option value="boolean">boolean</option>
+                                        <option value="null">null</option>
+                                    </select>
+
+                                    <ng-container *ngIf="isStringType(field.scalarType)">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="minLength"
+                                               [(ngModel)]="field.minLength" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="maxLength"
+                                               [(ngModel)]="field.maxLength" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint-wide" type="text" placeholder="pattern (regex)"
+                                               [(ngModel)]="field.pattern" (ngModelChange)="onBuilderChange()">
+                                    </ng-container>
+
+                                    <ng-container *ngIf="isNumberType(field.scalarType)">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="minimum"
+                                               [(ngModel)]="field.minimum" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="exclusiveMinimum"
+                                               [(ngModel)]="field.exclusiveMinimum" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="maximum"
+                                               [(ngModel)]="field.maximum" (ngModelChange)="onBuilderChange()">
+                                        <input class="form-control form-control-sm constraint" type="number" placeholder="exclusiveMaximum"
+                                               [(ngModel)]="field.exclusiveMaximum" (ngModelChange)="onBuilderChange()">
+                                    </ng-container>
+                                </ng-container>
+
+                                <!-- Object -->
+                                <ng-container *ngIf="field.kind === 'object'">
+                                    <button cButton color="light" size="sm" (click)="addChildField(field)">Add child</button>
+                                    <span class="text-muted small">All declared properties are required.</span>
+                                </ng-container>
+
+                                <!-- Array -->
+                                <ng-container *ngIf="field.kind === 'array'">
+                                    <input class="form-control form-control-sm constraint" type="number" placeholder="minItems"
+                                           [(ngModel)]="field.minItems" (ngModelChange)="onBuilderChange()">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" [(ngModel)]="field.uniqueItems"
+                                               (ngModelChange)="onBuilderChange()" id="unique-field-{{level}}-{{index}}">
+                                        <label class="form-check-label small" for="unique-field-{{level}}-{{index}}">uniqueItems</label>
+                                    </div>
+                                </ng-container>
+
+                                <button cButton color="light" size="sm" class="ms-auto"
+                                        (click)="removeField(parentList, index)">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- object children -->
+                        <div *ngIf="field.kind === 'object' && field.properties && field.properties.length > 0" class="mt-1">
+                            <ng-container *ngFor="let child of field.properties; let ci = index">
+                                <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: child, level: level + 1, parentList: field.properties, index: ci }"></ng-container>
+                            </ng-container>
+                        </div>
+
+                        <!-- array items -->
+                        <div *ngIf="field.kind === 'array' && field.items" class="mt-1">
+                            <div class="items-label text-muted small" [style.marginLeft.px]="(level + 1) * 14">items</div>
+                            <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: field.items, level: level + 1 }"></ng-container>
+                        </div>
+                    </ng-template>
+
+                    <ng-container *ngFor="let f of fields; let i = index">
+                        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: f, level: 0, parentList: fields, index: i }"></ng-container>
+                    </ng-container>
+
+                </div>
+
+                <!-- JSON tab -->
+                <div *ngIf="activeTab === 'json'">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <button cButton color="light" size="sm" (click)="formatJson()">Format</button>
+                        <button cButton color="primary" size="sm" (click)="importJsonToBuilder()">Load into builder</button>
+                    </div>
+
+                    <textarea class="form-control form-control-sm schema-textarea" rows="18"
+                              [(ngModel)]="jsonText"
+                              placeholder='{"type":"object","properties":{},"additionalProperties":true}'></textarea>
+
+                    <small class="text-muted d-block mt-2">
+                        Paste only the <code>docSchema</code> JSON (not the surrounding options document).
+                    </small>
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="col-lg-5">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <strong>Preview (docSchema)</strong>
+                    <small class="text-muted">Sent as object literal</small>
+                </div>
+                <pre class="schema-preview">{{ buildDocSchema() | json }}</pre>
+
+                <div class="mt-2">
+                    <small class="text-muted">
+                        Note: in Polypheny's current dialect, all declared properties are required.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+    </c-modal-body>
+
+    <c-modal-footer>
+        <button cButton color="light" (click)="close()">Cancel</button>
+        <button cButton color="primary" (click)="saveSchema()">Save schema</button>
+    </c-modal-footer>
+</c-modal>

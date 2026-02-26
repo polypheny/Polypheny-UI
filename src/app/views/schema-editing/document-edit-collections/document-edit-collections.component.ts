@@ -31,6 +31,7 @@ import {
 } from '../../../models/catalog.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {AdapterModel} from '../../adapters/adapter.model';
+import {SchemaBuilderSave, ValidationAction} from '../document-schema-builder/document-schema-builder.component';
 
 @Component({
     selector: 'app-document-edit-collections',
@@ -84,23 +85,15 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
 
     @ViewChildren('editing', {read: ElementRef}) inputGroup: QueryList<ElementRef>;
 
-    @Input()
-    readonly entity: Signal<TableModel>;
-    @Input()
-    readonly namespace: Signal<NamespaceModel>;
-    @Input()
-    readonly currentRoute: Signal<string>;
+    @Input() readonly entity: Signal<TableModel>;
+    @Input() readonly namespace: Signal<NamespaceModel>;
+    @Input() readonly currentRoute: Signal<string>;
 
-    @Input()
-    readonly placements: Signal<AllocationPlacementModel[]>;
-    @Input()
-    readonly partitions: Signal<AllocationPartitionModel[]>;
-    @Input()
-    readonly allocations: Signal<AllocationEntityModel[]>;
-    @Input()
-    readonly stores: Signal<AdapterModel[]>;
-    @Input()
-    readonly addableStores: Signal<AdapterModel[]>;
+    @Input() readonly placements: Signal<AllocationPlacementModel[]>;
+    @Input() readonly partitions: Signal<AllocationPartitionModel[]>;
+    @Input() readonly allocations: Signal<AllocationEntityModel[]>;
+    @Input() readonly stores: Signal<AdapterModel[]>;
+    @Input() readonly addableStores: Signal<AdapterModel[]>;
 
     readonly collections: Signal<Collection[]>;
 
@@ -108,14 +101,16 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     selectedStore;
     creatingCollection = false;
 
-    private subscriptions = new Subscription();
+    // NEW: schema builder state
+    schemaBuilderVisible = false;
+    newSchemaDraft: SchemaBuilderSave | null = null;
 
+    private subscriptions = new Subscription();
     private editOpen = false;
 
     protected readonly Method = Method;
 
     ngOnInit() {
-
         const sub2 = this._crud.onReconnection().subscribe((b) => {
             if (b) {
                 this.onReconnect();
@@ -129,14 +124,21 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
     }
 
     onReconnect() {
-        //this._catalog.updateIfNecessary();
         this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
     }
 
-    /**
-     * get the right class for the 'drop' and 'truncate' buttons
-     * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
-     */
+    openSchemaBuilder() {
+        this.schemaBuilderVisible = true;
+    }
+
+    clearSchemaDraft() {
+        this.newSchemaDraft = null;
+    }
+
+    onSchemaDraftSaved(e: SchemaBuilderSave) {
+        this.newSchemaDraft = e;
+    }
+
     dropTruncateClass(action: Method, table: Collection) {
         if (action === Method.DROP && (table.drop === table.name || table.drop === 'drop ' + table.name)) {
             return 'btn-danger';
@@ -146,11 +148,7 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         return 'btn-light disabled';
     }
 
-    /**
-     * send a request to either drop or truncate a table
-     */
     sendRequest(action: Method, collection: Collection) {
-        console.log('trunc');
         if (this.dropTruncateClass(action, collection) !== 'btn-danger') {
             return;
         }
@@ -174,7 +172,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                 if (result.error) {
                     this._toast.exception(result, 'Could not ' + action + ' the table ' + collection + ':');
                 } else {
-                    //this._catalog.updateIfNecessary();
                     let toastAction = 'Truncated';
                     if (action === Method.DROP) {
                         toastAction = 'Dropped';
@@ -190,23 +187,38 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         });
     }
 
+    private buildCreateCollectionQuery(collectionName: string): string {
+        const nameLit = JSON.stringify(collectionName);
+
+        if (!this.newSchemaDraft) {
+            return `db.createCollection(${nameLit})`;
+        }
+
+        const docSchemaLiteral = JSON.stringify(this.newSchemaDraft.docSchema);
+        const validation: ValidationAction = this.newSchemaDraft.validationAction ?? 'off';
+
+        return `db.createCollection(${nameLit}, { docSchema: ${docSchemaLiteral}, validationAction: "${validation}" })`;
+    }
+
     createCollection() {
-        if (this.newCollectionName === '') {
-            this._toast.warn('Please provide a name for the new collection. The new collection was not created.', 'missing table name', ToastDuration.INFINITE);
+        const name = (this.newCollectionName ?? '').trim();
+
+        if (name === '') {
+            this._toast.warn('Please provide a name for the new collection. The new collection was not created.', 'missing collection name', ToastDuration.INFINITE);
             return;
         }
-        if (!this._crud.nameIsValid(this.newCollectionName)) {
-            this._toast.warn('Please provide a valid name for the new collection. The new collection was not created.', 'invalid table name', ToastDuration.INFINITE);
+        if (!this._crud.nameIsValid(name)) {
+            this._toast.warn('Please provide a valid name for the new collection. The new collection was not created.', 'invalid collection name', ToastDuration.INFINITE);
             return;
         }
-        if (this.collections().filter((t) => t.name === this.newCollectionName).length > 0) {
-            //if (this.tables.indexOf(this.newTableName) !== -1) {
+        if (this.collections().filter((t) => t.name === name).length > 0) {
             this._toast.warn('A collection with this name already exists. Please choose another name.', 'invalid collection name', ToastDuration.INFINITE);
             return;
         }
-        const query = 'db.createCollection(' + this.newCollectionName + ')';
-        const entityName = this.newCollectionName;
-        //const request = new EditCollectionRequest(this.namespace.value.id, this.newCollectionName, null, 'create', this.selectedStore);
+
+        const query = this.buildCreateCollectionQuery(name);
+        const entityName = name;
+
         this.creatingCollection = true;
         this._crud.anyQueryBlocking(new QueryRequest(query, false, true, 'mql', this.namespace().name)).subscribe({
             next: (result: Result<any, any>) => {
@@ -216,9 +228,9 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                     this._toast.success('Generated collection ' + entityName, result.query);
                     this.newCollectionName = '';
                     this.selectedStore = null;
+                    this.newSchemaDraft = null;
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false);
                 }
-                //this._catalog.updateIfNecessary();
             }, error: err => {
                 this._toast.error('Could not generate collection');
                 console.log(err);
@@ -235,22 +247,16 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
                     this._toast.exception(r);
                 } else {
                     this._toast.success('Renamed table ' + table.name + ' to ' + table.newName);
-                    //this._catalog.updateIfNecessary();
                     this._leftSidebar.setSchema(this._router, '/views/schema-editing/', false, 2, true);
                 }
             }, error: err => {
                 this._toast.error('Could not rename the collection ' + table.name);
                 console.log(err);
             }
-
         });
     }
 
-    /**
-     * Check if the new table name is valid
-     */
     canRename(table: Collection) {
-        //table.name !== table.newName  not necessary, since the filter will catch it as well
         return this.collections().filter((t) => t.name === table.newName).length === 0 &&
             this._crud.nameIsValid(table.newName);
     }
@@ -259,7 +265,6 @@ export class DocumentEditCollectionsComponent implements OnInit, OnDestroy {
         const regex = this._crud.getValidationRegex();
         if (name === '') {
             return '';
-            //} else if (regex.test(name) && name.length <= 100 && this.tables.indexOf(name) === -1) {
         } else if (regex.test(name) && name.length <= 100 && this.collections().filter((t) => t.name === name).length === 0) {
             return 'is-valid';
         } else {
@@ -278,9 +283,9 @@ class Collection {
     editing = false;
     newName: string;
     modifiable: boolean;
-    tableType: EntityType;
+    tableType: any;
 
-    constructor(name: string, newName: string, modifiable: boolean, entityType: EntityType) {
+    constructor(name: string, newName: string, modifiable: boolean, entityType: any) {
         this.name = name;
         this.newName = newName;
         this.modifiable = modifiable;

@@ -106,6 +106,47 @@
 
     </c-col>
 
+    <!-- Schema & validation -->
+    <c-col xs="12" class="mt-4">
+        <hr>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="mb-0">Schema &amp; validation</h5>
+
+            <div class="btn-group btn-group-sm">
+                <button cButton color="light" (click)="loadSchema()" [disabled]="schemaLoading">Refresh</button>
+                <button cButton color="primary" (click)="openSchemaBuilder()" [disabled]="schemaLoading">
+                    Open schema builder…
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-2" *ngIf="schemaLoading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading schema…
+        </div>
+
+        <div class="mt-2" *ngIf="!schemaLoading">
+            <ng-container *ngIf="!hasSchema">
+                <div class="text-muted">
+                    No schema attached (validationAction: <strong>{{currentValidationAction}}</strong>)
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="hasSchema">
+                <div class="mb-2">
+                    <span class="badge bg-secondary">validationAction: {{currentValidationAction}}</span>
+                </div>
+                <pre class="schema-pre mb-0">{{ currentDocSchema | json }}</pre>
+            </ng-container>
+        </div>
+    </c-col>
+
 </c-row>
 
+<app-document-schema-builder
+        [(visible)]="schemaBuilderVisible"
+        [initialDocSchema]="currentDocSchema"
+        [initialValidationAction]="currentValidationAction"
+        (save)="applySchemaFromBuilder($event)">
+</app-document-schema-builder>
 

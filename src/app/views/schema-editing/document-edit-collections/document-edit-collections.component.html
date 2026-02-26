@@ -57,7 +57,6 @@
 
     </c-col>
 
-
     <br><br>
     <c-col xs="12">
         <h5>Create New Collection</h5>
@@ -78,9 +77,9 @@
                                         <button cDropdownItem (click)="selectedStore = null">auto</button>
                                     </li>
                                     <li cDropdownDivider></li>
+
                                     <li role="menuitem" *ngFor="let store of stores()">
-                                        <button cDropdownItem (click)="selectedStore = store.name">{{ store.name }}
-                                        </button>
+                                        <button cDropdownItem (click)="selectedStore = store.name">{{ store.name }}</button>
                                     </li>
                                 </ng-container>
                                 <li *ngIf="stores().length === 0" role="menuitem">
@@ -91,11 +90,41 @@
 
                         <input cFormControl type="text" class="entity-name-input" placeholder="collection name"
                                [(ngModel)]="newCollectionName">
-                        <button (click)="createCollection()" cButton>Create Collection</button>
+                        <button (click)="createCollection()" cButton [disabled]="creatingCollection">Create Collection</button>
                     </c-input-group>
+
+                    <!-- Schema builder controls -->
+                    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                        <button cButton color="light" size="sm" (click)="openSchemaBuilder()">
+                            Build / import schema…
+                        </button>
+
+                        <ng-container *ngIf="newSchemaDraft">
+                            <span class="badge bg-secondary">validationAction: {{newSchemaDraft.validationAction}}</span>
+                            <button cButton color="light" size="sm" (click)="clearSchemaDraft()">Clear</button>
+                        </ng-container>
+
+                        <span *ngIf="!newSchemaDraft" class="text-muted small">
+                            No schema attached (collection will accept any document).
+                        </span>
+                    </div>
+
+                    <div *ngIf="newSchemaDraft" class="mt-2">
+                        <pre class="schema-pre">{{ newSchemaDraft.docSchema | json }}</pre>
+                    </div>
+
                 </td>
             </tr>
             </tbody>
         </table>
     </c-col>
+
+    <!-- Modal component -->
+    <app-document-schema-builder
+            [(visible)]="schemaBuilderVisible"
+            [initialDocSchema]="newSchemaDraft?.docSchema"
+            [initialValidationAction]="newSchemaDraft?.validationAction"
+            (save)="onSchemaDraftSaved($event)">
+    </app-document-schema-builder>
+
 </c-row>
