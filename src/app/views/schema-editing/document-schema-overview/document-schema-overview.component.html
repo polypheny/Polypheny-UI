@@ -1,0 +1,42 @@
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="badge bg-secondary">validationAction: {{validationAction}}</span>
+        <span class="badge" [ngClass]="additionalProperties ? 'bg-success' : 'bg-danger'">
+      additionalProperties: {{additionalProperties ? 'allow' : 'forbid'}}
+    </span>
+    </div>
+</div>
+
+<div *ngIf="rows.length === 0" class="text-muted small">
+    No fields to display.
+</div>
+
+<table *ngIf="rows.length > 0" cTable hover striped small class="mb-0">
+    <thead>
+    <tr>
+        <th style="width: 40%">Field</th>
+        <th style="width: 12%">Kind</th>
+        <th style="width: 16%">Type</th>
+        <th>Constraints</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let r of rows">
+        <td>
+            <div class="field-cell" [style.paddingLeft.px]="r.level * 14">
+                <span class="kind-icon" [ngClass]="r.kind">{{ r.kind === 'object' ? '{}' : (r.kind === 'array' ? '[]' : '•') }}</span>
+                <code class="me-2">{{r.name}}</code>
+                <span class="text-muted small">{{r.path}}</span>
+            </div>
+        </td>
+        <td>
+            <span class="badge bg-light text-dark">{{r.kind}}</span>
+        </td>
+        <td>
+            <span *ngIf="r.kind === 'scalar'">{{r.scalarType}}</span>
+            <span *ngIf="r.kind !== 'scalar'" class="text-muted">—</span>
+        </td>
+        <td>{{r.constraints}}</td>
+    </tr>
+    </tbody>
+</table>

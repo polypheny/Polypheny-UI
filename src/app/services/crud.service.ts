@@ -711,4 +711,12 @@ export class CrudService {
         return this._http.post(`${this.httpUrl}/loadPlugins`, formData);
     }
 
+    validateDocuments(namespace: string, collection: string, documents: any[], maxViolationsPerDocument = 25) {
+        return this._http.post(
+            `${this.httpUrl}/validateDocuments`,
+            { namespace, collection, documents, maxViolationsPerDocument },
+            this.httpOptions
+        );
+    }
+
 }

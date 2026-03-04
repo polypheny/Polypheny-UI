@@ -1,11 +1,4 @@
-#addColumnBtn {
-  border-radius: 100%;
-  line-height: 1.25rem;
-}
-
-h5 {
-  margin-bottom: 1em;
-}
+/* Placements */
 
 app-delete-confirm {
   visibility: hidden;
@@ -52,12 +45,30 @@ td.delete {
   text-align: center;
 }
 
-#dbColumnTable tr td {
-  vertical-align: middle;
+/* Schema overview */
+
+.field-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 
-#dbColumnTable td span {
-  display: block;
+.kind-icon {
+  display: inline-block;
+  width: 22px;
+  text-align: center;
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.kind-icon.object,
+.kind-icon.array,
+.kind-icon.oneOf {
+  opacity: 0.9;
+}
+
+.schema-note {
+  white-space: nowrap;
 }
 
 .dropdown-item {
@@ -113,10 +124,6 @@ table tr td:hover .modify-placement-btn {
   vertical-align: middle;
 }
 
-.buffer {
-  width: 50%;
-}
-
 .schema-pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   background: #fff;
@@ -125,4 +132,47 @@ table tr td:hover .modify-placement-btn {
   padding: 0.75rem;
   max-height: 420px;
   overflow: auto;
+}
+.tree-indent {
+  align-self: stretch;
+  // Draw subtle vertical guide lines every 14px to make hierarchy clearer
+  background-image: repeating-linear-gradient(
+                  to right,
+                  transparent 0,
+                  transparent 13px,
+                  rgba(0, 0, 0, 0.10) 13px,
+                  rgba(0, 0, 0, 0.10) 14px
+  );
+}
+
+.tree-toggle,
+.tree-toggle-placeholder {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree-toggle-placeholder {
+  background: transparent;
+}
+
+// Make container nodes stand out a bit
+.row-object td {
+  background: rgba(0, 0, 0, 0.015);
+}
+.row-array td,
+.row-oneof td {
+  background: rgba(0, 0, 0, 0.010);
+}
+
+.row-object td:first-child {
+  border-left: 2px solid rgba(0, 0, 0, 0.10);
+}
+
+.row-object code {
+  font-weight: 600;
 }

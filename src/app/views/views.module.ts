@@ -12,6 +12,7 @@ import {GraphicalQueryingComponent} from './querying/graphical-querying/graphica
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
 import {SchemaEditingComponent} from './schema-editing/schema-editing.component';
 import {DocumentSchemaBuilderComponent} from './schema-editing/document-schema-builder/document-schema-builder.component';
+import {DocumentSchemaPlaygroundComponent} from './schema-editing/document-schema-playground/document-schema-playground.component';
 import {EditTablesComponent} from './schema-editing/edit-tables/edit-tables.component';
 import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
@@ -173,6 +174,7 @@ import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.co
         DocumentEditCollectionsComponent,
         DocumentEditCollectionComponent,
         DocumentSchemaBuilderComponent,
+        DocumentSchemaPlaygroundComponent,
         GraphEditGraphComponent,
         MonitoringComponent,
         DashboardComponent,

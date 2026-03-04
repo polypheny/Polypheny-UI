@@ -3,56 +3,132 @@
     <c-col class="col-lg-12">
 
         <h5>{{entity()?.name}}</h5>
-        <span *ngIf="!entity()">Please select an entity in the left sidebar to edit its columns.</span>
+        <span *ngIf="!entity()">Please select a collection in the left sidebar.</span>
 
-        <table class="table table-hover table-striped" id="dbColumnTable">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th></th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let col of []; let i = index"
-                [ngClass]="{'editing': i === editColumn}">
-                <ng-container *ngIf="i === editColumn" [formGroup]="updateColumn">
-                    <td>
-                        <input type="text" class="form-control form-control-sm" formControlName="name"
-                               [attr.data-before]="col.name" id="colName" #editColName>
-                    </td>
-                    <td></td>
-                    <td>
-                        <button class="btn btn-primary"><i class="fa fa-save editColSave"></i>
-                        </button>
-                    </td>
-                </ng-container>
-                <ng-container *ngIf="i !== editColumn">
-                    <td>{{col.name}}</td>
-                    <td class="buffer">
-                        <div></div>
-                    </td>
-                </ng-container>
-            </tr>
+        <!-- Schema overview (read-only) -->
+        <hr>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="mb-0">Schema &amp; validation</h5>
 
-            <tr>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="columnName" placeholder="field name"
-                           [(ngModel)]="createColumn.name" readonly>
-                </td>
-                <td>
-                    <div></div>
-                </td>
-                <td>
-                    <a [routerLink]="[]" class="btn btn-primary disabled" id="addColumnBtn">+</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+            <div class="btn-group btn-group-sm">
+                <button cButton color="light" (click)="loadSchema()" [disabled]="schemaLoading">Refresh</button>
+                <button *ngIf="!schemaEditMode && hasSchema" cButton color="light" (click)="collapseAllSchemaRows()" [disabled]="schemaLoading">Collapse all</button>
+                <button *ngIf="!schemaEditMode && hasSchema" cButton color="light" (click)="expandAllSchemaRows()" [disabled]="schemaLoading">Expand all</button>
+                <button *ngIf="!schemaEditMode" cButton color="primary" (click)="enterSchemaEdit()"
+                        [disabled]="schemaLoading">
+                    Edit
+                </button>
+                <button *ngIf="schemaEditMode" cButton color="light" (click)="cancelSchemaEdit()"
+                        [disabled]="schemaLoading">
+                    Cancel editing
+                </button>
+                <button *ngIf="!schemaEditMode" cButton color="light" (click)="showSchemaJson = !showSchemaJson"
+                        [disabled]="schemaLoading || !hasSchema">
+                    {{ showSchemaJson ? 'Hide JSON' : 'Inspect JSON' }}
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-2" *ngIf="schemaLoading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading schema…
+        </div>
+
+        <div class="mt-2" *ngIf="!schemaLoading">
+
+            <!-- EDIT MODE: inline builder -->
+            <ng-container *ngIf="schemaEditMode">
+                <app-document-schema-builder
+                        [embedded]="true"
+                        [initialDocSchema]="currentDocSchema"
+                        [initialValidationAction]="currentValidationAction"
+                        (save)="applySchemaFromBuilder($event)"
+                        (cancel)="cancelSchemaEdit()">
+                </app-document-schema-builder>
+            </ng-container>
+
+            <!-- VIEW MODE: read-only overview -->
+            <ng-container *ngIf="!schemaEditMode">
+                <ng-container *ngIf="!hasSchema">
+                    <div class="text-muted">
+                        No schema attached (validationAction: <strong>{{currentValidationAction}}</strong>)
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="hasSchema">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="badge bg-secondary">validationAction: {{currentValidationAction}}</span>
+                            <span class="badge" [ngClass]="schemaRootAdditionalProperties ? 'bg-success' : 'bg-danger'">
+                            root additionalProperties: {{schemaRootAdditionalProperties ? 'allow' : 'forbid'}}
+                        </span>
+                        </div>
+                    </div>
+
+                    <table *ngIf="schemaRows.length > 0" cTable hover striped small class="mb-0">
+                        <thead>
+                        <tr>
+                            <th style="width: 45%">Field</th>
+                            <th style="width: 20%">Type</th>
+                            <th style="width: 10%">Required</th>
+                            <th>Constraints</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let r of schemaRows" [ngClass]="{'row-object': r.kind==='object', 'row-array': r.kind==='array', 'row-oneof': r.kind==='oneOf'}">
+                            <td>
+                                <div class="field-cell">
+                                    <span class="tree-indent" [style.width.px]="r.level * 14"></span>
+
+                                    <button *ngIf="r.hasChildren" type="button" class="btn btn-sm btn-light tree-toggle"
+                                            (click)="toggleRow(r.id)">
+                                        {{ isRowExpanded(r.id) ? '▾' : '▸' }}
+                                    </button>
+                                    <span *ngIf="!r.hasChildren" class="tree-toggle-placeholder"></span>
+
+                                    <span class="kind-icon" [ngClass]="r.kind">
+                                  {{ r.kind === 'object' ? '{}' : (r.kind === 'array' ? '[]' : (r.kind === 'oneOf' ? '⋁' : '•')) }}
+                                </span>
+                                    <code class="me-2">{{r.name}}</code>
+                                    <span class="text-muted small">{{r.path}}</span>
+                                </div>
+
+                            </td>
+                            <td>
+                                <span *ngIf="r.kind === 'scalar'">{{r.scalarType}}</span>
+                                <span *ngIf="r.kind !== 'scalar'" class="badge bg-light text-dark">{{r.kind}}</span>
+                            </td>
+                            <td>
+                                <span *ngIf="r.required === null" class="text-muted">—</span>
+                                <span *ngIf="r.required !== null" class="badge" [ngClass]="r.required ? 'bg-success' : 'bg-light text-dark'">
+                                {{ r.required ? 'yes' : 'no' }}
+                            </span>
+                            </td>
+                            <td>{{r.constraints}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div *ngIf="schemaRows.length === 0" class="text-muted small">
+                        No fields to display.
+                    </div>
+
+                    <pre *ngIf="showSchemaJson" class="schema-pre mt-2 mb-0">{{ currentDocSchema | json }}</pre>
+                </ng-container>
+            </ng-container>
+        </div>
+
+        <!-- schema Playground -->
+        <app-document-schema-playground
+                *ngIf="entity() && !schemaLoading && !schemaEditMode"
+                [namespace]="namespace"
+                [entity]="entity"
+                [docSchema]="currentDocSchema">
+        </app-document-schema-playground>
 
     </c-col>
 
-    <c-col>
+    <c-col xs="12" class="mt-4">
         <hr>
         <div class="mb-3" style="position: relative">
             <h5 style="display: inline">Placements</h5>
@@ -106,47 +182,4 @@
 
     </c-col>
 
-    <!-- Schema & validation -->
-    <c-col xs="12" class="mt-4">
-        <hr>
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <h5 class="mb-0">Schema &amp; validation</h5>
-
-            <div class="btn-group btn-group-sm">
-                <button cButton color="light" (click)="loadSchema()" [disabled]="schemaLoading">Refresh</button>
-                <button cButton color="primary" (click)="openSchemaBuilder()" [disabled]="schemaLoading">
-                    Open schema builder…
-                </button>
-            </div>
-        </div>
-
-        <div class="mt-2" *ngIf="schemaLoading">
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            Loading schema…
-        </div>
-
-        <div class="mt-2" *ngIf="!schemaLoading">
-            <ng-container *ngIf="!hasSchema">
-                <div class="text-muted">
-                    No schema attached (validationAction: <strong>{{currentValidationAction}}</strong>)
-                </div>
-            </ng-container>
-
-            <ng-container *ngIf="hasSchema">
-                <div class="mb-2">
-                    <span class="badge bg-secondary">validationAction: {{currentValidationAction}}</span>
-                </div>
-                <pre class="schema-pre mb-0">{{ currentDocSchema | json }}</pre>
-            </ng-container>
-        </div>
-    </c-col>
-
 </c-row>
-
-<app-document-schema-builder
-        [(visible)]="schemaBuilderVisible"
-        [initialDocSchema]="currentDocSchema"
-        [initialValidationAction]="currentValidationAction"
-        (save)="applySchemaFromBuilder($event)">
-</app-document-schema-builder>
-

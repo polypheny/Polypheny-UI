@@ -1,0 +1,88 @@
+<hr>
+
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <h5 class="mb-0">Schema playground</h5>
+
+    <div class="btn-group btn-group-sm">
+        <button cButton color="light" (click)="generateTemplate()" [disabled]="loading || !docSchema">Generate template</button>
+        <button cButton color="primary" (click)="validate()" [disabled]="loading">Validate</button>
+        <button cButton color="light" (click)="clear()" [disabled]="loading">Clear</button>
+    </div>
+</div>
+
+<div class="text-muted small mt-1">
+    Paste a single JSON document (object) or an array of documents. Nothing is inserted – this only runs validation.
+</div>
+
+<div class="d-flex align-items-center gap-3 flex-wrap mt-2">
+    <label class="form-label small mb-0">Max violations per document</label>
+    <input class="form-control form-control-sm" style="width: 110px" type="number" min="1" max="500"
+           [(ngModel)]="maxViolationsPerDocument" [disabled]="loading">
+</div>
+
+<textarea class="form-control font-monospace mt-2" rows="10" [(ngModel)]="jsonText" [disabled]="loading"></textarea>
+
+<div *ngIf="parseError" class="text-danger small mt-1">
+    {{parseError}}
+</div>
+
+<div class="mt-2" *ngIf="loading">
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    Validating…
+</div>
+
+<ng-container *ngIf="!loading && response">
+    <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
+    <span class="badge" [ngClass]="response.ok ? 'bg-success' : 'bg-warning text-dark'">
+      {{response.ok ? 'CONFORMS' : 'VIOLATIONS'}}
+    </span>
+
+        <span class="badge" [ngClass]="response.allowed ? 'bg-success' : 'bg-danger'">
+      {{response.allowed ? 'INSERT ALLOWED' : 'WOULD BE REJECTED'}}
+    </span>
+
+        <span *ngIf="response.hasSchema" class="badge bg-secondary">
+      enforcement: {{response.enforcement}}
+    </span>
+
+        <span *ngIf="!response.hasSchema" class="text-muted small">
+      No schema attached – nothing to validate.
+    </span>
+
+        <span *ngIf="response?.results?.length" class="text-muted small">
+      {{response.results.length}} document(s)
+    </span>
+    </div>
+
+    <div *ngIf="response.error" class="text-danger small mt-1">
+        {{response.error}}
+    </div>
+
+    <div class="mt-2" *ngIf="response.results?.length">
+        <div class="playground-doc" *ngFor="let r of response.results">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+          <span class="badge" [ngClass]="r.ok ? 'bg-success' : 'bg-danger'">
+            #{{r.index + 1}} {{r.ok ? 'ok' : 'failed'}}
+          </span>
+                    <span *ngIf="!r.ok" class="text-muted small">
+            {{r.violations?.length ?? 0}} violation(s)
+          </span>
+                    <span *ngIf="r.parseError" class="text-danger small">
+            {{r.parseError}}
+          </span>
+                </div>
+            </div>
+
+            <ul *ngIf="!r.ok && (r.violations?.length ?? 0) > 0" class="small mt-1 mb-2">
+                <li *ngFor="let v of r.violations">
+                    <code>{{v.path}}</code>
+                    <span class="text-muted"> · </span>
+                    <code>{{v.code}}</code>
+                    <span class="text-muted"> · </span>
+                    <span>{{v.message}}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</ng-container>
