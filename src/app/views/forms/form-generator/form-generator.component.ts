@@ -368,23 +368,6 @@ export class FormGeneratorComponent implements OnInit, OnDestroy {
         this.markElementReset(key, el);
     }
 
-    deactivatePlugin(el: any, key: string) {
-        el.status = PluginStatus.LOADED;
-        this.markElementReset(key, el);
-        this.forceSubmit(() => el.status = PluginStatus.ACTIVE);
-    }
-
-    activatePlugin(el: any, key: string) {
-        el.status = PluginStatus.ACTIVE;
-        this.markElementReset(key, el);
-        this.forceSubmit(() => el.status = PluginStatus.LOADED);
-
-    }
-
-    forceSubmit(func: () => {}) {
-        this.onSubmit(this.form, null, func);
-    }
-
     comparePlugins(a: any, b: any) {
         if (a.isSystemComponent) {
             return -1;

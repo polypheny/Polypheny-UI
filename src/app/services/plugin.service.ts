@@ -49,8 +49,4 @@ export class PluginService {
         }
         return this.availablePlugins;
     }
-
-    loadPlugins(files: File[]) {
-        return this._crud.loadPlugins(files);
-    }
 }

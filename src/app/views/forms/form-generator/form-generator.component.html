@@ -108,11 +108,6 @@
                                             </c-row>
                                             <c-row class="list-wrapper" [gutter]="3"
                                                    *ngIf="config.value.template.webUiFormType === 'PLUGIN_INSTANCE'">
-                                                <c-col class="list-input-wrapper align-self-center">
-                                                    <div class="text-center bg-transparent border-0">
-                                                        <app-file-uploader [loadPage]="loadPage"></app-file-uploader>
-                                                    </div>
-                                                </c-col>
                                                 <ng-container
                                                         *ngFor="let el of filterPlugins(config.value.values); let i = index;">
                                                     <c-col xs="6">
@@ -148,18 +143,6 @@
                                                                 <a target="_blank"
                                                                    [href]=" el.url ? el.url : 'https://polypheny.com' "><small
                                                                         class="text-muted">{{ el.url ? el.url : "polypheny.com" }}</small></a>
-                                                                <button cButton color="info"
-                                                                        [disabled]="el.isSystemComponent"
-                                                                        (click)="deactivatePlugin(el, config.value.key)"
-                                                                        *ngIf="el.status === 'ACTIVE' && !el.isSystemComponent">
-                                                                    Deactivate
-                                                                </button>
-                                                                <button cButton color="primary"
-                                                                        [disabled]="el.isSystemComponent"
-                                                                        (click)="activatePlugin(el, config.value.key)"
-                                                                        *ngIf="el.status === 'LOADED' && !el.isSystemComponent">
-                                                                    Activate
-                                                                </button>
                                                             </c-card-footer>
 
                                                         </c-card>
