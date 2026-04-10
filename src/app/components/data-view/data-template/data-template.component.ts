@@ -11,7 +11,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {LeftSidebarService} from '../../left-sidebar/left-sidebar.service';
 import {CrudService} from '../../../services/crud.service';
 import {PaginationElement} from '../models/pagination-element.model';
-import {DataModel, DeleteRequest, EntityRequest, Method, QueryRequest} from '../../../models/ui-request.model';
+import {DataModel, DeleteRequest, EntityRequest, RefreshRequest, Method, QueryRequest} from '../../../models/ui-request.model';
 import {ToastDuration, ToasterService} from '../../toast-exposer/toaster.service';
 import {SortState} from '../models/sort-state.model';
 import {HttpEventType} from '@angular/common/http';
@@ -270,6 +270,33 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
         if (!this._crud.getEntityData(this.webSocket, request)) {
             this.$result.set(CombinedResult.fromRelational(new RelationalResult('Could not establish a connection with the server.')));
+        }
+    }
+
+    /**
+     * Sends a refresh request for the current selected entity.
+     * Triggers a schema refresh (if needed) before reloading the data.
+     */
+    public refreshEntityData() {
+        const filterObj = this.mapToObject(this.filter);
+        const sortState = {};
+        this.$result()?.header?.forEach((h: UiColumnDefinition) => {
+            this.sortStates.set(h.name, h.sort);
+            sortState[h.name] = h.sort;
+        });
+
+        const request = new RefreshRequest(
+            this.entity()?.id,
+            this._catalog.getNamespaceFromId(this.entity()?.namespaceId).name,
+            this.currentPage(),
+            filterObj,
+            sortState
+        );
+
+        if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.$result.set(CombinedResult.fromRelational(
+                new RelationalResult('Could not establish a connection with the server.')
+            ));
         }
     }
 

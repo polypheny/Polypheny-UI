@@ -15,7 +15,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             return;
         }
 
-        this.getEntityData();
+        this.refreshEntityData();
     }
 
     constructor(readonly _router: Router) {

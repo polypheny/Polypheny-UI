@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel, RelationalResult} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, RefreshRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
 import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -48,6 +48,17 @@ export class CrudService {
 
     getEntityData(socket: WebSocket, data: EntityRequest): boolean {
         return socket.sendMessage(data);
+    }
+
+    /**
+     * Sends a refresh request for the currently selected entity to the backend.
+     * This triggers a schema refresh (if needed) before reloading the data.
+     *
+     * @param socket the socket used to communicate with the backend
+     * @param request RefreshRequest containing entityID, namespace, currentPage, filter, and sortState
+     */
+    refreshEntityData(socket: WebSocket, request: RefreshRequest): boolean {
+        return socket.sendMessage(request);
     }
 
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
