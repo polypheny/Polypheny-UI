@@ -15,8 +15,6 @@
            (click)="deleteRow(d1, i)" (mouseleave)="confirm = -1"><i
                 [ngClass]="{ 'cil-trash': i!==confirm, 'fa': i===confirm, 'fa-warning': i===confirm}"></i></a>
         <ul cListGroup flush>
-            <!-- load MM types first -->
-
             <ng-container *ngFor="let h of $result().header; let j = index">
                 <li cListGroupItem *ngIf="(d1[j] || i === editing) && showFirst(h.dataType)"
                     [ngClass]="{'multimedia': i !== editing}">
@@ -37,8 +35,6 @@
                 </li>
             </ng-container>
 
-
-            <!-- then load all non-MM data -->
             <ng-container *ngFor="let h of $result().header; let j = index">
                 <li cListGroupItem *ngIf="(d1[j] || i === editing) && !showFirst(h.dataType)">
                     <ng-container *ngIf="i !== editing">
@@ -63,10 +59,6 @@
                         </ng-container>
                     </ng-container>
                     <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
-                                   [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
-                                   [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
                         <app-json-editor (validChange)="setJsonValid($event)"
                                          *ngIf="$result()?.dataModel === DataModel.DOCUMENT"
                                          [json]="updateValues.get(h.name)"
@@ -95,31 +87,65 @@
                     save
                 </button>
             </li>
-
         </ul>
     </c-card>
 
-    <div *ngIf="entityConfig().create && !showInsertCard" (click)="showInsert()">
-        <button cButton color="primary" class="toggle-insert"><i class="fa fa-plus"></i></button>
+    <div *ngIf="entityConfig().create && !showInsertCard">
+        <button cButton color="primary" class="toggle-insert" (click)="showInsert()">
+            <i class="fa fa-plus"></i>
+        </button>
     </div>
 
     <c-card *ngIf="entityConfig().create && showInsertCard"
             [ngClass]="{'json-card': $result()?.dataModel === DataModel.DOCUMENT}">
-        <c-card-header>
-            Insert Data
+        <c-card-header class="insert-header">
+            <div class="insert-header-row">
+                <span>Insert Data</span>
+
+                <div class="insert-doc-controls" *ngIf="$result()?.dataModel === DataModel.DOCUMENT">
+                    <label class="form-check form-check-inline mb-0 small text-muted">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="includeOptionalInTemplate">
+                        <span class="form-check-label">Include optional</span>
+                    </label>
+
+                    <button cButton color="light" size="sm"
+                            (click)="applySchemaTemplateJson()"
+                            [disabled]="schemaLoading || !hasDocSchema">
+                        Template
+                    </button>
+                </div>
+            </div>
+
+            <div class="insert-required" *ngIf="$result()?.dataModel === DataModel.DOCUMENT">
+                <div *ngIf="schemaLoading" class="text-muted small">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Loading schema…
+                </div>
+
+                <div *ngIf="!schemaLoading && !hasDocSchema" class="text-muted small">
+                    No schema attached. You can still insert documents freely.
+                </div>
+
+                <div *ngIf="!schemaLoading && hasDocSchema" class="required-badges">
+                    <span class="text-muted small me-1">Required:</span>
+                    <span class="badge bg-warning text-dark" *ngFor="let p of requiredPathsPreview">{{ p }}</span>
+                    <span class="badge bg-light text-dark" *ngIf="requiredPathsOverflow > 0">
+                        +{{ requiredPathsOverflow }} more
+                    </span>
+                </div>
+            </div>
         </c-card-header>
+
         <ul cListGroup flush="true">
-            <li cListGroupItem *ngFor="let h of $result().header">
-                <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
-                           [header]="h"
-                           [showLabel]="true" [value]="insertValues.get(h.name)"
-                           (valueChange)="inputChange(h.name, $event)"
-                           (enter)="insertTuple()"></app-input>
-                <app-json-editor (validChange)="setJsonValid($event)"
-                                 *ngIf="$result()?.dataModel === DataModel.DOCUMENT" [empty]="true"
-                                 [json]="insertValues.get(h.name)"
-                                 (valueChange)="inputChange(h.name, $event)"></app-json-editor>
-            </li>
+            <ng-container *ngIf="$result()?.dataModel === DataModel.DOCUMENT && documentEditorVisible">
+                <li cListGroupItem *ngFor="let h of $result().header">
+                    <app-json-editor (validChange)="setJsonValid($event)"
+                                     [empty]="true"
+                                     [json]="insertValues.get(h.name)"
+                                     (valueChange)="inputChange(h.name, $event)"></app-json-editor>
+                </li>
+            </ng-container>
+
             <li cListGroupItem>
                 <c-progress
                         *ngIf="editing === -1 && uploadProgress > -1 && uploadProgress !== 100 && uploadProgress !== 0">
@@ -143,7 +169,6 @@
             </li>
         </ul>
     </c-card>
-
 </div>
 
 <c-row class="my-4" *ngIf="$result()">

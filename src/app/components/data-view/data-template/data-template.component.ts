@@ -458,14 +458,77 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
     private adjustDocument(method: Method, initialData: string = '') {
         const entity = this.entity();
         switch (method) {
-            case Method.ADD:
-                const data = this.insertValues.get('_id');
+            // case Method.ADD:
+            //     const data = this.insertValues.get('_id');
+            //     const add = `db.${entity.name}.insert(${data})`;
+            //
+            //     this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.$result().namespace));
+            //     this.insertValues.clear();
+            //     this.getEntityData();
+            //     break;
+            case Method.ADD: {
+                const candidates = ['_id', '_data'];
+                let data: string = null;
+
+                for (const key of candidates) {
+                    const v = this.insertValues.get(key);
+                    if (typeof v === 'string' && v.trim().length > 0) {
+                        data = v;
+                        break;
+                    }
+                }
+
+                // fallback: first non-empty JSON-looking string in insertValues
+                if (!data) {
+                    for (const [, v] of this.insertValues) {
+                        if (typeof v === 'string' && v.trim().startsWith('{')) {
+                            data = v;
+                            break;
+                        }
+                    }
+                }
+
+                if (!data || data.trim().length === 0) {
+                    this._toast.error('No document payload to insert.');
+                    return;
+                }
+
+                try {
+                    JSON.parse(data);
+                } catch (e) {
+                    this._toast.error('The document JSON is invalid.');
+                    return;
+                }
+
                 const add = `db.${entity.name}.insert(${data})`;
 
-                this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.$result().namespace));
-                this.insertValues.clear();
-                this.getEntityData();
+                this.uploadProgress = 100;
+
+                this._crud.anyQueryBlocking(
+                    new QueryRequest(add, false, true, 'mongo', this.$result().namespace)
+                ).subscribe({
+                    next: (res: any) => {
+                        const r = Array.isArray(res) ? res[0] : res;
+
+                        if (r?.error || r?.exception) {
+                            this._toast.exception(r, 'Could not insert the document.');
+                            return;
+                        }
+
+                        this.insertValues.clear();
+                        this.buildInsertObject();
+                        this.getEntityData();
+                    },
+                    error: err => {
+                        console.log(err);
+                        this._toast.error('Could not insert the document.');
+                    }
+                }).add(() => {
+                    this.uploadProgress = -1;
+                });
+
                 break;
+            }
             case Method.MODIFY:
                 const values = new Map<string, string>();//previous values
                 for (let i = 0; i < this.$result().header.length; i++) {
