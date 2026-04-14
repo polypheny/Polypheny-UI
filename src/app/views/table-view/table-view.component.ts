@@ -10,6 +10,7 @@ import {Router} from '@angular/router';
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 
     readonly fullName: Signal<string>;
+    private lastInitialTableRefreshRoute: string = null;
     reload = () => {// we can preserve the "this" context
         if (!this.entity()) {
             return;
@@ -22,13 +23,20 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         super();
         this.fullName = computed(() => <string>this.routeParams()['id']);
 
+        // For a newly selected table route, refresh the table once after the entity is available.
         effect(() => {
-            if (!this.entity()) {
+            const route = this.currentRoute();
+            const entity = this.entity();
+            if (!route || !entity) {
                 return;
             }
 
             untracked(() => {
-                this.getEntityData();
+                if (this.lastInitialTableRefreshRoute === route) {
+                    return;
+                }
+                this.lastInitialTableRefreshRoute = route;
+                this.refreshEntityData();
             });
         });
 
