@@ -457,59 +457,35 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
     private adjustDocument(method: Method, initialData: string = '') {
         const entity = this.entity();
+        const namespace = this.$result()?.namespace;
+
+        if (!entity || !namespace) {
+            this._toast.error('Could not determine the document collection context.');
+            return;
+        }
+
         switch (method) {
-            // case Method.ADD:
-            //     const data = this.insertValues.get('_id');
-            //     const add = `db.${entity.name}.insert(${data})`;
-            //
-            //     this._crud.anyQuery(this.webSocket, new QueryRequest(add, false, true, 'mql', this.$result().namespace));
-            //     this.insertValues.clear();
-            //     this.getEntityData();
-            //     break;
             case Method.ADD: {
-                const candidates = ['_id', '_data'];
-                let data: string = null;
+                const payload = this.findDocumentPayload(this.insertValues);
+                const parsed = this.parseDocumentPayload(payload);
 
-                for (const key of candidates) {
-                    const v = this.insertValues.get(key);
-                    if (typeof v === 'string' && v.trim().length > 0) {
-                        data = v;
-                        break;
-                    }
-                }
-
-                // fallback: first non-empty JSON-looking string in insertValues
-                if (!data) {
-                    for (const [, v] of this.insertValues) {
-                        if (typeof v === 'string' && v.trim().startsWith('{')) {
-                            data = v;
-                            break;
-                        }
-                    }
-                }
-
-                if (!data || data.trim().length === 0) {
+                if (!parsed) {
                     this._toast.error('No document payload to insert.');
                     return;
                 }
-
-                try {
-                    JSON.parse(data);
-                } catch (e) {
-                    this._toast.error('The document JSON is invalid.');
+                if (!this.isObjectDocument(parsed)) {
+                    this._toast.error('The document JSON must be a JSON object.');
                     return;
                 }
 
-                const add = `db.${entity.name}.insert(${data})`;
+                const add = `db.${entity.name}.insert(${JSON.stringify(parsed)})`;
 
                 this.uploadProgress = 100;
-
                 this._crud.anyQueryBlocking(
-                    new QueryRequest(add, false, true, 'mongo', this.$result().namespace)
+                    new QueryRequest(add, false, true, 'mongo', namespace)
                 ).subscribe({
                     next: (res: any) => {
                         const r = Array.isArray(res) ? res[0] : res;
-
                         if (r?.error || r?.exception) {
                             this._toast.exception(r, 'Could not insert the document.');
                             return;
@@ -529,31 +505,244 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
                 break;
             }
-            case Method.MODIFY:
-                const values = new Map<string, string>();//previous values
-                for (let i = 0; i < this.$result().header.length; i++) {
-                    values.set(this.$result().header[i].name, this.$result().data[this.editing][i]);
-                    i++;
+
+            case Method.MODIFY: {
+                const updatedPayload = this.findDocumentPayload(this.updateValues);
+                const updatedDoc = this.parseDocumentPayload(updatedPayload);
+                const originalDoc = this.getCurrentEditedDocument();
+
+                if (!updatedDoc || !originalDoc) {
+                    this._toast.error('Could not determine the original and updated document.');
+                    return;
                 }
-                const updated = this.updateValues.get('_id');
-                const parsed = JSON.parse(updated);
-                if (parsed.hasOwnProperty('_id')) {
-                    const modify = `db.${entity.name}.updateMany({"_id": "${parsed['_id']}"}, {"$set": ${updated}})`;
-                    this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.$result().namespace));
-                    this.insertValues.clear();
-                    this.getEntityData();
+                if (!this.isObjectDocument(updatedDoc) || !this.isObjectDocument(originalDoc)) {
+                    this._toast.error('Document updates require JSON objects.');
+                    return;
                 }
+
+                const updatedClone = this.cloneJson(updatedDoc);
+                const originalClone = this.cloneJson(originalDoc);
+
+                if (Object.prototype.hasOwnProperty.call(updatedClone, '_id')
+                    && Object.prototype.hasOwnProperty.call(originalClone, '_id')
+                    && JSON.stringify(updatedClone['_id']) !== JSON.stringify(originalClone['_id'])) {
+                    updatedClone['_id'] = originalClone['_id'];
+                    this._toast.warn('Changing _id in the card editor is not supported. The original _id was kept.');
+                }
+
+                const diff = this.buildDocumentDiff(originalClone, updatedClone);
+
+                if (Object.keys(diff.setOps).length === 0 && Object.keys(diff.unsetOps).length === 0) {
+                    this._toast.warn('No document changes detected.');
+                    return;
+                }
+
+                const selector = this.buildDocumentSelector(originalClone);
+                const updateParts: string[] = [];
+
+                if (Object.keys(diff.setOps).length > 0) {
+                    updateParts.push(`"$set": ${JSON.stringify(diff.setOps)}`);
+                }
+                if (Object.keys(diff.unsetOps).length > 0) {
+                    updateParts.push(`"$unset": ${JSON.stringify(diff.unsetOps)}`);
+                }
+
+                const modify = `db.${entity.name}.updateMany(${selector}, {${updateParts.join(', ')}})`;
+
+                this.uploadProgress = 100;
+                this._crud.anyQueryBlocking(
+                    new QueryRequest(modify, false, true, 'mongo', namespace)
+                ).subscribe({
+                    next: (res: any) => {
+                        const r = Array.isArray(res) ? res[0] : res;
+                        if (r?.error || r?.exception) {
+                            this._toast.exception(r, 'Could not update the document.');
+                            return;
+                        }
+
+                        this.editing = -1;
+                        this.updateValues.clear();
+                        this.getEntityData();
+                    },
+                    error: err => {
+                        console.log(err);
+                        this._toast.error('Could not update the document.');
+                    }
+                }).add(() => {
+                    this.uploadProgress = -1;
+                });
+
                 break;
-            case Method.DROP:
-                const parsedDelete = JSON.parse(initialData);
-                if (parsedDelete.hasOwnProperty('_id')) {
-                    const modify = `db.${entity.name}.deleteMany({"_id": "${parsedDelete['_id']}" })`;
-                    this._crud.anyQuery(this.webSocket, new QueryRequest(modify, false, true, 'mql', this.$result().namespace));
-                    this.insertValues.clear();
-                    this.getEntityData();
+            }
+
+            case Method.DROP: {
+                const originalDoc = this.parseDocumentPayload(initialData);
+
+                if (!originalDoc || !this.isObjectDocument(originalDoc)) {
+                    this._toast.error('Could not determine which document to delete.');
+                    return;
                 }
+
+                const selector = this.buildDocumentSelector(originalDoc);
+                const remove = `db.${entity.name}.deleteMany(${selector})`;
+
+                this.uploadProgress = 100;
+                this._crud.anyQueryBlocking(
+                    new QueryRequest(remove, false, true, 'mongo', namespace)
+                ).subscribe({
+                    next: (res: any) => {
+                        const r = Array.isArray(res) ? res[0] : res;
+                        if (r?.error || r?.exception) {
+                            this._toast.exception(r, 'Could not delete the document.');
+                            return;
+                        }
+
+                        this.getEntityData();
+                    },
+                    error: err => {
+                        console.log(err);
+                        this._toast.error('Could not delete the document.');
+                    }
+                }).add(() => {
+                    this.uploadProgress = -1;
+                });
+
                 break;
+            }
         }
+    }
+
+    private findDocumentPayload(values: Map<string, any>): any {
+        const headerNames = (this.$result()?.header ?? []).map(h => h?.name).filter(Boolean);
+        const preferredKeys = ['_id', '_data', ...headerNames];
+
+        for (const key of preferredKeys) {
+            if (!values.has(key)) {
+                continue;
+            }
+            const value = values.get(key);
+            const parsed = this.parseDocumentPayload(value);
+            if (parsed && this.isObjectDocument(parsed)) {
+                return value;
+            }
+        }
+
+        for (const [, value] of values) {
+            const parsed = this.parseDocumentPayload(value);
+            if (parsed && this.isObjectDocument(parsed)) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    private getCurrentEditedDocument(): any | null {
+        if (this.editing == null || this.editing < 0 || !this.$result()?.data?.[this.editing]) {
+            return null;
+        }
+
+        for (const value of this.$result().data[this.editing]) {
+            const parsed = this.parseDocumentPayload(value);
+            if (parsed && this.isObjectDocument(parsed)) {
+                return parsed;
+            }
+        }
+
+        return null;
+    }
+
+    private parseDocumentPayload(value: any): any | null {
+        if (value == null) {
+            return null;
+        }
+
+        if (typeof value === 'object') {
+            return this.isObjectDocument(value) ? value : null;
+        }
+
+        if (typeof value !== 'string') {
+            return null;
+        }
+
+        const trimmed = value.trim();
+        if (!trimmed.startsWith('{')) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(trimmed);
+        } catch {
+            return null;
+        }
+    }
+
+    private isObjectDocument(value: any): boolean {
+        return value != null && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    private cloneJson<T>(value: T): T {
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    private buildDocumentSelector(originalDoc: any): string {
+        if (Object.prototype.hasOwnProperty.call(originalDoc, '_id')) {
+            return JSON.stringify({ _id: originalDoc['_id'] });
+        }
+
+        return JSON.stringify(originalDoc);
+    }
+
+    private buildDocumentDiff(originalDoc: any, updatedDoc: any): { setOps: Record<string, any>, unsetOps: Record<string, string> } {
+        const setOps: Record<string, any> = {};
+        const unsetOps: Record<string, string> = {};
+
+        const walk = (before: any, after: any, path: string) => {
+            if (path === '_id') {
+                return;
+            }
+
+            const beforeIsObject = this.isObjectDocument(before);
+            const afterIsObject = this.isObjectDocument(after);
+            const beforeIsArray = Array.isArray(before);
+            const afterIsArray = Array.isArray(after);
+
+            if (beforeIsObject && afterIsObject) {
+                const keys = new Set<string>([...Object.keys(before), ...Object.keys(after)]);
+                for (const key of keys) {
+                    const childPath = path ? `${path}.${key}` : key;
+                    const hasBefore = Object.prototype.hasOwnProperty.call(before, key);
+                    const hasAfter = Object.prototype.hasOwnProperty.call(after, key);
+
+                    if (!hasAfter) {
+                        unsetOps[childPath] = '';
+                        continue;
+                    }
+                    if (!hasBefore) {
+                        setOps[childPath] = after[key];
+                        continue;
+                    }
+
+                    walk(before[key], after[key], childPath);
+                }
+                return;
+            }
+
+            if (beforeIsArray || afterIsArray) {
+                if (JSON.stringify(before) !== JSON.stringify(after) && path) {
+                    setOps[path] = after;
+                }
+                return;
+            }
+
+            if (JSON.stringify(before) !== JSON.stringify(after) && path) {
+                setOps[path] = after;
+            }
+        };
+
+        walk(originalDoc, updatedDoc, '');
+
+        return { setOps, unsetOps };
     }
 
     buildInsertObject() {
@@ -603,7 +792,6 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
         const oldValues = new Map<string, string>();//previous values
         for (let i = 0; i < this.$result().header.length; i++) {
             oldValues.set(this.$result().header[i].name, this.$result().data[this.editing][i]);
-            i++;
         }
         const formData = new FormData();
         formData.append('entityId', String(this.entity()?.id));

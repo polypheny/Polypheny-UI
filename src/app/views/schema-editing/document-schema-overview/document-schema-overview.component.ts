@@ -132,9 +132,19 @@ export class DocumentSchemaOverviewComponent implements OnChanges {
     }
 
     private scalarTypeOf(spec: any): string {
-        if (typeof spec === 'string') return spec;
-        if (spec && typeof spec === 'object' && spec.type) return String(spec.type);
+        if (typeof spec === 'string') return this.normalizeTypeLabel(spec);
+        if (spec && typeof spec === 'object' && spec.type) {
+            if (Array.isArray(spec.type)) {
+                return spec.type.map((x: any) => this.normalizeTypeLabel(x)).join(' | ');
+            }
+            return this.normalizeTypeLabel(spec.type);
+        }
         return 'text';
+    }
+
+    private normalizeTypeLabel(type: any): string {
+        const s = String(type ?? '').trim().toLowerCase();
+        return s === 'string' ? 'text' : s;
     }
 
     private formatConstraints(spec: any): string {

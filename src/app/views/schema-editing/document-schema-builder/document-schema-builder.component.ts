@@ -193,9 +193,9 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
     // Builder operations
 
     addTopLevelField() {
-        this.fields.push(this.newScalarField());
-
-        this.expanded[this.uiId(Node)] = true;
+        const field = this.newScalarField();
+        this.fields.push(field);
+        this.expanded[this.uiId(field)] = true;
         this.onBuilderChange();
     }
 
@@ -336,7 +336,7 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
             return 'oneOf';
         }
         const types = this.getScalarTypes(node);
-        return (types[0] ?? 'text');
+        return ((types[0] ?? 'text') === 'string' ? 'text' : (types[0] ?? 'text'));
     }
 
     /** Apply a value from the "Type" dropdown onto the node. */
@@ -361,6 +361,42 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
             this.setKind(node, 'scalar');
         }
         this.setScalarPrimaryType(node, v);
+    }
+
+
+    isKind(node: SchemaNodeSpec, kind: NodeKind): boolean {
+        return !!node && node.kind === kind;
+    }
+
+    toggleKindCheckbox(node: SchemaNodeSpec, kind: NodeKind, checked: boolean) {
+        if (checked) {
+            if (node.kind !== kind) {
+                this.setKind(node, kind);
+            }
+            return;
+        }
+
+        // Keep at least one concrete type selected. Falling back to scalar/text
+        // makes checkbox-only selection predictable.
+        if (node.kind === kind) {
+            this.setKind(node, 'scalar');
+        }
+    }
+
+    toggleTypeCheckbox(node: SchemaNodeSpec, type: string, checked: boolean) {
+        const normalized = (type ?? 'text').toString().toLowerCase();
+
+        if (node.kind !== 'scalar') {
+            if (!checked) {
+                return;
+            }
+            this.setKind(node, 'scalar');
+            node.scalarTypes = [normalized];
+            this.onBuilderChange();
+            return;
+        }
+
+        this.toggleScalarType(node, normalized, checked);
     }
 
 
@@ -620,8 +656,8 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
         }
 
         const required = this.fields
-            .filter(f => (f.required ?? true) && (f.name ?? '').trim().length > 0)
-            .map(f => (f.name ?? '').trim());
+        .filter(f => (f.required ?? true) && (f.name ?? '').trim().length > 0)
+        .map(f => (f.name ?? '').trim());
 
         return {
             type: 'object',
@@ -751,7 +787,7 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
         if (typeof spec === 'string') {
             return {
                 ...this.newScalarNode(),
-                scalarTypes: [spec]
+                scalarTypes: [String(spec).toLowerCase() === 'string' ? 'text' : spec]
             };
         }
 
@@ -808,11 +844,11 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
         if (Array.isArray(t)) {
             for (const el of t) {
                 if (el != null) {
-                    scalarTypes.push(String(el));
+                    scalarTypes.push(String(el).toLowerCase() === 'string' ? 'text' : String(el));
                 }
             }
         } else if (t != null) {
-            scalarTypes.push(String(t));
+            scalarTypes.push(String(t).toLowerCase() === 'string' ? 'text' : String(t));
         } else {
             scalarTypes.push('text');
         }
@@ -843,7 +879,7 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
 
     // Used by template checkboxes
     scalarTypeOptions(): string[] {
-        return ['text', 'string', 'number', 'boolean', 'null'];
+        return ['text', 'number', 'boolean', 'null'];
     }
 
     onBuilderChange() {

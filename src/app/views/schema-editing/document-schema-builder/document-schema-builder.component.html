@@ -104,34 +104,35 @@
                             <span class="tree-toggle-placeholder" *ngIf="!isCollapsible(node)"></span>
 
 
-                            <!-- Single Type dropdown (replaces Kind + scalar type) -->
-                            <select class="form-select form-select-sm type-select"
-                                    [ngModel]="typeSelectValue(node)"
-                                    (ngModelChange)="setTypeFromSelect(node, $event)">
-                                <option value="object">object</option>
-                                <option value="array">array</option>
-                                <option value="oneOf">oneOf</option>
-                                <option disabled>────────</option>
-                                <option value="text">text</option>
-                                <option value="string">string</option>
-                                <option value="number">number</option>
-                                <option value="boolean">boolean</option>
-                                <option value="null">null</option>
-                            </select>
+                            <div class="type-checks">
+                                <label class="form-check form-check-inline small mb-0">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="isKind(node, 'object')"
+                                           (change)="toggleKindCheckbox(node, 'object', $any($event.target).checked)">
+                                    <span class="form-check-label">object</span>
+                                </label>
+                                <label class="form-check form-check-inline small mb-0">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="isKind(node, 'array')"
+                                           (change)="toggleKindCheckbox(node, 'array', $any($event.target).checked)">
+                                    <span class="form-check-label">array</span>
+                                </label>
+                                <label class="form-check form-check-inline small mb-0">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="isKind(node, 'oneOf')"
+                                           (change)="toggleKindCheckbox(node, 'oneOf', $any($event.target).checked)">
+                                    <span class="form-check-label">oneOf</span>
+                                </label>
+                                <label class="form-check form-check-inline small mb-0" *ngFor="let t of scalarTypeOptions()">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="node.kind === 'scalar' && hasScalarType(node, t)"
+                                           (change)="toggleTypeCheckbox(node, t, $any($event.target).checked)">
+                                    <span class="form-check-label">{{t}}</span>
+                                </label>
+                            </div>
 
-                            <!-- Scalar OR types (union) -->
                             <ng-container *ngIf="node.kind === 'scalar'">
-                                <div class="or-box">
-                                    <span class="text-muted small me-2">OR</span>
-                                    <ng-container *ngFor="let t of scalarTypeOptions()">
-                                        <label class="form-check form-check-inline small mb-0">
-                                            <input class="form-check-input" type="checkbox"
-                                                   [checked]="hasScalarType(node, t)"
-                                                   (change)="toggleScalarType(node, t, $any($event.target).checked)">
-                                            <span class="form-check-label">{{t}}</span>
-                                        </label>
-                                    </ng-container>
-                                </div>
+                                <span class="text-muted small type-hint">scalar constraints</span>
 
                                 <ng-container *ngIf="isStringAllowed(node)">
                                     <input class="form-control form-control-sm constraint" type="number" placeholder="minLength"
@@ -229,34 +230,35 @@
                                    [(ngModel)]="field.name"
                                    (ngModelChange)="onBuilderChange()">
 
-                            <!-- Single Type dropdown (replaces Kind + scalar type) -->
-                            <select class="form-select form-select-sm type-select"
-                                    [ngModel]="typeSelectValue(field)"
-                                    (ngModelChange)="setTypeFromSelect(field, $event)">
-                                <option value="object">object</option>
-                                <option value="array">array</option>
-                                <option value="oneOf">oneOf</option>
-                                <option disabled>────────</option>
-                                <option value="text">text</option>
-                                <option value="string">string</option>
-                                <option value="number">number</option>
-                                <option value="boolean">boolean</option>
-                                <option value="null">null</option>
-                            </select>
+                            <div class="type-checks">
+                                <label class="form-check form-check-inline small mb-0">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="isKind(field, 'object')"
+                                           (change)="toggleKindCheckbox(field, 'object', $any($event.target).checked)">
+                                    <span class="form-check-label">object</span>
+                                </label>
+                                <label class="form-check form-check-inline small mb-0">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="isKind(field, 'array')"
+                                           (change)="toggleKindCheckbox(field, 'array', $any($event.target).checked)">
+                                    <span class="form-check-label">array</span>
+                                </label>
+                                <label class="form-check form-check-inline small mb-0">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="isKind(field, 'oneOf')"
+                                           (change)="toggleKindCheckbox(field, 'oneOf', $any($event.target).checked)">
+                                    <span class="form-check-label">oneOf</span>
+                                </label>
+                                <label class="form-check form-check-inline small mb-0" *ngFor="let t of scalarTypeOptions()">
+                                    <input class="form-check-input" type="checkbox"
+                                           [checked]="field.kind === 'scalar' && hasScalarType(field, t)"
+                                           (change)="toggleTypeCheckbox(field, t, $any($event.target).checked)">
+                                    <span class="form-check-label">{{t}}</span>
+                                </label>
+                            </div>
 
-                            <!-- Scalar OR types (union) -->
                             <ng-container *ngIf="field.kind === 'scalar'">
-                                <div class="or-box">
-                                    <span class="text-muted small me-2">OR</span>
-                                    <ng-container *ngFor="let t of scalarTypeOptions()">
-                                        <label class="form-check form-check-inline small mb-0">
-                                            <input class="form-check-input" type="checkbox"
-                                                   [checked]="hasScalarType(field, t)"
-                                                   (change)="toggleScalarType(field, t, $any($event.target).checked)">
-                                            <span class="form-check-label">{{t}}</span>
-                                        </label>
-                                    </ng-container>
-                                </div>
+                                <span class="text-muted small type-hint">scalar constraints</span>
 
                                 <ng-container *ngIf="isStringAllowed(field)">
                                     <input class="form-control form-control-sm constraint" type="number" placeholder="minLength"

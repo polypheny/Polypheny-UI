@@ -27,9 +27,6 @@
   margin-top: 0.25rem;
 }
 
-.type-select {
-  width: 160px;
-}
 
 .or-box {
   display: inline-flex;
@@ -91,4 +88,24 @@
 .node-array,
 .node-oneof {
   background: rgba(0, 0, 0, 0.010);
+}
+
+
+.type-checks {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px dashed #d9dde3;
+  border-radius: 0.25rem;
+  background: #fbfcfd;
+  min-height: 32px;
+}
+
+.type-hint {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 4px;
 }

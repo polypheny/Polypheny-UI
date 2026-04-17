@@ -460,17 +460,22 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     }
 
     private scalarTypeOf(spec: any): string {
-        if (typeof spec === 'string') return spec;
+        if (typeof spec === 'string') return this.normalizeTypeLabel(spec);
         if (spec && typeof spec === 'object') {
             const t = spec.type;
             if (Array.isArray(t)) {
-                return t.map((x: any) => String(x)).join(' | ');
+                return t.map((x: any) => this.normalizeTypeLabel(x)).join(' | ');
             }
             if (t != null) {
-                return String(t);
+                return this.normalizeTypeLabel(t);
             }
         }
         return 'text';
+    }
+
+    private normalizeTypeLabel(type: any): string {
+        const s = String(type ?? '').trim().toLowerCase();
+        return s === 'string' ? 'text' : s;
     }
 
     private formatConstraints(spec: any): string {

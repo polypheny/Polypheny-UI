@@ -72,7 +72,7 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
     }
 
     showInsert() {
-        this.editing = null;
+        this.editing = -1;
         this.showInsertCard = true;
 
         if (this.entityConfig && this.entityConfig().create) {
@@ -90,17 +90,8 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
         return !!(this.docSchema && typeof this.docSchema === 'object' && this.docSchema.properties);
     }
 
-    get requiredPathsPreview(): string[] {
-        return (this.requiredPaths ?? []).slice(0, 10);
-    }
-
-    get requiredPathsOverflow(): number {
-        return Math.max(0, (this.requiredPaths?.length ?? 0) - this.requiredPathsPreview.length);
-    }
-
     /**
-     * This now mirrors the playground behavior:
-     * generate a JSON template from the schema and immediately put it into the insert editor.
+     * Generate a JSON template from the collection schema and put it into the insert editor.
      */
     applySchemaTemplateJson() {
         if (this.$result()?.dataModel !== DataModel.DOCUMENT) {
@@ -123,11 +114,8 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
         const template = this.templateFromObjectSchema(this.docSchema, 0, this.includeOptionalInTemplate);
         const templateText = JSON.stringify(template ?? {}, null, 2);
 
-        // IMPORTANT: use the same path as normal editor updates
         this.inputChange(col, templateText);
         this.jsonValid = true;
-
-        // Force the editor to pick up the new input immediately
         this.refreshDocumentEditor();
     }
 
@@ -199,17 +187,17 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
             return null;
         }
 
+        const dataCol = header.find((h: any) => h?.name === '_data');
+        if (dataCol) {
+            return dataCol.name;
+        }
+
         const idCol = header.find((h: any) => h?.name === '_id');
         if (idCol) {
-            return '_id';
+            return idCol.name;
         }
 
-        if (header.length === 1 && header[0]?.name) {
-            return header[0].name;
-        }
-
-        const dataCol = header.find((h: any) => h?.name === '_data');
-        return dataCol?.name ?? (header[0]?.name ?? null);
+        return header[0]?.name ?? null;
     }
 
     private ensureDocumentJsonSeed() {
@@ -275,9 +263,6 @@ export class DataCardComponent extends DataTemplateComponent implements OnInit {
         }
     }
 
-    /**
-     * Same logic as in document-schema-playground, with optional-field toggle support.
-     */
     private templateFromObjectSchema(schema: any, depth: number, includeOptional: boolean): any {
         if (!schema || typeof schema !== 'object') return {};
         if (depth > 6) return {};
