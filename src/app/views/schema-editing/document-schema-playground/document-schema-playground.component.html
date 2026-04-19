@@ -14,12 +14,6 @@
     Paste a single JSON document (object) or an array of documents. Nothing is inserted – this only runs validation.
 </div>
 
-<div class="d-flex align-items-center gap-3 flex-wrap mt-2">
-    <label class="form-label small mb-0">Max violations per document</label>
-    <input class="form-control form-control-sm" style="width: 110px" type="number" min="1" max="500"
-           [(ngModel)]="maxViolationsPerDocument" [disabled]="loading">
-</div>
-
 <textarea class="form-control font-monospace mt-2" rows="10" [(ngModel)]="jsonText" [disabled]="loading"></textarea>
 
 <div *ngIf="parseError" class="text-danger small mt-1">

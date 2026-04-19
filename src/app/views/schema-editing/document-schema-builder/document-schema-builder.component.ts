@@ -386,17 +386,37 @@ export class DocumentSchemaBuilderComponent implements OnChanges {
     toggleTypeCheckbox(node: SchemaNodeSpec, type: string, checked: boolean) {
         const normalized = (type ?? 'text').toString().toLowerCase();
 
-        if (node.kind !== 'scalar') {
-            if (!checked) {
-                return;
+        // In the checkbox-only UI, scalar type checkboxes are used as a more visible
+        // replacement for a single type selector. So checking one scalar type should
+        // switch to that type immediately instead of accumulating a scalar union.
+        if (checked) {
+            if (node.kind !== 'scalar') {
+                this.setKind(node, 'scalar');
             }
-            this.setKind(node, 'scalar');
             node.scalarTypes = [normalized];
+
+            if (!this.isStringAllowed(node)) {
+                node.minLength = node.maxLength = null;
+                node.pattern = null;
+            }
+            if (!this.isNumberAllowed(node)) {
+                node.minimum = node.maximum = null;
+            }
+
             this.onBuilderChange();
             return;
         }
 
-        this.toggleScalarType(node, normalized, checked);
+        // Keep one concrete scalar type selected at all times.
+        if (node.kind === 'scalar' && this.hasScalarType(node, normalized)) {
+            node.scalarTypes = ['text'];
+
+            if (!this.isNumberAllowed(node)) {
+                node.minimum = node.maximum = null;
+            }
+
+            this.onBuilderChange();
+        }
     }
 
 
