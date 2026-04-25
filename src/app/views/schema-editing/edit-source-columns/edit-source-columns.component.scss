@@ -32,3 +32,8 @@ tr:hover app-delete-confirm, tr:hover .rename {
   cursor: pointer;
   user-select: none;
 }
+
+.source-refresh-btn {
+  position: static;
+  border-radius: 100%;
+}

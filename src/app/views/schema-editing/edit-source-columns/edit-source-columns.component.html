@@ -1,11 +1,17 @@
 <c-row class="row">
 
     <c-col>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <h1 class="flex-grow-1">{{ entity()?.name }}</h1>
 
-            <div>
+            <div class="source-actions d-flex align-items-center gap-2">
                 <button cButton color="light" (click)="openDataView()">Show Data</button>
+                <button cButton color="light" class="btn-circle source-refresh-btn"
+                        [ngClass]="{'rotating': loading()}"
+                        (click)="reload()"
+                        *ngIf="entity()">
+                    <i class="icon-reload"></i>
+                </button>
             </div>
         </div>
 

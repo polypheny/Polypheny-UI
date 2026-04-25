@@ -1,7 +1,7 @@
-import {Component, computed, inject, input, Input, OnDestroy, OnInit, Signal} from '@angular/core';
+import {Component, computed, inject, input, Input, OnDestroy, OnInit, Signal, signal} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, RefreshRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -11,6 +11,7 @@ import {ForeignKey} from '../../uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
 import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, ForeignKeyModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
+import {WebSocket} from '../../../services/webSocket';
 
 const tabs = ['column', 'source', 'foreign', 'statistics'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
@@ -28,8 +29,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
     public readonly _types = inject(DbmsTypesService);
     public readonly _catalog = inject(CatalogService);
+    protected readonly webSocket: WebSocket;
 
     constructor() {
+        this.webSocket = new WebSocket();
 
         this.foreignKeys = computed(() => {
             const catalog = this._catalog.listener();
@@ -90,14 +93,20 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     readonly columns: Signal<UiColumnDefinition[]>;
     readonly foreignKeys: Signal<ForeignKey[]>;
+    readonly loading = signal(false);
     errorMsg: string;
     editingCol: string;
     subscriptions = new Subscription();
+    reload = () => {
+        this.refreshEntityData();
+    }
 
     public readonly EntityType = EntityType;
 
     ngOnInit(): void {
         //this.getPlacements();
+        this.initWebsocket();
+
         const self = this;
         $(document).on('click', function (e) {
             if ($(e.target).hasClass('rename') || $(e.target).hasClass('add-col')) {
@@ -112,6 +121,27 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         $(document).off('click');
         this.subscriptions.unsubscribe();
+        this.webSocket.close();
+    }
+
+    protected initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe({
+            next: (result: RelationalResult) => {
+                this.loading.set(false);
+
+                if (result?.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+
+                this._catalog.updateIfNecessary().subscribe();
+            },
+            error: () => {
+                this.loading.set(false);
+                this._toast.error('Could not refresh the source table.');
+            }
+        });
+        this.subscriptions.add(sub);
     }
 
 
@@ -203,6 +233,21 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     openDataView() {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    refreshEntityData() {
+        const entity = this.entity();
+        const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
+        if (!entity || !namespace) {
+            return;
+        }
+
+        this.loading.set(true);
+        const request = new RefreshRequest(entity.id, namespace.name, 1);
+        if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.loading.set(false);
+            this._toast.error('Could not establish a connection with the server.');
+        }
     }
 
     setTab(tab: Tabs) {
