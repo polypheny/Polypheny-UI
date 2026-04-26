@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, Input, OnDestroy, OnInit, Signal, signal} from '@angular/core';
+import {Component, computed, effect, inject, input, Input, OnDestroy, OnInit, Signal, signal, untracked} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
 import {ColumnRequest, RefreshRequest} from '../../../models/ui-request.model';
@@ -67,6 +67,22 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 return UiColumnDefinition.fromModel(c, primaries);
             });
         });
+
+        effect(() => {
+            const route = this.currentRoute();
+            const entity = this.entity();
+            if (!route || !entity) {
+                return;
+            }
+
+            untracked(() => {
+                if (this.lastCheckedRoute === route) {
+                    return;
+                }
+                this.lastCheckedRoute = route;
+                this.checkSourceSchemaAndMaybePrompt(false);
+            });
+        });
     }
 
     @Input()
@@ -94,11 +110,13 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly columns: Signal<UiColumnDefinition[]>;
     readonly foreignKeys: Signal<ForeignKey[]>;
     readonly loading = signal(false);
+    readonly showRefreshModal = signal(false);
+    private lastCheckedRoute: string = null;
     errorMsg: string;
     editingCol: string;
     subscriptions = new Subscription();
     reload = () => {
-        this.refreshEntityData();
+        this.checkSourceSchemaAndMaybePrompt(true);
     }
 
     public readonly EntityType = EntityType;
@@ -248,6 +266,53 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             this.loading.set(false);
             this._toast.error('Could not establish a connection with the server.');
         }
+    }
+
+    closeRefreshModal() {
+        this.showRefreshModal.set(false);
+    }
+
+    confirmRefresh() {
+        this.loading.set(true);
+        this.refreshEntityData();
+        this.closeRefreshModal();
+    }
+
+    cancelRefresh() {
+        this.closeRefreshModal();
+    }
+
+    private checkSourceSchemaAndMaybePrompt(showNoChangesToast: boolean) {
+        const entity = this.entity();
+        const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
+        if (!entity || !namespace) {
+            return;
+        }
+
+        if (entity.entityType !== EntityType.SOURCE) {
+            if (showNoChangesToast) {
+                this.refreshEntityData();
+            }
+            return;
+        }
+
+        const request = new RefreshRequest(entity.id, namespace.name, 1);
+        this.loading.set(true);
+        const sub = this._crud.checkSourceSchemaRefresh(request).subscribe({
+            next: result => {
+                this.loading.set(false);
+                if (result.refreshNeeded) {
+                    this.showRefreshModal.set(true);
+                } else if (showNoChangesToast) {
+                    this._toast.info('No schema synchronization needed.');
+                }
+            },
+            error: () => {
+                this.loading.set(false);
+                this._toast.error('Could not check the source schema.');
+            }
+        });
+        this.subscriptions.add(sub);
     }
 
     setTab(tab: Tabs) {

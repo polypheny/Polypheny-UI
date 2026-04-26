@@ -16,6 +16,10 @@ import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
 import {PlanType} from '../models/information-page.model';
 import {map} from 'rxjs/operators';
 
+export interface SourceSchemaRefreshCheckResult {
+    refreshNeeded: boolean;
+}
+
 
 @Injectable({
     providedIn: 'root'
@@ -59,6 +63,10 @@ export class CrudService {
      */
     refreshEntityData(socket: WebSocket, request: RefreshRequest): boolean {
         return socket.sendMessage(request);
+    }
+
+    checkSourceSchemaRefresh(request: RefreshRequest): Observable<SourceSchemaRefreshCheckResult> {
+        return this._http.post<SourceSchemaRefreshCheckResult>(`${this.httpUrl}/checkSourceSchemaRefresh`, request, this.httpOptions);
     }
 
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
