@@ -51,6 +51,15 @@ export class RefreshRequest extends UIRequest {
     }
 }
 
+export class SourceRefreshRequest extends RequestModel {
+    sourceIds: number[];
+
+    constructor(sourceIds: number[]) {
+        super();
+        this.sourceIds = sourceIds;
+    }
+}
+
 export class PolyAlgRequest extends UIRequest {
     type = 'PolyAlgRequest';
     polyAlg: string;

@@ -31,6 +31,14 @@
         </button>
     </c-button-group>
 
+    <div class="sidebar-refresh-anchor" [ngClass]="{'schema-position': isSchemaSidebarRefreshButton()}"
+         *ngIf="needsSourceRefreshButton()">
+        <button cButton color="light" class="btn-circle sidebar-refresh-btn"
+                type="button" (click)="openSourceRefreshModal()">
+            <i class="icon-reload"></i>
+        </button>
+    </div>
+
     <span *ngIf="error">
         {{ error }}
     </span>
@@ -71,5 +79,41 @@
             <i class="fa fa-pencil" aria-hidden="true"></i>
             <span class="ms-1">Manage Namespaces</span>
         </a>
+    </div>
+</div>
+
+<div class="sidebar-modal-backdrop" *ngIf="showSourceRefreshModal()" (click)="closeSourceRefreshModal()"></div>
+<div class="sidebar-modal" *ngIf="showSourceRefreshModal()">
+    <div class="sidebar-modal-header">
+        <h5 class="mb-0">Refresh Source Metadata</h5>
+        <button cButtonClose type="button" (click)="closeSourceRefreshModal()"></button>
+    </div>
+    <div class="sidebar-modal-body">
+        <div *ngIf="sourceAdapters().length > 0; else noSources">
+            <div class="sidebar-source-actions">
+                <button cButton color="light" size="sm" type="button" (click)="selectAllSources()">
+                    {{ selectedSourceIds().length === sourceAdapters().length ? 'Unselect All' : 'Select All' }}
+                </button>
+            </div>
+            <div class="sidebar-source-list">
+                <button cButton color="light" type="button" class="sidebar-source-item"
+                        [ngClass]="{'active': isSourceSelected(source.id)}"
+                        *ngFor="let source of sourceAdapters()"
+                        (click)="toggleSourceSelection(source.id)">
+                    <div class="fw-semibold">{{ source.name }}</div>
+                    <div class="text-medium-emphasis small">{{ source.adapterName }}</div>
+                </button>
+            </div>
+        </div>
+        <ng-template #noSources>
+            <p class="mb-0">
+                No sources available.
+            </p>
+        </ng-template>
+    </div>
+    <div class="sidebar-modal-footer">
+        <button cButton color="secondary" (click)="closeSourceRefreshModal()">Close</button>
+        <button cButton color="primary" [disabled]="selectedSourceIds().length === 0"
+                (click)="synchronizeSelectedSources()">Synchronize</button>
     </div>
 </div>
