@@ -303,8 +303,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 this.loading.set(false);
                 if (result.refreshNeeded) {
                     this.showRefreshModal.set(true);
-                } else if (showNoChangesToast) {
-                    this._toast.info('No schema synchronization needed.');
+                } else {
+                    if (showNoChangesToast) {
+                        this._toast.info('No schema synchronization needed.');
+                    }
+                    this.refreshEntityData();
                 }
             },
             error: () => {

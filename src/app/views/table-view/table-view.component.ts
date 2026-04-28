@@ -27,7 +27,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
         this.checkSourceSchemaAndMaybePrompt({
             showNoChangesToast: true,
-            loadDataWhenNoRefresh: false,
+            loadDataWhenNoRefresh: true,
             promptWhenNoCache: true
         });
     }
