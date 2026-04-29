@@ -12,6 +12,7 @@ import {CatalogService} from '../../../services/catalog.service';
 import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, ForeignKeyModel, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {WebSocket} from '../../../services/webSocket';
+import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 
 const tabs = ['column', 'source', 'foreign', 'statistics'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
@@ -29,6 +30,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     private readonly _toast = inject(ToasterService);
     public readonly _types = inject(DbmsTypesService);
     public readonly _catalog = inject(CatalogService);
+    private readonly _sidebar = inject(LeftSidebarService);
     protected readonly webSocket: WebSocket;
 
     constructor() {
@@ -124,6 +126,29 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         //this.getPlacements();
         this.initWebsocket();
+
+        this.subscriptions.add(
+            this._sidebar.getSourceRefreshSubject().subscribe(sourceIds => {
+                if (!sourceIds?.length) {
+                    return;
+                }
+
+                const entity = this.entity();
+                if (!entity || entity.entityType !== EntityType.SOURCE) {
+                    return;
+                }
+
+                const isAffected = this._catalog.getAllocations(entity.id)
+                    .some(allocation => {
+                        const placement = this._catalog.placements().get(allocation.placementId);
+                        return placement ? sourceIds.includes(placement.adapterId) : false;
+                    });
+                if (isAffected) {
+                    this.lastCheckedRoute = null;
+                    this.refreshEntityData();
+                }
+            })
+        );
 
         const self = this;
         $(document).on('click', function (e) {

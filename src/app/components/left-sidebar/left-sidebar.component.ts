@@ -218,12 +218,15 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     }
 
     synchronizeSelectedSources() {
-        const request = new SourceRefreshRequest(this.selectedSourceIds());
+        const selectedSourceIds = [...this.selectedSourceIds()];
+        const request = new SourceRefreshRequest(selectedSourceIds);
         this._crud.refreshSelectedSources(request).subscribe({
             next: result => {
                 console.log('Selected sources synchronized:', result.refreshedSources);
                 this._toast.success(`Synchronized ${result.refreshedCount} source tables.`);
-                this._catalog.updateIfNecessary().subscribe();
+                this._catalog.updateIfNecessary().subscribe(() => {
+                    this._sidebar.announceSourceRefresh(selectedSourceIds);
+                });
                 this.closeSourceRefreshModal();
             },
             error: err => {

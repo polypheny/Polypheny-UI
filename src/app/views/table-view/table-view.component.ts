@@ -104,6 +104,28 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         );
         this.subscriptions.add(sub);
 
+        this.subscriptions.add(
+            this._sidebar.getSourceRefreshSubject().subscribe(sourceIds => {
+                if (!sourceIds?.length) {
+                    return;
+                }
+
+                const entity = this.entity();
+                if (!entity || entity.entityType !== EntityType.SOURCE) {
+                    return;
+                }
+
+                const isAffected = this._catalog.getAllocations(entity.id)
+                    .some(allocation => {
+                        const placement = this._catalog.placements().get(allocation.placementId);
+                        return placement ? sourceIds.includes(placement.adapterId) : false;
+                    });
+                if (isAffected) {
+                    this.getEntityData();
+                }
+            })
+        );
+
     }
 
 
