@@ -359,6 +359,7 @@ export class DataMapComponent extends DataTemplateComponent implements AfterView
                     layer.areaShapeVisualization.init(layer.data);
                     layer.colorVisualization.init(layer.data);
                     geometries.push(...layer.data);
+                    console.log(layer.data);
                 }
                 
                 console.log('Render geometries: ', geometries);

@@ -66,10 +66,12 @@ export class MapLayer {
             case DataModel.DOCUMENT:
                 for (let rowIndex = 0; rowIndex < result.data.length; rowIndex++) {
                     const json = result.data[rowIndex][0];
+
                     const jsonObject = Object.fromEntries(
                         Object.entries(JSON.parse(json)).map(([key, value]) => [key.toLowerCase(), value])
                     );
                     const [geometry, key] = this.getGeometryFromData(jsonObject);
+                    console.log(key);
                     if (geometry) {
                         geometryField = key;
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, jsonObject);
@@ -157,6 +159,7 @@ export class MapLayer {
 
 
     static getGeometryFromData(data: Record<string, any>): [Geometry, string] | undefined {
+
         // Detect GeoJSON objects
         for (const key in data) {
             if (data.hasOwnProperty(key) && this.isGeoJSON(data[key])) {

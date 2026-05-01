@@ -196,7 +196,7 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
     runPolyPlan(layer: MapLayer) {
         if (this.applyFilterToLayer || this.addDataToExistingLayer) {
             console.log('Another query is already in progress. Wait for it to finish.', this.applyFilterToLayer, this.addDataToExistingLayer);
-            return;
+            //return;
         }
 
         this.applyFilterToLayer = layer;
@@ -214,16 +214,23 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
 
         let plan = '';
 
-        if (this.applyFilterToLayer.language === 'mongo') {
+        let algPlan = polyPlan;
+
+        if( this.applyFilterToLayer.language === 'sql') {
+            algPlan = `TRANSFORMER[DOCUMENT](${algPlan})`;
+        }
+
+        if (this.applyFilterToLayer.language === 'mongo' || this.applyFilterToLayer.language === 'mql' || this.applyFilterToLayer.language === 'sql') {
             const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
 
             // TODO: Get SRID from layer.
             // TODO: class const
             // Do not use distance for MQL_GEO_WITHIN
             const distance = -1;
-            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=4326;${wkt}':DOCUMENT, ${distance}:FLOAT)](${polyPlan})`;
+            plan = `DOC_FILTER[MQL_GEO_WITHIN(${this.applyFilterToLayer.geometryField}, 'SRID=4326;${wkt}':DOCUMENT, ${distance}:FLOAT)](${algPlan})`;
             plan = trimLines(plan);
         }
+        console.log(plan);
 
         console.log('Run plan:', plan);
         const request = new PolyAlgRequest(plan, DataModel.DOCUMENT, 'LOGICAL');
