@@ -122,8 +122,10 @@ export class MapLayer {
                         const datatype = header.dataType;
                         const value = result.data[rowIndex][headerIndex];
 
+
                         if (datatype.startsWith('NODE')) {
                             const json = JSON.parse(value);
+
                             const properties = json['properties'];
                             // Node stored as JSON
                             obj[key] = Object.fromEntries(
@@ -134,8 +136,9 @@ export class MapLayer {
                             obj[key] = value;
                         }
                     }
-
+                    console.log(obj);
                     const [geometry, key] = this.getGeometryFromData(obj);
+
                     if (geometry) {
                         geometryField = key;
                         const geometryWithData = new MapGeometryWithData(rowIndex, geometry, obj);
@@ -166,35 +169,52 @@ export class MapLayer {
                 return [data[key], key];
             }
         }
+        console.error(`Geometry not found: ${data}`);
+        console.log(data);
 
-        // TODO: If we do this, we cannot filter the layer, because we do not have a single field
-        //       that we can use in the logical plan to reference the coordinates.
-        // Detect 2 columns that store latitude / longitude coordinates
-        // const latLong = [
-        //     ['lat', 'lon'],
-        //     ['latitude', 'longitude'],
-        //     ['lati', 'long'],
-        // ];
-        // const isNumber = (value: any): boolean => {
-        //     return typeof value === 'number' && !isNaN(value);
-        // };
-        //
-        // for (const ll of latLong) {
-        //     const lat = ll[0];
-        //     const lon = ll[1];
-        //
-        //     if (
-        //         data.hasOwnProperty(lat) &&
-        //         data.hasOwnProperty(lon) &&
-        //         isNumber(data[lat]) &&
-        //         isNumber(data[lon])
-        //     ) {
-        //         return {
-        //             type: 'Point',
-        //             coordinates: [data[lon], data[lat]],
-        //         };
-        //     }
-        // }
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                // TODO: If we do this, we cannot filter the layer, because we do not have a single field
+                //       that we can use in the logical plan to reference the coordinates.
+                // Detect 2 columns that store latitude / longitude coordinates
+                let value = data[key];
+                if (value.hasOwnProperty('properties')) {
+                    value = value.properties;
+                }
+
+                console.log(`Geometry with key=${key} value=${value}`);
+                const latLong = [
+                    ['lat', 'lon'],
+                    ['latitude', 'longitude'],
+                    ['lati', 'long'],
+                ];
+                const isNumeric = (value: any): boolean => {
+                    return !isNaN(parseFloat(value)) && isFinite(value);
+                };
+
+
+                for (const ll of latLong) {
+                    const lat = ll[0];
+                    const lon = ll[1];
+                    console.log(value[lat]);
+                    console.log(value[lon]);
+                    console.log(isNumeric(value[lon]));
+                    console.log(typeof value[lon]);
+                    if (
+                        value.hasOwnProperty(lat) &&
+                        value.hasOwnProperty(lon) &&
+                        isNumeric(value[lat]) &&
+                        isNumeric(value[lon])
+                    ) {
+
+                        return [{
+                            type: 'Point',
+                            coordinates: [parseFloat(value[lon]), parseFloat(value[lat])],
+                        }, key];
+                    }
+                }
+            }
+        }
 
         // TODO: Detect heuristic, so that we can automatically detect the most common geometry types
         //   - string in WKT format
@@ -204,6 +224,7 @@ export class MapLayer {
 
 
     static isGeoJSON(obj: any): boolean {
+
         if (!obj || typeof obj !== 'object') {
             return false;
         }

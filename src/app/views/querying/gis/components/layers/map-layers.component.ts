@@ -220,6 +220,11 @@ export class MapLayersComponent implements OnInit, AfterViewInit, OnDestroy {
             algPlan = `TRANSFORMER[DOCUMENT](${algPlan})`;
         }
 
+        if( this.applyFilterToLayer.language === 'cypher') {
+            //algPlan = `TRANSFORMER[DOCUMENT, names=Location, isCrossModel=true](${algPlan})`;
+            console.log('algPlan=', algPlan);
+        }
+
         if (this.applyFilterToLayer.language === 'mongo' || this.applyFilterToLayer.language === 'mql' || this.applyFilterToLayer.language === 'sql') {
             const wkt = geojsonToWKT(this.applyFilterToLayer.filterConfig.polygon);
 
