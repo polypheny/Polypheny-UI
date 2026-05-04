@@ -17,6 +17,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     readonly fullName: Signal<string>;
     readonly showRefreshModal = signal(false);
     private lastInitialTableRefreshRoute: string = null;
+    private lastRefreshTrigger = 'selection';
     private readonly _resultCache = inject(EntityResultCacheService);
 
     // Reload Button:
@@ -28,7 +29,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.checkSourceSchemaAndMaybePrompt({
             showNoChangesToast: true,
             loadDataWhenNoRefresh: true,
-            promptWhenNoCache: true
+            promptWhenNoCache: true,
+            refreshTrigger: 'button'
         });
     }
 
@@ -63,7 +65,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                 this.checkSourceSchemaAndMaybePrompt({
                     showNoChangesToast: false,
                     loadDataWhenNoRefresh: true,
-                    promptWhenNoCache: false
+                    promptWhenNoCache: false,
+                    refreshTrigger: 'selection'
                 });
             });
         });
@@ -150,7 +153,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
     confirmRefresh() {
         this.loading.set(true);
-        this.refreshEntityData();
+        this.refreshEntityData(this.lastRefreshTrigger);
         this.closeRefreshModal();
     }
 
@@ -167,8 +170,10 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     private checkSourceSchemaAndMaybePrompt(options: {
         showNoChangesToast: boolean,
         loadDataWhenNoRefresh: boolean,
-        promptWhenNoCache: boolean
+        promptWhenNoCache: boolean,
+        refreshTrigger: string
     }) {
+        this.lastRefreshTrigger = options.refreshTrigger;
         if (this.entity().entityType !== EntityType.SOURCE) {
             this.getEntityData();
             return;
@@ -188,6 +193,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             filterObj,
             sortState
         );
+        request.refreshTrigger = options.refreshTrigger;
 
         this.loading.set(true);
         const sub = this._crud.checkSourceSchemaRefresh(request).subscribe({
@@ -208,12 +214,12 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                         this.showRefreshModal.set(true);
                     } else {
                         this.loading.set(true);
-                        this.refreshEntityData();
+                        this.refreshEntityData(options.refreshTrigger);
                     }
 
                 // if no refresh needed:
                 } else {
-                    if (options.showNoChangesToast) {
+                    if (options.showNoChangesToast && this.shouldShowNoChangesToast()) {
                         this._toast.info('No schema synchronization needed.');
                     }
                     if (options.loadDataWhenNoRefresh) {
@@ -249,6 +255,17 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         cloned.affectedTuples = result.affectedTuples;
         cloned.type = result.type;
         return cloned;
+    }
+
+    private shouldShowNoChangesToast(): boolean {
+        const entity = this.entity();
+        if (!entity || entity.entityType !== EntityType.SOURCE) {
+            return false;
+        }
+
+        const placement = this._catalog.getPlacements(entity.id)[0];
+        const adapterName = placement ? this._catalog.getAdapter(placement.adapterId)?.adapterName : null;
+        return adapterName === 'PostgreSQL' || adapterName === 'MySQL';
     }
 
     private getCachedResultForEntity(entityId: number): CombinedResult | null {

@@ -71,6 +71,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         this.sourceAdapters = computed(() =>
             Array.from(this._catalog.adapters().values())
                 .filter(adapter => adapter.type === AdapterType.SOURCE)
+                .filter(adapter => adapter.adapterName === 'PostgreSQL' || adapter.adapterName === 'MySQL')
                 .sort((left, right) => left.name.localeCompare(right.name))
         );
     }

@@ -114,11 +114,12 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly loading = signal(false);
     readonly showRefreshModal = signal(false);
     private lastCheckedRoute: string = null;
+    private lastRefreshTrigger = 'selection';
     errorMsg: string;
     editingCol: string;
     subscriptions = new Subscription();
     reload = () => {
-        this.checkSourceSchemaAndMaybePrompt(true);
+        this.checkSourceSchemaAndMaybePrompt(true, 'button');
     }
 
     public readonly EntityType = EntityType;
@@ -278,7 +279,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
     }
 
-    refreshEntityData() {
+    refreshEntityData(refreshTrigger: string = this.lastRefreshTrigger) {
         const entity = this.entity();
         const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
         if (!entity || !namespace) {
@@ -287,6 +288,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
         this.loading.set(true);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.refreshTrigger = refreshTrigger;
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
             this.loading.set(false);
             this._toast.error('Could not establish a connection with the server.');
@@ -299,7 +301,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     confirmRefresh() {
         this.loading.set(true);
-        this.refreshEntityData();
+        this.refreshEntityData(this.lastRefreshTrigger);
         this.closeRefreshModal();
     }
 
@@ -307,7 +309,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.closeRefreshModal();
     }
 
-    private checkSourceSchemaAndMaybePrompt(showNoChangesToast: boolean) {
+    private checkSourceSchemaAndMaybePrompt(showNoChangesToast: boolean, refreshTrigger: string = 'selection') {
+        this.lastRefreshTrigger = refreshTrigger;
         const entity = this.entity();
         const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
         if (!entity || !namespace) {
@@ -322,6 +325,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         }
 
         const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.refreshTrigger = refreshTrigger;
         this.loading.set(true);
         const sub = this._crud.checkSourceSchemaRefresh(request).subscribe({
             next: result => {
@@ -329,10 +333,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 if (result.refreshNeeded) {
                     this.showRefreshModal.set(true);
                 } else {
-                    if (showNoChangesToast) {
+                    if (showNoChangesToast && this.shouldShowNoChangesToast(entity.id)) {
                         this._toast.info('No schema synchronization needed.');
                     }
-                    this.refreshEntityData();
                 }
             },
             error: () => {
@@ -341,6 +344,12 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             }
         });
         this.subscriptions.add(sub);
+    }
+
+    private shouldShowNoChangesToast(entityId: number): boolean {
+        const placement = this._catalog.getPlacements(entityId)[0];
+        const adapterName = placement ? this._catalog.getAdapter(placement.adapterId)?.adapterName : null;
+        return adapterName === 'PostgreSQL' || adapterName === 'MySQL';
     }
 
     setTab(tab: Tabs) {

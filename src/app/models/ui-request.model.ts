@@ -16,6 +16,7 @@ export abstract class UIRequest extends RequestModel {
     filter: Map<string, string>;
     sortState: Map<string, SortState>;
     selectInterval: string;
+    refreshTrigger?: string;
 }
 
 
