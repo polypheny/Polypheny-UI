@@ -18,6 +18,7 @@ import {map} from 'rxjs/operators';
 
 export interface SourceSchemaRefreshCheckResult {
     refreshNeeded: boolean;
+    changeDescriptions: string[];
 }
 
 export interface SourceRefreshResult {

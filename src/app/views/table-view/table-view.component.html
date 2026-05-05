@@ -23,6 +23,9 @@
         <p class="mb-0" *ngIf="entity()">
             The external source schema for this table has changed.
         </p>
+        <ul class="mt-2 mb-0" *ngIf="refreshChangeDescriptions().length">
+            <li *ngFor="let changeDescription of refreshChangeDescriptions()">{{ changeDescription }}</li>
+        </ul>
         <p class="mb-0 mt-2" *ngIf="entity()">
             Continuing without synchronization may leave the displayed rows and schema out of date.
         </p>

@@ -16,6 +16,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
     readonly fullName: Signal<string>;
     readonly showRefreshModal = signal(false);
+    readonly refreshChangeDescriptions = signal<string[]>([]);
     private lastInitialTableRefreshRoute: string = null;
     private lastRefreshTrigger = 'selection';
     private readonly _resultCache = inject(EntityResultCacheService);
@@ -202,6 +203,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
                 // if refresh needed:
                 if (result.refreshNeeded) {
+                    this.refreshChangeDescriptions.set(result.changeDescriptions ?? []);
                     const entityId = this.entity().id;
                     const cachedResult = this.getCachedResultForEntity(entityId);
                     if (cachedResult && this.hasVisitedEntity(entityId)) {
@@ -219,6 +221,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
                 // if no refresh needed:
                 } else {
+                    this.refreshChangeDescriptions.set([]);
                     if (options.showNoChangesToast && this.shouldShowNoChangesToast()) {
                         this._toast.info('No schema synchronization needed.');
                     }
@@ -229,6 +232,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             },
             error: () => {
                 this.loading.set(false);
+                this.refreshChangeDescriptions.set([]);
                 this._toast.error('Could not check the source schema.');
             }
         });

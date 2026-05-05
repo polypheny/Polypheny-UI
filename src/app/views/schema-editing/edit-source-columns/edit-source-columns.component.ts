@@ -113,6 +113,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly foreignKeys: Signal<ForeignKey[]>;
     readonly loading = signal(false);
     readonly showRefreshModal = signal(false);
+    readonly refreshChangeDescriptions = signal<string[]>([]);
     private lastCheckedRoute: string = null;
     private lastRefreshTrigger = 'selection';
     errorMsg: string;
@@ -331,8 +332,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             next: result => {
                 this.loading.set(false);
                 if (result.refreshNeeded) {
+                    this.refreshChangeDescriptions.set(result.changeDescriptions ?? []);
                     this.showRefreshModal.set(true);
                 } else {
+                    this.refreshChangeDescriptions.set([]);
                     if (showNoChangesToast && this.shouldShowNoChangesToast(entity.id)) {
                         this._toast.info('No schema synchronization needed.');
                     }
@@ -340,6 +343,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             },
             error: () => {
                 this.loading.set(false);
+                this.refreshChangeDescriptions.set([]);
                 this._toast.error('Could not check the source schema.');
             }
         });
