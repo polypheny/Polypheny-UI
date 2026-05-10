@@ -218,7 +218,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             }
             let locations = Array.from(stores).filter(store => placements.includes(store.id));
             if (this.isPolyIndexEnabled()) {
-                const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL);
+                const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL );
                 adapterModel.indexMethods = [new IndexMethodModel('hash', 'Hash')];
                 locations = [adapterModel, ...locations];
             }

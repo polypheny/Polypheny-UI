@@ -7,15 +7,17 @@ export class AdapterModel extends IdEntity {
     readonly persistent: boolean;
     readonly type: AdapterType;
     readonly mode: DeployMode;
+    readonly features: string[];
     indexMethods: IndexMethodModel[];
 
-    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode) {
+    constructor(uniqueName: string, adapterName: string, settings: Map<string, string>, persistent: boolean, type: AdapterType, deployMode: DeployMode, features: string[] = []) {
         super(-1, uniqueName);
         this.adapterName = adapterName;
         this.settings = settings;
         this.persistent = persistent;
         this.type = type;
         this.mode = deployMode;
+        this.features = features;
     }
 }
 
