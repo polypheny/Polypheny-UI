@@ -10,6 +10,31 @@ import {CatalogService} from '../../services/catalog.service';
 import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
+
+interface AdapterPreset {
+    label: string;
+    description: string;
+    mode: DeployMode;
+    settings: Record<string, string>;
+}
+
+const ADAPTER_PRESETS: Record<string, AdapterPreset[]> = {
+    PostgreSQL: [
+        {
+            label: 'Minimal PostgreSQL',
+            description: 'Plain Docker image, no extensions',
+            mode: DeployMode.DOCKER,
+            settings: { imageVariant: 'Default' }
+        },
+        {
+            label: 'Full PostgreSQL',
+            description: 'Docker image with pgvector & PostGIS extensions installed',
+            mode: DeployMode.DOCKER,
+            settings: { imageVariant: 'pgvector & PostGIS' }
+        }
+    ]
+};
+
 @Component({
     selector: 'app-adapters',
     templateUrl: './adapters.component.html',
@@ -84,6 +109,20 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     private readonly files = new Map<string, File>();
 
+    pendingPresetOverrides;
+
+    showManualModes = false;
+
+    readonly adapterPresets = computed(() =>
+        ADAPTER_PRESETS[this.adapter()?.adapterName] ?? []
+    );
+
+
+    applyPreset(preset: AdapterPreset) {
+        this.pendingPresetOverrides = preset.settings;
+        this.setMode(preset.mode);
+    }
+
 
     readonly positionOrder = () => {
         return (a, b) => {
@@ -144,7 +183,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 fc['uniqueName'] = new UntypedFormControl(adapter.uniqueName, [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()].filter(a => a.name !== adapter.uniqueName))]);
                 this.editingAdapterForm = new UntypedFormGroup(fc);
             }
-
+            if (this.pendingPresetOverrides) {
+                this.editingAvailableAdapterForm.patchValue(this.pendingPresetOverrides);
+                this.pendingPresetOverrides = null;
+                this.deploy();
+            }
         }, {injector: this.injector});
     }
 
@@ -172,6 +215,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.activeMode.set(null);
         this.settingHeaders = null;
         this.fileLabel = 'Choose File';
+        this.showManualModes = false;
+        this.pendingPresetOverrides = null;
     }
 
     initAdapterSettingsConfigureModal(adapter: AdapterModel) {
