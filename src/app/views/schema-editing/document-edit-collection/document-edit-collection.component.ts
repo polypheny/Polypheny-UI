@@ -1,10 +1,10 @@
-import {Component, computed, HostListener, inject, input, Input, OnDestroy, OnInit, Signal, ViewChild} from '@angular/core';
+import {Component, computed, HostListener, inject, input, Input, OnDestroy, OnInit, Signal, signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
-import {Method} from '../../../models/ui-request.model';
+import {Method, RefreshRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -12,6 +12,7 @@ import {Subscription} from 'rxjs';
 import {CatalogService} from '../../../services/catalog.service';
 import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {Router} from '@angular/router';
+import {WebSocket} from '../../../services/webSocket';
 
 const tabs = ['fields', 'placement', 'statistics'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
@@ -24,15 +25,12 @@ type Tabs = (typeof tabs)[number]; // returns the type of any element in the tab
 
 export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
-    constructor() {
-
-    }
-
     public readonly _crud = inject(CrudService);
     public readonly _types = inject(DbmsTypesService);
     public readonly _catalog = inject(CatalogService);
     private readonly _toast = inject(ToasterService);
     private readonly _router = inject(Router);
+    protected readonly webSocket: WebSocket;
 
     @Input()
     readonly entity: Signal<TableModel>;
@@ -73,6 +71,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     isAddingPlacement = false;
 
     subscriptions = new Subscription();
+    readonly loading = signal(false);
 
     @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
     @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -82,14 +81,24 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
     protected readonly EntityType = EntityType;
 
+    reload = () => {
+        this.refreshEntityData();
+    }
+
+    constructor() {
+        this.webSocket = new WebSocket();
+    }
+
     ngOnInit() {
 
         this.getFixedFields();
+        this.initWebsocket();
     }
 
     ngOnDestroy() {
         $(document).off('click');
         this.subscriptions.unsubscribe();
+        this.webSocket.close();
     }
 
     //see https://medium.com/claritydesignsystem/1b66d45b3e3d
@@ -104,6 +113,27 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
     getFixedFields() {
         return [];
+    }
+
+    private initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe({
+            next: (result: RelationalResult) => {
+                this.loading.set(false);
+
+                if (result?.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+
+                this._catalog.updateIfNecessary().subscribe();
+                this._toast.info('Updated data.');
+            },
+            error: () => {
+                this.loading.set(false);
+                this._toast.error('Could not refresh the source collection.');
+            }
+        });
+        this.subscriptions.add(sub);
     }
 
     modifyPlacement(method: Method, storeId: number = null) {
@@ -150,6 +180,21 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
     openDataView() {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    refreshEntityData() {
+        const entity = this.entity();
+        const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
+        if (!entity || !namespace) {
+            return;
+        }
+
+        this.loading.set(true);
+        const request = new RefreshRequest(entity.id, namespace.name, 1);
+        if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.loading.set(false);
+            this._toast.error('Could not establish a connection with the server.');
+        }
     }
 
     setTab(tab: Tabs) {

@@ -1,7 +1,7 @@
 import {Component, computed, effect, inject, input, Input, OnDestroy, OnInit, Signal, signal, untracked} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, RefreshRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, DataModel, RefreshRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -325,6 +325,16 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (entity.dataModel !== DataModel.RELATIONAL) {
+            this.refreshChangeDescriptions.set([]);
+            this.refreshEntityData(refreshTrigger);
+            if (showNoChangesToast && refreshTrigger === 'button') {
+                this._toast.info('Updated data.');
+            }
+            return;
+        }
+
+
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         request.refreshTrigger = refreshTrigger;
         this.loading.set(true);
@@ -353,7 +363,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     private shouldShowNoChangesToast(entityId: number): boolean {
         const placement = this._catalog.getPlacements(entityId)[0];
         const adapterName = placement ? this._catalog.getAdapter(placement.adapterId)?.adapterName : null;
-        return adapterName === 'PostgreSQL' || adapterName === 'MySQL';
+        return adapterName === 'PostgreSQL' || adapterName === 'MySQL' || adapterName === 'MongoDB';
     }
 
     setTab(tab: Tabs) {

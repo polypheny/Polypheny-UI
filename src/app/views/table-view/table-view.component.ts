@@ -2,7 +2,7 @@ import {Component, computed, effect, inject, OnDestroy, OnInit, Signal, signal, 
 import {DataTemplateComponent} from '../../components/data-view/data-template/data-template.component';
 import {Router} from '@angular/router';
 import {EntityType} from '../../models/catalog.model';
-import {RefreshRequest} from '../../models/ui-request.model';
+import {DataModel, RefreshRequest} from '../../models/ui-request.model';
 import {UiColumnDefinition} from '../../components/data-view/models/result-set.model';
 import {CombinedResult} from '../../components/data-view/data-view.model';
 import {EntityResultCacheService} from '../../services/entity-result-cache.service';
@@ -175,8 +175,22 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         refreshTrigger: string
     }) {
         this.lastRefreshTrigger = options.refreshTrigger;
-        if (this.entity().entityType !== EntityType.SOURCE) {
+        const entity = this.entity();
+        if (entity.entityType !== EntityType.SOURCE) {
             this.getEntityData();
+            return;
+        }
+
+        if (entity.dataModel !== DataModel.RELATIONAL) {
+            this.refreshChangeDescriptions.set([]);
+            if (options.loadDataWhenNoRefresh) {
+                this.refreshEntityData(options.refreshTrigger);
+            } else {
+                this.getEntityData();
+            }
+            if (options.showNoChangesToast && options.refreshTrigger === 'button') {
+                this._toast.info('Updated data.');
+            }
             return;
         }
 
@@ -269,7 +283,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
         const placement = this._catalog.getPlacements(entity.id)[0];
         const adapterName = placement ? this._catalog.getAdapter(placement.adapterId)?.adapterName : null;
-        return adapterName === 'PostgreSQL' || adapterName === 'MySQL';
+        return adapterName === 'PostgreSQL' || adapterName === 'MySQL' || adapterName === 'MongoDB';
     }
 
     private getCachedResultForEntity(entityId: number): CombinedResult | null {
