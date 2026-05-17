@@ -71,7 +71,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         this.sourceAdapters = computed(() =>
             Array.from(this._catalog.adapters().values())
                 .filter(adapter => adapter.type === AdapterType.SOURCE)
-                .filter(adapter => adapter.adapterName === 'PostgreSQL' || adapter.adapterName === 'MySQL')
+                .filter(adapter => adapter.adapterName === 'PostgreSQL' || adapter.adapterName === 'MySQL' || adapter.adapterName === 'MongoDB')
                 .sort((left, right) => left.name.localeCompare(right.name))
         );
     }
@@ -224,7 +224,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         this._crud.refreshSelectedSources(request).subscribe({
             next: result => {
                 console.log('Selected sources synchronized:', result.refreshedSources);
-                this._toast.success(`Synchronized ${result.refreshedCount} source tables.`);
+                this._toast.success(`Synchronized ${result.refreshedCount} source entities.`);
                 this._catalog.updateIfNecessary().subscribe(() => {
                     this._sidebar.announceSourceRefresh(selectedSourceIds);
                 });
