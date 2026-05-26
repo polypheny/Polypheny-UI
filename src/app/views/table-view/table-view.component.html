@@ -13,28 +13,3 @@
                    [$entity]="entity"></app-data-view>
 </div>
 <p class="mt-3" *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>
-
-<c-modal [visible]="showRefreshModal()" (visibleChange)="handleRefreshModalVisibilityChange($event)">
-    <c-modal-header>
-        <h5 cModalTitle>External Schema Changes Detected</h5>
-        <button (click)="closeRefreshModal()" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>
-        <p class="mb-0" *ngIf="entity()">
-            The external source schema for this table has changed.
-        </p>
-        <ul class="mt-2 mb-0" *ngIf="refreshChangeDescriptions().length">
-            <li *ngFor="let changeDescription of refreshChangeDescriptions()">{{ changeDescription }}</li>
-        </ul>
-        <p class="mb-0 mt-2" *ngIf="entity()">
-            Continuing without synchronization may leave the displayed rows and schema out of date.
-        </p>
-        <p class="mb-0 mt-2" *ngIf="entity()">
-            Do you want to synchronize the table schema now?
-        </p>
-    </c-modal-body>
-    <c-modal-footer>
-        <button cButton color="secondary" (click)="cancelRefresh()">Cancel</button>
-        <button cButton color="primary" (click)="confirmRefresh()">Synchronize</button>
-    </c-modal-footer>
-</c-modal>
