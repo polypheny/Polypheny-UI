@@ -197,17 +197,23 @@
     </c-col>
 </c-row>
 
-<c-modal [visible]="showRefreshSummaryModal()" (visibleChange)="showRefreshSummaryModal.set($event)">
+<c-modal [visible]="showRefreshSummaryModal()"
+         (visibleChange)="showRefreshSummaryModal.set($event)"
+         (keydown.enter)="closeRefreshSummaryModal()"
+         size="lg"
+         alignment="center">
     <c-modal-header>
         <h5 cModalTitle>Synchronized Source Table</h5>
     </c-modal-header>
     <c-modal-body *ngIf="showRefreshSummaryModal()">
-        <p>These schema changes were applied:</p>
-        <ul class="mb-0">
-            <li *ngFor="let change of refreshChangeDescriptions()">{{ change }}</li>
+        <p class="text-body-secondary mb-3">These schema changes were applied:</p>
+        <ul class="list-group list-group-flush">
+            <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
+                {{ change }}
+            </li>
         </ul>
     </c-modal-body>
     <c-modal-footer>
-        <button cButton color="primary" (click)="closeRefreshSummaryModal()">OK</button>
+        <button cButton color="primary" autofocus (click)="closeRefreshSummaryModal()">OK</button>
     </c-modal-footer>
 </c-modal>
