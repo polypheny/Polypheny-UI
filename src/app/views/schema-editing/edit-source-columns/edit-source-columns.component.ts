@@ -32,6 +32,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     public readonly _catalog = inject(CatalogService);
     private readonly _sidebar = inject(LeftSidebarService);
     protected readonly webSocket: WebSocket;
+    readonly showRefreshSummaryModal = signal(false);
+    readonly refreshChangeDescriptions = signal<string[]>([]);
+    private readonly viewInitialized = signal(false);
+    private pendingRefreshTrigger: string | null = null;
 
     constructor() {
         this.webSocket = new WebSocket();
@@ -73,7 +77,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         effect(() => {
             const route = this.currentRoute();
             const entity = this.entity();
-            if (!route || !entity) {
+            const viewInitialized = this.viewInitialized();
+            if (!route || !entity || !viewInitialized) {
                 return;
             }
 
@@ -127,6 +132,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         //this.getPlacements();
         this.initWebsocket();
+        this.viewInitialized.set(true);
 
         this.subscriptions.add(
             this._sidebar.getSourceRefreshSubject().subscribe(sourceIds => {
@@ -178,6 +184,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                     return;
                 }
 
+                this.handleRefreshFeedback(result);
                 this._catalog.updateIfNecessary().subscribe();
             },
             error: () => {
@@ -289,9 +296,35 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         request.refreshTrigger = refreshTrigger;
+        this.pendingRefreshTrigger = refreshTrigger;
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.pendingRefreshTrigger = null;
             this.loading.set(false);
             this._toast.error('Could not establish a connection with the server.');
+        }
+    }
+
+    closeRefreshSummaryModal() {
+        this.showRefreshSummaryModal.set(false);
+    }
+
+    private handleRefreshFeedback(result: RelationalResult) {
+        const refreshTrigger = this.pendingRefreshTrigger;
+        this.pendingRefreshTrigger = null;
+
+        if (!refreshTrigger) {
+            return;
+        }
+
+        const changeDescriptions = result.changeDescriptions ?? [];
+        if (changeDescriptions.length > 0) {
+            this.refreshChangeDescriptions.set(changeDescriptions);
+            this.showRefreshSummaryModal.set(true);
+            return;
+        }
+
+        if (refreshTrigger === 'button') {
+            this._toast.info('No schema changes detected.');
         }
     }
 

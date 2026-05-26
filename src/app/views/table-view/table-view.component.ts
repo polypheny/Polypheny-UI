@@ -1,8 +1,9 @@
-import {Component, computed, effect, OnDestroy, OnInit, Signal, untracked} from '@angular/core';
+import {Component, computed, effect, OnDestroy, OnInit, Signal, signal, untracked} from '@angular/core';
 import {DataTemplateComponent} from '../../components/data-view/data-template/data-template.component';
 import {Router} from '@angular/router';
 import {EntityType} from '../../models/catalog.model';
-import {DataModel} from '../../models/ui-request.model';
+import {RelationalResult, Result} from '../../components/data-view/models/result-set.model';
+import {CombinedResult} from '../../components/data-view/data-view.model';
 
 @Component({
     selector: 'app-table-view',
@@ -12,6 +13,9 @@ import {DataModel} from '../../models/ui-request.model';
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 
     readonly fullName: Signal<string>;
+    readonly showRefreshSummaryModal = signal(false);
+    readonly refreshChangeDescriptions = signal<string[]>([]);
+    private pendingRefreshTrigger: string | null = null;
     private lastInitialTableRefreshRoute: string = null;
 
     // Reload Button:
@@ -101,5 +105,72 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
     openSchemaView() {
         this._router.navigate(['/views/schema-editing/' + this.fullName()]).then();
+    }
+
+    protected override initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe({
+            next: (result: Result<any, any>) => {
+                if (!result) {
+                    return;
+                }
+
+                if (this.$result && +this._route.snapshot.paramMap.get('page') > this.$result()?.highestPage) {
+                    this._router.navigate(['/views/data-table/' + this.entity()?.name + '/' + this.$result().highestPage]).then(null);
+                }
+                this.editing = -1;
+                this.buildInsertObject();
+
+                this.entityConfig.update(conf => {
+                    if (this.entity().entityType === EntityType.ENTITY) {
+                        conf.create = true;
+                        conf.update = true;
+                        conf.delete = true;
+                    } else {
+                        conf.create = false;
+                        conf.update = false;
+                        conf.delete = false;
+                    }
+                    return conf;
+                });
+
+                this.handleRefreshFeedback(result as RelationalResult);
+                this.$result.set(CombinedResult.from(result));
+                this.loading.set(false);
+            }, error: err => {
+                console.log(err);
+                this.loading.set(false);
+                this.$result.set(CombinedResult.fromRelational(new RelationalResult('Server is not available')));
+            }
+        });
+        this.subscriptions.add(sub);
+    }
+
+    override refreshEntityData(refreshTrigger?: string) {
+        this.pendingRefreshTrigger = refreshTrigger ?? null;
+        super.refreshEntityData(refreshTrigger);
+    }
+
+    closeRefreshSummaryModal() {
+        this.showRefreshSummaryModal.set(false);
+    }
+
+    private handleRefreshFeedback(result: RelationalResult) {
+        const refreshTrigger = this.pendingRefreshTrigger;
+        this.pendingRefreshTrigger = null;
+
+        if (!refreshTrigger || this.entity()?.entityType !== EntityType.SOURCE) {
+            return;
+        }
+
+        const changeDescriptions = result.changeDescriptions ?? [];
+        if (changeDescriptions.length > 0) {
+            this.refreshChangeDescriptions.set(changeDescriptions);
+            this.showRefreshSummaryModal.set(true);
+            return;
+        }
+
+        if (refreshTrigger === 'button') {
+            this._toast.info('No schema changes detected.');
+        }
     }
 }

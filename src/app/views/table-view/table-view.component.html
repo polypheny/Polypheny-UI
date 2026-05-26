@@ -13,3 +13,18 @@
                    [$entity]="entity"></app-data-view>
 </div>
 <p class="mt-3" *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>
+
+<c-modal [visible]="showRefreshSummaryModal()" (visibleChange)="showRefreshSummaryModal.set($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Synchronized Source Table</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showRefreshSummaryModal()">
+        <p>These schema changes were applied:</p>
+        <ul class="mb-0">
+            <li *ngFor="let change of refreshChangeDescriptions()">{{ change }}</li>
+        </ul>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" (click)="closeRefreshSummaryModal()">OK</button>
+    </c-modal-footer>
+</c-modal>
