@@ -20,6 +20,15 @@ export interface SourceRefreshResult {
     success: boolean;
     refreshedSources: string[];
     refreshedCount: number;
+    refreshSummaries?: SourceRefreshSummary[];
+}
+
+
+export interface SourceRefreshSummary {
+    sourceName: string;
+    entityName: string;
+    dataModel: DataModel;
+    changeDescriptions: string[];
 }
 
 

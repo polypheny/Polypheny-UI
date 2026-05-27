@@ -6,7 +6,7 @@ import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
 import {CatalogService} from '../../services/catalog.service';
 import {CatalogState} from '../../models/catalog.model';
 import {AdapterModel, AdapterType} from '../../views/adapters/adapter.model';
-import {CrudService} from '../../services/crud.service';
+import {CrudService, SourceRefreshSummary} from '../../services/crud.service';
 import {SourceRefreshRequest} from '../../models/ui-request.model';
 import {ToasterService} from '../toast-exposer/toaster.service';
 
@@ -21,7 +21,9 @@ import {ToasterService} from '../toast-exposer/toaster.service';
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
     readonly showSourceRefreshModal = signal(false);
+    readonly showSourceRefreshSummaryModal = signal(false);
     readonly selectedSourceIds = signal<number[]>([]);
+    readonly sourceRefreshSummaries = signal<SourceRefreshSummary[]>([]);
 
     constructor() {
         this.router = this._router;
@@ -196,6 +198,11 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         this.showSourceRefreshModal.set(false);
     }
 
+    closeSourceRefreshSummaryModal() {
+        this.showSourceRefreshSummaryModal.set(false);
+        this.sourceRefreshSummaries.set([]);
+    }
+
     toggleSourceSelection(sourceId: number) {
         if (this.selectedSourceIds().includes(sourceId)) {
             this.selectedSourceIds.set(this.selectedSourceIds().filter(id => id !== sourceId));
@@ -223,8 +230,37 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         const request = new SourceRefreshRequest(selectedSourceIds);
         this._crud.refreshSelectedSources(request).subscribe({
             next: result => {
-                console.log('Selected sources synchronized:', result.refreshedSources);
-                this._toast.success(`Synchronized ${result.refreshedCount} source entities.`);
+                console.log('[left-sidebar] selected sources synchronized', {
+                    refreshedSources: result.refreshedSources,
+                    refreshedCount: result.refreshedCount,
+                    rawResult: result
+                });
+                const refreshSummaries = result.refreshSummaries ?? [];
+                console.log('[left-sidebar] source refresh summaries received', refreshSummaries);
+                refreshSummaries.forEach((summary, summaryIndex) => {
+                    console.log('[left-sidebar] source refresh summary item', {
+                        summaryIndex,
+                        sourceName: summary.sourceName,
+                        entityName: summary.entityName,
+                        dataModel: summary.dataModel,
+                        changeDescriptions: summary.changeDescriptions
+                    });
+                    (summary.changeDescriptions ?? []).forEach((change, changeIndex) => {
+                        console.log('[left-sidebar] source refresh summary change', {
+                            summaryIndex,
+                            changeIndex,
+                            value: change,
+                            type: typeof change
+                        });
+                    });
+                });
+                if (refreshSummaries.length > 0) {
+                    this.sourceRefreshSummaries.set(refreshSummaries);
+                    console.log('[left-sidebar] source refresh summaries stored', this.sourceRefreshSummaries());
+                    this.showSourceRefreshSummaryModal.set(true);
+                } else {
+                    this._toast.info('No source schema changes detected.');
+                }
                 this._catalog.updateIfNecessary().subscribe(() => {
                     this._sidebar.announceSourceRefresh(selectedSourceIds);
                 });

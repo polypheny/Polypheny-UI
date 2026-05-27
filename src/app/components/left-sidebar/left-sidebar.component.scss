@@ -86,6 +86,10 @@
   z-index: 1050;
 }
 
+.sidebar-refresh-summary-modal {
+  width: min(38rem, calc(100vw - 2rem));
+}
+
 .sidebar-modal-header,
 .sidebar-modal-footer {
   display: flex;
@@ -122,6 +126,28 @@
 
 .sidebar-source-actions {
   margin-top: 0.75rem;
+}
+
+.sidebar-refresh-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.sidebar-refresh-summary-item {
+  border: 1px solid #d8dbe0;
+  border-radius: 0.5rem;
+  padding: 0.85rem;
+  background: #f8f9fa;
+}
+
+.sidebar-refresh-summary-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .no-children {

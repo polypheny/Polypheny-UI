@@ -117,3 +117,33 @@
                 (click)="synchronizeSelectedSources()">Synchronize</button>
     </div>
 </div>
+
+<div class="sidebar-modal-backdrop" *ngIf="showSourceRefreshSummaryModal()" (click)="closeSourceRefreshSummaryModal()"></div>
+<div class="sidebar-modal sidebar-refresh-summary-modal" *ngIf="showSourceRefreshSummaryModal()"
+     (keydown.enter)="closeSourceRefreshSummaryModal()" tabindex="0">
+    <div class="sidebar-modal-header">
+        <h5 class="mb-0">Synchronized Sources</h5>
+        <button cButtonClose type="button" (click)="closeSourceRefreshSummaryModal()"></button>
+    </div>
+    <div class="sidebar-modal-body">
+        <p class="text-medium-emphasis mb-3">
+            These source metadata changes were applied:
+        </p>
+        <div class="sidebar-refresh-summary-list">
+            <div class="sidebar-refresh-summary-item" *ngFor="let summary of sourceRefreshSummaries()">
+                <div class="sidebar-refresh-summary-title">
+                    <div>
+                        <div class="fw-semibold">{{ summary.entityName }}</div>
+                        <div class="text-medium-emphasis small">{{ summary.sourceName }} · {{ summary.dataModel }}</div>
+                    </div>
+                </div>
+                <ul class="mb-0 ps-3">
+                    <li *ngFor="let change of summary.changeDescriptions">{{ change }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-modal-footer justify-content-end">
+        <button cButton color="primary" type="button" autofocus (click)="closeSourceRefreshSummaryModal()">Ok</button>
+    </div>
+</div>
