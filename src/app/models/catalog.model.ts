@@ -56,6 +56,7 @@ export interface ColumnModel extends FieldModel {
     type: PolyType;
     collectionsType: PolyType;
     nullable: boolean;
+    elementsNullable: boolean;
     position: number;
     unique: boolean;
     precision: number;
