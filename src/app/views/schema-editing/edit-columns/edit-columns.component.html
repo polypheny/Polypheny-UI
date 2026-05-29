@@ -194,6 +194,7 @@
                             <span *ngIf="col.scale">scale: {{ col.scale }}</span>
                             <span *ngIf="col.dimension">dimension: {{ col.dimension }}</span>
                             <span *ngIf="col.cardinality">cardinality: {{ col.cardinality }}</span>
+                            <span *ngIf="col.elementsNullable === false">elements: NOT NULL</span>
                         </td>
                         <td>{{ col.defaultValue }}</td>
                         <td>
@@ -216,6 +217,7 @@
                             <span *ngIf="col.scale">scale: {{ col.scale }}</span>
                             <span *ngIf="col.dimension !== -1">dimension: {{ col.dimension }}</span>
                             <span *ngIf="col.cardinality !== -1">cardinality: {{ col.cardinality }}</span>
+                            <span *ngIf="col.elementsNullable === false">elements: NOT NULL</span>
                         </td>
                         <td>{{ col.defaultValue }}</td>
                         <td class="delete">
