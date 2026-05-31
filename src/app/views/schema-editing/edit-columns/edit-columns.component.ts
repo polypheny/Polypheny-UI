@@ -421,6 +421,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this.updateColumn.controls['dimension'].value || -1,
             this.updateColumn.controls['cardinality'].value || -1
         );
+        newColumn.elementsNullable = oldColumn.elementsNullable;
         if (!this._types.supportsPrecision(newColumn.dataType) && newColumn.precision !== null) {
             newColumn.precision = null;
         }
