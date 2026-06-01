@@ -583,7 +583,7 @@
                             <tr *ngFor="let d1 of indexDefinitions(); let i = index">
                                 <td *ngFor="let d2 of d1">{{ d2 }}</td>
                                 <td class="delete">
-                                    @if (d1[4] != 'FUNCTIONAL') {
+                                    @if (d1[d1.length - 1] != 'FUNCTIONAL') {
                                         <app-delete-confirm (delete)="dropIndex(d1[0])"></app-delete-confirm>
                                     }
                                 </td>
