@@ -61,6 +61,19 @@ export class SourceRefreshRequest extends RequestModel {
     }
 }
 
+export class SourceSnapshotRequest extends RequestModel {
+    sourceEntityId: number;
+    targetStoreId: number;
+    targetNamespaceId: number;
+
+    constructor(sourceEntityId: number, targetStoreId: number, targetNamespaceId: number = null) {
+        super();
+        this.sourceEntityId = sourceEntityId;
+        this.targetStoreId = targetStoreId;
+        this.targetNamespaceId = targetNamespaceId;
+    }
+}
+
 export class PolyAlgRequest extends UIRequest {
     type = 'PolyAlgRequest';
     polyAlg: string;

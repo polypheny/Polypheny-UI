@@ -1,7 +1,7 @@
 import {Component, computed, effect, inject, input, Input, OnDestroy, OnInit, Signal, signal, untracked} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, RefreshRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, RefreshRequest, SourceSnapshotRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -14,8 +14,10 @@ import {AdapterModel} from '../../adapters/adapter.model';
 import {WebSocket} from '../../../services/webSocket';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 
-const tabs = ['column', 'source', 'foreign', 'statistics'] as const;
+const tabs = ['column', 'source', 'foreign', 'statistics', 'source-materialization'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
+type SourceMaterializationMode = 'snapshot' | 'connected';
+const RELATIONAL_STORE_ADAPTERS = new Set(['HSQLDB', 'PostgreSQL', 'MySQL', 'MonetDB', 'File']);
 
 @Component({
     selector: 'app-edit-source-columns',
@@ -112,12 +114,28 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     currentTab = input.required<string>();
 
     activeTab = computed<Tabs>(() =>
-        (tabs.includes(this.currentTab() as Tabs) ? this.currentTab() : 'column') as Tabs
+        (tabs.includes(this.currentTab() as Tabs) && (this.currentTab() !== 'source-materialization' || this.showSourceMaterializationTab()) ? this.currentTab() : 'column') as Tabs
     );
 
     readonly columns: Signal<UiColumnDefinition[]>;
     readonly foreignKeys: Signal<ForeignKey[]>;
     readonly loading = signal(false);
+    readonly showExistingStoreModal = signal(false);
+    readonly showSourceMaterializationConfirmModal = signal(false);
+    readonly selectedMaterializationStoreId = signal<number>(null);
+    readonly selectedSourceMaterializationMode = signal<SourceMaterializationMode | null>(null);
+    readonly creatingSourceMaterialization = signal(false);
+    readonly sourceAdapter = computed(() => this.getAdapters()()?.[0] ?? null);
+    readonly showSourceMaterializationTab = computed(() => {
+        const sourceAdapter = this.sourceAdapter();
+        return sourceAdapter?.adapterName === 'PostgreSQL' || sourceAdapter?.adapterName === 'MySQL';
+    });
+    readonly availableStores = computed(() =>
+        (this.stores?.() ?? []).filter(store => store.persistent && RELATIONAL_STORE_ADAPTERS.has(store.adapterName))
+    );
+    readonly selectedMaterializationStore = computed(() =>
+        this.availableStores().find(store => store.id === this.selectedMaterializationStoreId()) ?? null
+    );
     private lastCheckedRoute: string = null;
     errorMsg: string;
     editingCol: string;
@@ -308,6 +326,65 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.showRefreshSummaryModal.set(false);
     }
 
+    openExistingStoreModal() {
+        this.showExistingStoreModal.set(true);
+    }
+
+    closeExistingStoreModal() {
+        this.showExistingStoreModal.set(false);
+    }
+
+    openSourceMaterializationConfirmModal() {
+        if (!this.selectedMaterializationStore()) {
+            return;
+        }
+        this.selectedSourceMaterializationMode.set(null);
+        this.showExistingStoreModal.set(false);
+        this.showSourceMaterializationConfirmModal.set(true);
+    }
+
+    closeSourceMaterializationConfirmModal() {
+        this.showSourceMaterializationConfirmModal.set(false);
+    }
+
+    selectMaterializationStore(storeId: number) {
+        this.selectedMaterializationStoreId.set(storeId);
+    }
+
+    selectSourceMaterializationMode(mode: SourceMaterializationMode) {
+        this.selectedSourceMaterializationMode.set(mode);
+    }
+
+    createSourceMaterialization() {
+        const entity = this.entity();
+        const store = this.selectedMaterializationStore();
+        const namespace = this.namespace();
+        if (!entity || !store || !namespace) {
+            return;
+        }
+
+        if (this.selectedSourceMaterializationMode() !== 'snapshot') {
+            this._toast.info('Connected materialized placements are not available yet.');
+            return;
+        }
+
+        this.creatingSourceMaterialization.set(true);
+        this._crud.createSourceSnapshot(new SourceSnapshotRequest(entity.id, store.id, namespace.id)).subscribe({
+            next: result => {
+                if (result.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+                this.closeSourceMaterializationConfirmModal();
+                this._catalog.updateIfNecessary().subscribe();
+                this._toast.success(`Created disconnected materialized snapshot "${result.table}" on store "${store.name}".`);
+            },
+            error: () => {
+                this._toast.error('Could not create the disconnected materialized snapshot.');
+            }
+        }).add(() => this.creatingSourceMaterialization.set(false));
+    }
+
     private handleRefreshFeedback(result: RelationalResult) {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
@@ -329,6 +406,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     }
 
     setTab(tab: Tabs) {
+        if (tab === 'source-materialization' && !this.showSourceMaterializationTab()) {
+            return;
+        }
         this._router.navigate(['/views/schema-editing/', this.currentRoute(), tab]).then();
     }
 }

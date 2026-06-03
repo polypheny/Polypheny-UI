@@ -40,6 +40,12 @@
                    (click)="setTab('statistics')"
                    role="tab">Statistics</a>
             </li>
+            <li class="nav-item" role="presentation" *ngIf="showSourceMaterializationTab()">
+                <a class="nav-link"
+                   [ngClass]="{'active': activeTab() === 'source-materialization'}"
+                   (click)="setTab('source-materialization')"
+                   role="tab">Source Materialization</a>
+            </li>
         </ul>
     </c-col>
 </c-row>
@@ -195,7 +201,117 @@
     <c-col *ngIf="activeTab() === 'statistics'">
         <app-statistics-column [entity]="entity()"></app-statistics-column>
     </c-col>
+
+    <c-col *ngIf="activeTab() === 'source-materialization'">
+        <div class="source-materialization-shell">
+            <h5>Source Materialization</h5>
+            <p class="text-medium-emphasis">
+                Use an existing store to materialize this source entity either as a connected read-only placement or as a disconnected editable snapshot.
+                To create a new store, deploy it first in the Adapters view and then return here.
+            </p>
+
+            <div class="source-materialization-actions">
+                <button cButton color="primary" type="button"
+                        (click)="openExistingStoreModal()">
+                    Use Existing Store
+                </button>
+            </div>
+        </div>
+    </c-col>
 </c-row>
+
+<c-modal [visible]="showExistingStoreModal()"
+         (visibleChange)="showExistingStoreModal.set($event)"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Use Existing Store</h5>
+        <button cButtonClose type="button" (click)="closeExistingStoreModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p class="text-medium-emphasis" *ngIf="availableStores().length > 0">
+            Select the store that should receive the source materialization.
+        </p>
+        <div class="materialization-store-list" *ngIf="availableStores().length > 0; else noAvailableStores">
+            <button cButton color="light" type="button" class="materialization-store-item"
+                    *ngFor="let store of availableStores()"
+                    [ngClass]="{'active': selectedMaterializationStoreId() === store.id}"
+                    (click)="selectMaterializationStore(store.id)">
+                <div class="fw-semibold">{{ store.name }}</div>
+                <div class="text-medium-emphasis small">{{ store.adapterName }}</div>
+            </button>
+        </div>
+        <ng-template #noAvailableStores>
+            <p class="text-medium-emphasis mb-0">
+                No stores are available.
+            </p>
+        </ng-template>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" type="button" (click)="closeExistingStoreModal()">Close</button>
+        <button cButton color="primary" type="button"
+                [disabled]="selectedMaterializationStoreId() === null"
+                (click)="openSourceMaterializationConfirmModal()">
+            Continue
+        </button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showSourceMaterializationConfirmModal()"
+         (visibleChange)="showSourceMaterializationConfirmModal.set($event)"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Source Materialization</h5>
+        <button cButtonClose type="button" (click)="closeSourceMaterializationConfirmModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p class="text-medium-emphasis">
+            Choose how the source table should be materialized in the selected store.
+        </p>
+        <div class="source-materialization-mode-list">
+            <button cButton color="light" type="button" class="source-materialization-mode-item"
+                    [ngClass]="{'active': selectedSourceMaterializationMode() === 'snapshot'}"
+                    (click)="selectSourceMaterializationMode('snapshot')">
+                <div class="fw-semibold">Disconnected Materialized Snapshot</div>
+                <div class="text-medium-emphasis small">
+                    Creates an editable materialized copy that is independent of the source.
+                </div>
+                <div class="text-medium-emphasis small mt-1">Editable, independent from the source</div>
+            </button>
+            <button cButton color="light" type="button" class="source-materialization-mode-item"
+                    [ngClass]="{'active': selectedSourceMaterializationMode() === 'connected'}"
+                    (click)="selectSourceMaterializationMode('connected')">
+                <div class="fw-semibold">Connected Materialized Placement</div>
+                <div class="text-medium-emphasis small">
+                    Creates a read-only materialized copy that can be synchronized with the source.
+                </div>
+                <div class="text-medium-emphasis small mt-1">Read-only, can be synchronized with the source</div>
+            </button>
+        </div>
+        <div class="source-materialization-summary">
+            <div>
+                <div class="text-medium-emphasis small">Source table</div>
+                <div class="fw-semibold">{{ namespace()?.name }}.{{ entity()?.name }}</div>
+            </div>
+            <div>
+                <div class="text-medium-emphasis small">Target store</div>
+                <div class="fw-semibold">{{ selectedMaterializationStore()?.name }}</div>
+                <div class="text-medium-emphasis small">{{ selectedMaterializationStore()?.adapterName }}</div>
+            </div>
+        </div>
+    </c-modal-body>
+    <c-modal-footer class="source-materialization-modal-footer">
+        <button cButton color="secondary" type="button" (click)="closeSourceMaterializationConfirmModal()">Close</button>
+        <button cButton color="primary" type="button"
+                (click)="createSourceMaterialization()"
+                [disabled]="creatingSourceMaterialization() || selectedSourceMaterializationMode() === null">
+            <span *ngIf="!creatingSourceMaterialization()">Create Materialization</span>
+            <c-spinner size="sm" *ngIf="creatingSourceMaterialization()" role="status">
+                <span class="sr-only">Loading...</span>
+            </c-spinner>
+        </button>
+    </c-modal-footer>
+</c-modal>
 
 <c-modal [visible]="showRefreshSummaryModal()"
          (visibleChange)="showRefreshSummaryModal.set($event)"

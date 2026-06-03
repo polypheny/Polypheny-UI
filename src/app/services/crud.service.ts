@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel, RelationalResult} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, RefreshRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, SourceRefreshRequest, StatisticRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, RefreshRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, SourceRefreshRequest, SourceSnapshotRequest, StatisticRequest} from '../models/ui-request.model';
 import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -78,6 +78,10 @@ export class CrudService {
 
     refreshSelectedSources(request: SourceRefreshRequest): Observable<SourceRefreshResult> {
         return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSelectedSources`, request, this.httpOptions);
+    }
+
+    createSourceSnapshot(request: SourceSnapshotRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createSourceSnapshot`, request, this.httpOptions);
     }
 
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
