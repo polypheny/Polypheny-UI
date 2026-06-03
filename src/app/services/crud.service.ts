@@ -84,6 +84,10 @@ export class CrudService {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createSourceSnapshot`, request, this.httpOptions);
     }
 
+    createSourceCollectionSnapshot(request: SourceSnapshotRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createSourceCollectionSnapshot`, request, this.httpOptions);
+    }
+
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
         return socket.sendMessage(data);
     }

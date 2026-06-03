@@ -4,7 +4,7 @@ import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
-import {Method, RefreshRequest} from '../../../models/ui-request.model';
+import {Method, RefreshRequest, SourceSnapshotRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -14,8 +14,9 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 import {Router} from '@angular/router';
 import {WebSocket} from '../../../services/webSocket';
 
-const tabs = ['fields', 'placement', 'statistics'] as const;
+const tabs = ['fields', 'placement', 'source-materialization', 'statistics'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
+type SourceMaterializationMode = 'snapshot' | 'connected';
 
 @Component({
     selector: 'app-document-edit-collection',
@@ -53,7 +54,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     currentTab = input.required<string>();
 
     activeTab = computed<Tabs>(() =>
-        (tabs.includes(this.currentTab() as Tabs) ? this.currentTab() : 'fields') as Tabs
+        (tabs.includes(this.currentTab() as Tabs) && (this.currentTab() !== 'source-materialization' || this.showSourceMaterializationTab()) ? this.currentTab() : 'fields') as Tabs
     );
 
 
@@ -72,6 +73,22 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
     subscriptions = new Subscription();
     readonly loading = signal(false);
+    readonly showExistingStoreModal = signal(false);
+    readonly showSourceMaterializationConfirmModal = signal(false);
+    readonly selectedMaterializationStoreId = signal<number>(null);
+    readonly selectedSourceMaterializationMode = signal<SourceMaterializationMode | null>(null);
+    readonly creatingSourceMaterialization = signal(false);
+    readonly sourceAdapter = computed(() => this.getAdapters()()?.[0] ?? null);
+    readonly showSourceMaterializationTab = computed(() => {
+        const sourceAdapter = this.sourceAdapter();
+        return this.entity()?.entityType === EntityType.SOURCE && sourceAdapter?.adapterName === 'MongoDB';
+    });
+    readonly availableMaterializationStores = computed(() =>
+        (this.stores?.() ?? []).filter(store => store.persistent && store.adapterName === 'MongoDB')
+    );
+    readonly selectedMaterializationStore = computed(() =>
+        this.availableMaterializationStores().find(store => store.id === this.selectedMaterializationStoreId()) ?? null
+    );
 
     @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
     @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -197,7 +214,82 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         }
     }
 
+    getAdapters(): Signal<AdapterModel[]> {
+        return computed(() => this.placements()?.map(a => this._catalog.getAdapter(a.adapterId)).filter(a => a));
+    }
+
+    openExistingStoreModal() {
+        this.showExistingStoreModal.set(true);
+    }
+
+    closeExistingStoreModal() {
+        this.showExistingStoreModal.set(false);
+    }
+
+    openSourceMaterializationConfirmModal() {
+        if (!this.selectedMaterializationStore()) {
+            return;
+        }
+        this.selectedSourceMaterializationMode.set(null);
+        this.showExistingStoreModal.set(false);
+        this.showSourceMaterializationConfirmModal.set(true);
+    }
+
+    closeSourceMaterializationConfirmModal() {
+        this.showSourceMaterializationConfirmModal.set(false);
+    }
+
+    selectMaterializationStore(storeId: number) {
+        this.selectedMaterializationStoreId.set(storeId);
+    }
+
+    selectSourceMaterializationMode(mode: SourceMaterializationMode) {
+        this.selectedSourceMaterializationMode.set(mode);
+    }
+
+    createSourceMaterialization() {
+        const entity = this.entity();
+        const namespace = this.namespace();
+        const store = this.selectedMaterializationStore();
+        if (!entity || !namespace || !store || this.creatingSourceMaterialization()) {
+            return;
+        }
+
+        if (this.selectedSourceMaterializationMode() !== 'snapshot') {
+            this._toast.info('Connected materialized placements are not available yet.');
+            return;
+        }
+
+        this.creatingSourceMaterialization.set(true);
+        this._crud.createSourceCollectionSnapshot(new SourceSnapshotRequest(entity.id, store.id, namespace.id)).subscribe({
+            next: (result: RelationalResult) => {
+                if (result.error) {
+                    this._toast.exception(result, 'Could not create source materialization:');
+                    return;
+                }
+
+                this.closeSourceMaterializationConfirmModal();
+                this.closeExistingStoreModal();
+                this.selectedMaterializationStoreId.set(null);
+                this.selectedSourceMaterializationMode.set(null);
+                this._catalog.updateIfNecessary().subscribe();
+                this._toast.success(
+                    `Created disconnected materialized snapshot ${result.table} on store ${store.name}`,
+                    result.query,
+                    'Source Materialization'
+                );
+            },
+            error: err => {
+                this._toast.error('Could not create source materialization.');
+                console.log(err);
+            }
+        }).add(() => this.creatingSourceMaterialization.set(false));
+    }
+
     setTab(tab: Tabs) {
+        if (tab === 'source-materialization' && !this.showSourceMaterializationTab()) {
+            return;
+        }
         this._router.navigate(['/views/schema-editing/', this.currentRoute(), tab]).then();
     }
 }
