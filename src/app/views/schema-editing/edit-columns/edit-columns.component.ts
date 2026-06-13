@@ -82,6 +82,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         return this.entity().name;
     });
+    canModifyEntity = computed(() => this.entity()?.modifiable !== false);
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
@@ -318,6 +319,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if (e.target.id === 'delete') {
             return;
         }
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.editColumn !== i) {
             if (col.defaultValue === undefined) {
                 col.defaultValue = null;
@@ -364,6 +368,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     updateMaterializedColumn(oldCol: UiColumnDefinition, newName) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const newCol = Object.assign({}, oldCol);
         newCol.name = newName;
         const req = new ColumnRequest(this.entity().id, oldCol, newCol, true, 'MATERIALIZED');
@@ -386,6 +393,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     saveCol() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (!this._crud.nameIsValid(this.updateColumn.controls['name'].value)) {
             this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
             return;
@@ -434,6 +444,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addColumn() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.createColumn.name === '') {
             this._toast.warn('Please provide a name for the new column.', 'missing column name');
             return;
@@ -475,6 +488,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropColumn(col: UiColumnDefinition) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this._crud.dropColumn(new ColumnRequest(this.entity().id, col)).subscribe({
             next: (result: RelationalResult) => {
                 //this._catalog.updateIfNecessary();
@@ -521,6 +537,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     dropConstraint(id: number) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const constraint = this._catalog.getConstraint(id);
         this._crud.dropConstraint(new ConstraintRequest(this.entity().id, new TableConstraint(id, constraint.name, constraint.type))).subscribe({
             next: (result: RelationalResult) => {
@@ -536,6 +555,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     updatePrimaryKey() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const pk = new TableConstraint(-1, 'PRIMARY KEY');
         this.newPrimaryKey.forEach((v, k) => {
             if (v.primary) {
@@ -558,6 +580,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addUniqueConstraint() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.uniqueConstraintName === '') {
             if (!this.proposedConstraintName) {
                 this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
@@ -689,6 +714,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const preselect = placement ? this._catalog.getAllocColumns(placement.id) : [];
         this.placementMethod = method;
 
@@ -722,6 +750,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addPlacement() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const cols = [];
         for (const [k, v] of Object.entries(this.columnPlacement.value)) {
             if (v) {
@@ -751,6 +782,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropPlacement(adapterId: number) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
         this._crud.addDropPlacement(this.namespace().id, this.entity().id, store.name, Method.DROP).subscribe({
             next: (res: RelationalResult) => {
@@ -784,6 +818,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     getPartitionFunctionModel() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.partitioningRequest.method === 'NONE') {
             this._toast.warn('Please select a partitioning method.');
             return;
@@ -810,6 +847,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
      * Horizontally partition a table
      */
     partitionTable() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this._crud.partitionTable(this.partitionFunctionParams).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
@@ -826,6 +866,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     mergePartitions() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         //const split = this.tableId.split('\.');
         const request = new PartitioningRequest(this.namespace().name, this.entity().name);
         this.isMergingPartitions = true;
@@ -847,6 +890,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     modifyPartitioning() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const partitions = [];
         for (let i = 0; i < this.partitionsToModify.length; i++) {
             if (this.partitionsToModify[i].selected) {
@@ -871,6 +917,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     initPartitioningModal(adapterId: number, partitions: AllocationPartitionModel[]) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
         this.partitionsToModify = [];
 
@@ -897,6 +946,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropIndex(index: string) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this._crud.dropIndex(new IndexModel(this.namespace().id, this.entity().id, index, null, null, null)).subscribe({
             next: (res: RelationalResult) => {
                 if (!res.error) {
@@ -911,6 +963,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addIndex() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this.indexSubmitted = true;
         const newCols: number[] = [];
         for (const [k, v] of Object.entries(this.newIndexCols)) {

@@ -121,7 +121,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                 this.buildInsertObject();
 
                 this.entityConfig.update(conf => {
-                    if (this.entity().entityType === EntityType.ENTITY) {
+                    const entity = this.entity();
+                    if (entity?.entityType === EntityType.ENTITY && entity.modifiable) {
                         conf.create = true;
                         conf.update = true;
                         conf.delete = true;

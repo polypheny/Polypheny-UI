@@ -363,13 +363,14 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.selectedSourceMaterializationMode() !== 'snapshot') {
-            this._toast.info('Connected materialized placements are not available yet.');
-            return;
-        }
-
         this.creatingSourceMaterialization.set(true);
-        this._crud.createSourceSnapshot(new SourceSnapshotRequest(entity.id, store.id, namespace.id)).subscribe({
+        const mode = this.selectedSourceMaterializationMode();
+        const request = new SourceSnapshotRequest(entity.id, store.id, namespace.id);
+        const createRequest = mode === 'connected'
+            ? this._crud.createConnectedSourceMaterialization(request)
+            : this._crud.createSourceSnapshot(request);
+
+        createRequest.subscribe({
             next: result => {
                 if (result.error) {
                     this._toast.exception(result);
@@ -377,10 +378,14 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 }
                 this.closeSourceMaterializationConfirmModal();
                 this._catalog.updateIfNecessary().subscribe();
-                this._toast.success(`Created disconnected materialized snapshot "${result.table}" on store "${store.name}".`);
+                if (mode === 'connected') {
+                    this._toast.success(`Created connected materialized table "${result.table}" on store "${store.name}".`);
+                } else {
+                    this._toast.success(`Created disconnected materialized snapshot "${result.table}" on store "${store.name}".`);
+                }
             },
             error: () => {
-                this._toast.error('Could not create the disconnected materialized snapshot.');
+                this._toast.error(`Could not create the ${mode === 'connected' ? 'connected materialized table' : 'disconnected materialized snapshot'}.`);
             }
         }).add(() => this.creatingSourceMaterialization.set(false));
     }
