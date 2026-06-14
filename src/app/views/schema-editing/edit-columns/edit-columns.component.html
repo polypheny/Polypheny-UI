@@ -2,9 +2,12 @@
     <c-row>
         <c-col>
             <div class="d-flex align-items-center">
-                <h1 class="flex-grow-1">
-                    {{ entityTitle() }}
-                </h1>
+                <div class="flex-grow-1">
+                    <h1>{{ entityTitle() }}</h1>
+                    <div *ngIf="connectedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
+                        Connected materialized table · read-only · source: {{ connectedMaterializedSource() }}
+                    </div>
+                </div>
 
                 <div>
                     <button cButton color="light" (click)="openDataView()">Show Data</button>

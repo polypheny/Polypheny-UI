@@ -82,6 +82,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         return this.entity().name;
     });
+    connectedMaterializedSource = computed(() => this._catalog.getConnectedSourceFullName(this.entity()));
     canModifyEntity = computed(() => this.entity()?.modifiable !== false);
     types: PolyType[] = [];
     editColumn = -1;

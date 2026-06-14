@@ -13,6 +13,7 @@ import {CombinedResult} from '../../components/data-view/data-view.model';
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 
     readonly fullName: Signal<string>;
+    readonly connectedMaterializedSource: Signal<string>;
     readonly showRefreshSummaryModal = signal(false);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private pendingRefreshTrigger: string | null = null;
@@ -30,6 +31,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     constructor(readonly _router: Router) {
         super();
         this.fullName = computed(() => <string>this.routeParams()['id']);
+        this.connectedMaterializedSource = computed(() => this._catalog.getConnectedSourceFullName(this.entity()));
 
         // Newly selected table:
         effect(() => {

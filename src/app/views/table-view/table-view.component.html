@@ -1,5 +1,10 @@
 <div *ngIf="entity()" class="d-flex align-items-center">
-    <h1 class="flex-grow-1">{{ entity().name }}</h1>
+    <div class="flex-grow-1">
+        <h1>{{ entity().name }}</h1>
+        <div *ngIf="connectedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
+            Connected materialized table · read-only · source: {{ connectedMaterializedSource() }}
+        </div>
+    </div>
 
     <div class="show-schema-btn">
         <button cButton color="light" (click)="openSchemaView()">Show Schema</button>

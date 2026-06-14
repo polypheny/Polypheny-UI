@@ -176,8 +176,21 @@ export class CatalogService {
 
     getFullEntityName(entityId: number): String {
         const entity = this.entities().get(entityId);
+        if (!entity) {
+            return null;
+        }
         const namespace = this.namespaces().get(entity.namespaceId);
+        if (!namespace) {
+            return entity.name;
+        }
         return namespace.name + '.' + entity.name;
+    }
+
+    getConnectedSourceFullName(entity: EntityModel): string {
+        if (!entity?.connectedSourceEntityId) {
+            return null;
+        }
+        return this.getFullEntityName(entity.connectedSourceEntityId) as string;
     }
 
     //// UTIL
@@ -211,7 +224,7 @@ export class CatalogService {
 
     private attachDocumentTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean) {
         const nodes: SidebarNode[] = [];
-        const collections: EntityModel[] = Array.from(this.entities().values()).filter(e => e.namespaceId === namespace.id);
+        const collections: EntityModel[] = Array.from(this.entities().values()).filter(e => e.namespaceId === namespace.id && this.isVisibleEntity(e));
 
         for (const collection of collections) {
 
@@ -234,7 +247,7 @@ export class CatalogService {
 
     private attachRelationalTree(namespace: NamespaceModel, namespaceNode: SidebarNode, routerLinkRoot: string, depth: number, views: boolean) {
         const nodes: SidebarNode[] = [];
-        const tables: EntityModel[] = Array.from(this.entities().values()).filter(t => t.namespaceId === namespace.id);
+        const tables: EntityModel[] = Array.from(this.entities().values()).filter(t => t.namespaceId === namespace.id && this.isVisibleEntity(t));
         for (const table of tables) {
             let icon = this.assets.TABLE_ICON;
 
@@ -292,7 +305,16 @@ export class CatalogService {
     }
 
     getEntities(namespaceId: number): EntityModel[] {
-        return Array.from(this.entities().values()).filter(n => n.namespaceId === namespaceId);
+        return Array.from(this.entities().values()).filter(n => (namespaceId == null || n.namespaceId === namespaceId) && this.isVisibleEntity(n));
+    }
+
+    private isVisibleEntity(entity: EntityModel): boolean {
+        return !this.isConnectedMaterializedSource(entity);
+    }
+
+    private isConnectedMaterializedSource(entity: EntityModel): boolean {
+        return entity?.entityType === EntityType.SOURCE &&
+            Array.from(this.entities().values()).some(candidate => candidate.connectedSourceEntityId === entity.id);
     }
 
     getColumns(entityId: number): ColumnModel[] {
