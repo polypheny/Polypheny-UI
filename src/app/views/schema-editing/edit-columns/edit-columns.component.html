@@ -9,8 +9,14 @@
                     </div>
                 </div>
 
-                <div>
+                <div class="d-flex align-items-center gap-2">
                     <button cButton color="light" (click)="openDataView()">Show Data</button>
+                    <button cButton color="light" class="btn-circle source-refresh-btn"
+                            [ngClass]="{'rotating': loading()}"
+                            (click)="reloadConnectedMaterializedTable()"
+                            *ngIf="connectedMaterializedSource()">
+                        <i class="icon-reload"></i>
+                    </button>
                 </div>
             </div>
 
@@ -61,6 +67,48 @@
         </c-col>
 
     </c-row>
+
+    <c-modal [visible]="showConnectedRefreshPromptModal()"
+             (visibleChange)="showConnectedRefreshPromptModal.set($event)"
+             size="lg"
+             alignment="center">
+        <c-modal-header>
+            <h5 cModalTitle>Synchronize Connected Table</h5>
+        </c-modal-header>
+        <c-modal-body *ngIf="showConnectedRefreshPromptModal()">
+            <p class="text-body-secondary mb-3">The original source has these schema changes. Apply them to this connected materialized table?</p>
+            <ul class="list-group list-group-flush">
+                <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
+                    {{ change }}
+                </li>
+            </ul>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="secondary" variant="outline" (click)="closeConnectedRefreshPromptModal()">No</button>
+            <button cButton color="primary" autofocus (click)="applyConnectedRefreshChanges()">Yes</button>
+        </c-modal-footer>
+    </c-modal>
+
+    <c-modal [visible]="showRefreshSummaryModal()"
+             (visibleChange)="showRefreshSummaryModal.set($event)"
+             (keydown.enter)="closeRefreshSummaryModal()"
+             size="lg"
+             alignment="center">
+        <c-modal-header>
+            <h5 cModalTitle>Synchronized Source Table</h5>
+        </c-modal-header>
+        <c-modal-body *ngIf="showRefreshSummaryModal()">
+            <p class="text-body-secondary mb-3">These schema changes were applied:</p>
+            <ul class="list-group list-group-flush">
+                <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
+                    {{ change }}
+                </li>
+            </ul>
+        </c-modal-body>
+        <c-modal-footer>
+            <button cButton color="primary" autofocus (click)="closeRefreshSummaryModal()">OK</button>
+        </c-modal-footer>
+    </c-modal>
 
     <c-row>
         <c-col [hidden]="activeTab() !== 'column'">

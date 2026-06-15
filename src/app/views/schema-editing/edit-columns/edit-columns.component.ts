@@ -4,7 +4,7 @@ import {CrudService} from '../../../services/crud.service';
 import {FieldType, IndexMethodModel, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method, RefreshRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel, AdapterType, PlacementType} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
@@ -14,6 +14,7 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 import {map} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {ConfigService} from '../../../services/config.service';
+import {WebSocket} from '../../../services/webSocket';
 
 const INITIAL_TYPE = 'BIGINT';
 const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics'] as const;
@@ -84,6 +85,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     });
     connectedMaterializedSource = computed(() => this._catalog.getConnectedSourceFullName(this.entity()));
     canModifyEntity = computed(() => this.entity()?.modifiable !== false);
+    readonly loading = signal(false);
+    readonly showRefreshSummaryModal = signal(false);
+    readonly showConnectedRefreshPromptModal = signal(false);
+    readonly refreshChangeDescriptions = signal<string[]>([]);
+    private readonly webSocket = new WebSocket();
+    private pendingRefreshTrigger: string | null = null;
+    private lastConnectedRefreshRoute: string = null;
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
@@ -239,6 +247,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (entity.entityType === EntityType.MATERIALIZED_VIEW) {
                     this.subscribeMaterializedInfo();
                 }
+                if (entity.connectedSourceEntityId && this.lastConnectedRefreshRoute !== this.currentRoute()) {
+                    this.lastConnectedRefreshRoute = this.currentRoute();
+                    this.refreshConnectedMaterializedTable('selection');
+                }
             }
 
             this.initNewIndexValues();
@@ -273,6 +285,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.initWebsocket();
         this.getPartitionTypes();
         this.getGeneratedNames();
 
@@ -286,6 +299,27 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         $(document).off('click');
         this.subscriptions.unsubscribe();
+        this.webSocket.close();
+    }
+
+
+    private initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe({
+            next: (result: RelationalResult) => {
+                this.loading.set(false);
+                if (result?.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+
+                this.handleConnectedRefreshFeedback(result);
+            },
+            error: () => {
+                this.loading.set(false);
+                this._toast.error('Could not refresh the connected materialized table.');
+            }
+        });
+        this.subscriptions.add(sub);
     }
 
     //see https://medium.com/claritydesignsystem/1b66d45b3e3d
@@ -1072,6 +1106,72 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     openDataView() {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    reloadConnectedMaterializedTable() {
+        this.refreshConnectedMaterializedTable('button');
+    }
+
+    refreshConnectedMaterializedTable(refreshTrigger: string = 'selection') {
+        const entity = this.entity();
+        const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
+        if (!entity?.connectedSourceEntityId || !namespace) {
+            return;
+        }
+
+        this.loading.set(true);
+        const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.refreshTrigger = refreshTrigger;
+        this.pendingRefreshTrigger = refreshTrigger;
+        if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.pendingRefreshTrigger = null;
+            this.loading.set(false);
+            this._toast.error('Could not establish a connection with the server.');
+        }
+    }
+
+    closeConnectedRefreshPromptModal() {
+        this.showConnectedRefreshPromptModal.set(false);
+    }
+
+    closeRefreshSummaryModal() {
+        this.showRefreshSummaryModal.set(false);
+    }
+
+    applyConnectedRefreshChanges() {
+        this.showConnectedRefreshPromptModal.set(false);
+        this.refreshConnectedMaterializedTable('connectedApply');
+    }
+
+    private handleConnectedRefreshFeedback(result: RelationalResult) {
+        const refreshTrigger = this.pendingRefreshTrigger;
+        this.pendingRefreshTrigger = null;
+
+        if (!refreshTrigger || !this.entity()?.connectedSourceEntityId) {
+            return;
+        }
+
+        const changeDescriptions = result.changeDescriptions ?? [];
+        if (refreshTrigger === 'connectedApply') {
+            if (changeDescriptions.length > 0) {
+                this.refreshChangeDescriptions.set(changeDescriptions);
+                this.showRefreshSummaryModal.set(true);
+                this._catalog.updateIfNecessary().subscribe();
+            } else {
+                this._toast.info('No addable schema changes detected.');
+            }
+            return;
+        }
+
+        if (changeDescriptions.length > 0) {
+            this.refreshChangeDescriptions.set(changeDescriptions);
+            this.showConnectedRefreshPromptModal.set(true);
+            return;
+        }
+
+        if (refreshTrigger === 'button') {
+            this._toast.info('No schema changes detected.');
+        }
     }
 
     setTab(tab: Tabs) {

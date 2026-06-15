@@ -15,6 +15,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     readonly fullName: Signal<string>;
     readonly connectedMaterializedSource: Signal<string>;
     readonly showRefreshSummaryModal = signal(false);
+    readonly showConnectedRefreshPromptModal = signal(false);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private pendingRefreshTrigger: string | null = null;
     private lastInitialTableRefreshRoute: string = null;
@@ -157,15 +158,53 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.showRefreshSummaryModal.set(false);
     }
 
+    closeConnectedRefreshPromptModal() {
+        this.showConnectedRefreshPromptModal.set(false);
+    }
+
+    applyConnectedRefreshChanges() {
+        this.showConnectedRefreshPromptModal.set(false);
+        this.loading.set(true);
+        this.refreshEntityData('connectedApply');
+    }
+
     private handleRefreshFeedback(result: RelationalResult) {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
 
-        if (!refreshTrigger || this.entity()?.entityType !== EntityType.SOURCE) {
+        if (!refreshTrigger) {
             return;
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
+        if (this.entity()?.connectedSourceEntityId) {
+            if (refreshTrigger === 'connectedApply') {
+                if (changeDescriptions.length > 0) {
+                    this.refreshChangeDescriptions.set(changeDescriptions);
+                    this.showRefreshSummaryModal.set(true);
+                    this._catalog.updateIfNecessary().subscribe();
+                } else {
+                    this._toast.info('No addable schema changes detected.');
+                }
+                return;
+            }
+
+            if (changeDescriptions.length > 0) {
+                this.refreshChangeDescriptions.set(changeDescriptions);
+                this.showConnectedRefreshPromptModal.set(true);
+                return;
+            }
+
+            if (refreshTrigger === 'button') {
+                this._toast.info('No schema changes detected.');
+            }
+            return;
+        }
+
+        if (this.entity()?.entityType !== EntityType.SOURCE) {
+            return;
+        }
+
         if (changeDescriptions.length > 0) {
             this.refreshChangeDescriptions.set(changeDescriptions);
             this.showRefreshSummaryModal.set(true);
