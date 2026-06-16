@@ -134,6 +134,8 @@ import {AlgMetadataComponent} from './polyalg/algnode/alg-metadata/alg-metadata.
 import {DoubleArgComponent} from './polyalg/controls/double-arg/double-arg.component';
 import {WindowArgComponent} from './polyalg/controls/window-arg/window-arg.component';
 import {AutocompleteComponent} from './autocomplete/autocomplete.component';
+import {DataMapComponent} from './data-view/data-map/data-map.component';
+import {MapValuesPipe} from '../pipes/pipes';
 
 
 @NgModule({
@@ -239,6 +241,7 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         DataCardComponent,
         DataTableComponent,
         DataGraphComponent,
+        DataMapComponent,
         MediaComponent,
         DeleteConfirmComponent,
         ExpandableTextComponent,
@@ -272,7 +275,8 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         AlgMetadataComponent,
         DoubleArgComponent,
         WindowArgComponent,
-        AutocompleteComponent
+        AutocompleteComponent,
+        MapValuesPipe
     ],
     exports: [
         BreadcrumbComponent,
@@ -297,8 +301,10 @@ import {AutocompleteComponent} from './autocomplete/autocomplete.component';
         ReloadButtonComponent,
         DockerInstanceComponent,
         AlgViewerComponent,
+        DataMapComponent,
         JsonTextComponent,
-        AutocompleteComponent
+        AutocompleteComponent,
+        MapValuesPipe
     ]
 })
 export class ComponentsModule {

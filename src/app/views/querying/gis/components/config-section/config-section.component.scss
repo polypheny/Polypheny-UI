@@ -1,0 +1,31 @@
+.section-header {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #D3D3D3;
+    padding: 0.25rem 0;
+    transition: all 100ms ease-in-out;
+
+    &:hover {
+        color: #5856D5;
+
+        & > svg {
+            fill: #5856D5;
+        }
+    }
+
+    & > svg {
+        width: 20px;
+        height: 20px;
+        fill: #BBBBBB;
+    }
+}
+
+.section-body {
+    flex: 1;
+    margin: 1rem 0;
+}

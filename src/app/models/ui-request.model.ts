@@ -59,6 +59,8 @@ export class QueryRequest extends UIRequest {
     language: string;
     namespace: string;
     cache: boolean;
+    // move to ui request
+    noLimit: boolean;
 
     constructor(query: string, analyze: boolean, cache: boolean, lang: string, namespace: string) {
         super();
@@ -68,6 +70,7 @@ export class QueryRequest extends UIRequest {
         this.language = lang;
         this.namespace = namespace;
         this.currentPage = 1;
+        this.noLimit = false;
         return this;
     }
 }

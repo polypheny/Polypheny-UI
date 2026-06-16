@@ -1,0 +1,11 @@
+<div>
+    <c-input-group>
+        <span cInputGroupText>Text</span>
+        <input aria-label="Outline Thickness"
+               cFormControl
+               placeholder="Variable"
+               [(ngModel)]="config.fieldName"
+               (ngModelChange)="configChanged()"
+        />
+    </c-input-group>
+</div>

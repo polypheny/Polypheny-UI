@@ -25,13 +25,11 @@ import {DataResultItem, InfoResultItem, SeparatorResultItem} from './result-item
     styleUrls: ['./console.component.scss']
 })
 export class ConsoleComponent implements OnInit, OnDestroy {
-
     private readonly _crud = inject(CrudService);
     private readonly _leftSidebar = inject(LeftSidebarService);
     private readonly _breadcrumb = inject(BreadcrumbService);
     private readonly _settings = inject(WebuiSettingsService);
     public readonly _util = inject(UtilService);
-    public readonly _toast = inject(ToasterService);
     public readonly _catalog = inject(CatalogService);
     private readonly _sidebar = inject(LeftSidebarService);
 
@@ -122,7 +120,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         window.onbeforeunload = null;
         window.onkeydown = null;
     }
-
 
     submitQuery() {
         this.delayedNamespace = null;

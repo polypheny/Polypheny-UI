@@ -1,4 +1,20 @@
-import {AfterViewInit, Component, computed, effect, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, Output, signal, SimpleChanges, untracked, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    computed,
+    effect,
+    ElementRef,
+    EventEmitter,
+    Injector,
+    Input,
+    OnChanges,
+    OnDestroy,
+    Output,
+    signal,
+    SimpleChanges,
+    untracked,
+    ViewChild
+} from '@angular/core';
 import {createEditor, UserMode} from './alg-editor';
 import {PlanNode} from '../models/polyalg-plan.model';
 import {PolyAlgService} from '../polyalg.service';
@@ -38,6 +54,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     @Input() planType: PlanType;
     @Input() isReadOnly: boolean;
     @Output() execute = new EventEmitter<[string, OperatorModel]>();
+    @Output() polyPlan = new EventEmitter<string>;
     @ViewChild('rete') container!: ElementRef;
     @ViewChild('textEditor') textEditor: EditorComponent;
     @ViewChild('itemText') textAccordionItem: AccordionItemComponent;
@@ -82,6 +99,11 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
         tabSize: 2
     };
     protected readonly UserMode = UserMode;
+
+    public setPolyAlgPlan(polyAlgPlan: PlanNode, planType: PlanType) {
+        this.polyAlgPlan.set(polyAlgPlan);
+        this.planTypeSignal.set(planType);
+    }
 
     constructor(private injector: Injector,
                 private _registry: PolyAlgService,
@@ -193,6 +215,7 @@ export class AlgViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     private updateTextEditor(str: string) {
+        this.polyPlan.emit(str);
         this.textEditor.setCode(str);
         this.polyAlgSnapshot = trimLines(str);
         this.textEditorState.set('SYNCHRONIZED');
