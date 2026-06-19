@@ -151,6 +151,9 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
     override refreshEntityData(refreshTrigger?: string) {
         this.pendingRefreshTrigger = refreshTrigger ?? null;
+        this.showConnectedRefreshPromptModal.set(false);
+        this.showRefreshSummaryModal.set(false);
+        this.refreshChangeDescriptions.set([]);
         super.refreshEntityData(refreshTrigger);
     }
 
@@ -160,6 +163,11 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
     closeConnectedRefreshPromptModal() {
         this.showConnectedRefreshPromptModal.set(false);
+    }
+
+    hasAddableConnectedRefreshChanges() {
+        return this.refreshChangeDescriptions()
+            .some(change => !change.includes('requires connected materialization'));
     }
 
     applyConnectedRefreshChanges() {
@@ -184,6 +192,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                     this.showRefreshSummaryModal.set(true);
                     this._catalog.updateIfNecessary().subscribe();
                 } else {
+                    this.refreshChangeDescriptions.set([]);
+                    this.showRefreshSummaryModal.set(false);
                     this._toast.info('No addable schema changes detected.');
                 }
                 return;
@@ -196,6 +206,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             }
 
             if (refreshTrigger === 'button') {
+                this.refreshChangeDescriptions.set([]);
+                this.showConnectedRefreshPromptModal.set(false);
                 this._toast.info('No schema changes detected.');
             }
             return;
@@ -212,6 +224,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         }
 
         if (refreshTrigger === 'button') {
+            this.refreshChangeDescriptions.set([]);
+            this.showRefreshSummaryModal.set(false);
             this._toast.info('No schema changes detected.');
         }
     }

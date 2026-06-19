@@ -1120,6 +1120,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
 
         this.loading.set(true);
+        this.showConnectedRefreshPromptModal.set(false);
+        this.showRefreshSummaryModal.set(false);
+        this.refreshChangeDescriptions.set([]);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         request.refreshTrigger = refreshTrigger;
         this.pendingRefreshTrigger = refreshTrigger;
@@ -1136,6 +1139,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     closeRefreshSummaryModal() {
         this.showRefreshSummaryModal.set(false);
+    }
+
+    hasAddableConnectedRefreshChanges() {
+        return this.refreshChangeDescriptions()
+            .some(change => !change.includes('requires connected materialization'));
     }
 
     applyConnectedRefreshChanges() {
@@ -1158,6 +1166,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 this.showRefreshSummaryModal.set(true);
                 this._catalog.updateIfNecessary().subscribe();
             } else {
+                this.refreshChangeDescriptions.set([]);
+                this.showRefreshSummaryModal.set(false);
                 this._toast.info('No addable schema changes detected.');
             }
             return;
@@ -1170,6 +1180,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
 
         if (refreshTrigger === 'button') {
+            this.refreshChangeDescriptions.set([]);
+            this.showConnectedRefreshPromptModal.set(false);
             this._toast.info('No schema changes detected.');
         }
     }

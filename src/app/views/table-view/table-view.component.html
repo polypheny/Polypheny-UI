@@ -27,7 +27,12 @@
         <h5 cModalTitle>Synchronize Connected Table</h5>
     </c-modal-header>
     <c-modal-body *ngIf="showConnectedRefreshPromptModal()">
-        <p class="text-body-secondary mb-3">The original source has these schema changes. Apply them to this connected materialized table?</p>
+        <p class="text-body-secondary mb-3" *ngIf="hasAddableConnectedRefreshChanges()">
+            The original source has these schema changes. Apply them to this connected materialized table?
+        </p>
+        <p class="text-body-secondary mb-3" *ngIf="!hasAddableConnectedRefreshChanges()">
+            The original source has schema changes that cannot be applied yet:
+        </p>
         <ul class="list-group list-group-flush">
             <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
                 {{ change }}
@@ -35,8 +40,9 @@
         </ul>
     </c-modal-body>
     <c-modal-footer>
-        <button cButton color="secondary" variant="outline" (click)="closeConnectedRefreshPromptModal()">No</button>
-        <button cButton color="primary" autofocus (click)="applyConnectedRefreshChanges()">Yes</button>
+        <button cButton color="secondary" variant="outline" *ngIf="hasAddableConnectedRefreshChanges()" (click)="closeConnectedRefreshPromptModal()">No</button>
+        <button cButton color="primary" autofocus *ngIf="hasAddableConnectedRefreshChanges()" (click)="applyConnectedRefreshChanges()">Yes</button>
+        <button cButton color="primary" autofocus *ngIf="!hasAddableConnectedRefreshChanges()" (click)="closeConnectedRefreshPromptModal()">OK</button>
     </c-modal-footer>
 </c-modal>
 

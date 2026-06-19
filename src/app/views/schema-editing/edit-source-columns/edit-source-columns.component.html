@@ -313,6 +313,29 @@
     </c-modal-footer>
 </c-modal>
 
+<c-modal [visible]="showSourceMaterializationWarningModal()"
+         (visibleChange)="showSourceMaterializationWarningModal.set($event)"
+         (keydown.enter)="closeSourceMaterializationWarningModal()"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Connected Materialization Created</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showSourceMaterializationWarningModal()">
+        <p class="text-body-secondary mb-3">
+            The connected materialized table was created, but these foreign keys were not preserved:
+        </p>
+        <ul class="list-group list-group-flush">
+            <li *ngFor="let warning of sourceMaterializationWarnings()" class="list-group-item px-0 py-2">
+                {{ warning }}
+            </li>
+        </ul>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="closeSourceMaterializationWarningModal()">OK</button>
+    </c-modal-footer>
+</c-modal>
+
 <c-modal [visible]="showRefreshSummaryModal()"
          (visibleChange)="showRefreshSummaryModal.set($event)"
          (keydown.enter)="closeRefreshSummaryModal()"

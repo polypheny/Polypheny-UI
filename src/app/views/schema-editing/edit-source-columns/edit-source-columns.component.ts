@@ -36,6 +36,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     protected readonly webSocket: WebSocket;
     readonly showRefreshSummaryModal = signal(false);
     readonly refreshChangeDescriptions = signal<string[]>([]);
+    readonly showSourceMaterializationWarningModal = signal(false);
+    readonly sourceMaterializationWarnings = signal<string[]>([]);
+    private createdSourceMaterializationRoute: string | null = null;
     private readonly viewInitialized = signal(false);
     private pendingRefreshTrigger: string | null = null;
 
@@ -326,6 +329,15 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.showRefreshSummaryModal.set(false);
     }
 
+    closeSourceMaterializationWarningModal() {
+        this.showSourceMaterializationWarningModal.set(false);
+        const route = this.createdSourceMaterializationRoute;
+        this.createdSourceMaterializationRoute = null;
+        if (route) {
+            this._router.navigate(['/views/schema-editing/' + route]).then();
+        }
+    }
+
     openExistingStoreModal() {
         this.showExistingStoreModal.set(true);
     }
@@ -378,8 +390,17 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 }
                 this.closeSourceMaterializationConfirmModal();
                 this._catalog.updateIfNecessary().subscribe();
+                const materializedRoute = `${result.namespace}.${result.table}`;
+                const changeDescriptions = result.changeDescriptions ?? [];
                 if (mode === 'connected') {
+                    if (changeDescriptions.length > 0) {
+                        this.sourceMaterializationWarnings.set(changeDescriptions);
+                        this.createdSourceMaterializationRoute = materializedRoute;
+                        this.showSourceMaterializationWarningModal.set(true);
+                        return;
+                    }
                     this._toast.success(`Created connected materialized table "${result.table}" on store "${store.name}".`);
+                    this._router.navigate(['/views/schema-editing/' + materializedRoute]).then();
                 } else {
                     this._toast.success(`Created disconnected materialized snapshot "${result.table}" on store "${store.name}".`);
                 }
