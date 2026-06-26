@@ -1,8 +1,8 @@
 <div *ngIf="entity()" class="d-flex align-items-center">
     <div class="flex-grow-1">
         <h1>{{ entity().name }}</h1>
-        <div *ngIf="connectedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
-            Connected materialized table · read-only · source: {{ connectedMaterializedSource() }}
+        <div *ngIf="synchronizedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
+            Synchronized Materialization · read-only · source: {{ synchronizedMaterializedSource() }}
         </div>
     </div>
 
@@ -19,18 +19,18 @@
 </div>
 <p class="mt-3" *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>
 
-<c-modal [visible]="showConnectedRefreshPromptModal()"
-         (visibleChange)="showConnectedRefreshPromptModal.set($event)"
+<c-modal [visible]="showSynchronizedRefreshPromptModal()"
+         (visibleChange)="showSynchronizedRefreshPromptModal.set($event)"
          size="lg"
          alignment="center">
     <c-modal-header>
-        <h5 cModalTitle>Synchronize Connected Table</h5>
+        <h5 cModalTitle>Synchronize Materialization</h5>
     </c-modal-header>
-    <c-modal-body *ngIf="showConnectedRefreshPromptModal()">
-        <p class="text-body-secondary mb-3" *ngIf="hasAddableConnectedRefreshChanges()">
-            The original source has these schema changes. Apply them to this connected materialized table?
+    <c-modal-body *ngIf="showSynchronizedRefreshPromptModal()">
+        <p class="text-body-secondary mb-3" *ngIf="hasAddableSynchronizedRefreshChanges()">
+            The original source has these schema changes. Apply them to this synchronized materialization?
         </p>
-        <p class="text-body-secondary mb-3" *ngIf="!hasAddableConnectedRefreshChanges()">
+        <p class="text-body-secondary mb-3" *ngIf="!hasAddableSynchronizedRefreshChanges()">
             The original source has schema changes that cannot be applied yet:
         </p>
         <ul class="list-group list-group-flush">
@@ -40,9 +40,9 @@
         </ul>
     </c-modal-body>
     <c-modal-footer>
-        <button cButton color="secondary" variant="outline" *ngIf="hasAddableConnectedRefreshChanges()" (click)="closeConnectedRefreshPromptModal()">No</button>
-        <button cButton color="primary" autofocus *ngIf="hasAddableConnectedRefreshChanges()" (click)="applyConnectedRefreshChanges()">Yes</button>
-        <button cButton color="primary" autofocus *ngIf="!hasAddableConnectedRefreshChanges()" (click)="closeConnectedRefreshPromptModal()">OK</button>
+        <button cButton color="secondary" variant="outline" *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="closeSynchronizedRefreshPromptModal()">No</button>
+        <button cButton color="primary" autofocus *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges()">Yes</button>
+        <button cButton color="primary" autofocus *ngIf="!hasAddableSynchronizedRefreshChanges()" (click)="closeSynchronizedRefreshPromptModal()">OK</button>
     </c-modal-footer>
 </c-modal>
 

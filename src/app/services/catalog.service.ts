@@ -186,11 +186,11 @@ export class CatalogService {
         return namespace.name + '.' + entity.name;
     }
 
-    getConnectedSourceFullName(entity: EntityModel): string {
-        if (!entity?.connectedSourceEntityId) {
+    getSynchronizedSourceFullName(entity: EntityModel): string {
+        if (!entity?.synchronizedSourceEntityId) {
             return null;
         }
-        return this.getFullEntityName(entity.connectedSourceEntityId) as string;
+        return this.getFullEntityName(entity.synchronizedSourceEntityId) as string;
     }
 
     //// UTIL
@@ -309,12 +309,12 @@ export class CatalogService {
     }
 
     private isVisibleEntity(entity: EntityModel): boolean {
-        return !this.isConnectedMaterializedSource(entity);
+        return !this.isSynchronizedMaterializedSource(entity);
     }
 
-    private isConnectedMaterializedSource(entity: EntityModel): boolean {
+    private isSynchronizedMaterializedSource(entity: EntityModel): boolean {
         return entity?.entityType === EntityType.SOURCE &&
-            Array.from(this.entities().values()).some(candidate => candidate.connectedSourceEntityId === entity.id);
+            Array.from(this.entities().values()).some(candidate => candidate.synchronizedSourceEntityId === entity.id);
     }
 
     getColumns(entityId: number): ColumnModel[] {

@@ -4,7 +4,7 @@ import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
-import {Method, RefreshRequest, SourceSnapshotRequest} from '../../../models/ui-request.model';
+import {Method, RefreshRequest, SourceMaterializationRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -16,7 +16,7 @@ import {WebSocket} from '../../../services/webSocket';
 
 const tabs = ['fields', 'placement', 'source-materialization', 'statistics'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
-type SourceMaterializationMode = 'snapshot' | 'connected';
+type SourceMaterializationMode = 'independent' | 'synchronized';
 
 @Component({
     selector: 'app-document-edit-collection',
@@ -255,16 +255,16 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.selectedSourceMaterializationMode() !== 'snapshot') {
-            this._toast.info('Connected materialized placements are not available yet.');
+        if (this.selectedSourceMaterializationMode() !== 'independent') {
+            this._toast.info('Synchronized materialization is not available yet.');
             return;
         }
 
         this.creatingSourceMaterialization.set(true);
-        this._crud.createSourceCollectionSnapshot(new SourceSnapshotRequest(entity.id, store.id, namespace.id)).subscribe({
+        this._crud.createIndependentSourceCollectionMaterialization(new SourceMaterializationRequest(entity.id, store.id, namespace.id)).subscribe({
             next: (result: RelationalResult) => {
                 if (result.error) {
-                    this._toast.exception(result, 'Could not create source materialization:');
+                    this._toast.exception(result, 'Could not create materialization:');
                     return;
                 }
 
@@ -274,13 +274,13 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                 this.selectedSourceMaterializationMode.set(null);
                 this._catalog.updateIfNecessary().subscribe();
                 this._toast.success(
-                    `Created disconnected materialized snapshot ${result.table} on store ${store.name}`,
+                    `Created independent materialization ${result.table} on store ${store.name}`,
                     result.query,
-                    'Source Materialization'
+                    'Materialization'
                 );
             },
             error: err => {
-                this._toast.error('Could not create source materialization.');
+                this._toast.error('Could not create materialization.');
                 console.log(err);
             }
         }).add(() => this.creatingSourceMaterialization.set(false));

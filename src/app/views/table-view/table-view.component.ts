@@ -13,9 +13,9 @@ import {CombinedResult} from '../../components/data-view/data-view.model';
 export class TableViewComponent extends DataTemplateComponent implements OnInit, OnDestroy {
 
     readonly fullName: Signal<string>;
-    readonly connectedMaterializedSource: Signal<string>;
+    readonly synchronizedMaterializedSource: Signal<string>;
     readonly showRefreshSummaryModal = signal(false);
-    readonly showConnectedRefreshPromptModal = signal(false);
+    readonly showSynchronizedRefreshPromptModal = signal(false);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private pendingRefreshTrigger: string | null = null;
     private lastInitialTableRefreshRoute: string = null;
@@ -32,7 +32,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     constructor(readonly _router: Router) {
         super();
         this.fullName = computed(() => <string>this.routeParams()['id']);
-        this.connectedMaterializedSource = computed(() => this._catalog.getConnectedSourceFullName(this.entity()));
+        this.synchronizedMaterializedSource = computed(() => this._catalog.getSynchronizedSourceFullName(this.entity()));
 
         // Newly selected table:
         effect(() => {
@@ -151,7 +151,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
     override refreshEntityData(refreshTrigger?: string) {
         this.pendingRefreshTrigger = refreshTrigger ?? null;
-        this.showConnectedRefreshPromptModal.set(false);
+        this.showSynchronizedRefreshPromptModal.set(false);
         this.showRefreshSummaryModal.set(false);
         this.refreshChangeDescriptions.set([]);
         super.refreshEntityData(refreshTrigger);
@@ -161,19 +161,19 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.showRefreshSummaryModal.set(false);
     }
 
-    closeConnectedRefreshPromptModal() {
-        this.showConnectedRefreshPromptModal.set(false);
+    closeSynchronizedRefreshPromptModal() {
+        this.showSynchronizedRefreshPromptModal.set(false);
     }
 
-    hasAddableConnectedRefreshChanges() {
+    hasAddableSynchronizedRefreshChanges() {
         return this.refreshChangeDescriptions()
-            .some(change => !change.includes('requires connected materialization'));
+            .some(change => !change.includes('requires synchronized materialization'));
     }
 
-    applyConnectedRefreshChanges() {
-        this.showConnectedRefreshPromptModal.set(false);
+    applySynchronizedRefreshChanges() {
+        this.showSynchronizedRefreshPromptModal.set(false);
         this.loading.set(true);
-        this.refreshEntityData('connectedApply');
+        this.refreshEntityData('synchronizedApply');
     }
 
     private handleRefreshFeedback(result: RelationalResult) {
@@ -185,8 +185,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
-        if (this.entity()?.connectedSourceEntityId) {
-            if (refreshTrigger === 'connectedApply') {
+        if (this.entity()?.synchronizedSourceEntityId) {
+            if (refreshTrigger === 'synchronizedApply') {
                 if (changeDescriptions.length > 0) {
                     this.refreshChangeDescriptions.set(changeDescriptions);
                     this.showRefreshSummaryModal.set(true);
@@ -201,13 +201,13 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
             if (changeDescriptions.length > 0) {
                 this.refreshChangeDescriptions.set(changeDescriptions);
-                this.showConnectedRefreshPromptModal.set(true);
+                this.showSynchronizedRefreshPromptModal.set(true);
                 return;
             }
 
             if (refreshTrigger === 'button') {
                 this.refreshChangeDescriptions.set([]);
-                this.showConnectedRefreshPromptModal.set(false);
+                this.showSynchronizedRefreshPromptModal.set(false);
                 this._toast.info('No schema changes detected.');
             }
             return;

@@ -32,7 +32,7 @@
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'source-materialization'}"
                        (click)="setTab('source-materialization')"
-                       role="tab">Source Materialization</a>
+                       role="tab">Materialization</a>
                 </li>
                 <!--<li class="nav-item" role="presentation">
                     <a class="nav-link"
@@ -150,9 +150,9 @@
 
         <c-col *ngIf="activeTab() === 'source-materialization'">
             <div class="source-materialization-shell">
-                <h5>Source Materialization</h5>
+                <h5>Materialization</h5>
                 <p class="text-medium-emphasis">
-                    Use an existing store to materialize this source collection either as a connected read-only placement or as a disconnected editable snapshot.
+                    Use an existing store to materialize this source collection either as a synchronized read-only materialization or as an independent editable materialization.
                     To create a new store, deploy it first in the Adapters view and then return here.
                 </p>
 
@@ -177,7 +177,7 @@
         </c-modal-header>
         <c-modal-body>
             <p class="text-medium-emphasis" *ngIf="availableMaterializationStores().length > 0">
-                Select the store that should receive the source materialization.
+                Select the store that should receive the materialization.
             </p>
             <div class="materialization-store-list" *ngIf="availableMaterializationStores().length > 0; else noAvailableStores">
                 <button cButton color="light" type="button" class="materialization-store-item"
@@ -208,7 +208,7 @@
              (visibleChange)="showSourceMaterializationConfirmModal.set($event)"
              alignment="center">
         <c-modal-header>
-            <h5 cModalTitle>Source Materialization</h5>
+            <h5 cModalTitle>Materialization</h5>
             <button cButtonClose type="button" (click)="closeSourceMaterializationConfirmModal()"></button>
         </c-modal-header>
         <c-modal-body>
@@ -217,18 +217,18 @@
             </p>
             <div class="source-materialization-mode-list">
                 <button cButton color="light" type="button" class="source-materialization-mode-item"
-                        [ngClass]="{'active': selectedSourceMaterializationMode() === 'snapshot'}"
-                        (click)="selectSourceMaterializationMode('snapshot')">
-                    <div class="fw-semibold">Disconnected Materialized Snapshot</div>
+                        [ngClass]="{'active': selectedSourceMaterializationMode() === 'independent'}"
+                        (click)="selectSourceMaterializationMode('independent')">
+                    <div class="fw-semibold">Independent Materialization</div>
                     <div class="text-medium-emphasis small">
                         Creates an editable materialized copy that is independent of the source.
                     </div>
                     <div class="text-medium-emphasis small mt-1">Editable, independent from the source</div>
                 </button>
                 <button cButton color="light" type="button" class="source-materialization-mode-item"
-                        [ngClass]="{'active': selectedSourceMaterializationMode() === 'connected'}"
-                        (click)="selectSourceMaterializationMode('connected')">
-                    <div class="fw-semibold">Connected Materialized Placement</div>
+                        [ngClass]="{'active': selectedSourceMaterializationMode() === 'synchronized'}"
+                        (click)="selectSourceMaterializationMode('synchronized')">
+                    <div class="fw-semibold">Synchronized Materialization</div>
                     <div class="text-medium-emphasis small">
                         Creates a read-only materialized copy that can be synchronized with the source.
                     </div>

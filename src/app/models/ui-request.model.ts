@@ -61,7 +61,7 @@ export class SourceRefreshRequest extends RequestModel {
     }
 }
 
-export class SourceSnapshotRequest extends RequestModel {
+export class SourceMaterializationRequest extends RequestModel {
     sourceEntityId: number;
     targetStoreId: number;
     targetNamespaceId: number;

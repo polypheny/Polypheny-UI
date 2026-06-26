@@ -1,7 +1,7 @@
 import {Component, computed, effect, inject, input, Input, OnDestroy, OnInit, Signal, signal, untracked} from '@angular/core';
 import {RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {CrudService} from '../../../services/crud.service';
-import {ColumnRequest, RefreshRequest, SourceSnapshotRequest} from '../../../models/ui-request.model';
+import {ColumnRequest, RefreshRequest, SourceMaterializationRequest} from '../../../models/ui-request.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as $ from 'jquery';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -16,7 +16,7 @@ import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.
 
 const tabs = ['column', 'source', 'foreign', 'statistics', 'source-materialization'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
-type SourceMaterializationMode = 'snapshot' | 'connected';
+type SourceMaterializationMode = 'independent' | 'synchronized';
 const RELATIONAL_STORE_ADAPTERS = new Set(['HSQLDB', 'PostgreSQL', 'MySQL', 'MonetDB', 'File']);
 
 @Component({
@@ -377,10 +377,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
         this.creatingSourceMaterialization.set(true);
         const mode = this.selectedSourceMaterializationMode();
-        const request = new SourceSnapshotRequest(entity.id, store.id, namespace.id);
-        const createRequest = mode === 'connected'
-            ? this._crud.createConnectedSourceMaterialization(request)
-            : this._crud.createSourceSnapshot(request);
+        const request = new SourceMaterializationRequest(entity.id, store.id, namespace.id);
+        const createRequest = mode === 'synchronized'
+            ? this._crud.createSynchronizedSourceMaterialization(request)
+            : this._crud.createIndependentSourceMaterialization(request);
 
         createRequest.subscribe({
             next: result => {
@@ -392,21 +392,21 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 this._catalog.updateIfNecessary().subscribe();
                 const materializedRoute = `${result.namespace}.${result.table}`;
                 const changeDescriptions = result.changeDescriptions ?? [];
-                if (mode === 'connected') {
+                if (mode === 'synchronized') {
                     if (changeDescriptions.length > 0) {
                         this.sourceMaterializationWarnings.set(changeDescriptions);
                         this.createdSourceMaterializationRoute = materializedRoute;
                         this.showSourceMaterializationWarningModal.set(true);
                         return;
                     }
-                    this._toast.success(`Created connected materialized table "${result.table}" on store "${store.name}".`);
+                    this._toast.success(`Created synchronized materialization "${result.table}" on store "${store.name}".`);
                     this._router.navigate(['/views/schema-editing/' + materializedRoute]).then();
                 } else {
-                    this._toast.success(`Created disconnected materialized snapshot "${result.table}" on store "${store.name}".`);
+                    this._toast.success(`Created independent materialization "${result.table}" on store "${store.name}".`);
                 }
             },
             error: () => {
-                this._toast.error(`Could not create the ${mode === 'connected' ? 'connected materialized table' : 'disconnected materialized snapshot'}.`);
+                this._toast.error(`Could not create the ${mode === 'synchronized' ? 'synchronized materialization' : 'independent materialization'}.`);
             }
         }).add(() => this.creatingSourceMaterialization.set(false));
     }

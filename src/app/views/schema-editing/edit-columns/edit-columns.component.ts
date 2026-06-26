@@ -83,15 +83,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         return this.entity().name;
     });
-    connectedMaterializedSource = computed(() => this._catalog.getConnectedSourceFullName(this.entity()));
+    synchronizedMaterializedSource = computed(() => this._catalog.getSynchronizedSourceFullName(this.entity()));
     canModifyEntity = computed(() => this.entity()?.modifiable !== false);
     readonly loading = signal(false);
     readonly showRefreshSummaryModal = signal(false);
-    readonly showConnectedRefreshPromptModal = signal(false);
+    readonly showSynchronizedRefreshPromptModal = signal(false);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private readonly webSocket = new WebSocket();
     private pendingRefreshTrigger: string | null = null;
-    private lastConnectedRefreshRoute: string = null;
+    private lastSynchronizedRefreshRoute: string = null;
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
@@ -247,9 +247,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 if (entity.entityType === EntityType.MATERIALIZED_VIEW) {
                     this.subscribeMaterializedInfo();
                 }
-                if (entity.connectedSourceEntityId && this.lastConnectedRefreshRoute !== this.currentRoute()) {
-                    this.lastConnectedRefreshRoute = this.currentRoute();
-                    this.refreshConnectedMaterializedTable('selection');
+                if (entity.synchronizedSourceEntityId && this.lastSynchronizedRefreshRoute !== this.currentRoute()) {
+                    this.lastSynchronizedRefreshRoute = this.currentRoute();
+                    this.refreshSynchronizedMaterializedTable('selection');
                 }
             }
 
@@ -312,11 +312,11 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     return;
                 }
 
-                this.handleConnectedRefreshFeedback(result);
+                this.handleSynchronizedRefreshFeedback(result);
             },
             error: () => {
                 this.loading.set(false);
-                this._toast.error('Could not refresh the connected materialized table.');
+                this._toast.error('Could not refresh the synchronized materialization.');
             }
         });
         this.subscriptions.add(sub);
@@ -1108,19 +1108,19 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
     }
 
-    reloadConnectedMaterializedTable() {
-        this.refreshConnectedMaterializedTable('button');
+    reloadSynchronizedMaterializedTable() {
+        this.refreshSynchronizedMaterializedTable('button');
     }
 
-    refreshConnectedMaterializedTable(refreshTrigger: string = 'selection') {
+    refreshSynchronizedMaterializedTable(refreshTrigger: string = 'selection') {
         const entity = this.entity();
         const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
-        if (!entity?.connectedSourceEntityId || !namespace) {
+        if (!entity?.synchronizedSourceEntityId || !namespace) {
             return;
         }
 
         this.loading.set(true);
-        this.showConnectedRefreshPromptModal.set(false);
+        this.showSynchronizedRefreshPromptModal.set(false);
         this.showRefreshSummaryModal.set(false);
         this.refreshChangeDescriptions.set([]);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
@@ -1133,34 +1133,34 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
     }
 
-    closeConnectedRefreshPromptModal() {
-        this.showConnectedRefreshPromptModal.set(false);
+    closeSynchronizedRefreshPromptModal() {
+        this.showSynchronizedRefreshPromptModal.set(false);
     }
 
     closeRefreshSummaryModal() {
         this.showRefreshSummaryModal.set(false);
     }
 
-    hasAddableConnectedRefreshChanges() {
+    hasAddableSynchronizedRefreshChanges() {
         return this.refreshChangeDescriptions()
-            .some(change => !change.includes('requires connected materialization'));
+            .some(change => !change.includes('requires synchronized materialization'));
     }
 
-    applyConnectedRefreshChanges() {
-        this.showConnectedRefreshPromptModal.set(false);
-        this.refreshConnectedMaterializedTable('connectedApply');
+    applySynchronizedRefreshChanges() {
+        this.showSynchronizedRefreshPromptModal.set(false);
+        this.refreshSynchronizedMaterializedTable('synchronizedApply');
     }
 
-    private handleConnectedRefreshFeedback(result: RelationalResult) {
+    private handleSynchronizedRefreshFeedback(result: RelationalResult) {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
 
-        if (!refreshTrigger || !this.entity()?.connectedSourceEntityId) {
+        if (!refreshTrigger || !this.entity()?.synchronizedSourceEntityId) {
             return;
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
-        if (refreshTrigger === 'connectedApply') {
+        if (refreshTrigger === 'synchronizedApply') {
             if (changeDescriptions.length > 0) {
                 this.refreshChangeDescriptions.set(changeDescriptions);
                 this.showRefreshSummaryModal.set(true);
@@ -1175,13 +1175,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
         if (changeDescriptions.length > 0) {
             this.refreshChangeDescriptions.set(changeDescriptions);
-            this.showConnectedRefreshPromptModal.set(true);
+            this.showSynchronizedRefreshPromptModal.set(true);
             return;
         }
 
         if (refreshTrigger === 'button') {
             this.refreshChangeDescriptions.set([]);
-            this.showConnectedRefreshPromptModal.set(false);
+            this.showSynchronizedRefreshPromptModal.set(false);
             this._toast.info('No schema changes detected.');
         }
     }
