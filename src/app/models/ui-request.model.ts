@@ -65,12 +65,14 @@ export class SourceMaterializationRequest extends RequestModel {
     sourceEntityId: number;
     targetStoreId: number;
     targetNamespaceId: number;
+    targetEntityName: string;
 
-    constructor(sourceEntityId: number, targetStoreId: number, targetNamespaceId: number = null) {
+    constructor(sourceEntityId: number, targetStoreId: number, targetNamespaceId: number = null, targetEntityName: string = null) {
         super();
         this.sourceEntityId = sourceEntityId;
         this.targetStoreId = targetStoreId;
         this.targetNamespaceId = targetNamespaceId;
+        this.targetEntityName = targetEntityName;
     }
 }
 

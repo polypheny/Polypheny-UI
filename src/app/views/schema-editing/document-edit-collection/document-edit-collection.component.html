@@ -215,6 +215,17 @@
             <p class="text-medium-emphasis">
                 Choose how the source collection should be materialized in the selected store.
             </p>
+            <div class="mb-3">
+                <label class="form-label" for="targetMaterializationName">Name</label>
+                <input id="targetMaterializationName" cFormControl type="text"
+                       [ngModel]="targetMaterializationName()"
+                       (ngModelChange)="updateTargetMaterializationName($event)"
+                       [ngClass]="{'is-invalid': showTargetMaterializationNameError()}"
+                       placeholder="Leave empty to generate automatically">
+                <div class="invalid-feedback" *ngIf="showTargetMaterializationNameError()">
+                    An entity with this name already exists in the target namespace.
+                </div>
+            </div>
             <div class="source-materialization-mode-list">
                 <button cButton color="light" type="button" class="source-materialization-mode-item"
                         [ngClass]="{'active': selectedSourceMaterializationMode() === 'independent'}"

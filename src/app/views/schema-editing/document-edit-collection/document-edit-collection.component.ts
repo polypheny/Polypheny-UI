@@ -77,6 +77,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     readonly showSourceMaterializationConfirmModal = signal(false);
     readonly selectedMaterializationStoreId = signal<number>(null);
     readonly selectedSourceMaterializationMode = signal<SourceMaterializationMode | null>(null);
+    readonly targetMaterializationName = signal('');
+    readonly showTargetMaterializationNameError = signal(false);
     readonly creatingSourceMaterialization = signal(false);
     readonly sourceAdapter = computed(() => this.getAdapters()()?.[0] ?? null);
     readonly showSourceMaterializationTab = computed(() => {
@@ -89,6 +91,15 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     readonly selectedMaterializationStore = computed(() =>
         this.availableMaterializationStores().find(store => store.id === this.selectedMaterializationStoreId()) ?? null
     );
+    readonly targetMaterializationNameExists = computed(() => {
+        const namespace = this.namespace();
+        const name = this.normalizedTargetMaterializationName();
+        if (!namespace || !name) {
+            return false;
+        }
+        return Array.from(this._catalog.entities().values())
+            .some(entity => entity.namespaceId === namespace.id && entity.name.toLowerCase() === name.toLowerCase());
+    });
 
     @ViewChild('placementModal', {static: false}) public placementModal: ModalDirective;
     @ViewChild('partitioningModal', {static: false}) public partitioningModal: ModalDirective;
@@ -231,6 +242,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             return;
         }
         this.selectedSourceMaterializationMode.set(null);
+        this.targetMaterializationName.set('');
+        this.showTargetMaterializationNameError.set(false);
         this.showExistingStoreModal.set(false);
         this.showSourceMaterializationConfirmModal.set(true);
     }
@@ -247,6 +260,11 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this.selectedSourceMaterializationMode.set(mode);
     }
 
+    updateTargetMaterializationName(name: string) {
+        this.targetMaterializationName.set(name);
+        this.showTargetMaterializationNameError.set(false);
+    }
+
     createSourceMaterialization() {
         const entity = this.entity();
         const namespace = this.namespace();
@@ -260,8 +278,13 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (this.targetMaterializationNameExists()) {
+            this.showTargetMaterializationNameError.set(true);
+            return;
+        }
+
         this.creatingSourceMaterialization.set(true);
-        this._crud.createIndependentSourceCollectionMaterialization(new SourceMaterializationRequest(entity.id, store.id, namespace.id)).subscribe({
+        this._crud.createIndependentSourceCollectionMaterialization(new SourceMaterializationRequest(entity.id, store.id, namespace.id, this.normalizedTargetMaterializationName())).subscribe({
             next: (result: RelationalResult) => {
                 if (result.error) {
                     this._toast.exception(result, 'Could not create materialization:');
@@ -284,6 +307,11 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                 console.log(err);
             }
         }).add(() => this.creatingSourceMaterialization.set(false));
+    }
+
+    private normalizedTargetMaterializationName(): string | null {
+        const name = this.targetMaterializationName().trim();
+        return name.length > 0 ? name : null;
     }
 
     setTab(tab: Tabs) {

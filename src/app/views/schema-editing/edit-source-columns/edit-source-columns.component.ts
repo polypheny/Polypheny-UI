@@ -127,6 +127,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly showSourceMaterializationConfirmModal = signal(false);
     readonly selectedMaterializationStoreId = signal<number>(null);
     readonly selectedSourceMaterializationMode = signal<SourceMaterializationMode | null>(null);
+    readonly targetMaterializationName = signal('');
+    readonly showTargetMaterializationNameError = signal(false);
     readonly creatingSourceMaterialization = signal(false);
     readonly sourceAdapter = computed(() => this.getAdapters()()?.[0] ?? null);
     readonly showSourceMaterializationTab = computed(() => {
@@ -139,6 +141,15 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly selectedMaterializationStore = computed(() =>
         this.availableStores().find(store => store.id === this.selectedMaterializationStoreId()) ?? null
     );
+    readonly targetMaterializationNameExists = computed(() => {
+        const namespace = this.namespace();
+        const name = this.normalizedTargetMaterializationName();
+        if (!namespace || !name) {
+            return false;
+        }
+        return Array.from(this._catalog.entities().values())
+            .some(entity => entity.namespaceId === namespace.id && entity.name.toLowerCase() === name.toLowerCase());
+    });
     private lastCheckedRoute: string = null;
     errorMsg: string;
     editingCol: string;
@@ -351,6 +362,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             return;
         }
         this.selectedSourceMaterializationMode.set(null);
+        this.targetMaterializationName.set('');
+        this.showTargetMaterializationNameError.set(false);
         this.showExistingStoreModal.set(false);
         this.showSourceMaterializationConfirmModal.set(true);
     }
@@ -367,6 +380,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         this.selectedSourceMaterializationMode.set(mode);
     }
 
+    updateTargetMaterializationName(name: string) {
+        this.targetMaterializationName.set(name);
+        this.showTargetMaterializationNameError.set(false);
+    }
+
     createSourceMaterialization() {
         const entity = this.entity();
         const store = this.selectedMaterializationStore();
@@ -375,9 +393,14 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (this.targetMaterializationNameExists()) {
+            this.showTargetMaterializationNameError.set(true);
+            return;
+        }
+
         this.creatingSourceMaterialization.set(true);
         const mode = this.selectedSourceMaterializationMode();
-        const request = new SourceMaterializationRequest(entity.id, store.id, namespace.id);
+        const request = new SourceMaterializationRequest(entity.id, store.id, namespace.id, this.normalizedTargetMaterializationName());
         const createRequest = mode === 'synchronized'
             ? this._crud.createSynchronizedSourceMaterialization(request)
             : this._crud.createIndependentSourceMaterialization(request);
@@ -409,6 +432,11 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 this._toast.error(`Could not create the ${mode === 'synchronized' ? 'synchronized materialization' : 'independent materialization'}.`);
             }
         }).add(() => this.creatingSourceMaterialization.set(false));
+    }
+
+    private normalizedTargetMaterializationName(): string | null {
+        const name = this.targetMaterializationName().trim();
+        return name.length > 0 ? name : null;
     }
 
     private handleRefreshFeedback(result: RelationalResult) {
