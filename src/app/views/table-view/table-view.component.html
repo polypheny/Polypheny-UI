@@ -30,19 +30,23 @@
         <p class="text-body-secondary mb-3" *ngIf="hasAddableSynchronizedRefreshChanges()">
             The original source has these schema changes. Apply them to this synchronized materialization?
         </p>
-        <p class="text-body-secondary mb-3" *ngIf="!hasAddableSynchronizedRefreshChanges()">
+        <p class="text-body-secondary mb-3" *ngIf="!hasSynchronizedRefreshChanges()">
+            No schema changes were detected. Refresh the materialized data from the source?
+        </p>
+        <p class="text-body-secondary mb-3" *ngIf="hasSynchronizedRefreshChanges() && !hasAddableSynchronizedRefreshChanges()">
             The original source has schema changes that cannot be applied yet:
         </p>
-        <ul class="list-group list-group-flush">
+        <ul class="list-group list-group-flush" *ngIf="hasSynchronizedRefreshChanges()">
             <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
                 {{ change }}
             </li>
         </ul>
     </c-modal-body>
     <c-modal-footer>
-        <button cButton color="secondary" variant="outline" *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="closeSynchronizedRefreshPromptModal()">No</button>
-        <button cButton color="primary" autofocus *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges()">Yes</button>
-        <button cButton color="primary" autofocus *ngIf="!hasAddableSynchronizedRefreshChanges()" (click)="closeSynchronizedRefreshPromptModal()">OK</button>
+        <button cButton color="secondary" variant="outline" (click)="closeSynchronizedRefreshPromptModal()">{{ hasSynchronizedRefreshChanges() ? 'No' : 'Close' }}</button>
+        <button cButton color="primary" *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges()">Schema only</button>
+        <button cButton color="primary" autofocus *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Schema and data</button>
+        <button cButton color="primary" autofocus *ngIf="!hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Refresh data</button>
     </c-modal-footer>
 </c-modal>
 

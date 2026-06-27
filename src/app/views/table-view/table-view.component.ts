@@ -170,10 +170,14 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             .some(change => !change.includes('requires synchronized materialization'));
     }
 
-    applySynchronizedRefreshChanges() {
+    hasSynchronizedRefreshChanges() {
+        return this.refreshChangeDescriptions().length > 0;
+    }
+
+    applySynchronizedRefreshChanges(refreshData: boolean = false) {
         this.showSynchronizedRefreshPromptModal.set(false);
         this.loading.set(true);
-        this.refreshEntityData('synchronizedApply');
+        this.refreshEntityData(refreshData ? 'synchronizedApplyWithData' : 'synchronizedApply');
     }
 
     private handleRefreshFeedback(result: RelationalResult) {
@@ -186,7 +190,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
         const changeDescriptions = result.changeDescriptions ?? [];
         if (this.entity()?.synchronizedSourceEntityId) {
-            if (refreshTrigger === 'synchronizedApply') {
+            if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
                 if (changeDescriptions.length > 0) {
                     this.refreshChangeDescriptions.set(changeDescriptions);
                     this.showRefreshSummaryModal.set(true);
@@ -207,8 +211,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
 
             if (refreshTrigger === 'button') {
                 this.refreshChangeDescriptions.set([]);
-                this.showSynchronizedRefreshPromptModal.set(false);
-                this._toast.info('No schema changes detected.');
+                this.showSynchronizedRefreshPromptModal.set(true);
             }
             return;
         }

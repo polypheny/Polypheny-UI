@@ -1146,9 +1146,13 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             .some(change => !change.includes('requires synchronized materialization'));
     }
 
-    applySynchronizedRefreshChanges() {
+    hasSynchronizedRefreshChanges() {
+        return this.refreshChangeDescriptions().length > 0;
+    }
+
+    applySynchronizedRefreshChanges(refreshData: boolean = false) {
         this.showSynchronizedRefreshPromptModal.set(false);
-        this.refreshSynchronizedMaterializedTable('synchronizedApply');
+        this.refreshSynchronizedMaterializedTable(refreshData ? 'synchronizedApplyWithData' : 'synchronizedApply');
     }
 
     private handleSynchronizedRefreshFeedback(result: RelationalResult) {
@@ -1160,7 +1164,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
-        if (refreshTrigger === 'synchronizedApply') {
+        if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
             if (changeDescriptions.length > 0) {
                 this.refreshChangeDescriptions.set(changeDescriptions);
                 this.showRefreshSummaryModal.set(true);
@@ -1181,8 +1185,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
         if (refreshTrigger === 'button') {
             this.refreshChangeDescriptions.set([]);
-            this.showSynchronizedRefreshPromptModal.set(false);
-            this._toast.info('No schema changes detected.');
+            this.showSynchronizedRefreshPromptModal.set(true);
         }
     }
 
