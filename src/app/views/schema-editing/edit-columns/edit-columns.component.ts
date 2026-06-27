@@ -88,9 +88,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     readonly loading = signal(false);
     readonly showRefreshSummaryModal = signal(false);
     readonly showSynchronizedRefreshPromptModal = signal(false);
+    readonly showDataRefreshConfirmModal = signal(false);
+    readonly dataRefreshRowCount = signal<number | null>(null);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private readonly webSocket = new WebSocket();
     private pendingRefreshTrigger: string | null = null;
+    private pendingConfirmedRefreshTrigger: string | null = null;
     private lastSynchronizedRefreshRoute: string = null;
     types: PolyType[] = [];
     editColumn = -1;
@@ -1112,7 +1115,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.refreshSynchronizedMaterializedTable('button');
     }
 
-    refreshSynchronizedMaterializedTable(refreshTrigger: string = 'selection') {
+    refreshSynchronizedMaterializedTable(refreshTrigger: string = 'selection', confirmedDataRefresh = false) {
         const entity = this.entity();
         const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
         if (!entity?.synchronizedSourceEntityId || !namespace) {
@@ -1121,10 +1124,12 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
         this.loading.set(true);
         this.showSynchronizedRefreshPromptModal.set(false);
+        this.showDataRefreshConfirmModal.set(false);
         this.showRefreshSummaryModal.set(false);
         this.refreshChangeDescriptions.set([]);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         request.refreshTrigger = refreshTrigger;
+        request.confirmedDataRefresh = confirmedDataRefresh;
         this.pendingRefreshTrigger = refreshTrigger;
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
             this.pendingRefreshTrigger = null;
@@ -1155,6 +1160,22 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.refreshSynchronizedMaterializedTable(refreshData ? 'synchronizedApplyWithData' : 'synchronizedApply');
     }
 
+    closeDataRefreshConfirmModal() {
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshRowCount.set(null);
+        this.pendingConfirmedRefreshTrigger = null;
+    }
+
+    confirmSynchronizedDataRefresh() {
+        const refreshTrigger = this.pendingConfirmedRefreshTrigger;
+        if (!refreshTrigger) {
+            return;
+        }
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshRowCount.set(null);
+        this.refreshSynchronizedMaterializedTable(refreshTrigger, true);
+    }
+
     private handleSynchronizedRefreshFeedback(result: RelationalResult) {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
@@ -1164,6 +1185,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
+        if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
+            this.pendingConfirmedRefreshTrigger = refreshTrigger;
+            this.dataRefreshRowCount.set(result.dataRefreshRowCount);
+            this.showDataRefreshConfirmModal.set(true);
+            this.loading.set(false);
+            return;
+        }
+
         if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
             if (changeDescriptions.length > 0) {
                 this.refreshChangeDescriptions.set(changeDescriptions);

@@ -16,8 +16,11 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     readonly synchronizedMaterializedSource: Signal<string>;
     readonly showRefreshSummaryModal = signal(false);
     readonly showSynchronizedRefreshPromptModal = signal(false);
+    readonly showDataRefreshConfirmModal = signal(false);
+    readonly dataRefreshRowCount = signal<number | null>(null);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private pendingRefreshTrigger: string | null = null;
+    private pendingConfirmedRefreshTrigger: string | null = null;
     private lastInitialTableRefreshRoute: string = null;
 
     // Reload Button:
@@ -149,12 +152,13 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.subscriptions.add(sub);
     }
 
-    override refreshEntityData(refreshTrigger?: string) {
+    override refreshEntityData(refreshTrigger?: string, confirmedDataRefresh = false) {
         this.pendingRefreshTrigger = refreshTrigger ?? null;
         this.showSynchronizedRefreshPromptModal.set(false);
+        this.showDataRefreshConfirmModal.set(false);
         this.showRefreshSummaryModal.set(false);
         this.refreshChangeDescriptions.set([]);
-        super.refreshEntityData(refreshTrigger);
+        super.refreshEntityData(refreshTrigger, confirmedDataRefresh);
     }
 
     closeRefreshSummaryModal() {
@@ -180,6 +184,23 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.refreshEntityData(refreshData ? 'synchronizedApplyWithData' : 'synchronizedApply');
     }
 
+    closeDataRefreshConfirmModal() {
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshRowCount.set(null);
+        this.pendingConfirmedRefreshTrigger = null;
+    }
+
+    confirmSynchronizedDataRefresh() {
+        const refreshTrigger = this.pendingConfirmedRefreshTrigger;
+        if (!refreshTrigger) {
+            return;
+        }
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshRowCount.set(null);
+        this.loading.set(true);
+        this.refreshEntityData(refreshTrigger, true);
+    }
+
     private handleRefreshFeedback(result: RelationalResult) {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
@@ -189,6 +210,14 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
+        if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
+            this.pendingConfirmedRefreshTrigger = refreshTrigger;
+            this.dataRefreshRowCount.set(result.dataRefreshRowCount);
+            this.showDataRefreshConfirmModal.set(true);
+            this.loading.set(false);
+            return;
+        }
+
         if (this.entity()?.synchronizedSourceEntityId) {
             if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
                 if (changeDescriptions.length > 0) {

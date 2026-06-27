@@ -50,6 +50,23 @@
     </c-modal-footer>
 </c-modal>
 
+<c-modal [visible]="showDataRefreshConfirmModal()"
+         (visibleChange)="showDataRefreshConfirmModal.set($event)"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Refresh Materialized Data</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showDataRefreshConfirmModal()">
+        <p class="text-body-secondary mb-0">
+            This refresh will delete and reload {{ dataRefreshRowCount() | number }} rows from the source.
+        </p>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" variant="outline" (click)="closeDataRefreshConfirmModal()">Cancel refresh</button>
+        <button cButton color="primary" autofocus (click)="confirmSynchronizedDataRefresh()">Refresh data</button>
+    </c-modal-footer>
+</c-modal>
+
 <c-modal [visible]="showRefreshSummaryModal()"
          (visibleChange)="showRefreshSummaryModal.set($event)"
          (keydown.enter)="closeRefreshSummaryModal()"

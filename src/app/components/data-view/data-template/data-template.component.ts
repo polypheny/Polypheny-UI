@@ -278,7 +278,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
      * Sends a refresh request for the current selected entity.
      * Triggers a schema refresh (if needed) before reloading the data.
      */
-    public refreshEntityData(refreshTrigger?: string) {
+    public refreshEntityData(refreshTrigger?: string, confirmedDataRefresh = false) {
         const filterObj = this.mapToObject(this.filter);
         const sortState = {};
         this.$result()?.header?.forEach((h: UiColumnDefinition) => {
@@ -294,6 +294,7 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             sortState
         );
         request.refreshTrigger = refreshTrigger;
+        request.confirmedDataRefresh = confirmedDataRefresh;
 
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
             this.$result.set(CombinedResult.fromRelational(
