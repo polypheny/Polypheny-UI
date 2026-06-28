@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {EntityType} from '../../models/catalog.model';
 import {RelationalResult, Result} from '../../components/data-view/models/result-set.model';
 import {CombinedResult} from '../../components/data-view/data-view.model';
+import {DataModel} from '../../models/ui-request.model';
 
 @Component({
     selector: 'app-table-view',
@@ -18,6 +19,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     readonly showSynchronizedRefreshPromptModal = signal(false);
     readonly showDataRefreshConfirmModal = signal(false);
     readonly dataRefreshRowCount = signal<number | null>(null);
+    readonly dataRefreshUnit = computed(() => this.entity()?.dataModel === DataModel.DOCUMENT ? 'documents' : 'rows');
     readonly refreshChangeDescriptions = signal<string[]>([]);
     private pendingRefreshTrigger: string | null = null;
     private pendingConfirmedRefreshTrigger: string | null = null;
@@ -29,6 +31,10 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             return;
         }
         this.loading.set(true);
+        if (this.entity()?.synchronizedSourceEntityId && this.entity()?.dataModel === DataModel.DOCUMENT) {
+            this.refreshEntityData('synchronizedApplyWithData');
+            return;
+        }
         this.refreshEntityData('button');
     }
 
@@ -219,6 +225,9 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         }
 
         if (this.entity()?.synchronizedSourceEntityId) {
+            if (this.entity()?.dataModel === DataModel.DOCUMENT) {
+                return;
+            }
             if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
                 if (changeDescriptions.length > 0) {
                     this.refreshChangeDescriptions.set(changeDescriptions);

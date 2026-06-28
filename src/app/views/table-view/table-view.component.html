@@ -58,7 +58,7 @@
     </c-modal-header>
     <c-modal-body *ngIf="showDataRefreshConfirmModal()">
         <p class="text-body-secondary mb-0">
-            This refresh will delete and reload {{ dataRefreshRowCount() | number }} rows from the source.
+            This refresh will delete and reload {{ dataRefreshRowCount() | number }} {{ dataRefreshUnit() }} from the source.
         </p>
     </c-modal-body>
     <c-modal-footer>

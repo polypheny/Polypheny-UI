@@ -75,6 +75,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     readonly loading = signal(false);
     readonly showExistingStoreModal = signal(false);
     readonly showSourceMaterializationConfirmModal = signal(false);
+    readonly showDataRefreshConfirmModal = signal(false);
+    readonly dataRefreshDocumentCount = signal<number | null>(null);
     readonly selectedMaterializationStoreId = signal<number>(null);
     readonly selectedSourceMaterializationMode = signal<SourceMaterializationMode | null>(null);
     readonly targetMaterializationName = signal('');
@@ -111,6 +113,10 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     protected readonly EntityType = EntityType;
 
     reload = () => {
+        if (this.synchronizedMaterializedSource()) {
+            this.refreshSynchronizedMaterializationData();
+            return;
+        }
         this.refreshEntityData();
     }
 
@@ -153,9 +159,14 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                     this._toast.exception(result);
                     return;
                 }
+                if (result?.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
+                    this.dataRefreshDocumentCount.set(result.dataRefreshRowCount);
+                    this.showDataRefreshConfirmModal.set(true);
+                    return;
+                }
 
                 this._catalog.updateIfNecessary().subscribe();
-                this._toast.info('Updated data.');
+                this._toast.info(this.synchronizedMaterializedSource() ? 'Refreshed materialized data.' : 'Updated data.');
             },
             error: () => {
                 this.loading.set(false);
@@ -224,6 +235,35 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             this.loading.set(false);
             this._toast.error('Could not establish a connection with the server.');
         }
+    }
+
+    refreshSynchronizedMaterializationData(confirmedDataRefresh = false) {
+        const entity = this.entity();
+        const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
+        if (!entity || !namespace || !this.synchronizedMaterializedSource()) {
+            return;
+        }
+
+        this.loading.set(true);
+        this.showDataRefreshConfirmModal.set(false);
+        const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.refreshTrigger = 'synchronizedApplyWithData';
+        request.confirmedDataRefresh = confirmedDataRefresh;
+        if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.loading.set(false);
+            this._toast.error('Could not establish a connection with the server.');
+        }
+    }
+
+    closeDataRefreshConfirmModal() {
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshDocumentCount.set(null);
+    }
+
+    confirmSynchronizedDataRefresh() {
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshDocumentCount.set(null);
+        this.refreshSynchronizedMaterializationData(true);
     }
 
     getAdapters(): Signal<AdapterModel[]> {
