@@ -2,7 +2,12 @@
     <c-row>
         <c-col>
             <div class="d-flex align-items-center">
-                <h1 class="flex-grow-1">{{ entity()?.name }}</h1>
+                <div class="flex-grow-1">
+                    <h1>{{ entity()?.name }}</h1>
+                    <div *ngIf="synchronizedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
+                        Synchronized Materialization · read-only · source: {{ synchronizedMaterializedSource() }}
+                    </div>
+                </div>
 
                 <div class="d-flex align-items-center gap-2">
                     <button cButton color="light" (click)="openDataView()">Show Data</button>

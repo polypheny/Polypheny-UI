@@ -92,6 +92,10 @@ export class CrudService {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createIndependentSourceCollectionMaterialization`, request, this.httpOptions);
     }
 
+    createSynchronizedSourceCollectionMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createSynchronizedSourceCollectionMaterialization`, request, this.httpOptions);
+    }
+
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
         return socket.sendMessage(data);
     }

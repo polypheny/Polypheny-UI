@@ -80,6 +80,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     readonly targetMaterializationName = signal('');
     readonly showTargetMaterializationNameError = signal(false);
     readonly creatingSourceMaterialization = signal(false);
+    readonly synchronizedMaterializedSource = computed(() => this._catalog.getSynchronizedSourceFullName(this.entity()));
     readonly sourceAdapter = computed(() => this.getAdapters()()?.[0] ?? null);
     readonly showSourceMaterializationTab = computed(() => {
         const sourceAdapter = this.sourceAdapter();
@@ -273,18 +274,18 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.selectedSourceMaterializationMode() !== 'independent') {
-            this._toast.info('Synchronized materialization is not available yet.');
-            return;
-        }
-
         if (this.targetMaterializationNameExists()) {
             this.showTargetMaterializationNameError.set(true);
             return;
         }
 
         this.creatingSourceMaterialization.set(true);
-        this._crud.createIndependentSourceCollectionMaterialization(new SourceMaterializationRequest(entity.id, store.id, namespace.id, this.normalizedTargetMaterializationName())).subscribe({
+        const mode = this.selectedSourceMaterializationMode();
+        const request = new SourceMaterializationRequest(entity.id, store.id, namespace.id, this.normalizedTargetMaterializationName());
+        const materializationRequest = mode === 'synchronized'
+            ? this._crud.createSynchronizedSourceCollectionMaterialization(request)
+            : this._crud.createIndependentSourceCollectionMaterialization(request);
+        materializationRequest.subscribe({
             next: (result: RelationalResult) => {
                 if (result.error) {
                     this._toast.exception(result, 'Could not create materialization:');
@@ -297,7 +298,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                 this.selectedSourceMaterializationMode.set(null);
                 this._catalog.updateIfNecessary().subscribe();
                 this._toast.success(
-                    `Created independent materialization ${result.table} on store ${store.name}`,
+                    `Created ${mode} materialization ${result.table} on store ${store.name}`,
                     result.query,
                     'Materialization'
                 );

@@ -16,9 +16,9 @@
                 <td>
                     <span *ngIf="!collection.editing">
                       {{ collection.name }}
-                        <i class="cil-pencil show-on-hover ms-2" (click)="collection.editing = !collection.editing"></i>
+                        <i *ngIf="collection.modifiable" class="cil-pencil show-on-hover ms-2" (click)="collection.editing = !collection.editing"></i>
                     </span>
-                    <c-input-group sizing="sm" *ngIf="collection.editing" tabindex="-1" style="max-width: 200px" #editing>
+                    <c-input-group sizing="sm" *ngIf="collection.modifiable && collection.editing" tabindex="-1" style="max-width: 200px" #editing>
                         <input cFormControl type="text" placeholder="newName"
                                [(ngModel)]="collection.newName" autofocus (keyup.enter)="rename(collection)"
                                (keyup.escape)="collection.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
@@ -45,7 +45,7 @@
                     </c-input-group>
                 </td>
                 <td>
-                    <c-input-group class="confirm-group" sizing="sm" *ngIf="collection.tableType !== 'SOURCE'">
+                    <c-input-group class="confirm-group" sizing="sm" *ngIf="collection.modifiable && collection.tableType !== 'SOURCE'">
                         <input cFormControl type="text" placeholder="drop {{collection.name}}"
                                [(ngModel)]="collection.drop" (keyup.enter)="sendRequest(Method.DROP, collection)">
                         <button cButton [ngClass]="isDropTruncateEnabled(Method.DROP, collection) ? 'btn-danger' : 'btn-secondary'"

@@ -314,6 +314,7 @@ export class CatalogService {
 
     private isSynchronizedMaterializedSource(entity: EntityModel): boolean {
         return entity?.entityType === EntityType.SOURCE &&
+            (entity?.dataModel === DataModel.RELATIONAL || entity?.dataModel === DataModel.DOCUMENT) &&
             Array.from(this.entities().values()).some(candidate => candidate.synchronizedSourceEntityId === entity.id);
     }
 
