@@ -36,6 +36,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     protected readonly webSocket: WebSocket;
     readonly showRefreshSummaryModal = signal(false);
     readonly refreshChangeDescriptions = signal<string[]>([]);
+    readonly refreshSummaryTrigger = signal<string | null>(null);
     readonly showSourceMaterializationWarningModal = signal(false);
     readonly sourceMaterializationWarnings = signal<string[]>([]);
     private createdSourceMaterializationRoute: string | null = null;
@@ -83,7 +84,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             const route = this.currentRoute();
             const entity = this.entity();
             const viewInitialized = this.viewInitialized();
-            if (!route || !entity || !viewInitialized) {
+            if (!route || this.currentTab() || !entity || !viewInitialized || !this.showSourceMaterializationTab()) {
                 return;
             }
 
@@ -150,11 +151,14 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         return Array.from(this._catalog.entities().values())
             .some(entity => entity.namespaceId === namespace.id && entity.name.toLowerCase() === name.toLowerCase());
     });
-    private lastCheckedRoute: string = null;
     errorMsg: string;
     editingCol: string;
+    private lastCheckedRoute: string = null;
     subscriptions = new Subscription();
     reload = () => {
+        if (!this.showSourceMaterializationTab()) {
+            return;
+        }
         this.loading.set(true);
         this.refreshEntityData('button');
     }
@@ -176,6 +180,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 if (!entity || entity.entityType !== EntityType.SOURCE) {
                     return;
                 }
+                if (!this.showSourceMaterializationTab()) {
+                    return;
+                }
 
                 const isAffected = this._catalog.getAllocations(entity.id)
                     .some(allocation => {
@@ -183,7 +190,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                         return placement ? sourceIds.includes(placement.adapterId) : false;
                     });
                 if (isAffected) {
-                    this.lastCheckedRoute = null;
                     this.refreshEntityData();
                 }
             })
@@ -338,6 +344,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
     closeRefreshSummaryModal() {
         this.showRefreshSummaryModal.set(false);
+        this.refreshSummaryTrigger.set(null);
     }
 
     closeSourceMaterializationWarningModal() {
@@ -450,12 +457,15 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         const changeDescriptions = result.changeDescriptions ?? [];
         if (changeDescriptions.length > 0) {
             this.refreshChangeDescriptions.set(changeDescriptions);
+            this.refreshSummaryTrigger.set(refreshTrigger);
             this.showRefreshSummaryModal.set(true);
             return;
         }
 
-        if (refreshTrigger === 'button') {
-            this._toast.info('No schema changes detected.');
+        if (refreshTrigger === 'button' || refreshTrigger === 'selection') {
+            this._toast.info(refreshTrigger === 'selection'
+                ? 'Automatically refreshed after table selection. No schema changes detected. Data refreshed.'
+                : 'No schema changes detected. Data refreshed.');
         }
     }
 

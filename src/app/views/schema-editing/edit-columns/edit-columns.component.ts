@@ -91,10 +91,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     readonly showDataRefreshConfirmModal = signal(false);
     readonly dataRefreshRowCount = signal<number | null>(null);
     readonly refreshChangeDescriptions = signal<string[]>([]);
+    readonly refreshSummaryTrigger = signal<string | null>(null);
     private readonly webSocket = new WebSocket();
     private pendingRefreshTrigger: string | null = null;
     private pendingConfirmedRefreshTrigger: string | null = null;
-    private lastSynchronizedRefreshRoute: string = null;
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
@@ -249,10 +249,6 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             if (!!entity) {
                 if (entity.entityType === EntityType.MATERIALIZED_VIEW) {
                     this.subscribeMaterializedInfo();
-                }
-                if (entity.synchronizedSourceEntityId && this.lastSynchronizedRefreshRoute !== this.currentRoute()) {
-                    this.lastSynchronizedRefreshRoute = this.currentRoute();
-                    this.refreshSynchronizedMaterializedTable('selection');
                 }
             }
 
@@ -1127,6 +1123,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.showDataRefreshConfirmModal.set(false);
         this.showRefreshSummaryModal.set(false);
         this.refreshChangeDescriptions.set([]);
+        this.refreshSummaryTrigger.set(null);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         request.refreshTrigger = refreshTrigger;
         request.confirmedDataRefresh = confirmedDataRefresh;
@@ -1185,6 +1182,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
+        const schemaChangeDescriptions = this.schemaChangeDescriptions(changeDescriptions);
         if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
             this.pendingConfirmedRefreshTrigger = refreshTrigger;
             this.dataRefreshRowCount.set(result.dataRefreshRowCount);
@@ -1194,20 +1192,21 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
 
         if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
-            if (changeDescriptions.length > 0) {
-                this.refreshChangeDescriptions.set(changeDescriptions);
+            if (schemaChangeDescriptions.length > 0) {
+                this.refreshChangeDescriptions.set(schemaChangeDescriptions);
+                this.refreshSummaryTrigger.set(refreshTrigger);
                 this.showRefreshSummaryModal.set(true);
                 this._catalog.updateIfNecessary().subscribe();
             } else {
                 this.refreshChangeDescriptions.set([]);
                 this.showRefreshSummaryModal.set(false);
-                this._toast.info('No addable schema changes detected.');
+                this._toast.info(refreshTrigger === 'synchronizedApplyWithData' ? 'Data refreshed.' : 'No applicable schema changes detected.');
             }
             return;
         }
 
-        if (changeDescriptions.length > 0) {
-            this.refreshChangeDescriptions.set(changeDescriptions);
+        if (schemaChangeDescriptions.length > 0) {
+            this.refreshChangeDescriptions.set(schemaChangeDescriptions);
             this.showSynchronizedRefreshPromptModal.set(true);
             return;
         }
@@ -1216,6 +1215,10 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this.refreshChangeDescriptions.set([]);
             this.showSynchronizedRefreshPromptModal.set(true);
         }
+    }
+
+    private schemaChangeDescriptions(changeDescriptions: string[]): string[] {
+        return changeDescriptions.filter(change => change !== 'Refreshed data from source');
     }
 
     setTab(tab: Tabs) {

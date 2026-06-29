@@ -21,6 +21,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     readonly dataRefreshRowCount = signal<number | null>(null);
     readonly dataRefreshUnit = computed(() => this.entity()?.dataModel === DataModel.DOCUMENT ? 'documents' : 'rows');
     readonly refreshChangeDescriptions = signal<string[]>([]);
+    readonly refreshSummaryTrigger = signal<string | null>(null);
     private pendingRefreshTrigger: string | null = null;
     private pendingConfirmedRefreshTrigger: string | null = null;
     private lastInitialTableRefreshRoute: string = null;
@@ -33,6 +34,10 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.loading.set(true);
         if (this.entity()?.synchronizedSourceEntityId && this.entity()?.dataModel === DataModel.DOCUMENT) {
             this.refreshEntityData('synchronizedApplyWithData');
+            return;
+        }
+        if (!this.shouldUseRefreshFlow(this.entity())) {
+            this.getEntityData();
             return;
         }
         this.refreshEntityData('button');
@@ -59,6 +64,10 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                 this.lastInitialTableRefreshRoute = route;
                 this.$result.set(null);
                 this.loading.set(true);
+                if (entity.synchronizedSourceEntityId || !this.shouldUseRefreshFlow(entity)) {
+                    this.getEntityData();
+                    return;
+                }
                 this.refreshEntityData('selection');
             });
         });
@@ -164,6 +173,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.showDataRefreshConfirmModal.set(false);
         this.showRefreshSummaryModal.set(false);
         this.refreshChangeDescriptions.set([]);
+        this.refreshSummaryTrigger.set(null);
         super.refreshEntityData(refreshTrigger, confirmedDataRefresh);
     }
 
@@ -216,6 +226,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
+        const schemaChangeDescriptions = this.schemaChangeDescriptions(changeDescriptions);
         if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
             this.pendingConfirmedRefreshTrigger = refreshTrigger;
             this.dataRefreshRowCount.set(result.dataRefreshRowCount);
@@ -224,25 +235,33 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             return;
         }
 
+        if (this.entity()?.dataModel === DataModel.DOCUMENT) {
+            console.log('[TableView] Document refresh completed', {
+                trigger: refreshTrigger,
+                entity: this.entity()?.name,
+                synchronizedSourceEntityId: this.entity()?.synchronizedSourceEntityId ?? null
+            });
+            this._toast.info(refreshTrigger === 'selection' ? 'Automatically refreshed after table selection. Data refreshed.' : 'Data refreshed.');
+            return;
+        }
+
         if (this.entity()?.synchronizedSourceEntityId) {
-            if (this.entity()?.dataModel === DataModel.DOCUMENT) {
-                return;
-            }
             if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
-                if (changeDescriptions.length > 0) {
-                    this.refreshChangeDescriptions.set(changeDescriptions);
+                if (schemaChangeDescriptions.length > 0) {
+                    this.refreshChangeDescriptions.set(schemaChangeDescriptions);
+                    this.refreshSummaryTrigger.set(refreshTrigger);
                     this.showRefreshSummaryModal.set(true);
                     this._catalog.updateIfNecessary().subscribe();
                 } else {
                     this.refreshChangeDescriptions.set([]);
                     this.showRefreshSummaryModal.set(false);
-                    this._toast.info('No addable schema changes detected.');
+                    this._toast.info(refreshTrigger === 'synchronizedApplyWithData' ? 'Data refreshed.' : 'No applicable schema changes detected.');
                 }
                 return;
             }
 
-            if (changeDescriptions.length > 0) {
-                this.refreshChangeDescriptions.set(changeDescriptions);
+            if (schemaChangeDescriptions.length > 0) {
+                this.refreshChangeDescriptions.set(schemaChangeDescriptions);
                 this.showSynchronizedRefreshPromptModal.set(true);
                 return;
             }
@@ -258,16 +277,47 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             return;
         }
 
-        if (changeDescriptions.length > 0) {
-            this.refreshChangeDescriptions.set(changeDescriptions);
+        if (schemaChangeDescriptions.length > 0) {
+            this.refreshChangeDescriptions.set(schemaChangeDescriptions);
+            this.refreshSummaryTrigger.set(refreshTrigger);
             this.showRefreshSummaryModal.set(true);
             return;
         }
 
-        if (refreshTrigger === 'button') {
+        if (refreshTrigger === 'button' || refreshTrigger === 'selection') {
             this.refreshChangeDescriptions.set([]);
             this.showRefreshSummaryModal.set(false);
-            this._toast.info('No schema changes detected.');
+            this._toast.info(refreshTrigger === 'selection'
+                ? 'Automatically refreshed after table selection. No schema changes detected. Data refreshed.'
+                : 'No schema changes detected. Data refreshed.');
         }
+    }
+
+    private schemaChangeDescriptions(changeDescriptions: string[]): string[] {
+        return changeDescriptions.filter(change => change !== 'Refreshed data from source');
+    }
+
+    private shouldUseRefreshFlow(entity = this.entity()): boolean {
+        if (!entity) {
+            return false;
+        }
+        if (entity.dataModel === DataModel.DOCUMENT) {
+            return true;
+        }
+        if (entity.synchronizedSourceEntityId) {
+            return true;
+        }
+        return entity.entityType === EntityType.SOURCE
+            && entity.dataModel === DataModel.RELATIONAL
+            && this.isSupportedRelationalSource(entity.id);
+    }
+
+    private isSupportedRelationalSource(entityId: number): boolean {
+        return this._catalog.getAllocations(entityId)
+            .some(allocation => {
+                const placement = this._catalog.placements().get(allocation.placementId);
+                const adapter = placement ? this._catalog.getAdapter(placement.adapterId) : null;
+                return adapter?.adapterName === 'PostgreSQL' || adapter?.adapterName === 'MySQL';
+            });
     }
 }

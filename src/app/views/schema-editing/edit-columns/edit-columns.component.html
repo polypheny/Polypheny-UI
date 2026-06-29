@@ -77,10 +77,10 @@
         </c-modal-header>
         <c-modal-body *ngIf="showSynchronizedRefreshPromptModal()">
             <p class="text-body-secondary mb-3" *ngIf="hasAddableSynchronizedRefreshChanges()">
-                The original source has these schema changes. Apply them to this synchronized materialization?
+                The underlying source has schema changes. Do you want to synchronize them?
             </p>
             <p class="text-body-secondary mb-3" *ngIf="!hasSynchronizedRefreshChanges()">
-                No schema changes were detected. Refresh the materialized data from the source?
+                No schema changes detected. Do you want to refresh the data?
             </p>
             <p class="text-body-secondary mb-3" *ngIf="hasSynchronizedRefreshChanges() && !hasAddableSynchronizedRefreshChanges()">
                 The original source has schema changes that cannot be applied yet:
@@ -93,8 +93,8 @@
         </c-modal-body>
         <c-modal-footer>
             <button cButton color="secondary" variant="outline" (click)="closeSynchronizedRefreshPromptModal()">{{ hasSynchronizedRefreshChanges() ? 'No' : 'Close' }}</button>
-            <button cButton color="primary" *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges()">Schema only</button>
-            <button cButton color="primary" autofocus *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Schema and data</button>
+            <button cButton color="primary" *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges()">Synchronize schema only</button>
+            <button cButton color="primary" autofocus *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Synchronize schema and data</button>
             <button cButton color="primary" autofocus *ngIf="!hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Refresh data</button>
         </c-modal-footer>
     </c-modal>
@@ -122,10 +122,17 @@
              size="lg"
              alignment="center">
         <c-modal-header>
-            <h5 cModalTitle>Synchronized Source Table</h5>
+            <h5 cModalTitle>Refresh Summary</h5>
         </c-modal-header>
         <c-modal-body *ngIf="showRefreshSummaryModal()">
-            <p class="text-body-secondary mb-3">These schema changes were applied:</p>
+            <p class="text-body-secondary mb-2" *ngIf="refreshSummaryTrigger() === 'selection'">
+                Automatically refreshed after table selection.
+            </p>
+            <p class="text-body-secondary mb-2">Source schema synchronized.</p>
+            <p class="text-body-secondary mb-3" *ngIf="refreshSummaryTrigger() === 'synchronizedApplyWithData'">
+                Data refreshed.
+            </p>
+            <p class="text-body-secondary mb-3">Applied schema changes:</p>
             <ul class="list-group list-group-flush">
                 <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
                     {{ change }}

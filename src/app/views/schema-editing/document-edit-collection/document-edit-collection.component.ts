@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, input, Input, OnDestroy, OnInit, Signal, signal, ViewChild} from '@angular/core';
+import {Component, computed, effect, HostListener, inject, input, Input, OnDestroy, OnInit, Signal, signal, untracked, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
@@ -83,6 +83,9 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     readonly showTargetMaterializationNameError = signal(false);
     readonly creatingSourceMaterialization = signal(false);
     readonly synchronizedMaterializedSource = computed(() => this._catalog.getSynchronizedSourceFullName(this.entity()));
+    private pendingRefreshTrigger: string | null = null;
+    private lastAutoRefreshRoute: string | null = null;
+    private readonly websocketReady = signal(false);
     readonly sourceAdapter = computed(() => this.getAdapters()()?.[0] ?? null);
     readonly showSourceMaterializationTab = computed(() => {
         const sourceAdapter = this.sourceAdapter();
@@ -114,20 +117,40 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
 
     reload = () => {
         if (this.synchronizedMaterializedSource()) {
-            this.refreshSynchronizedMaterializationData();
+            this.refreshSynchronizedMaterializationData(false, 'button');
             return;
         }
-        this.refreshEntityData();
+        this.refreshEntityData('button');
     }
 
     constructor() {
         this.webSocket = new WebSocket();
+        effect(() => {
+            const route = this.currentRoute();
+            const entity = this.entity();
+            const websocketReady = this.websocketReady();
+            if (!route || this.currentTab() || !entity || !websocketReady) {
+                return;
+            }
+
+            untracked(() => {
+                if (this.lastAutoRefreshRoute === route) {
+                    return;
+                }
+                this.lastAutoRefreshRoute = route;
+                if (this.synchronizedMaterializedSource()) {
+                    return;
+                }
+                this.refreshEntityData('selection');
+            });
+        });
     }
 
     ngOnInit() {
 
         this.getFixedFields();
         this.initWebsocket();
+        this.websocketReady.set(true);
     }
 
     ngOnDestroy() {
@@ -165,10 +188,20 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                     return;
                 }
 
+                const refreshTrigger = this.pendingRefreshTrigger;
+                this.pendingRefreshTrigger = null;
                 this._catalog.updateIfNecessary().subscribe();
-                this._toast.info(this.synchronizedMaterializedSource() ? 'Refreshed materialized data.' : 'Updated data.');
+                console.log('[DocumentEditCollection] Document refresh completed', {
+                    trigger: refreshTrigger,
+                    entity: this.entity()?.name,
+                    synchronizedSourceEntityId: this.entity()?.synchronizedSourceEntityId ?? null
+                });
+                this._toast.info(refreshTrigger === 'selection'
+                    ? 'Automatically refreshed after table selection. Data refreshed.'
+                    : 'Data refreshed.');
             },
             error: () => {
+                this.pendingRefreshTrigger = null;
                 this.loading.set(false);
                 this._toast.error('Could not refresh the source collection.');
             }
@@ -222,7 +255,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
     }
 
-    refreshEntityData() {
+    refreshEntityData(refreshTrigger: string = 'button') {
         const entity = this.entity();
         const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
         if (!entity || !namespace) {
@@ -230,14 +263,16 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         }
 
         this.loading.set(true);
+        this.pendingRefreshTrigger = refreshTrigger;
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.pendingRefreshTrigger = null;
             this.loading.set(false);
             this._toast.error('Could not establish a connection with the server.');
         }
     }
 
-    refreshSynchronizedMaterializationData(confirmedDataRefresh = false) {
+    refreshSynchronizedMaterializationData(confirmedDataRefresh = false, refreshTrigger: string = 'button') {
         const entity = this.entity();
         const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
         if (!entity || !namespace || !this.synchronizedMaterializedSource()) {
@@ -245,11 +280,13 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         }
 
         this.loading.set(true);
+        this.pendingRefreshTrigger = refreshTrigger;
         this.showDataRefreshConfirmModal.set(false);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
         request.refreshTrigger = 'synchronizedApplyWithData';
         request.confirmedDataRefresh = confirmedDataRefresh;
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.pendingRefreshTrigger = null;
             this.loading.set(false);
             this._toast.error('Could not establish a connection with the server.');
         }
@@ -258,12 +295,14 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     closeDataRefreshConfirmModal() {
         this.showDataRefreshConfirmModal.set(false);
         this.dataRefreshDocumentCount.set(null);
+        this.pendingRefreshTrigger = null;
     }
 
     confirmSynchronizedDataRefresh() {
+        const refreshTrigger = this.pendingRefreshTrigger ?? 'button';
         this.showDataRefreshConfirmModal.set(false);
         this.dataRefreshDocumentCount.set(null);
-        this.refreshSynchronizedMaterializationData(true);
+        this.refreshSynchronizedMaterializationData(true, refreshTrigger);
     }
 
     getAdapters(): Signal<AdapterModel[]> {
