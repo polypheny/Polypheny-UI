@@ -39,6 +39,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     readonly refreshSummaryTrigger = signal<string | null>(null);
     readonly showSourceMaterializationWarningModal = signal(false);
     readonly sourceMaterializationWarnings = signal<string[]>([]);
+    readonly showSourceDeletedModal = signal(false);
+    readonly sourceDeletedMessage = signal('');
     private createdSourceMaterializationRoute: string | null = null;
     private readonly viewInitialized = signal(false);
     private pendingRefreshTrigger: string | null = null;
@@ -356,6 +358,15 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         }
     }
 
+    closeSourceDeletedModal() {
+        if (!this.showSourceDeletedModal()) {
+            return;
+        }
+        this.showSourceDeletedModal.set(false);
+        this.sourceDeletedMessage.set('');
+        this._catalog.updateIfNecessary().subscribe();
+    }
+
     openExistingStoreModal() {
         this.showExistingStoreModal.set(true);
     }
@@ -455,6 +466,14 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
+        if (result.sourceEntityDeleted) {
+            this.refreshChangeDescriptions.set([]);
+            this.showRefreshSummaryModal.set(false);
+            this.sourceDeletedMessage.set(changeDescriptions[0] ?? 'The source table was deleted in the source.');
+            this.showSourceDeletedModal.set(true);
+            return;
+        }
+
         if (changeDescriptions.length > 0) {
             this.refreshChangeDescriptions.set(changeDescriptions);
             this.refreshSummaryTrigger.set(refreshTrigger);

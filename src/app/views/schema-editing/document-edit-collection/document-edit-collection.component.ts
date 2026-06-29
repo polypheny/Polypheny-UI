@@ -4,7 +4,7 @@ import {CrudService} from '../../../services/crud.service';
 import {PolyType, RelationalResult, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
-import {Method, RefreshRequest, SourceMaterializationRequest} from '../../../models/ui-request.model';
+import {MaterializedRequest, Method, RefreshRequest, SourceMaterializationRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel} from '../../adapters/adapter.model';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -77,6 +77,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
     readonly showSourceMaterializationConfirmModal = signal(false);
     readonly showDataRefreshConfirmModal = signal(false);
     readonly dataRefreshDocumentCount = signal<number | null>(null);
+    readonly showSourceDeletedModal = signal(false);
+    readonly sourceDeletedMessage = signal('');
     readonly selectedMaterializationStoreId = signal<number>(null);
     readonly selectedSourceMaterializationMode = signal<SourceMaterializationMode | null>(null);
     readonly targetMaterializationName = signal('');
@@ -187,6 +189,12 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                     this.showDataRefreshConfirmModal.set(true);
                     return;
                 }
+                if (result?.sourceEntityDeleted) {
+                    this.pendingRefreshTrigger = null;
+                    this.sourceDeletedMessage.set(result.changeDescriptions?.[0] ?? 'The source collection was deleted in the source.');
+                    this.showSourceDeletedModal.set(true);
+                    return;
+                }
 
                 const refreshTrigger = this.pendingRefreshTrigger;
                 this.pendingRefreshTrigger = null;
@@ -265,6 +273,7 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         this.pendingRefreshTrigger = refreshTrigger;
         const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.refreshTrigger = refreshTrigger;
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
             this.pendingRefreshTrigger = null;
             this.loading.set(false);
@@ -296,6 +305,46 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
         this.showDataRefreshConfirmModal.set(false);
         this.dataRefreshDocumentCount.set(null);
         this.pendingRefreshTrigger = null;
+    }
+
+    closeSourceDeletedModal() {
+        if (!this.showSourceDeletedModal()) {
+            return;
+        }
+        if (this.synchronizedMaterializedSource()) {
+            this.keepSynchronizedMaterializationAfterSourceDeleted();
+            return;
+        }
+        this.showSourceDeletedModal.set(false);
+        this.sourceDeletedMessage.set('');
+        this._catalog.updateIfNecessary().subscribe();
+    }
+
+    keepSynchronizedMaterializationAfterSourceDeleted() {
+        this.showSourceDeletedModal.set(false);
+        this.sourceDeletedMessage.set('');
+    }
+
+    deleteSynchronizedMaterialization() {
+        const entity = this.entity();
+        if (!entity) {
+            return;
+        }
+        this.loading.set(true);
+        this._crud.dropSynchronizedSourceMaterialization(new MaterializedRequest(entity.id)).subscribe({
+            next: result => {
+                if (result.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+                this.showSourceDeletedModal.set(false);
+                this.sourceDeletedMessage.set('');
+                this._catalog.updateIfNecessary().subscribe();
+                this._router.navigate(['/views/schema-editing/']).then();
+                this._toast.success(`Deleted synchronized materialization "${entity.name}".`);
+            },
+            error: () => this._toast.error('Could not delete the synchronized materialization.')
+        }).add(() => this.loading.set(false));
     }
 
     confirmSynchronizedDataRefresh() {

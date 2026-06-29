@@ -347,6 +347,21 @@
     </c-modal-footer>
 </c-modal>
 
+<c-modal [visible]="showSourceDeletedModal()"
+         (visibleChange)="!$event && closeSourceDeletedModal()"
+         (keydown.enter)="closeSourceDeletedModal()"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Source Deleted</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showSourceDeletedModal()">
+        <p class="text-body-secondary mb-0">{{ sourceDeletedMessage() }}</p>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="closeSourceDeletedModal()">OK</button>
+    </c-modal-footer>
+</c-modal>
+
 <c-modal [visible]="showRefreshSummaryModal()"
          (visibleChange)="showRefreshSummaryModal.set($event)"
          (keydown.enter)="closeRefreshSummaryModal()"

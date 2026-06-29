@@ -89,6 +89,8 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     readonly showRefreshSummaryModal = signal(false);
     readonly showSynchronizedRefreshPromptModal = signal(false);
     readonly showDataRefreshConfirmModal = signal(false);
+    readonly showDeletedSourceMaterializationModal = signal(false);
+    readonly deletedSourceMaterializationMessage = signal('');
     readonly dataRefreshRowCount = signal<number | null>(null);
     readonly refreshChangeDescriptions = signal<string[]>([]);
     readonly refreshSummaryTrigger = signal<string | null>(null);
@@ -1157,6 +1159,32 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.refreshSynchronizedMaterializedTable(refreshData ? 'synchronizedApplyWithData' : 'synchronizedApply');
     }
 
+    closeDeletedSourceMaterializationModal() {
+        this.showDeletedSourceMaterializationModal.set(false);
+        this.deletedSourceMaterializationMessage.set('');
+    }
+
+    deleteSynchronizedMaterialization() {
+        const entity = this.entity();
+        if (!entity) {
+            return;
+        }
+        this.loading.set(true);
+        this._crud.dropSynchronizedSourceMaterialization(new MaterializedRequest(entity.id)).subscribe({
+            next: result => {
+                if (result.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+                this.closeDeletedSourceMaterializationModal();
+                this._catalog.updateIfNecessary().subscribe();
+                this._router.navigate(['/views/schema-editing/']).then();
+                this._toast.success(`Deleted synchronized materialization "${entity.name}".`);
+            },
+            error: () => this._toast.error('Could not delete the synchronized materialization.')
+        }).add(() => this.loading.set(false));
+    }
+
     closeDataRefreshConfirmModal() {
         this.showDataRefreshConfirmModal.set(false);
         this.dataRefreshRowCount.set(null);
@@ -1183,6 +1211,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
         const changeDescriptions = result.changeDescriptions ?? [];
         const schemaChangeDescriptions = this.schemaChangeDescriptions(changeDescriptions);
+        if (result.sourceEntityDeleted) {
+            this.refreshChangeDescriptions.set([]);
+            this.showRefreshSummaryModal.set(false);
+            this.showSynchronizedRefreshPromptModal.set(false);
+            this.deletedSourceMaterializationMessage.set(changeDescriptions[0] ?? 'The source table was deleted in the source.');
+            this.showDeletedSourceMaterializationModal.set(true);
+            return;
+        }
         if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
             this.pendingConfirmedRefreshTrigger = refreshTrigger;
             this.dataRefreshRowCount.set(result.dataRefreshRowCount);

@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {EntityType} from '../../models/catalog.model';
 import {RelationalResult, Result} from '../../components/data-view/models/result-set.model';
 import {CombinedResult} from '../../components/data-view/data-view.model';
-import {DataModel} from '../../models/ui-request.model';
+import {DataModel, MaterializedRequest} from '../../models/ui-request.model';
 
 @Component({
     selector: 'app-table-view',
@@ -18,6 +18,8 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     readonly showRefreshSummaryModal = signal(false);
     readonly showSynchronizedRefreshPromptModal = signal(false);
     readonly showDataRefreshConfirmModal = signal(false);
+    readonly showDeletedSourceMaterializationModal = signal(false);
+    readonly deletedSourceMaterializationMessage = signal('');
     readonly dataRefreshRowCount = signal<number | null>(null);
     readonly dataRefreshUnit = computed(() => this.entity()?.dataModel === DataModel.DOCUMENT ? 'documents' : 'rows');
     readonly refreshChangeDescriptions = signal<string[]>([]);
@@ -155,7 +157,11 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                     return conf;
                 });
 
-                this.handleRefreshFeedback(result as RelationalResult);
+                if (this.handleRefreshFeedback(result as RelationalResult)) {
+                    this.$result.set(null);
+                    this.loading.set(false);
+                    return;
+                }
                 this.$result.set(CombinedResult.from(result));
                 this.loading.set(false);
             }, error: err => {
@@ -217,22 +223,37 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.refreshEntityData(refreshTrigger, true);
     }
 
-    private handleRefreshFeedback(result: RelationalResult) {
+    private handleRefreshFeedback(result: RelationalResult): boolean {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
 
         if (!refreshTrigger) {
-            return;
+            return false;
         }
 
         const changeDescriptions = result.changeDescriptions ?? [];
         const schemaChangeDescriptions = this.schemaChangeDescriptions(changeDescriptions);
+        if (result.sourceEntityDeleted) {
+            if (this.entity()?.synchronizedSourceEntityId) {
+                this.refreshChangeDescriptions.set([]);
+                this.showRefreshSummaryModal.set(false);
+                this.showSynchronizedRefreshPromptModal.set(false);
+                this.deletedSourceMaterializationMessage.set(changeDescriptions[0] ?? 'The source entity was deleted in the source.');
+                this.showDeletedSourceMaterializationModal.set(true);
+                return true;
+            }
+            this.refreshChangeDescriptions.set([]);
+            this.showRefreshSummaryModal.set(false);
+            this._toast.warn(changeDescriptions[0] ?? 'The source entity was deleted in the source.');
+            this._catalog.updateIfNecessary().subscribe();
+            return true;
+        }
         if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
             this.pendingConfirmedRefreshTrigger = refreshTrigger;
             this.dataRefreshRowCount.set(result.dataRefreshRowCount);
             this.showDataRefreshConfirmModal.set(true);
             this.loading.set(false);
-            return;
+            return true;
         }
 
         if (this.entity()?.dataModel === DataModel.DOCUMENT) {
@@ -242,7 +263,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                 synchronizedSourceEntityId: this.entity()?.synchronizedSourceEntityId ?? null
             });
             this._toast.info(refreshTrigger === 'selection' ? 'Automatically refreshed after table selection. Data refreshed.' : 'Data refreshed.');
-            return;
+            return false;
         }
 
         if (this.entity()?.synchronizedSourceEntityId) {
@@ -257,31 +278,31 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                     this.showRefreshSummaryModal.set(false);
                     this._toast.info(refreshTrigger === 'synchronizedApplyWithData' ? 'Data refreshed.' : 'No applicable schema changes detected.');
                 }
-                return;
+                return false;
             }
 
             if (schemaChangeDescriptions.length > 0) {
                 this.refreshChangeDescriptions.set(schemaChangeDescriptions);
                 this.showSynchronizedRefreshPromptModal.set(true);
-                return;
+                return false;
             }
 
             if (refreshTrigger === 'button') {
                 this.refreshChangeDescriptions.set([]);
                 this.showSynchronizedRefreshPromptModal.set(true);
             }
-            return;
+            return false;
         }
 
         if (this.entity()?.entityType !== EntityType.SOURCE) {
-            return;
+            return false;
         }
 
         if (schemaChangeDescriptions.length > 0) {
             this.refreshChangeDescriptions.set(schemaChangeDescriptions);
             this.refreshSummaryTrigger.set(refreshTrigger);
             this.showRefreshSummaryModal.set(true);
-            return;
+            return false;
         }
 
         if (refreshTrigger === 'button' || refreshTrigger === 'selection') {
@@ -291,10 +312,38 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                 ? 'Automatically refreshed after table selection. No schema changes detected. Data refreshed.'
                 : 'No schema changes detected. Data refreshed.');
         }
+        return false;
     }
 
     private schemaChangeDescriptions(changeDescriptions: string[]): string[] {
         return changeDescriptions.filter(change => change !== 'Refreshed data from source');
+    }
+
+    closeDeletedSourceMaterializationModal() {
+        this.showDeletedSourceMaterializationModal.set(false);
+        this.deletedSourceMaterializationMessage.set('');
+    }
+
+    deleteSynchronizedMaterialization() {
+        const entity = this.entity();
+        if (!entity) {
+            return;
+        }
+        this.loading.set(true);
+        this._crud.dropSynchronizedSourceMaterialization(new MaterializedRequest(entity.id)).subscribe({
+            next: result => {
+                if (result.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+                this.closeDeletedSourceMaterializationModal();
+                this.$result.set(null);
+                this._catalog.updateIfNecessary().subscribe();
+                this._sidebar.setSchema(this._router, '/views/data-table/', true, 2, false);
+                this._toast.success(`Deleted synchronized materialization "${entity.name}".`);
+            },
+            error: () => this._toast.error('Could not delete the synchronized materialization.')
+        }).add(() => this.loading.set(false));
     }
 
     private shouldUseRefreshFlow(entity = this.entity()): boolean {

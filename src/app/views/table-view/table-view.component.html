@@ -50,6 +50,21 @@
     </c-modal-footer>
 </c-modal>
 
+<c-modal [visible]="showDeletedSourceMaterializationModal()"
+         (visibleChange)="showDeletedSourceMaterializationModal.set($event)"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Source Deleted</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showDeletedSourceMaterializationModal()">
+        <p class="text-body-secondary mb-0">{{ deletedSourceMaterializationMessage() }}</p>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" variant="outline" (click)="closeDeletedSourceMaterializationModal()">Keep materialization</button>
+        <button cButton color="danger" autofocus (click)="deleteSynchronizedMaterialization()">Delete materialization</button>
+    </c-modal-footer>
+</c-modal>
+
 <c-modal [visible]="showDataRefreshConfirmModal()"
          (visibleChange)="showDataRefreshConfirmModal.set($event)"
          alignment="center">
