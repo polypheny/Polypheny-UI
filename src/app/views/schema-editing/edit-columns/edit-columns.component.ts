@@ -544,17 +544,19 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     getUml() {
         this.foreignKeys = [];
-        if (!this.namespace) {
+        const entity = this.entity();
+        if (!this.namespace || !entity) {
             this.foreignKeys = null;
             return;
         }
+        const fullEntityName = this._catalog.getFullEntityName(entity.id);
         this._crud.getUml(new EditTableRequest(this.namespace().id)).subscribe({
             next: (uml: Uml) => {
 
                 const fks = new Map<string, ForeignKey>();
 
                 uml.foreignKeys.forEach((v, k) => {
-                    if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(this.entity().id)) {
+                    if ((v.sourceSchema + '.' + v.sourceTable) === fullEntityName) {
                         if (fks.has(v.fkName)) {
                             const fk = fks.get(v.fkName);
                             fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;

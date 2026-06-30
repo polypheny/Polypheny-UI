@@ -86,7 +86,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
             const route = this.currentRoute();
             const entity = this.entity();
             const viewInitialized = this.viewInitialized();
-            if (!route || this.currentTab() || !entity || !viewInitialized || !this.showSourceMaterializationTab()) {
+            if (!route || !entity || !viewInitialized) {
                 return;
             }
 
@@ -158,9 +158,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
     private lastCheckedRoute: string = null;
     subscriptions = new Subscription();
     reload = () => {
-        if (!this.showSourceMaterializationTab()) {
-            return;
-        }
         this.loading.set(true);
         this.refreshEntityData('button');
     }
@@ -182,10 +179,6 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 if (!entity || entity.entityType !== EntityType.SOURCE) {
                     return;
                 }
-                if (!this.showSourceMaterializationTab()) {
-                    return;
-                }
-
                 const isAffected = this._catalog.getAllocations(entity.id)
                     .some(allocation => {
                         const placement = this._catalog.placements().get(allocation.placementId);
@@ -224,7 +217,9 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                     return;
                 }
 
-                this.handleRefreshFeedback(result);
+                if (this.handleRefreshFeedback(result)) {
+                    return;
+                }
                 this._catalog.updateIfNecessary().subscribe();
             },
             error: () => {
@@ -457,35 +452,37 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
         return name.length > 0 ? name : null;
     }
 
-    private handleRefreshFeedback(result: RelationalResult) {
+    private handleRefreshFeedback(result: RelationalResult): boolean {
         const refreshTrigger = this.pendingRefreshTrigger;
         this.pendingRefreshTrigger = null;
-
-        if (!refreshTrigger) {
-            return;
-        }
 
         const changeDescriptions = result.changeDescriptions ?? [];
         if (result.sourceEntityDeleted) {
             this.refreshChangeDescriptions.set([]);
             this.showRefreshSummaryModal.set(false);
-            this.sourceDeletedMessage.set(changeDescriptions[0] ?? 'The source table was deleted in the source.');
-            this.showSourceDeletedModal.set(true);
-            return;
+            this._toast.warn(changeDescriptions[0] ?? 'The source table was deleted in the source.');
+            this._catalog.updateIfNecessary().subscribe();
+            return true;
+        }
+
+        if (!refreshTrigger) {
+            return false;
         }
 
         if (changeDescriptions.length > 0) {
             this.refreshChangeDescriptions.set(changeDescriptions);
             this.refreshSummaryTrigger.set(refreshTrigger);
             this.showRefreshSummaryModal.set(true);
-            return;
+            return true;
         }
 
         if (refreshTrigger === 'button' || refreshTrigger === 'selection') {
             this._toast.info(refreshTrigger === 'selection'
                 ? 'Automatically refreshed after table selection. No schema changes detected. Data refreshed.'
                 : 'No schema changes detected. Data refreshed.');
+            return true;
         }
+        return false;
     }
 
     setTab(tab: Tabs) {
