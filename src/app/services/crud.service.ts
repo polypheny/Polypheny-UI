@@ -80,6 +80,10 @@ export class CrudService {
         return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSelectedSources`, request, this.httpOptions);
     }
 
+    refreshSourcesForQuery(request: QueryRequest): Observable<SourceRefreshResult> {
+        return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSourcesForQuery`, request, this.httpOptions);
+    }
+
     createIndependentSourceMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createIndependentSourceMaterialization`, request, this.httpOptions);
     }

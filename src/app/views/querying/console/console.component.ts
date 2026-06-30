@@ -1,6 +1,6 @@
 import {Component, computed, inject, OnDestroy, OnInit, Signal, signal, ViewChild, WritableSignal} from '@angular/core';
 import {EntityConfig} from '../../../components/data-view/data-table/entity-config';
-import {CrudService} from '../../../services/crud.service';
+import {CrudService, SourceRefreshSummary} from '../../../services/crud.service';
 import {Result} from '../../../components/data-view/models/result-set.model';
 import {QueryHistory} from './query-history.model';
 import {KeyValue} from '@angular/common';
@@ -66,6 +66,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     readonly dataResultCount: Signal<number> = computed(() => this.results()?.filter(r => r.itemType === 'data').length || 0);
     delayedNamespace: string = null;
     readonly onlyUseStmts = signal(false);
+    readonly showQuerySourceRefreshModal = signal(false);
+    readonly querySourceRefreshSummaries = signal<SourceRefreshSummary[]>([]);
+    readonly querySourceRefreshHasDeletedSource = signal(false);
+    private pendingQueryRequest: QueryRequest | null = null;
 
     entityConfig: EntityConfig = {
         create: false,
@@ -174,7 +178,49 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         this.queryAnalysis = null;
 
         this.loading.set(true);
-        if (!this._crud.anyQuery(this.websocket, new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace()))) {
+        const request = new QueryRequest(code, this.analyzeQuery, this.useCache, this.language(), this.activeNamespace());
+        this._crud.refreshSourcesForQuery(request).subscribe({
+            next: result => {
+                const summaries = result.refreshSummaries ?? [];
+                if (summaries.length > 0) {
+                    this.pendingQueryRequest = request;
+                    this.querySourceRefreshSummaries.set(summaries);
+                    this.querySourceRefreshHasDeletedSource.set(this.hasDeletedSourceSummary(summaries));
+                    this.showQuerySourceRefreshModal.set(true);
+                    this.loading.set(false);
+                    return;
+                }
+                this.executeQueryRequest(request);
+            },
+            error: err => {
+                this.loading.set(false);
+                this.results.set([new InfoResultItem('Could not refresh referenced sources before executing the query.', 'warning')]);
+                this.resetCollapsed();
+                console.log(err);
+            }
+        });
+    }
+
+    executePendingQueryAfterSourceRefresh() {
+        const request = this.pendingQueryRequest;
+        const sourceDeleted = this.querySourceRefreshHasDeletedSource();
+        this.showQuerySourceRefreshModal.set(false);
+        this.querySourceRefreshSummaries.set([]);
+        this.querySourceRefreshHasDeletedSource.set(false);
+        this.pendingQueryRequest = null;
+        if (!request || sourceDeleted) {
+            return;
+        }
+        this.loading.set(true);
+        this.executeQueryRequest(request);
+    }
+
+    private hasDeletedSourceSummary(summaries: SourceRefreshSummary[]): boolean {
+        return summaries.some(summary => (summary.changeDescriptions ?? []).some(change => change.startsWith('Source ') && change.endsWith(' was deleted in the source.')));
+    }
+
+    private executeQueryRequest(request: QueryRequest) {
+        if (!this._crud.anyQuery(this.websocket, request)) {
             this.loading.set(false);
             this.results.set([new InfoResultItem('Could not establish a connection with the server.', 'warning')]);
             this.resetCollapsed();
