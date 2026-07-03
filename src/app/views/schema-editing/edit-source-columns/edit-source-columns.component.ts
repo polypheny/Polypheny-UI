@@ -94,6 +94,10 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
                 if (this.lastCheckedRoute === route) {
                     return;
                 }
+                if (this.lastCheckedRoute === null && this.currentTab()) {
+                    this.lastCheckedRoute = route;
+                    return;
+                }
                 this.lastCheckedRoute = route;
                 this.loading.set(true);
                 this.refreshEntityData('selection');
