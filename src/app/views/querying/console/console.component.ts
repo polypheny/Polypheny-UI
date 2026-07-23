@@ -196,7 +196,6 @@ export class ConsoleComponent implements OnInit, OnDestroy {
                 this.loading.set(false);
                 this.results.set([new InfoResultItem('Could not refresh referenced sources before executing the query.', 'warning')]);
                 this.resetCollapsed();
-                console.log(err);
             }
         });
     }

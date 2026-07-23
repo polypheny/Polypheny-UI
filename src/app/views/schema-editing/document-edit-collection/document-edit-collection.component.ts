@@ -199,11 +199,6 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                 const refreshTrigger = this.pendingRefreshTrigger;
                 this.pendingRefreshTrigger = null;
                 this._catalog.updateIfNecessary().subscribe();
-                console.log('[DocumentEditCollection] Document refresh completed', {
-                    trigger: refreshTrigger,
-                    entity: this.entity()?.name,
-                    synchronizedSourceEntityId: this.entity()?.synchronizedSourceEntityId ?? null
-                });
                 this._toast.info(refreshTrigger === 'selection'
                     ? 'Automatically refreshed after table selection. Data refreshed.'
                     : 'Data refreshed.');
@@ -431,9 +426,8 @@ export class DocumentEditCollectionComponent implements OnInit, OnDestroy {
                     'Materialization'
                 );
             },
-            error: err => {
+            error: () => {
                 this._toast.error('Could not create materialization.');
-                console.log(err);
             }
         }).add(() => this.creatingSourceMaterialization.set(false));
     }

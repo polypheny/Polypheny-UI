@@ -448,10 +448,9 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
                 }
                 this.executeQueryRequest(request);
             },
-            error: err => {
+            error: () => {
                 this.loading.set(false);
                 this.result = new RelationalResult('Could not refresh referenced sources before executing the query.');
-                console.log(err);
             }
         });
     }

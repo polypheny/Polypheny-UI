@@ -66,40 +66,58 @@ export class CrudService {
     }
 
     /**
-     * Sends a refresh request for the currently selected entity to the backend.
-     * This triggers a schema refresh (if needed) before reloading the data.
-     *
-     * @param socket the socket used to communicate with the backend
-     * @param request RefreshRequest containing entityID, namespace, currentPage, filter, and sortState
+     * Refreshes the currently selected entity.
      */
     refreshEntityData(socket: WebSocket, request: RefreshRequest): boolean {
         return socket.sendMessage(request);
     }
 
+    /**
+     * Refreshes all entities belonging to the selected source adapters and returns a summary of detected catalog changes.
+     */
     refreshSelectedSources(request: SourceRefreshRequest): Observable<SourceRefreshResult> {
         return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSelectedSources`, request, this.httpOptions);
     }
 
+    /**
+     * Refreshes source entities referenced by a query before the query is executed.
+     * The caller decides whether to continue when the backend reports catalog changes.
+     */
     refreshSourcesForQuery(request: QueryRequest): Observable<SourceRefreshResult> {
         return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSourcesForQuery`, request, this.httpOptions);
     }
 
+    /**
+     * Creates a regular relational table on the target store and copies the current rows from the source table.
+     */
     createIndependentSourceMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createIndependentSourceMaterialization`, request, this.httpOptions);
     }
 
+    /**
+     * Creates a read-only relational table linked to the source table and copies the current rows from the source table.
+     */
     createSynchronizedSourceMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createSynchronizedSourceMaterialization`, request, this.httpOptions);
     }
 
+    /**
+     * Creates a regular document collection on the target store and copies the current documents from the source collection.
+     */
     createIndependentSourceCollectionMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createIndependentSourceCollectionMaterialization`, request, this.httpOptions);
     }
 
+    /**
+     * Creates a read-only document collection linked to the source collection and copies the current documents from the source.
+     */
     createSynchronizedSourceCollectionMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/createSynchronizedSourceCollectionMaterialization`, request, this.httpOptions);
     }
 
+    /**
+     * Drops a synchronized materialized table or collection while leaving the original source entity untouched.
+     */
     dropSynchronizedSourceMaterialization(request: MaterializedRequest): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/dropSynchronizedSourceMaterialization`, request, this.httpOptions);
     }

@@ -230,33 +230,9 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         const request = new SourceRefreshRequest(selectedSourceIds);
         this._crud.refreshSelectedSources(request).subscribe({
             next: result => {
-                console.log('[left-sidebar] selected sources synchronized', {
-                    refreshedSources: result.refreshedSources,
-                    refreshedCount: result.refreshedCount,
-                    rawResult: result
-                });
                 const refreshSummaries = result.refreshSummaries ?? [];
-                console.log('[left-sidebar] source refresh summaries received', refreshSummaries);
-                refreshSummaries.forEach((summary, summaryIndex) => {
-                    console.log('[left-sidebar] source refresh summary item', {
-                        summaryIndex,
-                        sourceName: summary.sourceName,
-                        entityName: summary.entityName,
-                        dataModel: summary.dataModel,
-                        changeDescriptions: summary.changeDescriptions
-                    });
-                    (summary.changeDescriptions ?? []).forEach((change, changeIndex) => {
-                        console.log('[left-sidebar] source refresh summary change', {
-                            summaryIndex,
-                            changeIndex,
-                            value: change,
-                            type: typeof change
-                        });
-                    });
-                });
                 if (refreshSummaries.length > 0) {
                     this.sourceRefreshSummaries.set(refreshSummaries);
-                    console.log('[left-sidebar] source refresh summaries stored', this.sourceRefreshSummaries());
                     this.showSourceRefreshSummaryModal.set(true);
                 } else {
                     this._toast.info('No source schema changes detected.');
@@ -266,10 +242,7 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
                 });
                 this.closeSourceRefreshModal();
             },
-            error: err => {
-                console.log(err);
-                this._toast.error('Could not synchronize the selected sources.');
-            }
+            error: () => this._toast.error('Could not synchronize the selected sources.')
         });
     }
 

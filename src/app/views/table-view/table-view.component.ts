@@ -28,7 +28,6 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
     private pendingConfirmedRefreshTrigger: string | null = null;
     private lastInitialTableRefreshRoute: string = null;
 
-    // Reload Button:
     reload = () => {// we can preserve the "this" context
         if (!this.entity()) {
             return;
@@ -50,11 +49,9 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         this.fullName = computed(() => <string>this.routeParams()['id']);
         this.synchronizedMaterializedSource = computed(() => this._catalog.getSynchronizedSourceFullName(this.entity()));
 
-        // Newly selected table:
         effect(() => {
             const route = this.currentRoute();
             const entity = this.entity();
-            // wait until both are ready
             if (!route || !entity) {
                 return;
             }
@@ -74,7 +71,6 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
             });
         });
 
-        // Update Sidebar:
         effect(() => {
             const catalog = this._catalog.listener();
             untracked(() => {
@@ -164,8 +160,7 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
                 }
                 this.$result.set(CombinedResult.from(result));
                 this.loading.set(false);
-            }, error: err => {
-                console.log(err);
+            }, error: () => {
                 this.loading.set(false);
                 this.$result.set(CombinedResult.fromRelational(new RelationalResult('Server is not available')));
             }
@@ -257,11 +252,6 @@ export class TableViewComponent extends DataTemplateComponent implements OnInit,
         }
 
         if (this.entity()?.dataModel === DataModel.DOCUMENT) {
-            console.log('[TableView] Document refresh completed', {
-                trigger: refreshTrigger,
-                entity: this.entity()?.name,
-                synchronizedSourceEntityId: this.entity()?.synchronizedSourceEntityId ?? null
-            });
             this._toast.info(refreshTrigger === 'selection' ? 'Automatically refreshed after table selection. Data refreshed.' : 'Data refreshed.');
             return false;
         }
