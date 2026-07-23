@@ -30,6 +30,7 @@ export class EntityModel extends IdEntity {
     dataModel: DataModel;
     entityType: EntityType;
     modifiable: boolean;
+    synchronizedSourceEntityId?: number;
 }
 
 // tslint:disable-next-line:no-empty-interface

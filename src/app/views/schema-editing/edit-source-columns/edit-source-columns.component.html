@@ -1,11 +1,17 @@
 <c-row class="row">
 
     <c-col>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <h1 class="flex-grow-1">{{ entity()?.name }}</h1>
 
-            <div>
+            <div class="source-actions d-flex align-items-center gap-2">
                 <button cButton color="light" (click)="openDataView()">Show Data</button>
+                <button cButton color="light" class="btn-circle source-refresh-btn"
+                        [ngClass]="{'rotating': loading()}"
+                        (click)="reload()"
+                        *ngIf="entity()">
+                    <i class="icon-reload"></i>
+                </button>
             </div>
         </div>
 
@@ -33,6 +39,12 @@
                    [ngClass]="{'active': activeTab() === 'statistics'}"
                    (click)="setTab('statistics')"
                    role="tab">Statistics</a>
+            </li>
+            <li class="nav-item" role="presentation" *ngIf="showSourceMaterializationTab()">
+                <a class="nav-link"
+                   [ngClass]="{'active': activeTab() === 'source-materialization'}"
+                   (click)="setTab('source-materialization')"
+                   role="tab">Materialization</a>
             </li>
         </ul>
     </c-col>
@@ -189,4 +201,189 @@
     <c-col *ngIf="activeTab() === 'statistics'">
         <app-statistics-column [entity]="entity()"></app-statistics-column>
     </c-col>
+
+    <c-col *ngIf="activeTab() === 'source-materialization'">
+        <div class="source-materialization-shell">
+            <h5>Materialization</h5>
+            <p class="text-medium-emphasis">
+                Use an existing store to materialize this source entity either as a synchronized read-only materialization or as an independent editable materialization.
+                To create a new store, deploy it first in the Adapters view and then return here.
+            </p>
+
+            <div class="source-materialization-actions">
+                <button cButton color="primary" type="button"
+                        (click)="openExistingStoreModal()">
+                    Use Existing Store
+                </button>
+            </div>
+        </div>
+    </c-col>
 </c-row>
+
+<c-modal [visible]="showExistingStoreModal()"
+         (visibleChange)="showExistingStoreModal.set($event)"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Use Existing Store</h5>
+        <button cButtonClose type="button" (click)="closeExistingStoreModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p class="text-medium-emphasis" *ngIf="availableStores().length > 0">
+            Select the store that should receive the materialization.
+        </p>
+        <div class="materialization-store-list" *ngIf="availableStores().length > 0; else noAvailableStores">
+            <button cButton color="light" type="button" class="materialization-store-item"
+                    *ngFor="let store of availableStores()"
+                    [ngClass]="{'active': selectedMaterializationStoreId() === store.id}"
+                    (click)="selectMaterializationStore(store.id)">
+                <div class="fw-semibold">{{ store.name }}</div>
+                <div class="text-medium-emphasis small">{{ store.adapterName }}</div>
+            </button>
+        </div>
+        <ng-template #noAvailableStores>
+            <p class="text-medium-emphasis mb-0">
+                No stores are available.
+            </p>
+        </ng-template>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" type="button" (click)="closeExistingStoreModal()">Close</button>
+        <button cButton color="primary" type="button"
+                [disabled]="selectedMaterializationStoreId() === null"
+                (click)="openSourceMaterializationConfirmModal()">
+            Continue
+        </button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showSourceMaterializationConfirmModal()"
+         (visibleChange)="showSourceMaterializationConfirmModal.set($event)"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Materialization</h5>
+        <button cButtonClose type="button" (click)="closeSourceMaterializationConfirmModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <p class="text-medium-emphasis">
+            Choose how the source table should be materialized in the selected store.
+        </p>
+        <div class="mb-3">
+            <label class="form-label" for="targetMaterializationName">Name</label>
+            <input id="targetMaterializationName" cFormControl type="text"
+                   [ngModel]="targetMaterializationName()"
+                   (ngModelChange)="updateTargetMaterializationName($event)"
+                   [ngClass]="{'is-invalid': showTargetMaterializationNameError()}"
+                   placeholder="Leave empty to generate automatically">
+            <div class="invalid-feedback" *ngIf="showTargetMaterializationNameError()">
+                An entity with this name already exists in the target namespace.
+            </div>
+        </div>
+        <div class="source-materialization-mode-list">
+            <button cButton color="light" type="button" class="source-materialization-mode-item"
+                    [ngClass]="{'active': selectedSourceMaterializationMode() === 'independent'}"
+                    (click)="selectSourceMaterializationMode('independent')">
+                <div class="fw-semibold">Independent Materialization</div>
+                <div class="text-medium-emphasis small">
+                    Creates an editable materialized copy that is independent of the source.
+                </div>
+                <div class="text-medium-emphasis small mt-1">Editable, independent from the source</div>
+            </button>
+            <button cButton color="light" type="button" class="source-materialization-mode-item"
+                    [ngClass]="{'active': selectedSourceMaterializationMode() === 'synchronized'}"
+                    (click)="selectSourceMaterializationMode('synchronized')">
+                <div class="fw-semibold">Synchronized Materialization</div>
+                <div class="text-medium-emphasis small">
+                    Creates a read-only materialized copy that can be synchronized with the source.
+                </div>
+                <div class="text-medium-emphasis small mt-1">Read-only, can be synchronized with the source</div>
+            </button>
+        </div>
+        <div class="source-materialization-summary">
+            <div>
+                <div class="text-medium-emphasis small">Source table</div>
+                <div class="fw-semibold">{{ namespace()?.name }}.{{ entity()?.name }}</div>
+            </div>
+            <div>
+                <div class="text-medium-emphasis small">Target store</div>
+                <div class="fw-semibold">{{ selectedMaterializationStore()?.name }}</div>
+                <div class="text-medium-emphasis small">{{ selectedMaterializationStore()?.adapterName }}</div>
+            </div>
+        </div>
+    </c-modal-body>
+    <c-modal-footer class="source-materialization-modal-footer">
+        <button cButton color="secondary" type="button" (click)="closeSourceMaterializationConfirmModal()">Close</button>
+        <button cButton color="primary" type="button"
+                (click)="createSourceMaterialization()"
+                [disabled]="creatingSourceMaterialization() || selectedSourceMaterializationMode() === null">
+            <span *ngIf="!creatingSourceMaterialization()">Create Materialization</span>
+            <c-spinner size="sm" *ngIf="creatingSourceMaterialization()" role="status">
+                <span class="sr-only">Loading...</span>
+            </c-spinner>
+        </button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showSourceMaterializationWarningModal()"
+         (visibleChange)="showSourceMaterializationWarningModal.set($event)"
+         (keydown.enter)="closeSourceMaterializationWarningModal()"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Synchronized Materialization Created</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showSourceMaterializationWarningModal()">
+        <p class="text-body-secondary mb-3">
+            The synchronized materialization was created, but these foreign keys were not preserved:
+        </p>
+        <ul class="list-group list-group-flush">
+            <li *ngFor="let warning of sourceMaterializationWarnings()" class="list-group-item px-0 py-2">
+                {{ warning }}
+            </li>
+        </ul>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="closeSourceMaterializationWarningModal()">OK</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showSourceDeletedModal()"
+         (visibleChange)="!$event && closeSourceDeletedModal()"
+         (keydown.enter)="closeSourceDeletedModal()"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Source Deleted</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showSourceDeletedModal()">
+        <p class="text-body-secondary mb-0">{{ sourceDeletedMessage() }}</p>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="closeSourceDeletedModal()">OK</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showRefreshSummaryModal()"
+         (visibleChange)="showRefreshSummaryModal.set($event)"
+         (keydown.enter)="closeRefreshSummaryModal()"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Refresh Summary</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showRefreshSummaryModal()">
+        <p class="text-body-secondary mb-2" *ngIf="refreshSummaryTrigger() === 'selection'">
+            Automatically refreshed after table selection.
+        </p>
+        <p class="text-body-secondary mb-2">Source schema synchronized.</p>
+        <p class="text-body-secondary mb-3">Data refreshed.</p>
+        <p class="text-body-secondary mb-3">Applied schema changes:</p>
+        <ul class="list-group list-group-flush">
+            <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
+                {{ change }}
+            </li>
+        </ul>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="closeRefreshSummaryModal()">OK</button>
+    </c-modal-footer>
+</c-modal>

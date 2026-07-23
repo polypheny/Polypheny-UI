@@ -1,5 +1,10 @@
 <div *ngIf="entity()" class="d-flex align-items-center">
-    <h1 class="flex-grow-1">{{ entity().name }}</h1>
+    <div class="flex-grow-1">
+        <h1>{{ entity().name }}</h1>
+        <div *ngIf="synchronizedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
+            Synchronized Materialization · read-only · source: {{ synchronizedMaterializedSource() }}
+        </div>
+    </div>
 
     <div class="show-schema-btn">
         <button cButton color="light" (click)="openSchemaView()">Show Schema</button>
@@ -13,3 +18,94 @@
                    [$entity]="entity"></app-data-view>
 </div>
 <p class="mt-3" *ngIf="!entity()">Please select an entity in the left sidebar to view its data.</p>
+
+<c-modal [visible]="showSynchronizedRefreshPromptModal()"
+         (visibleChange)="showSynchronizedRefreshPromptModal.set($event)"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Synchronize Materialization</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showSynchronizedRefreshPromptModal()">
+        <p class="text-body-secondary mb-3" *ngIf="hasAddableSynchronizedRefreshChanges()">
+            The underlying source has schema changes. Do you want to synchronize them?
+        </p>
+        <p class="text-body-secondary mb-3" *ngIf="!hasSynchronizedRefreshChanges()">
+            No schema changes detected. Do you want to refresh the data?
+        </p>
+        <p class="text-body-secondary mb-3" *ngIf="hasSynchronizedRefreshChanges() && !hasAddableSynchronizedRefreshChanges()">
+            The original source has schema changes that cannot be applied yet:
+        </p>
+        <ul class="list-group list-group-flush" *ngIf="hasSynchronizedRefreshChanges()">
+            <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
+                {{ change }}
+            </li>
+        </ul>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" variant="outline" (click)="closeSynchronizedRefreshPromptModal()">{{ hasSynchronizedRefreshChanges() ? 'No' : 'Close' }}</button>
+        <button cButton color="primary" *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges()">Synchronize schema only</button>
+        <button cButton color="primary" autofocus *ngIf="hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Synchronize schema and data</button>
+        <button cButton color="primary" autofocus *ngIf="!hasAddableSynchronizedRefreshChanges()" (click)="applySynchronizedRefreshChanges(true)">Refresh data</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showDeletedSourceMaterializationModal()"
+         (visibleChange)="showDeletedSourceMaterializationModal.set($event)"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Source Deleted</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showDeletedSourceMaterializationModal()">
+        <p class="text-body-secondary mb-0">{{ deletedSourceMaterializationMessage() }}</p>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" variant="outline" (click)="closeDeletedSourceMaterializationModal()">Keep materialization</button>
+        <button cButton color="danger" autofocus (click)="deleteSynchronizedMaterialization()">Delete materialization</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showDataRefreshConfirmModal()"
+         (visibleChange)="showDataRefreshConfirmModal.set($event)"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Refresh Materialized Data</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showDataRefreshConfirmModal()">
+        <p class="text-body-secondary mb-0">
+            This refresh will delete and reload {{ dataRefreshRowCount() | number }} {{ dataRefreshUnit() }} from the source.
+        </p>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="secondary" variant="outline" (click)="closeDataRefreshConfirmModal()">Cancel refresh</button>
+        <button cButton color="primary" autofocus (click)="confirmSynchronizedDataRefresh()">Refresh data</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="showRefreshSummaryModal()"
+         (visibleChange)="showRefreshSummaryModal.set($event)"
+         (keydown.enter)="closeRefreshSummaryModal()"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Refresh Summary</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showRefreshSummaryModal()">
+        <p class="text-body-secondary mb-2" *ngIf="refreshSummaryTrigger() === 'selection'">
+            Automatically refreshed after table selection.
+        </p>
+        <p class="text-body-secondary mb-2">Source schema synchronized.</p>
+        <p class="text-body-secondary mb-3" *ngIf="refreshSummaryTrigger() === 'synchronizedApplyWithData' || refreshSummaryTrigger() === 'button' || refreshSummaryTrigger() === 'selection'">
+            Data refreshed.
+        </p>
+        <p class="text-body-secondary mb-3">Applied schema changes:</p>
+        <ul class="list-group list-group-flush">
+            <li *ngFor="let change of refreshChangeDescriptions()" class="list-group-item px-0 py-2">
+                {{ change }}
+            </li>
+        </ul>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="closeRefreshSummaryModal()">OK</button>
+    </c-modal-footer>
+</c-modal>

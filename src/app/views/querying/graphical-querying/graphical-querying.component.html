@@ -1,3 +1,28 @@
+<c-modal [visible]="showQuerySourceRefreshModal()"
+         (visibleChange)="showQuerySourceRefreshModal.set($event)"
+         (keydown.enter)="executePendingQueryAfterSourceRefresh()"
+         size="lg"
+         alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Source Refresh Summary</h5>
+    </c-modal-header>
+    <c-modal-body *ngIf="showQuerySourceRefreshModal()">
+        <p class="text-body-secondary mb-3" *ngIf="!querySourceRefreshHasDeletedSource()">Referenced sources were refreshed before executing the query.</p>
+        <p class="text-body-secondary mb-3" *ngIf="querySourceRefreshHasDeletedSource()">A referenced source entity was deleted. The query was not executed.</p>
+        <div *ngFor="let summary of querySourceRefreshSummaries()" class="mb-3">
+            <div class="fw-semibold">{{ summary.entityName }} <span class="text-body-secondary">({{ summary.sourceName }})</span></div>
+            <ul class="list-group list-group-flush">
+                <li *ngFor="let change of summary.changeDescriptions" class="list-group-item px-0 py-2">
+                    {{ change }}
+                </li>
+            </ul>
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button cButton color="primary" autofocus (click)="executePendingQueryAfterSourceRefresh()">{{ querySourceRefreshHasDeletedSource() ? 'Close' : 'OK' }}</button>
+    </c-modal-footer>
+</c-modal>
+
 <c-row class="w-100" style="position: relative;">
     <c-col class="col-lg-12 col-sm-12" style="margin-bottom: 1em;">
 

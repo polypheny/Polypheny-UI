@@ -1,10 +1,14 @@
-import {AfterViewInit, Component, computed, inject, OnInit, Signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, inject, OnInit, Signal, signal, ViewChild} from '@angular/core';
 import * as $ from 'jquery';
 import {Router} from '@angular/router';
 import {LeftSidebarService} from './left-sidebar.service';
 import {TreeComponent, TreeModel} from '@ali-hm/angular-tree-component';
 import {CatalogService} from '../../services/catalog.service';
 import {CatalogState} from '../../models/catalog.model';
+import {AdapterModel, AdapterType} from '../../views/adapters/adapter.model';
+import {CrudService, SourceRefreshSummary} from '../../services/crud.service';
+import {SourceRefreshRequest} from '../../models/ui-request.model';
+import {ToasterService} from '../toast-exposer/toaster.service';
 
 
 @Component({
@@ -15,6 +19,11 @@ import {CatalogState} from '../../models/catalog.model';
 
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
+
+    readonly showSourceRefreshModal = signal(false);
+    readonly showSourceRefreshSummaryModal = signal(false);
+    readonly selectedSourceIds = signal<number[]>([]);
+    readonly sourceRefreshSummaries = signal<SourceRefreshSummary[]>([]);
 
     constructor() {
         this.router = this._router;
@@ -61,6 +70,12 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
         this.sidebarAvailable = computed(() => {
             return this.buttons.length > 0 || this.error || this.nodes.length > 0;
         });
+        this.sourceAdapters = computed(() =>
+            Array.from(this._catalog.adapters().values())
+                .filter(adapter => adapter.type === AdapterType.SOURCE)
+                .filter(adapter => adapter.adapterName === 'PostgreSQL' || adapter.adapterName === 'MySQL' || adapter.adapterName === 'MongoDB')
+                .sort((left, right) => left.name.localeCompare(right.name))
+        );
     }
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
@@ -69,8 +84,11 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     private readonly _router = inject(Router);
     public readonly _sidebar = inject(LeftSidebarService);
     public readonly _catalog = inject(CatalogService);
+    private readonly _crud = inject(CrudService);
+    private readonly _toast = inject(ToasterService);
 
     public readonly sidebarAvailable: Signal<boolean>;
+    public readonly sourceAdapters: Signal<AdapterModel[]>;
 
     @ViewChild('tree', {static: false}) treeComponent: TreeComponent;
     nodes = [];
@@ -160,6 +178,72 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
     needsButton() {
         return this.router.url.startsWith('/views/schema-editing/');
+    }
+
+    needsSourceRefreshButton() {
+        return this.router.url.startsWith('/views/schema-editing/')
+            || this.router.url.startsWith('/views/data-table/');
+    }
+
+    isSchemaSidebarRefreshButton() {
+        return this.router.url.startsWith('/views/schema-editing/');
+    }
+
+    openSourceRefreshModal() {
+        this.selectedSourceIds.set([]);
+        this.showSourceRefreshModal.set(true);
+    }
+
+    closeSourceRefreshModal() {
+        this.showSourceRefreshModal.set(false);
+    }
+
+    closeSourceRefreshSummaryModal() {
+        this.showSourceRefreshSummaryModal.set(false);
+        this.sourceRefreshSummaries.set([]);
+    }
+
+    toggleSourceSelection(sourceId: number) {
+        if (this.selectedSourceIds().includes(sourceId)) {
+            this.selectedSourceIds.set(this.selectedSourceIds().filter(id => id !== sourceId));
+            return;
+        }
+
+        this.selectedSourceIds.set([...this.selectedSourceIds(), sourceId]);
+    }
+
+    isSourceSelected(sourceId: number) {
+        return this.selectedSourceIds().includes(sourceId);
+    }
+
+    selectAllSources() {
+        if (this.selectedSourceIds().length === this.sourceAdapters().length) {
+            this.selectedSourceIds.set([]);
+            return;
+        }
+
+        this.selectedSourceIds.set(this.sourceAdapters().map(source => source.id));
+    }
+
+    synchronizeSelectedSources() {
+        const selectedSourceIds = [...this.selectedSourceIds()];
+        const request = new SourceRefreshRequest(selectedSourceIds);
+        this._crud.refreshSelectedSources(request).subscribe({
+            next: result => {
+                const refreshSummaries = result.refreshSummaries ?? [];
+                if (refreshSummaries.length > 0) {
+                    this.sourceRefreshSummaries.set(refreshSummaries);
+                    this.showSourceRefreshSummaryModal.set(true);
+                } else {
+                    this._toast.info('No source schema changes detected.');
+                }
+                this._catalog.updateIfNecessary().subscribe(() => {
+                    this._sidebar.announceSourceRefresh(selectedSourceIds);
+                });
+                this.closeSourceRefreshModal();
+            },
+            error: () => this._toast.error('Could not synchronize the selected sources.')
+        });
     }
 
     hasChildren(nodes: any[]): boolean {

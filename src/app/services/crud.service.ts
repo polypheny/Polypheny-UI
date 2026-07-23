@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {EntityMeta, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PathAccessRequest, PlacementFieldsModel, RelationalResult} from '../components/data-view/models/result-set.model';
 import {webSocket} from 'rxjs/webSocket';
-import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, StatisticRequest} from '../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, DataModel, DeleteRequest, EditCollectionRequest, EditTableRequest, EntityRequest, RefreshRequest, ExploreTable, GraphRequest, MaterializedRequest, Method, MonitoringRequest, Namespace, PolyAlgRequest, QueryRequest, SourceRefreshRequest, SourceMaterializationRequest, StatisticRequest} from '../models/ui-request.model';
 import {AutoDockerResult, AutoDockerStatus, CreateDockerResponse, DockerInstanceInfo, DockerSettings, HandshakeInfo, InstancesAndAutoDocker, UpdateDockerResponse} from '../models/docker.model';
 import {ForeignKey, Uml} from '../views/uml/uml.model';
 import {Validators} from '@angular/forms';
@@ -15,6 +15,21 @@ import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
 import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
 import {PlanType} from '../models/information-page.model';
 import {map} from 'rxjs/operators';
+
+export interface SourceRefreshResult {
+    success: boolean;
+    refreshedSources: string[];
+    refreshedCount: number;
+    refreshSummaries?: SourceRefreshSummary[];
+}
+
+
+export interface SourceRefreshSummary {
+    sourceName: string;
+    entityName: string;
+    dataModel: DataModel;
+    changeDescriptions: string[];
+}
 
 
 @Injectable({
@@ -48,6 +63,63 @@ export class CrudService {
 
     getEntityData(socket: WebSocket, data: EntityRequest): boolean {
         return socket.sendMessage(data);
+    }
+
+    /**
+     * Refreshes the currently selected entity.
+     */
+    refreshEntityData(socket: WebSocket, request: RefreshRequest): boolean {
+        return socket.sendMessage(request);
+    }
+
+    /**
+     * Refreshes all entities belonging to the selected source adapters and returns a summary of detected catalog changes.
+     */
+    refreshSelectedSources(request: SourceRefreshRequest): Observable<SourceRefreshResult> {
+        return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSelectedSources`, request, this.httpOptions);
+    }
+
+    /**
+     * Refreshes source entities referenced by a query before the query is executed.
+     * The caller decides whether to continue when the backend reports catalog changes.
+     */
+    refreshSourcesForQuery(request: QueryRequest): Observable<SourceRefreshResult> {
+        return this._http.post<SourceRefreshResult>(`${this.httpUrl}/refreshSourcesForQuery`, request, this.httpOptions);
+    }
+
+    /**
+     * Creates a regular relational table on the target store and copies the current rows from the source table.
+     */
+    createIndependentSourceMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createIndependentSourceMaterialization`, request, this.httpOptions);
+    }
+
+    /**
+     * Creates a read-only relational table linked to the source table and copies the current rows from the source table.
+     */
+    createSynchronizedSourceMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createSynchronizedSourceMaterialization`, request, this.httpOptions);
+    }
+
+    /**
+     * Creates a regular document collection on the target store and copies the current documents from the source collection.
+     */
+    createIndependentSourceCollectionMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createIndependentSourceCollectionMaterialization`, request, this.httpOptions);
+    }
+
+    /**
+     * Creates a read-only document collection linked to the source collection and copies the current documents from the source.
+     */
+    createSynchronizedSourceCollectionMaterialization(request: SourceMaterializationRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/createSynchronizedSourceCollectionMaterialization`, request, this.httpOptions);
+    }
+
+    /**
+     * Drops a synchronized materialized table or collection while leaving the original source entity untouched.
+     */
+    dropSynchronizedSourceMaterialization(request: MaterializedRequest): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/dropSynchronizedSourceMaterialization`, request, this.httpOptions);
     }
 
     getGraph(socket: WebSocket, data: GraphRequest): boolean {
