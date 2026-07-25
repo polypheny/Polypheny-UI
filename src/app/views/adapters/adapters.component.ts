@@ -7,7 +7,7 @@ import {AbstractControl, FormGroup, UntypedFormBuilder, UntypedFormControl, Unty
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
-import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
+import {AdapterPresetModel, AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 
 @Component({
@@ -84,6 +84,20 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     private readonly files = new Map<string, File>();
 
+    pendingPresetOverrides;
+
+    showManualModes = false;
+
+    readonly adapterPresets = computed(() =>
+        this.adapter()?.presets ?? []
+    );
+
+
+    applyPreset(preset: AdapterPresetModel) {
+        this.pendingPresetOverrides = preset.settings;
+        this.setMode(preset.mode);
+    }
+
 
     readonly positionOrder = () => {
         return (a, b) => {
@@ -144,7 +158,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
                 fc['uniqueName'] = new UntypedFormControl(adapter.uniqueName, [Validators.required, Validators.pattern(this._crud.getAdapterNameValidationRegex()), validateUniqueName([...this.stores(), ...this.sources()].filter(a => a.name !== adapter.uniqueName))]);
                 this.editingAdapterForm = new UntypedFormGroup(fc);
             }
-
+            if (this.pendingPresetOverrides) {
+                this.editingAvailableAdapterForm.patchValue(this.pendingPresetOverrides);
+                this.pendingPresetOverrides = null;
+                this.deploy();
+            }
         }, {injector: this.injector});
     }
 
@@ -172,6 +190,8 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.activeMode.set(null);
         this.settingHeaders = null;
         this.fileLabel = 'Choose File';
+        this.showManualModes = false;
+        this.pendingPresetOverrides = null;
     }
 
     initAdapterSettingsConfigureModal(adapter: AdapterModel) {
@@ -606,16 +626,18 @@ class Adapter {
     persistent: boolean;
     modes: DeployMode[];
     mode: DeployMode;
+    presets: AdapterPresetModel[];
     task: Task;
     type: AdapterType;
     settings: Map<string, MergedSetting>;
 
-    constructor(uniqueName: string, adapterName: string, persistent: boolean, modes: DeployMode[], type: AdapterType, settings: Map<string, MergedSetting>, task: Task) {
+    constructor(uniqueName: string, adapterName: string, persistent: boolean, modes: DeployMode[], presets: AdapterPresetModel[], type: AdapterType, settings: Map<string, MergedSetting>, task: Task) {
         this.uniqueName = uniqueName;
         this.settings = settings;
         this.adapterName = adapterName;
         this.persistent = persistent;
         this.modes = modes;
+        this.presets = presets;
         this.task = task;
         this.type = type;
     }
@@ -631,7 +653,7 @@ class Adapter {
 
             settings.set(template.name, val);
         }
-        return new Adapter(current === null ? '' : current.name, adapter.adapterName, adapter.persistent, adapter.modes, adapter.adapterType, settings, task);
+        return new Adapter(current === null ? '' : current.name, adapter.adapterName, adapter.persistent, adapter.modes, adapter.presets ?? [], adapter.adapterType, settings, task);
     }
 }
 

@@ -194,6 +194,7 @@
                             <span *ngIf="col.scale">scale: {{ col.scale }}</span>
                             <span *ngIf="col.dimension">dimension: {{ col.dimension }}</span>
                             <span *ngIf="col.cardinality">cardinality: {{ col.cardinality }}</span>
+                            <span *ngIf="col.elementsNullable === false">elements: NOT NULL</span>
                         </td>
                         <td>{{ col.defaultValue }}</td>
                         <td>
@@ -216,6 +217,7 @@
                             <span *ngIf="col.scale">scale: {{ col.scale }}</span>
                             <span *ngIf="col.dimension !== -1">dimension: {{ col.dimension }}</span>
                             <span *ngIf="col.cardinality !== -1">cardinality: {{ col.cardinality }}</span>
+                            <span *ngIf="col.elementsNullable === false">elements: NOT NULL</span>
                         </td>
                         <td>{{ col.defaultValue }}</td>
                         <td class="delete">
@@ -525,17 +527,33 @@
                                     <div class="form-group mb-1" *ngIf="selectedStoreForIndex != null">
                                         <label for="indexMethod">Method</label>
                                         <select id="indexMethod" class="form-control form-control-sm" formControlName="method">
-                                            <option *ngFor="let m of selectedStoreForIndex.indexMethods"
+                                            <option *ngFor="let m of availableIndexMethods"
                                                     [value]="m.name">{{ m.displayName }}
                                             </option>
                                         </select>
+                                        <ng-container *ngFor="let param of selectedIndexMethodParams">
+                                            <div class="form-group mb-1">
+                                                <label [for]="param.name">{{ param.displayName }}</label>
+                                                <select *ngIf="param.type === 'ENUM'"
+                                                        [id]="param.name"
+                                                        class="form-control form-control-sm"
+                                                        [formControlName]="param.name">
+                                                    <option *ngFor="let opt of validOptionsForParam(param)" [value]="opt">{{ opt }}</option>
+                                                </select>
+                                                <input *ngIf="param.type === 'INTEGER'"
+                                                       [id]="param.name"
+                                                       type="number"
+                                                       class="form-control form-control-sm"
+                                                       [formControlName]="param.name">
+                                            </div>
+                                        </ng-container>
                                     </div>
                                 </div>
                                 <div class="constraint-columns">
                                     <div class="form-check form-check-inline"
                                          *ngFor="let c of newIndexCols | keyvalue; let j=index">
                                         <input type="checkbox" class="form-check-input" [id]="'indexCol'+j"
-                                               [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}">
+                                               [(ngModel)]="newIndexCols[c.key]" [ngModelOptions]="{standalone: true}" (ngModelChange)="onIndexColumnChange(c.key, $event)">
                                         <label class="form-check-label" [for]="'indexCol'+j">{{ c.key }}</label>
                                     </div>
                                     <button cButton type="submit" class="btn btn-primary btn-sm"
@@ -565,7 +583,7 @@
                             <tr *ngFor="let d1 of indexDefinitions(); let i = index">
                                 <td *ngFor="let d2 of d1">{{ d2 }}</td>
                                 <td class="delete">
-                                    @if (d1[4] != 'FUNCTIONAL') {
+                                    @if (d1[d1.length - 1] != 'FUNCTIONAL') {
                                         <app-delete-confirm (delete)="dropIndex(d1[0])"></app-delete-confirm>
                                     }
                                 </td>

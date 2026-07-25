@@ -1,7 +1,19 @@
 import {Component, computed, effect, HostListener, inject, Injector, input, Input, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
 import {CrudService} from '../../../services/crud.service';
-import {FieldType, IndexMethodModel, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
+import {
+    FieldType,
+    IndexMethodModel,
+    IndexModel,
+    IndexParameterModel,
+    ModifyPartitionRequest,
+    PartitionFunctionModel,
+    PartitioningRequest,
+    PolyType,
+    RelationalResult,
+    TableConstraint,
+    UiColumnDefinition
+} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method} from '../../../models/ui-request.model';
@@ -148,7 +160,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             name: new UntypedFormControl('', this._crud.getNameValidator()),
             method: new UntypedFormControl('')
         });
-
+        this.setupMethodChangeListener();
 
         this.oldColumns = computed(() => {
             const catalog = this._catalog.listener();
@@ -218,7 +230,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             }
             let locations = Array.from(stores).filter(store => placements.includes(store.id));
             if (this.isPolyIndexEnabled()) {
-                const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL);
+                const adapterModel = new AdapterModel('Polypheny-DB', 'POLYPHENY', new Map(), false, AdapterType.SOURCE, DeployMode.ALL );
                 adapterModel.indexMethods = [new IndexMethodModel('hash', 'Hash')];
                 locations = [adapterModel, ...locations];
             }
@@ -252,7 +264,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
             if (stores?.length > 0) {
                 this.selectedStoreForIndex = stores[0];
-                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0].name);
+                this.newIndexForm.controls['method'].setValue(this.availableIndexMethods[0]?.name ?? '');
             } else {
                 this.selectedStoreForIndex = null;
             }
@@ -409,6 +421,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
             this.updateColumn.controls['dimension'].value || -1,
             this.updateColumn.controls['cardinality'].value || -1
         );
+        newColumn.elementsNullable = oldColumn.elementsNullable;
         if (!this._types.supportsPrecision(newColumn.dataType) && newColumn.precision !== null) {
             newColumn.precision = null;
         }
@@ -675,7 +688,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if (availableStores()?.length > 0) {
             this.selectedStoreForIndex = availableStores()[0];
             if (this.selectedStoreForIndex.indexMethods && this.selectedStoreForIndex.indexMethods.length > 0) {
-                this.newIndexForm.controls['method'].setValue(this.selectedStoreForIndex.indexMethods[0].name);
+                this.newIndexForm.controls['method'].setValue(this.availableIndexMethods[0]?.name ?? '');
             }
         } else {
             this.selectedStoreForIndex = null;
@@ -685,7 +698,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     onSelectingIndexStore(store: AdapterModel) {
         this.selectedStoreForIndex = store;
-        this.newIndexForm.controls['method'].setValue(store.indexMethods[0].name);
+        this.newIndexForm.controls['method'].setValue(this.availableIndexMethods[0]?.name ?? '');
     }
 
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
@@ -923,7 +936,22 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         if (this.newIndexForm.valid && newCols.length > 0 && this.selectedStoreForIndex != null) {
             const i = this.newIndexForm.value;
-            const index = new IndexModel(this.namespace().id, this.entity().id, i.name, this.selectedStoreForIndex.name, i.method, newCols);
+            const indexOptions: {[key: string]: string} = {};
+            for (const param of this.selectedIndexMethodParams) {
+                if (i[param.name] !== undefined && i[param.name] !== null) {
+                    indexOptions[param.name] = String(i[param.name]);
+                }
+            }
+            const index = new IndexModel(
+                this.namespace().id,
+                this.entity().id,
+                i.name,
+                this.selectedStoreForIndex.name,
+                i.method,
+                newCols,
+                indexOptions
+            );
+
             this.addingIndex = true;
             this._crud.createIndex(index).subscribe({
                 next: (res: RelationalResult) => {
@@ -1020,5 +1048,107 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     setTab(tab: Tabs) {
         this._router.navigate(['/views/schema-editing/', this.currentRoute(), tab]).then();
+    }
+
+    get selectedIndexMethodParams(): IndexParameterModel[] {
+        if (!this.selectedStoreForIndex || !this.newIndexForm) {
+            return [];
+        }
+        const methodName = this.newIndexForm.controls['method']?.value;
+        const method = this.selectedStoreForIndex.indexMethods?.find(m => m.name === methodName);
+        return method?.parameters || [];
+    }
+
+    validOptionsForParam(param: IndexParameterModel): string[] {
+        if (param.name !== 'metric' || param.type !== 'ENUM' || !param.options) {
+            return param.options || [];
+        }
+        const { isBit } = this.selectedVectorInfo;
+        return isBit
+            ? param.options.filter(o => o === 'HAMMING' || o === 'JACCARD')
+            : param.options.filter(o => o !== 'HAMMING' && o !== 'JACCARD');
+    }
+
+
+
+    setupMethodChangeListener() {
+        this.newIndexForm.controls['method'].valueChanges.subscribe(methodName =>
+        {
+            Object.keys(this.newIndexForm.controls).forEach(key => {
+                if (key !== 'name' && key !== 'method') {
+                    this.newIndexForm.removeControl(key);
+                }
+            });
+
+            const params = this.selectedIndexMethodParams;
+            for (const param of params) {
+                this.newIndexForm.addControl(
+                    param.name,
+                    new UntypedFormControl(param.defaultValue || '')
+                );
+            }
+        });
+    }
+
+    private isVectorColumn(col: UiColumnDefinition): boolean {
+        return col.collectionsType === 'ARRAY'
+            && col.dimension === 1
+            && col.cardinality > 0
+            && !col.elementsNullable;
+    }
+
+    private isBitVectorColumn(col: UiColumnDefinition): boolean {
+        return this.isVectorColumn(col) && col.dataType?.toUpperCase() === 'BOOLEAN';
+    }
+
+    private get selectedVectorInfo(): { hasVector: boolean; isBit: boolean } {
+        const selectedCols = Object.entries(this.newIndexCols)
+            .filter(([_, checked]) => checked)
+            .map(([name]) => this.oldColumns()?.get(name))
+            .filter(col => !!col);
+        const vectorCols = selectedCols.filter(col => this.isVectorColumn(col));
+        return {
+            hasVector: vectorCols.length > 0,
+            isBit: vectorCols.length > 0 && vectorCols.every(col => this.isBitVectorColumn(col))
+        };
+    }
+
+    get availableIndexMethods(): IndexMethodModel[] {
+        if (!this.selectedStoreForIndex?.indexMethods) {
+            return [];
+        }
+        const { hasVector } = this.selectedVectorInfo;
+        if (hasVector) {
+            const vectorMethods = this.selectedStoreForIndex.indexMethods.filter(m => m.category === 'VECTOR');
+            if (vectorMethods.length > 0) {
+                return vectorMethods;
+            }
+            // store doesn't support vector indexes - fall back to regular methods
+            return this.selectedStoreForIndex.indexMethods.filter(m => m.category !== 'VECTOR');
+        }
+        return this.selectedStoreForIndex.indexMethods.filter(m => m.category !== 'VECTOR');
+    }
+
+    onIndexColumnChange(columnName: string, checked: boolean) {
+        if (checked) {
+            const col = this.oldColumns()?.get(columnName);
+            if (col && this.isVectorColumn(col)) {
+                // vector column checked: enforce single-column selection
+                Object.keys(this.newIndexCols).forEach(key => {
+                    if (key !== columnName) {
+                        this.newIndexCols[key] = false;
+                    }
+                });
+            } else {
+                // non-vector column checked: uncheck any vector columns
+                Array.from(this.oldColumns()?.entries() ?? [])
+                    .filter(([_, c]) => this.isVectorColumn(c))
+                    .forEach(([name]) => { this.newIndexCols[name] = false; });
+            }
+        }
+        const firstMethod = this.availableIndexMethods[0];
+        if (firstMethod) {
+            this.newIndexForm.controls['method'].setValue(firstMethod.name);
+        }
     }
 }

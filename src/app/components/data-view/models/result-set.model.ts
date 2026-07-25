@@ -175,6 +175,7 @@ export class UiColumnDefinition implements FieldDefinition {
     primary: boolean;
     unique: boolean;
     nullable: boolean;
+    elementsNullable: boolean;
     precision: number;
     scale: number;
     defaultValue: any;
@@ -212,7 +213,7 @@ export class UiColumnDefinition implements FieldDefinition {
     }
 
     static fromModel(column: ColumnModel, primaries: number[]) {
-        return new UiColumnDefinition(
+        const col = new UiColumnDefinition(
             column.id,
             column.name,
             primaries.includes(column.id),
@@ -224,6 +225,8 @@ export class UiColumnDefinition implements FieldDefinition {
             column.defaultValue,
             column.dimension,
             column.cardinality);
+        col.elementsNullable = column.elementsNullable;
+        return col;
     }
 }
 
@@ -269,7 +272,8 @@ export class IndexModel {
         private name: string,
         private storeUniqueName: string,
         private method: string,
-        private columnIds: number[]
+        private columnIds: number[],
+        private options: {[key: string]: string} = {}
     ) {
     }
 }
@@ -318,11 +322,21 @@ export class PlacementFieldsModel {
 export class IndexMethodModel {
     name: string;
     displayName: string;
+    category: string;
+    parameters: IndexParameterModel[];
 
     constructor(name: string, displayName: string) {
         this.name = name;
         this.displayName = displayName;
     }
+}
+
+export class IndexParameterModel {
+    name: string;
+    displayName: string;
+    type: string;
+    options: string[];
+    defaultValue: string;
 }
 
 /**

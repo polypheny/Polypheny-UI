@@ -37,6 +37,7 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
+
 import {
     AlertComponent,
     BadgeComponent,
