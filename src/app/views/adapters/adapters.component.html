@@ -62,7 +62,7 @@
 
                     <span *ngIf="adapter.dataReadOnly"><span class="fa fa-eye"></span> read-only</span>
                     <span *ngIf="adapter.persistent"><span class="fa fa-floppy-o" style="padding-left: 1px"></span> persistent</span>
-                    <span *ngFor="let feature of adapter.features"><span class="fa fa-puzzle-piece  "></span> {{ feature | adapterFeatureName }}</span>
+                    <span *ngFor="let feature of adapter.features"><span class="fa fa-puzzle-piece  "></span> {{ feature }}</span>
                     <span *ngIf="adapter.settings.hasOwnProperty('host') && adapter.settings.hasOwnProperty('port')">{{ adapter.settings['host'] }}
                         <span *ngIf="adapter.mode === DeployMode.REMOTE">: {{ adapter.settings['port'] }}</span>
                     </span>
@@ -190,7 +190,7 @@
                     <c-col *ngFor="let preset of adapterPresets()" [xs]="6" class="text-center">
                         <button cButton size="lg" color="primary" class="w-100"
                                 (click)="applyPreset(preset)">
-                            {{ preset.label }}
+                            {{ preset.name }}
                         </button>
                         <small class="d-block text-muted mt-1">{{ preset.description }}</small>
                     </c-col>

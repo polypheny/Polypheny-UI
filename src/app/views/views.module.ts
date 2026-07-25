@@ -1,4 +1,4 @@
-    import {NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 
 import {ViewsRoutingModule} from './views-routing.module';
@@ -37,7 +37,6 @@ import {StatisticsColumnComponent} from './schema-editing/statistics-column/stat
 import {GraphEditGraphComponent} from './schema-editing/graph-edit-graph/graph-edit-graph.component';
 import {FileUploaderComponent} from './forms/form-generator/file-uploader/file-uploader.component';
 import {DockerconfigComponent} from './dockerconfig/dockerconfig.component';
-import {AdapterFeatureNamePipe} from './adapters/adapter-feature-name.pipe';
 
 import {
     AlertComponent,
@@ -194,8 +193,7 @@ import {NgChartsModule} from 'ng2-charts';
         DockerconfigComponent,
         EditEntityComponent,
         PolyalgComponent,
-        ScrollToDirective,
-        AdapterFeatureNamePipe
+        ScrollToDirective
     ],
     exports: []
 })

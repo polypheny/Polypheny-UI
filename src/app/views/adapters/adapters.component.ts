@@ -7,33 +7,8 @@ import {AbstractControl, FormGroup, UntypedFormBuilder, UntypedFormControl, Unty
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
 import {Subscription} from 'rxjs';
 import {CatalogService} from '../../services/catalog.service';
-import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
+import {AdapterPresetModel, AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
-
-
-interface AdapterPreset {
-    label: string;
-    description: string;
-    mode: DeployMode;
-    settings: Record<string, string>;
-}
-
-const ADAPTER_PRESETS: Record<string, AdapterPreset[]> = {
-    PostgreSQL: [
-        {
-            label: 'Minimal PostgreSQL',
-            description: 'Plain Docker image, no extensions',
-            mode: DeployMode.DOCKER,
-            settings: { imageVariant: 'Default' }
-        },
-        {
-            label: 'Full PostgreSQL',
-            description: 'Docker image with pgvector & PostGIS extensions installed',
-            mode: DeployMode.DOCKER,
-            settings: { imageVariant: 'pgvector & PostGIS' }
-        }
-    ]
-};
 
 @Component({
     selector: 'app-adapters',
@@ -114,11 +89,11 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     showManualModes = false;
 
     readonly adapterPresets = computed(() =>
-        ADAPTER_PRESETS[this.adapter()?.adapterName] ?? []
+        this.adapter()?.presets ?? []
     );
 
 
-    applyPreset(preset: AdapterPreset) {
+    applyPreset(preset: AdapterPresetModel) {
         this.pendingPresetOverrides = preset.settings;
         this.setMode(preset.mode);
     }
@@ -651,16 +626,18 @@ class Adapter {
     persistent: boolean;
     modes: DeployMode[];
     mode: DeployMode;
+    presets: AdapterPresetModel[];
     task: Task;
     type: AdapterType;
     settings: Map<string, MergedSetting>;
 
-    constructor(uniqueName: string, adapterName: string, persistent: boolean, modes: DeployMode[], type: AdapterType, settings: Map<string, MergedSetting>, task: Task) {
+    constructor(uniqueName: string, adapterName: string, persistent: boolean, modes: DeployMode[], presets: AdapterPresetModel[], type: AdapterType, settings: Map<string, MergedSetting>, task: Task) {
         this.uniqueName = uniqueName;
         this.settings = settings;
         this.adapterName = adapterName;
         this.persistent = persistent;
         this.modes = modes;
+        this.presets = presets;
         this.task = task;
         this.type = type;
     }
@@ -676,7 +653,7 @@ class Adapter {
 
             settings.set(template.name, val);
         }
-        return new Adapter(current === null ? '' : current.name, adapter.adapterName, adapter.persistent, adapter.modes, adapter.adapterType, settings, task);
+        return new Adapter(current === null ? '' : current.name, adapter.adapterName, adapter.persistent, adapter.modes, adapter.presets ?? [], adapter.adapterType, settings, task);
     }
 }
 

@@ -130,7 +130,15 @@ export interface AdapterTemplateModel {
     settings: AdapterSettingModel[];
     description: string;
     modes: DeployMode[];
+    presets: AdapterPresetModel[];
     persistent: boolean;
+}
+
+export interface AdapterPresetModel {
+    name: string;
+    description: string;
+    mode: DeployMode;
+    settings: Record<string, string>;
 }
 
 export enum DeployMode {
