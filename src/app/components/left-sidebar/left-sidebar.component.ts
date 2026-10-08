@@ -20,11 +20,6 @@ import {ToasterService} from '../toast-exposer/toaster.service';
 //docs: https://angular2-tree.readme.io/docs/
 export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
-    readonly showSourceRefreshModal = signal(false);
-    readonly showSourceRefreshSummaryModal = signal(false);
-    readonly selectedSourceIds = signal<number[]>([]);
-    readonly sourceRefreshSummaries = signal<SourceRefreshSummary[]>([]);
-
     constructor() {
         this.router = this._router;
         //this.nodes = nodes;
@@ -80,6 +75,11 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
 
     static readonly EXPAND_SHOWN_ROUTES: String[] = [
         '/views/monitoring', '/views/config', '/views/uml', '/views/querying/console', '/views/notebooks', '/views/workflows'];
+
+    readonly showSourceRefreshModal = signal(false);
+    readonly showSourceRefreshSummaryModal = signal(false);
+    readonly selectedSourceIds = signal<number[]>([]);
+    readonly sourceRefreshSummaries = signal<SourceRefreshSummary[]>([]);
 
     private readonly _router = inject(Router);
     public readonly _sidebar = inject(LeftSidebarService);
