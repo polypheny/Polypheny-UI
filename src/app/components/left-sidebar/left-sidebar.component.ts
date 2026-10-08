@@ -235,7 +235,8 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
                     this.sourceRefreshSummaries.set(refreshSummaries);
                     this.showSourceRefreshSummaryModal.set(true);
                 } else {
-                    this._toast.info('No source schema changes detected.');
+                    // make it a bit less chatty
+                    console.log('No source schema changes detected.');
                 }
                 this._catalog.updateIfNecessary().subscribe(() => {
                     this._sidebar.announceSourceRefresh(selectedSourceIds);
