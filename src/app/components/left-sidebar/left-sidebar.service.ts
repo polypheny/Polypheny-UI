@@ -45,6 +45,7 @@ export class LeftSidebarService {
     private inactiveNode: BehaviorSubject<string> = new BehaviorSubject<string>(null);
     private resetSubject = new BehaviorSubject<boolean>(false);
     private topButtonSubject = new BehaviorSubject<SidebarButton[]>([]);
+    private sourceRefreshSubject = new BehaviorSubject<number[] | null>(null);
     dataModel: string;
     selectedNodeId: any;
 
@@ -250,6 +251,14 @@ export class LeftSidebarService {
 
     setTopButtons(buttons: SidebarButton[]) {
         this.topButtonSubject.next(buttons);
+    }
+
+    announceSourceRefresh(sourceIds: number[]) {
+        this.sourceRefreshSubject.next(sourceIds);
+    }
+
+    getSourceRefreshSubject() {
+        return this.sourceRefreshSubject;
     }
 
     toggle() {

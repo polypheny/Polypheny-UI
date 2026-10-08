@@ -15,7 +15,7 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widget';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
-import {CrudService} from '../../../services/crud.service';
+import {CrudService, SourceRefreshSummary} from '../../../services/crud.service';
 import {FilteredUserInput, RelationalResult} from '../../../components/data-view/models/result-set.model';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 import {ToasterService} from '../../../components/toast-exposer/toaster.service';
@@ -42,6 +42,10 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     result: RelationalResult;
     selectedColumn = {};
     loading: WritableSignal<boolean> = signal(false);
+    readonly showQuerySourceRefreshModal = signal(false);
+    readonly querySourceRefreshSummaries = signal<SourceRefreshSummary[]>([]);
+    readonly querySourceRefreshHasDeletedSource = signal(false);
+    private pendingQueryRequest: QueryRequest | null = null;
     modalRefCreateView: BsModalRef;
     whereCounter = 0;
     orderByCounter = 0;
@@ -430,7 +434,47 @@ export class GraphicalQueryingComponent implements OnInit, AfterViewInit, OnDest
     executeQuery() {
         this.loading.set(true);
         const code = this.editorGenerated.getCode();
-        if (!this._crud.anyQuery(this.webSocket, new QueryRequest(code, false, true, 'sql', null))) {
+        const request = new QueryRequest(code, false, true, 'sql', null);
+        this._crud.refreshSourcesForQuery(request).subscribe({
+            next: result => {
+                const summaries = result.refreshSummaries ?? [];
+                if (summaries.length > 0) {
+                    this.pendingQueryRequest = request;
+                    this.querySourceRefreshSummaries.set(summaries);
+                    this.querySourceRefreshHasDeletedSource.set(this.hasDeletedSourceSummary(summaries));
+                    this.showQuerySourceRefreshModal.set(true);
+                    this.loading.set(false);
+                    return;
+                }
+                this.executeQueryRequest(request);
+            },
+            error: () => {
+                this.loading.set(false);
+                this.result = new RelationalResult('Could not refresh referenced sources before executing the query.');
+            }
+        });
+    }
+
+    executePendingQueryAfterSourceRefresh() {
+        const request = this.pendingQueryRequest;
+        const sourceDeleted = this.querySourceRefreshHasDeletedSource();
+        this.showQuerySourceRefreshModal.set(false);
+        this.querySourceRefreshSummaries.set([]);
+        this.querySourceRefreshHasDeletedSource.set(false);
+        this.pendingQueryRequest = null;
+        if (!request || sourceDeleted) {
+            return;
+        }
+        this.loading.set(true);
+        this.executeQueryRequest(request);
+    }
+
+    private hasDeletedSourceSummary(summaries: SourceRefreshSummary[]): boolean {
+        return summaries.some(summary => (summary.changeDescriptions ?? []).some(change => change.startsWith('Source ') && change.endsWith(' was deleted in the source.')));
+    }
+
+    private executeQueryRequest(request: QueryRequest) {
+        if (!this._crud.anyQuery(this.webSocket, request)) {
             this.loading.set(false);
             this.result = new RelationalResult('Could not establish a connection with the server.');
         }

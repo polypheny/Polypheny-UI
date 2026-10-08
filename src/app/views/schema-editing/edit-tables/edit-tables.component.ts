@@ -125,6 +125,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
      * enable the button if the confirm-text is equal to the table-name or to 'drop table-name' respectively 'truncate table-name'
      */
     isDropTruncateEnabled(action: 'drop' | 'truncate', table: Table) {
+        if (!table.modifiable) {
+            return false;
+        }
         return action === 'drop' && (table.drop === table.name || table.drop === 'drop ' + table.name) ||
             action === 'truncate' && (table.truncate === table.name || table.truncate === 'truncate ' + table.name);
     }
@@ -135,7 +138,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     sendDropTruncateRequest(action: 'drop' | 'truncate', table: Table) {
         let request: EditTableRequest;
         let type: string;
-        if (!this.isDropTruncateEnabled(action, table)) {
+        if (!table.modifiable || !this.isDropTruncateEnabled(action, table)) {
             return;
         }
 
@@ -246,6 +249,9 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     }
 
     rename(table: Table) {
+        if (!table.modifiable) {
+            return;
+        }
         const meta = new EntityMeta(this.namespace().id, table.id, table.newName, []);
         const type = table.tableType === EntityType.VIEW ? ' View ' : ' Table ';
         this._crud.renameTable(meta).subscribe({
@@ -269,7 +275,8 @@ export class EditTablesComponent implements OnInit, OnDestroy {
      */
     canRename(table: Table) {
         //table.name !== table.newName  not necessary, since the filter will catch it as well
-        return this.tables().filter((t) => t.name === table.newName).length === 0 &&
+        return table.modifiable &&
+            this.tables().filter((t) => t.name === table.newName).length === 0 &&
             this._crud.nameIsValid(table.newName);
     }
 

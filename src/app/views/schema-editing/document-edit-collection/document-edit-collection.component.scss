@@ -122,3 +122,73 @@ table tr td:hover .modify-placement-btn {
   cursor: pointer;
   user-select: none;
 }
+
+.source-materialization-shell {
+  width: 100%;
+  padding: 1.25rem;
+  border: 1px solid #d8dbe0;
+  border-radius: 0.5rem;
+  background: #f8f9fa;
+}
+
+.source-materialization-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.materialization-store-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.materialization-store-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem;
+  border: 1px solid #d8dbe0;
+  border-radius: 0.375rem;
+  background: #fff;
+
+  &.active {
+    border-color: #2f74ff;
+    background: #eef4ff;
+  }
+}
+
+.source-materialization-modal-footer {
+  justify-content: space-between;
+}
+
+.source-materialization-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #d8dbe0;
+  border-radius: 0.5rem;
+  background: #f8f9fa;
+}
+
+.source-materialization-mode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.source-materialization-mode-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem;
+  border: 1px solid #d8dbe0;
+  border-radius: 0.5rem;
+  background: #fff;
+
+  &.active {
+    border-color: #2f74ff;
+    background: #eef4ff;
+  }
+}

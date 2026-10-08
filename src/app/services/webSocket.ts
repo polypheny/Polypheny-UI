@@ -13,7 +13,7 @@ export class WebSocket {
     constructor() {
         this.initWebSocket(false);
         setInterval(() => {
-            if (this.connected) {
+            if (this.connected.value) {
                 this.socket.next('keepalive');
             }
         }, +this._settings.getSetting('websocket.keepalive'));
@@ -46,8 +46,12 @@ export class WebSocket {
     }
 
     sendMessage(obj: any): boolean {
-        this.socket.next(obj);
-        return this.connected.value;
+        try {
+            this.socket.next(obj);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     onMessage() {

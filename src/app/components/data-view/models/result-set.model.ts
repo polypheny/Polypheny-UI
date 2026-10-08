@@ -37,6 +37,9 @@ export class RelationalResult extends Result<string[], UiColumnDefinition> {
     table: string;
     tableId: number;
     tables: string[];
+    changeDescriptions?: string[];
+    dataRefreshRowCount?: number;
+    sourceEntityDeleted?: boolean;
     error: string;
     type: EntityType;//"table" or "view"
 

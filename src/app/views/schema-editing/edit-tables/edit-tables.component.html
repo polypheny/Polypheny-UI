@@ -14,10 +14,10 @@
         <td>
             <span *ngIf="!table.editing">
               {{ table.name }}
-                <i class="cil-pencil show-on-hover ms-2" (click)="table.editing = !table.editing"></i>
+                <i *ngIf="table.modifiable" class="cil-pencil show-on-hover ms-2" (click)="table.editing = !table.editing"></i>
             </span>
 
-            <c-input-group sizing="sm" *ngIf="table.editing" style="max-width: 200px" [class.editings]="table.editing" #editing>
+            <c-input-group sizing="sm" *ngIf="table.modifiable && table.editing" style="max-width: 200px" [class.editings]="table.editing" #editing>
                 <input cFormControl type="text" placeholder="newName"
                        [(ngModel)]="table.newName" autofocus (keyup.enter)="rename(table)"
                        (keyup.escape)="table.editing = false" #tableNameInput (mouseover)="tableNameInput.focus()"
@@ -45,7 +45,7 @@
             </c-input-group>
         </td>
         <td>
-            <c-input-group sizing="sm" class="confirm-group" *ngIf="table.tableType !== 'SOURCE'">
+            <c-input-group sizing="sm" class="confirm-group" *ngIf="table.modifiable && table.tableType !== 'SOURCE'">
                 <input cFormControl type="text" placeholder="drop {{table.name}}"
                        [(ngModel)]="table.drop" (keyup.enter)="sendDropTruncateRequest('drop', table)">
 

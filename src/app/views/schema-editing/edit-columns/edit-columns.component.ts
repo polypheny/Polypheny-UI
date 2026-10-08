@@ -4,7 +4,7 @@ import {CrudService} from '../../../services/crud.service';
 import {FieldType, IndexMethodModel, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method} from '../../../models/ui-request.model';
+import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method, RefreshRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel, AdapterType, PlacementType} from '../../adapters/adapter.model';
 import {Subscription} from 'rxjs';
@@ -14,6 +14,7 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 import {map} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {ConfigService} from '../../../services/config.service';
+import {WebSocket} from '../../../services/webSocket';
 
 const INITIAL_TYPE = 'BIGINT';
 const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics'] as const;
@@ -82,6 +83,20 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         }
         return this.entity().name;
     });
+    synchronizedMaterializedSource = computed(() => this._catalog.getSynchronizedSourceFullName(this.entity()));
+    canModifyEntity = computed(() => this.entity()?.modifiable !== false);
+    readonly loading = signal(false);
+    readonly showRefreshSummaryModal = signal(false);
+    readonly showSynchronizedRefreshPromptModal = signal(false);
+    readonly showDataRefreshConfirmModal = signal(false);
+    readonly showDeletedSourceMaterializationModal = signal(false);
+    readonly deletedSourceMaterializationMessage = signal('');
+    readonly dataRefreshRowCount = signal<number | null>(null);
+    readonly refreshChangeDescriptions = signal<string[]>([]);
+    readonly refreshSummaryTrigger = signal<string | null>(null);
+    private readonly webSocket = new WebSocket();
+    private pendingRefreshTrigger: string | null = null;
+    private pendingConfirmedRefreshTrigger: string | null = null;
     types: PolyType[] = [];
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
@@ -271,6 +286,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.initWebsocket();
         this.getPartitionTypes();
         this.getGeneratedNames();
 
@@ -284,6 +300,27 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         $(document).off('click');
         this.subscriptions.unsubscribe();
+        this.webSocket.close();
+    }
+
+
+    private initWebsocket() {
+        const sub = this.webSocket.onMessage().subscribe({
+            next: (result: RelationalResult) => {
+                this.loading.set(false);
+                if (result?.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+
+                this.handleSynchronizedRefreshFeedback(result);
+            },
+            error: () => {
+                this.loading.set(false);
+                this._toast.error('Could not refresh the synchronized materialization.');
+            }
+        });
+        this.subscriptions.add(sub);
     }
 
     //see https://medium.com/claritydesignsystem/1b66d45b3e3d
@@ -316,6 +353,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     editCol(i: number, col: UiColumnDefinition, e = null) {
         if (e.target.id === 'delete') {
+            return;
+        }
+        if (!this.canModifyEntity()) {
             return;
         }
         if (this.editColumn !== i) {
@@ -364,6 +404,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     updateMaterializedColumn(oldCol: UiColumnDefinition, newName) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const newCol = Object.assign({}, oldCol);
         newCol.name = newName;
         const req = new ColumnRequest(this.entity().id, oldCol, newCol, true, 'MATERIALIZED');
@@ -386,6 +429,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     saveCol() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (!this._crud.nameIsValid(this.updateColumn.controls['name'].value)) {
             this._toast.warn(this._crud.invalidNameMessage('column'), 'invalid column name');
             return;
@@ -434,6 +480,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addColumn() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.createColumn.name === '') {
             this._toast.warn('Please provide a name for the new column.', 'missing column name');
             return;
@@ -475,6 +524,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropColumn(col: UiColumnDefinition) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this._crud.dropColumn(new ColumnRequest(this.entity().id, col)).subscribe({
             next: (result: RelationalResult) => {
                 //this._catalog.updateIfNecessary();
@@ -492,17 +544,19 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     getUml() {
         this.foreignKeys = [];
-        if (!this.namespace) {
+        const entity = this.entity();
+        if (!this.namespace || !entity) {
             this.foreignKeys = null;
             return;
         }
+        const fullEntityName = this._catalog.getFullEntityName(entity.id);
         this._crud.getUml(new EditTableRequest(this.namespace().id)).subscribe({
             next: (uml: Uml) => {
 
                 const fks = new Map<string, ForeignKey>();
 
                 uml.foreignKeys.forEach((v, k) => {
-                    if ((v.sourceSchema + '.' + v.sourceTable) === this._catalog.getFullEntityName(this.entity().id)) {
+                    if ((v.sourceSchema + '.' + v.sourceTable) === fullEntityName) {
                         if (fks.has(v.fkName)) {
                             const fk = fks.get(v.fkName);
                             fk.targetColumn = fk.targetColumn + ', ' + v.targetColumn;
@@ -521,6 +575,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
 
     dropConstraint(id: number) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const constraint = this._catalog.getConstraint(id);
         this._crud.dropConstraint(new ConstraintRequest(this.entity().id, new TableConstraint(id, constraint.name, constraint.type))).subscribe({
             next: (result: RelationalResult) => {
@@ -536,6 +593,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     updatePrimaryKey() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const pk = new TableConstraint(-1, 'PRIMARY KEY');
         this.newPrimaryKey.forEach((v, k) => {
             if (v.primary) {
@@ -558,6 +618,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addUniqueConstraint() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.uniqueConstraintName === '') {
             if (!this.proposedConstraintName) {
                 this._toast.warn('Please provide a name for the unique constraint.', 'constraint name');
@@ -689,6 +752,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     initPlacementModal(method: Method, placement: AllocationPlacementModel) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const preselect = placement ? this._catalog.getAllocColumns(placement.id) : [];
         this.placementMethod = method;
 
@@ -722,6 +788,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addPlacement() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const cols = [];
         for (const [k, v] of Object.entries(this.columnPlacement.value)) {
             if (v) {
@@ -751,6 +820,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropPlacement(adapterId: number) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
         this._crud.addDropPlacement(this.namespace().id, this.entity().id, store.name, Method.DROP).subscribe({
             next: (res: RelationalResult) => {
@@ -784,6 +856,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     getPartitionFunctionModel() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         if (this.partitioningRequest.method === 'NONE') {
             this._toast.warn('Please select a partitioning method.');
             return;
@@ -810,6 +885,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
      * Horizontally partition a table
      */
     partitionTable() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this._crud.partitionTable(this.partitionFunctionParams).subscribe({
             next: (res: RelationalResult) => {
                 if (res.error) {
@@ -826,6 +904,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     mergePartitions() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         //const split = this.tableId.split('\.');
         const request = new PartitioningRequest(this.namespace().name, this.entity().name);
         this.isMergingPartitions = true;
@@ -847,6 +928,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     modifyPartitioning() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const partitions = [];
         for (let i = 0; i < this.partitionsToModify.length; i++) {
             if (this.partitionsToModify[i].selected) {
@@ -871,6 +955,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     initPartitioningModal(adapterId: number, partitions: AllocationPartitionModel[]) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         const store = <AdapterModel>this._catalog.getAdapter(adapterId);
         this.partitionsToModify = [];
 
@@ -897,6 +984,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     dropIndex(index: string) {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this._crud.dropIndex(new IndexModel(this.namespace().id, this.entity().id, index, null, null, null)).subscribe({
             next: (res: RelationalResult) => {
                 if (!res.error) {
@@ -911,6 +1001,9 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     }
 
     addIndex() {
+        if (!this.canModifyEntity()) {
+            return;
+        }
         this.indexSubmitted = true;
         const newCols: number[] = [];
         for (const [k, v] of Object.entries(this.newIndexCols)) {
@@ -1016,6 +1109,154 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
 
     openDataView() {
         this._router.navigate(['/views/data-table/' + this.currentRoute()]).then();
+    }
+
+    reloadSynchronizedMaterializedTable() {
+        this.refreshSynchronizedMaterializedTable('button');
+    }
+
+    refreshSynchronizedMaterializedTable(refreshTrigger: string = 'selection', confirmedDataRefresh = false) {
+        const entity = this.entity();
+        const namespace = entity ? this._catalog.getNamespaceFromId(entity.namespaceId) : null;
+        if (!entity?.synchronizedSourceEntityId || !namespace) {
+            return;
+        }
+
+        this.loading.set(true);
+        this.showSynchronizedRefreshPromptModal.set(false);
+        this.showDataRefreshConfirmModal.set(false);
+        this.showRefreshSummaryModal.set(false);
+        this.refreshChangeDescriptions.set([]);
+        this.refreshSummaryTrigger.set(null);
+        const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.refreshTrigger = refreshTrigger;
+        request.confirmedDataRefresh = confirmedDataRefresh;
+        this.pendingRefreshTrigger = refreshTrigger;
+        if (!this._crud.refreshEntityData(this.webSocket, request)) {
+            this.pendingRefreshTrigger = null;
+            this.loading.set(false);
+            this._toast.error('Could not establish a connection with the server.');
+        }
+    }
+
+    closeSynchronizedRefreshPromptModal() {
+        this.showSynchronizedRefreshPromptModal.set(false);
+    }
+
+    closeRefreshSummaryModal() {
+        this.showRefreshSummaryModal.set(false);
+    }
+
+    hasAddableSynchronizedRefreshChanges() {
+        return this.refreshChangeDescriptions()
+            .some(change => !change.includes('requires synchronized materialization'));
+    }
+
+    hasSynchronizedRefreshChanges() {
+        return this.refreshChangeDescriptions().length > 0;
+    }
+
+    applySynchronizedRefreshChanges(refreshData: boolean = false) {
+        this.showSynchronizedRefreshPromptModal.set(false);
+        this.refreshSynchronizedMaterializedTable(refreshData ? 'synchronizedApplyWithData' : 'synchronizedApply');
+    }
+
+    closeDeletedSourceMaterializationModal() {
+        this.showDeletedSourceMaterializationModal.set(false);
+        this.deletedSourceMaterializationMessage.set('');
+    }
+
+    deleteSynchronizedMaterialization() {
+        const entity = this.entity();
+        if (!entity) {
+            return;
+        }
+        this.loading.set(true);
+        this._crud.dropSynchronizedSourceMaterialization(new MaterializedRequest(entity.id)).subscribe({
+            next: result => {
+                if (result.error) {
+                    this._toast.exception(result);
+                    return;
+                }
+                this.closeDeletedSourceMaterializationModal();
+                this._catalog.updateIfNecessary().subscribe();
+                this._router.navigate(['/views/schema-editing/']).then();
+                this._toast.success(`Deleted synchronized materialization "${entity.name}".`);
+            },
+            error: () => this._toast.error('Could not delete the synchronized materialization.')
+        }).add(() => this.loading.set(false));
+    }
+
+    closeDataRefreshConfirmModal() {
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshRowCount.set(null);
+        this.pendingConfirmedRefreshTrigger = null;
+    }
+
+    confirmSynchronizedDataRefresh() {
+        const refreshTrigger = this.pendingConfirmedRefreshTrigger;
+        if (!refreshTrigger) {
+            return;
+        }
+        this.showDataRefreshConfirmModal.set(false);
+        this.dataRefreshRowCount.set(null);
+        this.refreshSynchronizedMaterializedTable(refreshTrigger, true);
+    }
+
+    private handleSynchronizedRefreshFeedback(result: RelationalResult) {
+        const refreshTrigger = this.pendingRefreshTrigger;
+        this.pendingRefreshTrigger = null;
+
+        if (!refreshTrigger || !this.entity()?.synchronizedSourceEntityId) {
+            return;
+        }
+
+        const changeDescriptions = result.changeDescriptions ?? [];
+        const schemaChangeDescriptions = this.schemaChangeDescriptions(changeDescriptions);
+        if (result.sourceEntityDeleted) {
+            this.refreshChangeDescriptions.set([]);
+            this.showRefreshSummaryModal.set(false);
+            this.showSynchronizedRefreshPromptModal.set(false);
+            this.deletedSourceMaterializationMessage.set(changeDescriptions[0] ?? 'The source table was deleted in the source.');
+            this.showDeletedSourceMaterializationModal.set(true);
+            return;
+        }
+        if (result.dataRefreshRowCount !== undefined && result.dataRefreshRowCount !== null) {
+            this.pendingConfirmedRefreshTrigger = refreshTrigger;
+            this.dataRefreshRowCount.set(result.dataRefreshRowCount);
+            this.showDataRefreshConfirmModal.set(true);
+            this.loading.set(false);
+            return;
+        }
+
+        if (refreshTrigger === 'synchronizedApply' || refreshTrigger === 'synchronizedApplyWithData') {
+            if (schemaChangeDescriptions.length > 0) {
+                this.refreshChangeDescriptions.set(schemaChangeDescriptions);
+                this.refreshSummaryTrigger.set(refreshTrigger);
+                this.showRefreshSummaryModal.set(true);
+                this._catalog.updateIfNecessary().subscribe();
+            } else {
+                this.refreshChangeDescriptions.set([]);
+                this.showRefreshSummaryModal.set(false);
+                this._toast.info(refreshTrigger === 'synchronizedApplyWithData' ? 'Data refreshed.' : 'No applicable schema changes detected.');
+            }
+            return;
+        }
+
+        if (schemaChangeDescriptions.length > 0) {
+            this.refreshChangeDescriptions.set(schemaChangeDescriptions);
+            this.showSynchronizedRefreshPromptModal.set(true);
+            return;
+        }
+
+        if (refreshTrigger === 'button') {
+            this.refreshChangeDescriptions.set([]);
+            this.showSynchronizedRefreshPromptModal.set(true);
+        }
+    }
+
+    private schemaChangeDescriptions(changeDescriptions: string[]): string[] {
+        return changeDescriptions.filter(change => change !== 'Refreshed data from source');
     }
 
     setTab(tab: Tabs) {
