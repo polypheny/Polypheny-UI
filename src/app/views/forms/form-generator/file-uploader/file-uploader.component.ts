@@ -28,23 +28,6 @@ export class FileUploaderComponent implements OnInit {
         this.files = Array.from((event.target as HTMLInputElement).files);
     }
 
-    loadPlugins() {
-        this.isLoading = true;
-        this.uploadProgress = 0;
-        this._plugin.loadPlugins(this.files).subscribe({
-            next: res => {
-                this.files = null;
-                this.isLoading = false;
-                this.loadPage();
-            }, error: err => {
-                console.log(err);
-                this._toast.error(err.message);
-                this.isLoading = false;
-            }
-        });
-    }
-
-
     removeFile(file
                    :
                    File

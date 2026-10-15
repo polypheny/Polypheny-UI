@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
@@ -20,7 +20,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew --no-daemon build packageDistribution
       - name: Publish Zip to artifacts.polypheny.com
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: artifacts.polypheny.com
           username: ${{ secrets.FTP_USERNAME }}
