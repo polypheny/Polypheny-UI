@@ -10,7 +10,7 @@ import {Subscription} from 'rxjs';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {CatalogService} from '../../services/catalog.service';
-import {NamespaceModel} from '../../models/catalog.model';
+import {EntityType, NamespaceModel} from '../../models/catalog.model';
 import {AdapterModel} from '../adapters/adapter.model';
 
 @Component({
@@ -57,9 +57,13 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
 
         effect(() => {
             const catalog = this._catalog.listener();
+            const route = this.currentRoute();
+            const namespace = this.namespace();
+            const selectedSourceEntityExists = this.selectedSourceEntityExists(route, namespace);
 
             untracked(() => {
                 this._leftSidebar.setSchema(this._router, '/views/schema-editing/', true, 2, false, true);
+                this.showDeletedSelectedSourceToast(route, namespace, selectedSourceEntityExists);
             });
         });
     }
@@ -76,10 +80,47 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     dropSubmitted = false;
     createNamespaceFeedback = 'Name is invalid';
     private subscriptions = new Subscription();
+    private lastExistingSourceRoute: string = null;
+    private lastDeletedSourceToastRoute: string = null;
     readonly stores: Signal<AdapterModel[]>;
     graphStore: string;
 
     public readonly NamespaceType = DataModel;
+
+    private selectedSourceEntityExists(route: string, namespace: NamespaceModel): boolean {
+        if (!route || !route.includes('.') || !namespace) {
+            return false;
+        }
+
+        const [namespaceName, entityName] = route.split('.');
+        const entity = namespace.dataModel === DataModel.GRAPH
+            ? this._catalog.getEntityFromName(namespaceName, namespaceName)
+            : this._catalog.getEntityFromName(namespaceName, entityName);
+
+        return entity?.entityType === EntityType.SOURCE;
+    }
+
+    private showDeletedSelectedSourceToast(route: string, namespace: NamespaceModel, selectedSourceEntityExists: boolean) {
+        if (!route || !route.includes('.') || !namespace) {
+            this.lastExistingSourceRoute = null;
+            this.lastDeletedSourceToastRoute = null;
+            return;
+        }
+
+        if (selectedSourceEntityExists) {
+            this.lastExistingSourceRoute = route;
+            this.lastDeletedSourceToastRoute = null;
+            return;
+        }
+
+        if (this.lastExistingSourceRoute !== route || this.lastDeletedSourceToastRoute === route) {
+            return;
+        }
+
+        this.lastDeletedSourceToastRoute = route;
+        const entityType = namespace.dataModel === DataModel.DOCUMENT ? 'collection' : 'table';
+        this._toast.warn(`Source ${entityType} ${route} was deleted in the source.`);
+    }
 
     ngOnInit() {
         //this.getSchema();

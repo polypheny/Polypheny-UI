@@ -16,6 +16,8 @@ export abstract class UIRequest extends RequestModel {
     filter: Map<string, string>;
     sortState: Map<string, SortState>;
     selectInterval: string;
+    refreshTrigger?: string;
+    confirmedDataRefresh?: boolean;
 }
 
 
@@ -30,6 +32,48 @@ export class EntityRequest extends UIRequest {
         this.filter = filter;
         this.sortState = sortState;
         return this;
+    }
+}
+
+/**
+ * Request to refresh an entity.
+ * Triggers a schema refresh (if needed) before returning the data.
+ */
+export class RefreshRequest extends UIRequest {
+    type = 'RefreshRequest';
+
+    constructor(entityId: number, namespace: string, currentPage: number, filter: any = null, sortState: any = null) {
+        super();
+        this.entityId = entityId;
+        this.namespace = namespace;
+        this.currentPage = currentPage;
+        this.filter = filter;
+        this.sortState = sortState;
+        return this;
+    }
+}
+
+export class SourceRefreshRequest extends RequestModel {
+    sourceIds: number[];
+
+    constructor(sourceIds: number[]) {
+        super();
+        this.sourceIds = sourceIds;
+    }
+}
+
+export class SourceMaterializationRequest extends RequestModel {
+    sourceEntityId: number;
+    targetStoreId: number;
+    targetNamespaceId: number;
+    targetEntityName: string;
+
+    constructor(sourceEntityId: number, targetStoreId: number, targetNamespaceId: number = null, targetEntityName: string = null) {
+        super();
+        this.sourceEntityId = sourceEntityId;
+        this.targetStoreId = targetStoreId;
+        this.targetNamespaceId = targetNamespaceId;
+        this.targetEntityName = targetEntityName;
     }
 }
 
