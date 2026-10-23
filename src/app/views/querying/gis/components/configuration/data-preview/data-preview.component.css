@@ -1,0 +1,12 @@
+div {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+ngx-json-viewer {
+    background: #f9f9f9;
+    max-height: 500px;
+    overflow: auto;
+}
+

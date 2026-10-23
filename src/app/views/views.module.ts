@@ -63,7 +63,7 @@ import {
     FormCheckLabelDirective,
     FormControlDirective,
     FormDirective,
-    FormFeedbackComponent,
+    FormFeedbackComponent, FormLabelDirective,
     FormSelectDirective,
     FormTextDirective,
     GutterDirective,
@@ -78,7 +78,7 @@ import {
     ModalHeaderComponent,
     ModalTitleDirective,
     ModalToggleDirective,
-    PlaceholderDirective,
+    PlaceholderDirective, PopoverDirective,
     ProgressBarComponent,
     ProgressComponent,
     RowComponent,
@@ -91,6 +91,21 @@ import {EditEntityComponent} from './schema-editing/edit-entity/edit-entity.comp
 import {TreeModule} from '@ali-hm/angular-tree-component';
 import {PolyalgComponent, ScrollToDirective} from './querying/polyalg/polyalg.component';
 import {NgChartsModule} from 'ng2-charts';
+import {GisComponent} from './querying/gis/gis.component';
+import {MapLayersComponent} from './querying/gis/components/layers/map-layers.component';
+import {
+    SubmitQueryButtonComponent
+} from './querying/console/components/submit-query-button/submit-query-button.component';
+import {QueryEditor} from './querying/console/components/code-editor/query-editor.component';
+import {ConfigSectionComponent} from './querying/gis/components/config-section/config-section.component';
+import {AreaShapeComponent} from './querying/gis/components/visualization/area-shape/area-shape.component';
+import {ColorComponent} from './querying/gis/components/visualization/color/color.component';
+import {EmptyComponent} from './querying/gis/components/visualization/empty/empty.component';
+import {LabelComponent} from './querying/gis/components/visualization/label/label.component';
+import {PointShapeComponent} from './querying/gis/components/visualization/point-shape/point-shape.component';
+import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {DataPreviewComponent} from './querying/gis/components/configuration/data-preview/data-preview.component';
+import {FilterComponent} from './querying/gis/components/configuration/filter/filter.component';
 
 
 @NgModule({
@@ -162,13 +177,17 @@ import {NgChartsModule} from 'ng2-charts';
         CollapseDirective,
         ButtonToolbarComponent,
         AlertComponent,
-        NgChartsModule
+        NgChartsModule,
+        NgxJsonViewerModule
     ],
     declarations: [
         EditColumnsComponent,
         FormGeneratorComponent,
         GraphicalQueryingComponent,
+        GisComponent,
         ConsoleComponent,
+        SubmitQueryButtonComponent,
+        QueryEditor,
         TableViewComponent,
         UmlComponent,
         SchemaEditingComponent,
@@ -187,12 +206,21 @@ import {NgChartsModule} from 'ng2-charts';
         StatisticsColumnComponent,
         ValuePipe,
         SearchFilterPipe,
-        MapValuesPipe,
         FileUploaderComponent,
         DockerconfigComponent,
         EditEntityComponent,
         PolyalgComponent,
-        ScrollToDirective
+        ScrollToDirective,
+        // GIS
+        MapLayersComponent,
+        ConfigSectionComponent,
+        AreaShapeComponent,
+        ColorComponent,
+        EmptyComponent,
+        LabelComponent,
+        PointShapeComponent,
+        DataPreviewComponent,
+        FilterComponent,
     ],
     exports: []
 })
