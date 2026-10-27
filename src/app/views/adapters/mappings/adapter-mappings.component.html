@@ -1,0 +1,153 @@
+<div class="page-heading"><h1>{{ detail?.editable === false ? 'View Mapping' : 'Edit Mapping' }}</h1></div>
+
+<div *ngIf="loading" role="status"><c-spinner size="sm"></c-spinner> Loading mappings…</div>
+<c-alert *ngIf="loadError" color="danger" role="alert">
+    {{ loadError }} <button cButton color="light" size="sm" (click)="reloadSaved()">Retry</button>
+</c-alert>
+<c-alert *ngIf="summaryError" color="warning">The mapping list could not be refreshed. <button cButton color="light" size="sm" (click)="refreshSummaries()">Retry</button></c-alert>
+<c-alert *ngIf="!loading && !loadError && !summaries.length && !detail" color="info">
+    This adapter has no saved mappings.
+</c-alert>
+
+<div class="mapping-layout" *ngIf="!loading && !loadError && (summaries.length || detail)">
+    <c-card *ngIf="detail && form" class="editor">
+        <c-card-header class="editor-heading" [formGroup]="form">
+            <label class="visually-hidden" for="mapping-name">Mapping name</label>
+            <input id="mapping-name" class="mapping-name" formControlName="mappingName" [readOnly]="saving"
+                   [class.is-invalid]="form.get('mappingName').invalid || saveError?.fieldErrors?.mappingName" aria-describedby="mapping-name-error">
+            <div id="mapping-name-error" class="text-danger" *ngIf="form.get('mappingName').invalid || saveError?.fieldErrors?.mappingName">
+                {{ saveError?.fieldErrors?.mappingName || detail.validation?.mappingNameMessage || 'Enter a valid mapping name.' }}
+            </div>
+        </c-card-header>
+        <c-card-body>
+            <c-alert *ngIf="!detail.editable" color="info">{{ detail.readOnlyReason }}</c-alert>
+            <c-alert *ngIf="saveError" color="danger" role="alert">
+                {{ saveError.message }}
+                <p *ngIf="saveError.fieldErrors?.columns">{{ saveError.fieldErrors.columns }}</p>
+                <ul *ngIf="saveError.blockingEntities?.length"><li *ngFor="let entity of saveError.blockingEntities">{{ entity }}</li></ul>
+                <button *ngIf="conflict" cButton color="light" size="sm" (click)="reloadSaved()">Reload saved version</button>
+            </c-alert>
+            <c-alert *ngIf="refreshError" color="warning" role="alert">
+                Saved; catalog refresh failed. <button cButton color="light" size="sm" (click)="refreshCatalog()">Retry refresh</button>
+            </c-alert>
+            <form [formGroup]="form" (ngSubmit)="save()">
+                <fieldset [disabled]="saving">
+                    <section id="mapping-definition" aria-label="Mapping definition">
+                        <div class="source-target-grid">
+                            <section class="definition-section" aria-labelledby="mapping-source-heading">
+                                <h2 id="mapping-source-heading">Source Information</h2>
+                                <div class="source-object" *ngFor="let source of detail.physicalSources; let i = index">
+                                    <div class="field-row"><strong>Namespace:</strong><span [id]="'source-namespace-' + i">{{ source.namespaceName }}</span></div>
+                                    <div class="field-row"><strong>Data model:</strong><span [id]="i === 0 ? 'source-model' : 'source-model-' + i">{{ detail.sourceModel | titlecase }}</span></div>
+                                    <div class="field-row"><strong>Table name:</strong><span [id]="'source-table-' + i">{{ source.physicalName }}</span></div>
+                                </div>
+                            </section>
+                            <section class="definition-section target-information" aria-labelledby="mapping-target-heading">
+                                <h2 id="mapping-target-heading">Target Information</h2>
+                                <div class="field-row">
+                                    <label for="target-namespace">Namespace:</label>
+                                    <select id="target-namespace" cSelect disabled [ngModel]="detail.namespaceName" [ngModelOptions]="{standalone: true}" title="The target namespace is fixed for this mapping.">
+                                        <option [value]="detail.namespaceName">{{ detail.namespaceName }}</option>
+                                    </select>
+                                </div>
+                                <div class="field-row"><strong>Data model:</strong><span id="target-model">{{ detail.targetModel | titlecase }}</span></div>
+                                <div class="field-row">
+                                    <label for="table-name">Table name:</label>
+                                    <div class="field-control">
+                                        <input id="table-name" cFormControl formControlName="logicalTableName" [class.is-invalid]="form.get('logicalTableName').invalid || saveError?.fieldErrors?.logicalTableName" aria-describedby="table-name-error">
+                                        <div id="table-name-error" class="text-danger" *ngIf="form.get('logicalTableName').invalid || saveError?.fieldErrors?.logicalTableName">
+                                            {{ saveError?.fieldErrors?.logicalTableName || detail.validation?.identifierMessage || 'Enter a valid identifier.' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <section class="rules-section" aria-labelledby="mapping-rules-heading">
+                            <div class="section-heading"><h2 id="mapping-rules-heading">Mapping Rules</h2><span class="text-muted">{{ includedCount }} of {{ detail.columns.length }} fields included</span></div>
+                            <div class="table-responsive">
+                                <table cTable class="rules-table" formArrayName="columns" aria-labelledby="mapping-rules-heading">
+                                    <colgroup>
+                                        <col class="include-column"><col class="source-name"><col class="source-type"><col class="nullable-column"><col class="rule-cell">
+                                    </colgroup>
+                                    <colgroup><col class="target-name"><col class="target-type"><col class="nullable-column"></colgroup>
+                                    <thead>
+                                        <tr class="rules-group-headings">
+                                            <th scope="colgroup" colspan="5">Source Fields</th>
+                                            <th scope="colgroup" colspan="3">Target Fields</th>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col" class="include-column"><label class="include-all"><input cFormCheckInput type="checkbox" [checked]="includedCount === detail.columns.length" [indeterminate]="includedCount > 0 && includedCount < detail.columns.length" [disabled]="!detail.editable" (change)="setAllIncluded($event.target.checked)" aria-label="Include all fields"> Inc.</label></th>
+                                            <th scope="col" class="source-name">Name</th>
+                                            <th scope="col" class="source-type">Type</th>
+                                            <th scope="col" class="nullable-column">Nullable</th>
+                                            <th scope="col" class="rule-cell">Rule</th>
+                                            <th scope="col" class="target-name">Name</th>
+                                            <th scope="col" class="target-type">Type</th>
+                                            <th scope="col" class="nullable-column">Nullable</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngFor="let column of detail.columns; let i = index" [formGroupName]="i" [class.alternate]="i % 2 === 0"
+                                           [class.excluded]="!columns.at(i).get('included').value">
+                                        <tr *ngFor="let physical of column.physicalReferences.length ? column.physicalReferences : [null]; let firstSource = first">
+                                            <td *ngIf="firstSource" class="include-column" [attr.rowspan]="column.physicalReferences.length || 1"><input cFormCheckInput type="checkbox" formControlName="included" [attr.aria-label]="'Include ' + column.logicalName"></td>
+                                            <td class="source-cell source-name">
+                                                {{ physical?.physicalName || '—' }}
+                                                <small *ngIf="column.physicalReferences.length > 1" class="text-muted d-block">Allocation {{ physical.allocationId }}</small>
+                                            </td>
+                                            <td class="source-cell type-cell">{{ sourceTypeDisplay(physical?.typeDisplay) }}</td>
+                                            <td class="source-cell nullable-column">
+                                                <input *ngIf="physical?.nullable != null; else unknownNullable" cFormCheckInput type="checkbox" [checked]="physical.nullable" disabled [attr.aria-label]="'Source nullable ' + physical.physicalName">
+                                                <ng-template #unknownNullable><span class="text-muted" title="Source nullability is not available">—</span></ng-template>
+                                            </td>
+                                            <td *ngIf="firstSource" class="rule-cell" [attr.rowspan]="column.physicalReferences.length || 1">
+                                                <select *ngIf="detail.editable && detail.availableRules?.length; else savedRule" cSelect
+                                                        [ngModel]="ruleForColumn(column.logicalColumnId)?.type || detail.availableRules[0].type" [ngModelOptions]="{standalone: true}"
+                                                        [disabled]="!columns.at(i).get('included').value" [attr.aria-label]="'Rule for ' + column.logicalName">
+                                                    <option *ngFor="let rule of detail.availableRules" [value]="rule.type">{{ rule.label }}</option>
+                                                </select>
+                                                <ng-template #savedRule><span class="rule-label">{{ ruleLabel(column.logicalColumnId) }}</span></ng-template>
+                                            </td>
+                                            <td *ngIf="firstSource" class="target-name" [attr.rowspan]="column.physicalReferences.length || 1">
+                                                <label class="visually-hidden" [for]="'column-' + column.logicalColumnId">Target name for {{ column.logicalName }}</label>
+                                                <input cFormControl [id]="'column-' + column.logicalColumnId" formControlName="logicalName"
+                                                       [class.is-invalid]="columns.at(i).invalid || saveError?.fieldErrors?.['columns.' + column.logicalColumnId]"
+                                                       [attr.aria-describedby]="'column-error-' + column.logicalColumnId">
+                                                <div class="text-danger" [id]="'column-error-' + column.logicalColumnId" *ngIf="columns.at(i).invalid || saveError?.fieldErrors?.['columns.' + column.logicalColumnId]">
+                                                    {{ saveError?.fieldErrors?.['columns.' + column.logicalColumnId] || detail.validation?.identifierMessage || 'Enter a valid identifier.' }}
+                                                </div>
+                                            </td>
+                                            <td *ngIf="firstSource" class="target-type type-cell" [attr.rowspan]="column.physicalReferences.length || 1">{{ column.typeDisplay }}</td>
+                                            <td *ngIf="firstSource" class="nullable-column" [attr.rowspan]="column.physicalReferences.length || 1"><input cFormCheckInput type="checkbox" [checked]="column.nullable" disabled [attr.aria-label]="'Nullable ' + column.logicalName"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-danger" *ngIf="columns.hasError('noIncludedFields')">Include at least one field in the target entity.</p>
+                            <p class="text-danger" *ngIf="columns.hasError('duplicateNames')">Target field names must be unique.</p>
+                        </section>
+                    </section>
+
+
+                    <div class="editor-footer">
+                        <div class="editor-actions">
+                            <button type="button" cButton color="secondary" [disabled]="!dirty || saving" (click)="discard()">Discard changes</button>
+                            <button type="submit" cButton color="primary" [disabled]="!canSave">
+                                <c-spinner *ngIf="saving" size="sm" aria-label="Saving"></c-spinner> {{ saving ? 'Saving…' : 'Save changes' }}
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </c-card-body>
+    </c-card>
+</div>
+
+<c-modal [visible]="confirmVisible" (visibleChange)="!$event && answerConfirmation(false)" aria-labelledby="discard-title">
+    <c-modal-header><h4 cModalTitle id="discard-title">Discard unsaved changes?</h4></c-modal-header>
+    <c-modal-body>Your changes to this mapping have not been saved.</c-modal-body>
+    <c-modal-footer>
+        <button cButton color="light" (click)="answerConfirmation(false)">Keep editing</button>
+        <button cButton color="danger" (click)="answerConfirmation(true)">Discard changes</button>
+    </c-modal-footer>
+</c-modal>

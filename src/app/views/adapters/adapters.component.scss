@@ -3,7 +3,22 @@
 }
 
 .fixed-height {
-  height: 240px;
+  min-height: 240px;
+}
+
+.card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem;
+
+  .adapter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-left: auto;
+  }
 }
 
 @media screen and (max-width: 830px) {

@@ -5,7 +5,10 @@ import {AdapterModel, AdapterType, PolyMap} from './adapter.model';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {AbstractControl, FormGroup, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {PathAccessRequest, RelationalResult} from '../../components/data-view/models/result-set.model';
-import {Subscription} from 'rxjs';
+import {Subscription, timer} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
+import {MappingService} from '../../services/mapping.service';
+import {AdapterMappings} from './mappings/mapping.model';
 import {CatalogService} from '../../services/catalog.service';
 import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
@@ -24,6 +27,10 @@ export class AdaptersComponent implements OnInit, OnDestroy {
     private readonly _fb = inject(UntypedFormBuilder);
     private readonly _catalog = inject(CatalogService);
     private readonly _left = inject(LeftSidebarService);
+    private readonly _mappings = inject(MappingService);
+
+    mappingSummaries = new Map<number, AdapterMappings>();
+    mappingsError = false;
 
     constructor(private injector: Injector) {
         this.availableAdapters = computed(() => {
@@ -38,6 +45,22 @@ export class AdaptersComponent implements OnInit, OnDestroy {
         this.sources = computed(() => {
             this._catalog.listener();
             return this._catalog.getSources();
+        });
+
+        effect(onCleanup => {
+            const sourceIds = this.sources().map(source => source.id);
+            this.mappingSummaries = new Map();
+            if (!sourceIds.length) {
+                return;
+            }
+            const request = timer(150).pipe(switchMap(() => this._mappings.getSummaries(sourceIds))).subscribe({
+                next: response => {
+                    this.mappingSummaries = new Map(response.adapters.map(adapter => [adapter.adapterId, adapter]));
+                    this.mappingsError = false;
+                },
+                error: () => this.mappingsError = true
+            });
+            onCleanup(() => request.unsubscribe());
         });
     }
 
@@ -107,6 +130,21 @@ export class AdaptersComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+    }
+
+    mappingAction(adapterId: number): string {
+        const mappings = this.mappingSummaries.get(adapterId)?.mappings;
+        return mappings?.length ? (mappings.some(mapping => mapping.editable) ? 'Edit mappings' : 'View mappings') : null;
+    }
+
+    retryMappings() {
+        this.subscriptions.add(this._mappings.getSummaries(this.sources().map(source => source.id)).subscribe({
+            next: response => {
+                this.mappingSummaries = new Map(response.adapters.map(adapter => [adapter.adapterId, adapter]));
+                this.mappingsError = false;
+            },
+            error: () => this.mappingsError = true
+        }));
     }
 
     subscribeActiveChange() {

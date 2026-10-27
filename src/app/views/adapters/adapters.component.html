@@ -74,10 +74,13 @@
                         <c-spinner *ngIf="isDeleting(adapter)" size="sm" cBorder color="light"
                                    role="status"></c-spinner>
                     </button>
-                    <button cButton color="primary" class="pull-right"
-                            (click)="initAdapterSettingsConfigureModal(adapter)">
-                        Configure
-                    </button>
+                    <div class="adapter-actions">
+                        <a *ngIf="type === 'source' && mappingAction(adapter.id)" cButton color="primary" class="mapping-action"
+                           [routerLink]="['/views/adapters', adapter.id, 'mappings']">{{ mappingAction(adapter.id) }}</a>
+                        <button cButton color="primary" (click)="initAdapterSettingsConfigureModal(adapter)">
+                            Configure
+                        </button>
+                    </div>
                 </c-card-footer>
             </c-card>
 
@@ -111,6 +114,9 @@
         <c-row>
             <c-col size="12">
                 <h2>Sources</h2>
+                <c-alert *ngIf="mappingsError" color="warning">
+                    Mappings could not be loaded. <button cButton color="light" size="sm" (click)="retryMappings()">Retry</button>
+                </c-alert>
                 <br>
             </c-col>
         </c-row>

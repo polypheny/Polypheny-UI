@@ -8,6 +8,8 @@ import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
+import {AdapterMappingsComponent} from './adapters/mappings/adapter-mappings.component';
+import {MappingUnsavedChangesGuard} from './adapters/mappings/mapping-unsaved-changes.guard';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
@@ -149,6 +151,20 @@ const routes: Routes = [
         data: {
             title: 'Adapters'
         }
+    },
+    {
+        path: 'adapters/:adapterId/mappings/:mappingId',
+        component: AdapterMappingsComponent,
+        data: {title: 'Mappings', isFullWidth: true},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsChange'
+    },
+    {
+        path: 'adapters/:adapterId/mappings',
+        component: AdapterMappingsComponent,
+        data: {title: 'Mappings', isFullWidth: true},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsChange'
     },
     {
         path: 'adapters/:action',
