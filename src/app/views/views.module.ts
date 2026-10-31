@@ -18,7 +18,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {QueryingComponent} from './querying/querying.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {AdapterMappingsComponent} from './adapters/mappings/adapter-mappings.component';
+import {MappingEditorComponent} from './mappings/mapping-editor.component';
+import {MappingManagementComponent} from './mappings/mapping-management.component';
 import {RefinementOptionsComponent} from './querying/graphical-querying/refinement-options/refinement-options.component';
 import {AboutComponent} from './about/about.component';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
@@ -181,7 +182,8 @@ import {NgChartsModule} from 'ng2-charts';
         DashboardComponent,
         QueryingComponent,
         AdaptersComponent,
-        AdapterMappingsComponent,
+        MappingEditorComponent,
+        MappingManagementComponent,
         RefinementOptionsComponent,
         AboutComponent,
         QueryInterfacesComponent,

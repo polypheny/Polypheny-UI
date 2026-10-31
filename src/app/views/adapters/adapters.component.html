@@ -76,7 +76,7 @@
                     </button>
                     <div class="adapter-actions">
                         <a *ngIf="type === 'source' && mappingAction(adapter.id)" cButton color="primary" class="mapping-action"
-                           [routerLink]="['/views/adapters', adapter.id, 'mappings']">{{ mappingAction(adapter.id) }}</a>
+                           [routerLink]="['/views/adapters', adapter.id, 'mappings', 'list']">{{ mappingAction(adapter.id) }}</a>
                         <button cButton color="primary" (click)="initAdapterSettingsConfigureModal(adapter)">
                             Configure
                         </button>
@@ -235,7 +235,10 @@
                                                *ngIf="getAdapterSetting(control.key).template.type.toLowerCase() === 'directory'">
                                     <ng-container *ngTemplateOutlet="tooltipText;
                                         context: { key: control.key, description: getAdapterSetting(control.key).template.description }"></ng-container>
-                                    <input cFormControl type="file" (change)="onFileChange($event, control.key)"/>
+                                    <input cFormControl type="file" multiple [id]="'deploy-files-' + control.key"
+                                           [attr.aria-label]="control.key + ' files'"
+                                           (change)="onFileChange($event, control.key)"/>
+                                    <small class="w-100">{{ getAdapterSetting(control.key).template.fileNames?.join(', ') }}</small>
                                     <c-form-feedback>{{ getGenericFeedback( control.key ) }}</c-form-feedback>
                                 </c-input-group>
                             </ng-container>

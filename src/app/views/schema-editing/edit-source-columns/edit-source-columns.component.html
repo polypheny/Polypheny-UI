@@ -2,7 +2,7 @@
 
     <c-col>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <h1 class="flex-grow-1">{{ entity()?.name }}</h1>
+            <h1 class="flex-grow-1">{{ entity()?.name }}{{ entity() && activeTab() === 'mappings' ? ' (target)' : '' }}</h1>
 
             <div class="source-actions d-flex align-items-center gap-2">
                 <button cButton color="light" (click)="openDataView()">Show Data</button>
@@ -46,9 +46,14 @@
                    (click)="setTab('source-materialization')"
                    role="tab">Materialization</a>
             </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" [ngClass]="{'active': activeTab() === 'mappings'}" (click)="setTab('mappings')" role="tab">Mappings</a>
+            </li>
         </ul>
     </c-col>
 </c-row>
+
+<app-mapping-management *ngIf="activeTab() === 'mappings' && entity()" [targetEntityId]="entity().id"></app-mapping-management>
 
 <c-row>
     <c-col [hidden]="activeTab() !== 'column'">

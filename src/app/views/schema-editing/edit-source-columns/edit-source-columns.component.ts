@@ -14,7 +14,7 @@ import {AdapterModel} from '../../adapters/adapter.model';
 import {WebSocket} from '../../../services/webSocket';
 import {LeftSidebarService} from '../../../components/left-sidebar/left-sidebar.service';
 
-const tabs = ['column', 'source', 'foreign', 'statistics', 'source-materialization'] as const;
+const tabs = ['column', 'source', 'foreign', 'statistics', 'source-materialization', 'mappings'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
 type SourceMaterializationMode = 'independent' | 'synchronized';
 const RELATIONAL_STORE_ADAPTERS = new Set(['HSQLDB', 'PostgreSQL', 'MySQL', 'MonetDB', 'File']);

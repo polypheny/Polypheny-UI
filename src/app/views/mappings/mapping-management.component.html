@@ -1,0 +1,113 @@
+<c-row *ngIf="!embedded" [class.mb-5]="sourceTargets || adapterContext">
+    <c-col>
+        <h1>{{ adapterContext ? adapterName + ' Mappings' : sourceTargets ? sourceFilter.physicalName + ' (source)' : viewKind ? mappingKindLabel(viewKind) : 'Mappings' }}</h1>
+        <p *ngIf="!viewKind && !adapterContext">Select a mapping kind to view its mappings, or select a mapping to edit its definition and rules.</p>
+    </c-col>
+</c-row>
+
+<c-alert *ngIf="adapterId != null && !sourceTargets && !adapterContext" color="info">Showing mappings for the selected adapter. <a routerLink="/views/mappings">Show all mappings</a></c-alert>
+<div *ngIf="loading" role="status"><c-spinner size="sm"></c-spinner> Loading mappings…</div>
+<c-alert *ngIf="loadError" color="danger" role="alert">{{ loadError }} <button cButton color="light" size="sm" (click)="refresh()">Retry</button></c-alert>
+<c-alert *ngIf="refreshError" color="warning">The mapping was dropped, but the catalog could not be refreshed. Refresh the page to reload the schema.</c-alert>
+
+<ng-container *ngIf="(viewKind || embedded || adapterContext) && !loading && !loadError">
+    <div class="table-responsive mb-5" *ngIf="visibleMappings.length; else noMappings">
+        <table cTable [hover]="true" [striped]="true" class="mapping-list mb-0" aria-label="Mappings">
+            <thead>
+            <tr><th>Name</th><th *ngIf="embedded || sourceTargets || adapterContext">Mapping Kind</th><th>Adapter</th><th>Source</th><th>Target</th><th>Data models</th><th class="mapping-drop"><span class="visually-hidden">Drop</span></th></tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let mapping of visibleMappings">
+                <td><a [routerLink]="mappingLink(mapping)" [queryParams]="mappingQuery()">{{ mapping.mappingName }}</a></td>
+                <td *ngIf="embedded || sourceTargets || adapterContext">{{ mappingKindLabel(mapping.kind) }}</td>
+                <td>{{ mapping.adapterName }}</td>
+                <td class="mapping-source">
+                    <ng-container *ngIf="mapping.physicalSources?.length; else unavailableSource">
+                        <ng-container *ngFor="let source of mapping.physicalSources; let last = last">
+                            <a *ngIf="!sourceTargets; else selectedSourceName" [routerLink]="['/views/mappings/source', mapping.adapterId]" [queryParams]="{sourceNamespace: source.namespaceName, sourceTable: source.physicalName}">{{ source.namespaceName }}.{{ source.physicalName }}</a><ng-template #selectedSourceName>{{ source.namespaceName }}.{{ source.physicalName }}</ng-template><ng-container *ngIf="!last">, </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <ng-template #unavailableSource>Unavailable</ng-template>
+                </td>
+                <td class="mapping-target">
+                    <a *ngIf="!embedded; else selectedTargetName" [routerLink]="['/views/schema-editing', mapping.namespaceName + '.' + mapping.logicalTableName, 'mappings']">{{ mapping.namespaceName }}.{{ mapping.logicalTableName }}</a>
+                    <ng-template #selectedTargetName>{{ mapping.namespaceName }}.{{ mapping.logicalTableName }}</ng-template>
+                </td>
+                <td>{{ mapping.sourceModel | titlecase }} to {{ mapping.targetModel | titlecase }}</td>
+                <td class="mapping-drop">
+                    <button cButton size="sm" type="button" class="mapping-delete bg-transparent border-0 hover-grow"
+                            [attr.aria-label]="'Drop ' + mapping.mappingName" [disabled]="removing"
+                            (click)="confirmRemoval(mapping.mappingId)" (mouseleave)="blockedRemovalId = null" (blur)="blockedRemovalId = null">
+                        <i class="text-danger" aria-hidden="true"
+                           [ngClass]="{'cil-trash': blockedRemovalId !== mapping.mappingId, 'fa fa-warning': blockedRemovalId === mapping.mappingId}"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <ng-template #noMappings><p class="text-muted mb-4">{{ embedded ? 'No mappings target this table.' : sourceTargets ? 'No mappings use this physical source.' : adapterContext ? 'This adapter has no saved mappings.' : 'No mappings are registered for this mapping kind.' }}</p></ng-template>
+</ng-container>
+
+<c-row *ngIf="!loading && !loadError" class="mb-3">
+    <c-col [lg]="6" class="fixed-width">
+        <c-card>
+            <c-card-header>Create Mapping</c-card-header>
+            <c-card-body>
+                <form (ngSubmit)="create()">
+                    <p *ngIf="!canCreate && !sourceTargets" class="text-muted">Creating incoming mappings is currently supported for imported and mapping-backed tables.</p>
+                    <c-alert *ngIf="sourceError" color="danger" role="alert">{{ sourceError }} <button cButton color="light" size="sm" type="button" (click)="refresh()">Retry</button></c-alert>
+                    <c-input-group *ngIf="!viewKind || sourceTargets" class="mb-3">
+                        <label cInputGroupText for="create-mapping-kind">Kind</label>
+                        <select id="create-mapping-kind" name="kind" cSelect [ngModel]="selectedKind" (ngModelChange)="selectKind($event)" [disabled]="sourceTargets || removing">
+                            <option *ngFor="let kind of mappingKinds" [ngValue]="kind">{{ mappingKindLabel(kind) }}</option>
+                        </select>
+                    </c-input-group>
+                    <c-input-group class="mb-3">
+                        <label cInputGroupText for="create-mapping-source">Source</label>
+                        <select id="create-mapping-source" name="source" cSelect [(ngModel)]="selectedSource" [disabled]="sourceTargets || removing || !filteredSources.length">
+                            <option value="" hidden></option>
+                            <option *ngFor="let source of filteredSources" [value]="sourceKey(source)">{{ source.namespaceName }}.{{ source.logicalTableName }} ({{ source.adapterName }})</option>
+                        </select>
+                    </c-input-group>
+                    <p *ngIf="!sourceError && !filteredSources.length" class="text-muted">No source entities are available for this mapping kind.</p>
+                    <c-input-group class="mb-0 justify-content-end">
+                        <button cButton color="primary" type="submit" [disabled]="!createSource || !canCreate || removing">Create</button>
+                    </c-input-group>
+                </form>
+            </c-card-body>
+        </c-card>
+    </c-col>
+    <c-col *ngIf="!viewKind && !embedded && !adapterContext" [lg]="6" class="fixed-width">
+        <c-card>
+            <c-card-header>Drop Mapping</c-card-header>
+            <c-card-body>
+                <form (ngSubmit)="confirmRemoval()">
+                    <c-input-group class="mb-3">
+                        <label cInputGroupText for="drop-mapping">Name</label>
+                        <select id="drop-mapping" name="mapping" cSelect [(ngModel)]="selectedId" [disabled]="removing || !visibleMappings.length" [attr.aria-describedby]="selected?.removalBlockedReason ? 'drop-mapping-reason' : null">
+                            <option [ngValue]="null" hidden></option>
+                            <option *ngFor="let mapping of visibleMappings" [ngValue]="mapping.mappingId">{{ mapping.mappingName }}</option>
+                        </select>
+                    </c-input-group>
+                    <p *ngIf="!visibleMappings.length" class="text-muted">No mappings are registered.</p>
+                    <p *ngIf="selected?.removalBlockedReason" class="text-muted" id="drop-mapping-reason">{{ selected.removalBlockedReason }}</p>
+                    <c-input-group class="mb-0 justify-content-end">
+                        <button cButton color="danger" type="submit" [disabled]="!selected?.removable || !selected?.revision || removing">Drop</button>
+                    </c-input-group>
+                </form>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
+
+<c-modal [visible]="!!removal" (visibleChange)="!$event && closeRemoval()" aria-labelledby="drop-mapping-title">
+    <c-modal-header><h4 cModalTitle id="drop-mapping-title">Drop mapping?</h4></c-modal-header>
+    <c-modal-body>
+        <p>Drop <strong>{{ removal?.mappingName }}</strong> for {{ removal?.namespaceName }}.{{ removal?.logicalTableName }}?</p>
+        <p *ngIf="removal?.removesTarget; else keepTarget">The logical target table will be removed. The physical source and its other mappings remain available.</p>
+        <ng-template #keepTarget><p>The target table and its remaining mappings will be preserved.</p></ng-template>
+        <c-alert *ngIf="removeError" color="danger" role="alert">{{ removeError.message }} Close this dialog and refresh the list before trying again.<ul *ngIf="removeError.blockingEntities?.length"><li *ngFor="let entity of removeError.blockingEntities">{{ entity }}</li></ul></c-alert>
+    </c-modal-body>
+    <c-modal-footer><button cButton color="light" [disabled]="removing" (click)="closeRemoval()">Cancel</button><button cButton color="danger" [disabled]="removing || !!removeError" (click)="remove()"><c-spinner *ngIf="removing" size="sm"></c-spinner> {{ removing ? 'Dropping…' : 'Drop mapping' }}</button></c-modal-footer>
+</c-modal>

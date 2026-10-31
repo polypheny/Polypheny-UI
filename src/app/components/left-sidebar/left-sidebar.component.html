@@ -75,9 +75,9 @@
 
     <div *ngIf="needsButton()" class="schema-editing-wrapper">
         <div class="border-top my-3"></div>
-        <a cNavLink id="namespaceText" class="pe-auto link-light text-white" (click)="deselectAll()" [routerLink]="'/views/schema-editing/'">
+        <a cNavLink id="namespaceText" class="pe-auto link-light text-white" (click)="deselectAll()" [routerLink]="isMappings() ? '/views/mappings' : '/views/schema-editing/'">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-            <span class="ms-1">Manage Namespaces</span>
+            <span class="ms-1">{{ isMappings() ? 'Manage Mappings' : 'Manage Namespaces' }}</span>
         </a>
     </div>
 </div>

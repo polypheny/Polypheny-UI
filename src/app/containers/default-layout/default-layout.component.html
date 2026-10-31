@@ -34,7 +34,15 @@
                     </c-nav-item>
 
                     <c-nav-item>
-                        <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active" class="px-lg-1 px-xl-2">
+                        <a cNavLink [routerLink]="['/views/mappings']" routerLinkActive="active" class="px-lg-1 px-xl-2">
+                            <i class="fa fa-exchange"></i>
+                            <span class="ms-1">Mappings</span>
+                        </a>
+                    </c-nav-item>
+
+                    <c-nav-item>
+                        <a cNavLink [routerLink]="['/views/data-table']" routerLinkActive="active" class="px-lg-1 px-xl-2"
+                           (click)="_sidebar.reset()">
                             <i class="fa fa-table"></i>
                             <span class="ms-1">Data</span>
                         </a>

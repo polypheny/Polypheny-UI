@@ -17,7 +17,7 @@ import {ConfigService} from '../../../services/config.service';
 import {WebSocket} from '../../../services/webSocket';
 
 const INITIAL_TYPE = 'BIGINT';
-const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics'] as const;
+const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics', 'mappings'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
 
 

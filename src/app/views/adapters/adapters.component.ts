@@ -8,7 +8,7 @@ import {PathAccessRequest, RelationalResult} from '../../components/data-view/mo
 import {Subscription, timer} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {MappingService} from '../../services/mapping.service';
-import {AdapterMappings} from './mappings/mapping.model';
+import {AdapterMappings} from '../mappings/mapping.model';
 import {CatalogService} from '../../services/catalog.service';
 import {AdapterSettingModel, AdapterTemplateModel, DeployMode} from '../../models/catalog.model';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';

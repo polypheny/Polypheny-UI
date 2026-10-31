@@ -3,7 +3,7 @@
         <c-col>
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
-                    <h1>{{ entityTitle() }}</h1>
+                    <h1>{{ entityTitle() }}{{ activeTab() === 'mappings' ? ' (target)' : '' }}</h1>
                     <div *ngIf="synchronizedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
                         Synchronized Materialization · read-only · source: {{ synchronizedMaterializedSource() }}
                     </div>
@@ -63,7 +63,10 @@
                        (click)="setTab('statistics')"
                        role="tab">Statistics</a>
                 </li>
-            </ul>
+                <li class="nav-item" role="presentation">
+                <a class="nav-link" [ngClass]="{'active': activeTab() === 'mappings'}" (click)="setTab('mappings')" role="tab">Mappings</a>
+            </li>
+        </ul>
         </c-col>
 
     </c-row>
@@ -158,6 +161,8 @@
             <button cButton color="primary" autofocus (click)="closeRefreshSummaryModal()">OK</button>
         </c-modal-footer>
     </c-modal>
+
+    <p *ngIf="activeTab() === 'mappings'">to implement</p>
 
     <c-row>
         <c-col [hidden]="activeTab() !== 'column'">

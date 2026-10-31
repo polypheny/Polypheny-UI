@@ -8,8 +8,9 @@ import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
-import {AdapterMappingsComponent} from './adapters/mappings/adapter-mappings.component';
-import {MappingUnsavedChangesGuard} from './adapters/mappings/mapping-unsaved-changes.guard';
+import {MappingEditorComponent} from './mappings/mapping-editor.component';
+import {MappingManagementComponent} from './mappings/mapping-management.component';
+import {MappingUnsavedChangesGuard} from './mappings/mapping-unsaved-changes.guard';
 import {AboutComponent} from './about/about.component';
 import {QueryInterfacesComponent} from './query-interfaces/query-interfaces.component';
 import {NotebooksComponent} from '../plugins/notebooks/components/notebooks.component';
@@ -146,6 +147,42 @@ const routes: Routes = [
         }
     },
     {
+        path: 'mappings',
+        component: MappingManagementComponent,
+        data: {title: 'Mappings'}
+    },
+    {
+        path: 'mappings/source/:sourceAdapterId',
+        component: MappingManagementComponent,
+        data: {title: 'Source Targets'}
+    },
+    {
+        path: 'mappings/create',
+        component: MappingEditorComponent,
+        data: {title: 'Create Mapping', create: true},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    },
+    {
+        path: 'mappings/kind/:kind',
+        component: MappingManagementComponent,
+        data: {title: 'Mappings'}
+    },
+    {
+        path: 'mappings/:mappingId/edit',
+        component: MappingEditorComponent,
+        data: {title: 'Edit Mapping'},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsChange'
+    },
+    {
+        path: 'mappings/:mappingId',
+        component: MappingEditorComponent,
+        data: {title: 'Mapping Details', readOnly: true},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsChange'
+    },
+    {
         path: 'adapters',
         component: AdaptersComponent,
         data: {
@@ -153,16 +190,14 @@ const routes: Routes = [
         }
     },
     {
-        path: 'adapters/:adapterId/mappings/:mappingId',
-        component: AdapterMappingsComponent,
-        data: {title: 'Mappings', isFullWidth: true},
-        canDeactivate: [MappingUnsavedChangesGuard],
-        runGuardsAndResolvers: 'paramsChange'
+        path: 'adapters/:adapterId/mappings/list',
+        component: MappingManagementComponent,
+        data: {title: 'Mappings'}
     },
     {
-        path: 'adapters/:adapterId/mappings',
-        component: AdapterMappingsComponent,
-        data: {title: 'Mappings', isFullWidth: true},
+        path: 'adapters/:adapterId/mappings/:mappingId',
+        component: MappingEditorComponent,
+        data: {title: 'Edit Mapping'},
         canDeactivate: [MappingUnsavedChangesGuard],
         runGuardsAndResolvers: 'paramsChange'
     },

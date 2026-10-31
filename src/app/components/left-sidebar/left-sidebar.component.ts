@@ -177,7 +177,11 @@ export class LeftSidebarComponent implements OnInit, AfterViewInit {
     }
 
     needsButton() {
-        return this.router.url.startsWith('/views/schema-editing/');
+        return this.router.url.startsWith('/views/schema-editing/') || this.isMappings();
+    }
+
+    isMappings() {
+        return /^\/views\/mappings(?:\/|\?|$)/.test(this.router.url);
     }
 
     needsSourceRefreshButton() {

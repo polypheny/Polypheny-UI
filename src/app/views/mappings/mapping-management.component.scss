@@ -1,0 +1,10 @@
+:host { display: block; }
+.mapping-list { min-width: 700px; }
+.mapping-list td { overflow-wrap: anywhere; }
+.mapping-drop { width: 1em; text-align: center; position: relative; }
+.mapping-delete { visibility: hidden; }
+.mapping-list tr:hover .mapping-delete, .mapping-list tr:focus-within .mapping-delete { visibility: visible; }
+.hover-grow:hover { transform: scale(1.2); }
+@media (hover: none) { .mapping-delete { visibility: visible; } }
+.col-lg-6.fixed-width { max-width: 400px; margin-bottom: 1rem; }
+@media screen and (max-width: 830px) { .fixed-width { max-width: 100% !important; } }

@@ -1,0 +1,196 @@
+<div class="page-heading">
+    <div>
+        <h1>{{ pageTitle }}</h1>
+    </div>
+</div>
+
+<div *ngIf="loading" role="status"><c-spinner size="sm"></c-spinner> Loading mappings…</div>
+<c-alert *ngIf="loadError" color="danger" role="alert">
+    {{ loadError }} <button cButton color="light" size="sm" (click)="reloadSaved()">Retry</button>
+    <a *ngIf="isCreate" routerLink="/views/mappings">Back to mappings</a>
+</c-alert>
+<c-alert *ngIf="summaryError" color="warning">The mapping list could not be refreshed. <button cButton color="light" size="sm" (click)="refreshSummaries()">Retry</button></c-alert>
+<c-alert *ngIf="adapterContext && !loading && !loadError && !summaries.length && !detail" color="info">
+    This adapter has no saved mappings.
+</c-alert>
+
+<div *ngIf="!loading && !loadError && detail">
+    <c-card *ngIf="detail && form" class="editor">
+        <c-card-header class="editor-heading" [formGroup]="form">
+            <div class="mapping-name-area">
+                <div *ngIf="!nameEditing" class="mapping-title-row">
+                    <span class="mapping-title">{{ mappingTitle }}</span>
+                    <button *ngIf="canEdit" type="button" class="rename-mapping rename bg-transparent border-0 p-0 ms-2" [disabled]="saving" (click)="startRename()" aria-label="Rename mapping">
+                        <i class="cil-pencil" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <c-input-group *ngIf="nameEditing" #mappingNameEditor sizing="sm" class="mapping-name-input" (focusout)="onRenameFocusOut($event)">
+                    <input #mappingNameInput id="mapping-name" cFormControl formControlName="mappingName" [placeholder]="detail.mappingName" aria-label="Mapping name" [class.is-invalid]="fieldError(form.get('mappingName'), 'mappingName')" aria-describedby="mapping-name-error" [readOnly]="saving"
+                           (keydown.enter)="$event.preventDefault(); renameMapping()" (keydown.escape)="cancelRename()">
+                    <button cButton type="button" color="primary" size="sm" [disabled]="!canRename" (click)="renameMapping()">rename</button>
+                </c-input-group>
+                <c-form-feedback id="mapping-name-error" [valid]="false" *ngIf="fieldError(form.get('mappingName'), 'mappingName') as message">{{ message }}</c-form-feedback>
+            </div>
+            <a *ngIf="readOnly && detail.editable" cButton size="sm" color="primary" [routerLink]="['/views/mappings', detail.mappingId, 'edit']" [queryParams]="returnQuery">Edit mapping</a>
+        </c-card-header>
+        <c-card-body>
+            <c-alert *ngIf="!detail.editable" color="info">{{ detail.readOnlyReason }}</c-alert>
+            <c-alert *ngIf="showSaveError" color="danger" role="alert">
+                {{ saveError.message }}
+                <ul *ngIf="saveError.blockingEntities?.length"><li *ngFor="let entity of saveError.blockingEntities">{{ entity }}</li></ul>
+                <button *ngIf="conflict" cButton color="light" size="sm" (click)="reloadSaved()">Reload saved version</button>
+            </c-alert>
+            <c-alert *ngIf="refreshError" color="warning" role="alert">
+                Saved; catalog refresh failed. <button cButton color="light" size="sm" (click)="refreshCatalog()">Retry refresh</button>
+            </c-alert>
+            <form [formGroup]="form" (ngSubmit)="save()">
+                <fieldset [disabled]="saving" [attr.aria-describedby]="schemaLocked && canEdit ? 'shared-target-info' : null">
+                    <section id="mapping-definition" aria-label="Mapping definition">
+                        <div class="source-target-grid">
+                            <section class="definition-section" aria-label="Source">
+                                <h5 id="mapping-source-heading" class="mb-3">Source Information</h5>
+                                <div class="metadata-grid source-object" *ngFor="let source of detail.physicalSources; let i = index">
+                                    <p [id]="'source-namespace-' + i"><span>Namespace:</span> {{ source.namespaceName }}</p>
+                                    <p [id]="i === 0 ? 'source-model' : 'source-model-' + i"><span>Data model:</span> {{ detail.sourceModel | titlecase }}</p>
+                                    <p [id]="'source-table-' + i"><span>Table name:</span> {{ source.physicalName }}</p>
+                                </div>
+                            </section>
+                            <section class="definition-section target-definition" [class.shared-target]="fixedTarget && isCreate" aria-label="Target">
+                                <h5 id="mapping-target-heading" class="mb-3">Target Information</h5>
+                                <div class="metadata-grid">
+                                    <div class="field-row">
+                                        <label for="target-namespace" class="form-label">Namespace:</label>
+                                        <div class="field-control">
+                                            <select id="target-namespace" cSelect formControlName="targetNamespaceId" [class.is-invalid]="fieldError(form.get('targetNamespaceId'), 'targetNamespaceId')" aria-describedby="target-namespace-error">
+                                                <option *ngFor="let namespace of targetNamespaces" [ngValue]="namespace.id">{{ namespace.name }}</option>
+                                            </select>
+                                            <c-form-feedback id="target-namespace-error" [valid]="false" *ngIf="fieldError(form.get('targetNamespaceId'), 'targetNamespaceId') as message">{{ message }}</c-form-feedback>
+                                        </div>
+                                    </div>
+                                    <p id="target-model" class="field-row"><span>Data model:</span> {{ targetModel | titlecase }}</p>
+                                    <div class="field-row target-name-row">
+                                        <label for="table-name" class="form-label">Table name:</label>
+                                        <div class="field-control">
+                                            <input id="table-name" cFormControl formControlName="logicalTableName" [class.is-invalid]="fieldError(form.get('logicalTableName'), 'logicalTableName')" [attr.aria-describedby]="fixedTarget && isCreate ? 'table-name-info table-name-error' : 'table-name-error'">
+                                            <c-form-feedback id="table-name-error" [valid]="false" *ngIf="fieldError(form.get('logicalTableName'), 'logicalTableName') as message">
+                                                {{ message }}
+                                            </c-form-feedback>
+                                        </div>
+                                        <div *ngIf="fixedTarget && isCreate" id="table-name-info" class="target-name-info text-body-secondary" role="note">
+                                            This mapping uses an existing target table, which cannot be renamed
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <div *ngIf="schemaLocked && canEdit" class="shared-target-info">
+                                <p id="shared-target-info" class="text-body-secondary mb-2" role="note">
+                                    This mapping uses a target table shared by multiple sources. The target schema and mapping rules cannot be edited. You can still rename this mapping.
+                                </p>
+                                <a [routerLink]="['/views/schema-editing', detail.namespaceName + '.' + detail.logicalTableName, 'mappings']">View all sources for this target</a>
+                            </div>
+                        </div>
+
+                        <section class="rules-section" aria-labelledby="mapping-rules-heading">
+                            <div class="section-heading"><h2 id="mapping-rules-heading" class="mb-0">Mapping Rules</h2><span class="text-muted">{{ includedCount }} of {{ detail.columns.length }} fields included</span></div>
+                            <div class="table-responsive">
+                                <table cTable hover="true" striped="true" class="rules-table" formArrayName="columns" aria-labelledby="mapping-rules-heading">
+                                    <colgroup>
+                                        <col class="include-column">
+                                        <col class="source-name">
+                                        <col class="source-type">
+                                        <col class="nullable-column">
+                                    </colgroup>
+                                    <colgroup>
+                                        <col class="rule-cell">
+                                    </colgroup>
+                                    <colgroup>
+                                        <col class="target-name">
+                                        <col class="target-type">
+                                        <col class="nullable-column">
+                                    </colgroup>
+                                    <thead>
+                                        <tr class="rules-group-headings">
+                                            <th scope="colgroup" colspan="4"><h5 class="mb-0">Source Fields</h5></th>
+                                            <td aria-hidden="true"></td>
+                                            <th scope="colgroup" colspan="3"><h5 class="mb-0">Target Fields</h5></th>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col" class="include-column"><label class="include-all"><input cFormCheckInput type="checkbox" [checked]="includedCount === detail.columns.length" [indeterminate]="includedCount > 0 && includedCount < detail.columns.length" [disabled]="!canEdit || schemaLocked" (change)="setAllIncluded($event.target.checked)" aria-label="Include all fields"> Inc.</label></th>
+                                            <th scope="col" class="source-name">Name</th>
+                                            <th scope="col" class="source-type">Type</th>
+                                            <th scope="col" class="nullable-column">Nullable</th>
+                                            <th scope="col" class="rule-cell">Rule</th>
+                                            <th scope="col" class="target-name">Name</th>
+                                            <th scope="col" class="target-type">Type</th>
+                                            <th scope="col" class="nullable-column">Nullable</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngFor="let column of detail.columns; let i = index" [formGroupName]="i" [class.alternate]="i % 2 === 0"
+                                           [class.excluded]="!columns.at(i).get('included').value">
+                                        <tr *ngFor="let physical of column.physicalReferences.length ? column.physicalReferences : [null]; let firstSource = first">
+                                            <td *ngIf="firstSource" class="include-column" [attr.rowspan]="column.physicalReferences.length || 1"><input cFormCheckInput type="checkbox" formControlName="included" [attr.aria-label]="'Include ' + column.logicalName"></td>
+                                            <td class="source-cell source-name">
+                                                {{ physical?.physicalName || '—' }}
+                                                <small *ngIf="column.physicalReferences.length > 1" class="text-muted d-block">Allocation {{ physical.allocationId }}</small>
+                                            </td>
+                                            <td class="source-cell type-cell">{{ sourceTypeDisplay(physical?.typeDisplay) }}</td>
+                                            <td class="source-cell nullable-column">
+                                                <input *ngIf="physical?.nullable != null; else unknownNullable" cFormCheckInput type="checkbox" [checked]="physical.nullable" disabled [attr.aria-label]="'Source nullable ' + physical.physicalName">
+                                                <ng-template #unknownNullable><span class="text-muted" title="Source nullability is not available">—</span></ng-template>
+                                            </td>
+                                            <td *ngIf="firstSource" class="rule-cell" [attr.rowspan]="column.physicalReferences.length || 1">
+                                                <select *ngIf="canEdit && detail.availableRules?.length; else savedRule" cSelect
+                                                        [ngModel]="ruleForColumn(column.logicalColumnId)?.type || detail.availableRules[0].type" [ngModelOptions]="{standalone: true}"
+                                                        [disabled]="!columns.at(i).get('included').value" [attr.aria-label]="'Rule for ' + column.logicalName">
+                                                    <option *ngFor="let rule of detail.availableRules" [value]="rule.type">{{ rule.label }}</option>
+                                                </select>
+                                                <ng-template #savedRule><span class="rule-label">{{ ruleLabel(column.logicalColumnId) }}</span></ng-template>
+                                            </td>
+                                            <td *ngIf="firstSource" class="target-name" [attr.rowspan]="column.physicalReferences.length || 1">
+                                                <label class="visually-hidden" [for]="'column-' + column.logicalColumnId">Target name for {{ column.logicalName }}</label>
+                                                <select *ngIf="fixedTarget && isCreate" cSelect formControlName="logicalName" [id]="'column-' + column.logicalColumnId"
+                                                        [class.is-invalid]="fieldError(columns.at(i).get('logicalName'), 'columns.' + column.logicalColumnId)">
+                                                    <option *ngFor="let target of detail.targetColumns" [value]="target.logicalName">{{ target.logicalName }}</option>
+                                                </select>
+                                                <input *ngIf="!fixedTarget || !isCreate" cFormControl [id]="'column-' + column.logicalColumnId" formControlName="logicalName"
+                                                       [class.is-invalid]="fieldError(columns.at(i).get('logicalName'), 'columns.' + column.logicalColumnId)"
+                                                       [attr.aria-describedby]="'column-error-' + column.logicalColumnId">
+                                                <c-form-feedback [valid]="false" [id]="'column-error-' + column.logicalColumnId" *ngIf="fieldError(columns.at(i).get('logicalName'), 'columns.' + column.logicalColumnId) as message">
+                                                    {{ message }}
+                                                </c-form-feedback>
+                                            </td>
+                                            <td *ngIf="firstSource" class="target-type type-cell" [attr.rowspan]="column.physicalReferences.length || 1">{{ targetColumn(i)?.typeDisplay || '—' }}</td>
+                                            <td *ngIf="firstSource" class="nullable-column" [attr.rowspan]="column.physicalReferences.length || 1"><input cFormCheckInput type="checkbox" [checked]="targetColumn(i)?.nullable" disabled [attr.aria-label]="'Nullable ' + column.logicalName"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <c-form-feedback [valid]="false" class="d-block" *ngIf="columns.hasError('noIncludedFields')">Include at least one field in the target entity.</c-form-feedback>
+                            <c-form-feedback [valid]="false" class="d-block" *ngIf="columns.hasError('incompatibleTarget')">The included source fields must match all existing target columns in name, type and nullability.</c-form-feedback>
+                            <c-form-feedback [valid]="false" class="d-block" *ngIf="saveError?.fieldErrors?.columns">{{ saveError.fieldErrors.columns }}</c-form-feedback>
+                        </section>
+                    </section>
+
+
+                    <div class="editor-footer" *ngIf="!readOnly">
+                        <div class="editor-actions">
+                            <button type="button" cButton color="light" [disabled]="saving" (click)="cancel()">Cancel</button>
+                            <button type="submit" cButton color="primary" [disabled]="!canSave">
+                                <c-spinner *ngIf="saving" size="sm" aria-label="Saving"></c-spinner> {{ saving ? 'Saving…' : isCreate ? 'Create mapping' : 'Save' }}
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </c-card-body>
+    </c-card>
+</div>
+
+<c-modal [visible]="confirmVisible" (visibleChange)="!$event && answerConfirmation(false)" aria-labelledby="discard-title">
+    <c-modal-header><h4 cModalTitle id="discard-title">Discard unsaved changes?</h4></c-modal-header>
+    <c-modal-body>Your changes to this mapping have not been saved.</c-modal-body>
+    <c-modal-footer>
+        <button cButton color="light" (click)="answerConfirmation(false)">Keep editing</button>
+        <button cButton color="danger" (click)="answerConfirmation(true)">Discard changes</button>
+    </c-modal-footer>
+</c-modal>

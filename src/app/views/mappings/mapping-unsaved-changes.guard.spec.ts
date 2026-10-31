@@ -10,6 +10,18 @@ class GuardedMapping {
 }
 
 describe('MappingUnsavedChangesGuard', () => {
+    it('protects a create draft when changing the preselected source in query parameters', async () => {
+        TestBed.configureTestingModule({providers: [provideRouter([{
+            path: 'mappings/create', component: GuardedMapping,
+            canDeactivate: [MappingUnsavedChangesGuard], runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+        }])]});
+        const harness = await RouterTestingHarness.create();
+        const editor = await harness.navigateByUrl('/mappings/create?adapterId=7&targetEntityId=50', GuardedMapping);
+        await harness.navigateByUrl('/mappings/create?adapterId=7&targetEntityId=51');
+        expect(editor.canDeactivate).toHaveBeenCalledTimes(1);
+        expect(harness.routeDebugElement.componentInstance).toBe(editor);
+    });
+
     it('guards parameter changes while Angular reuses the editor component', async () => {
         TestBed.configureTestingModule({providers: [provideRouter([{
             path: 'adapters/:adapterId/mappings/:mappingId', component: GuardedMapping,

@@ -1,0 +1,107 @@
+:host {
+  // Match the read-only source table on the Schema screen.
+  --mapping-disabled-color: var(--cui-emphasis-color, #000015);
+  display: block;
+}
+
+.page-heading, .editor-heading, .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.page-heading { align-items: flex-start; margin-bottom: 1.5rem; }
+.disabled { pointer-events: none; }
+:host input:disabled,
+.rules-table .source-cell, .rules-table td.target-type, .rule-label,
+.disabled, .disabled .text-muted {
+  // Keep read-only values and disabled controls consistent with Schema table text.
+  color: var(--mapping-disabled-color) !important;
+}
+.rules-table .source-cell .text-muted { color: inherit !important; }
+:host select:disabled {
+  // Match the disabled Docker instance select in the Notebooks dialog.
+  color: var(--cui-body-color, rgba(44, 56, 74, .95));
+}
+.editor { min-width: 0; }
+.editor-heading { padding: .85rem 1rem; }
+.editor-heading { flex-wrap: wrap; }
+.mapping-name-area { flex: 1; min-width: 0; }
+.mapping-title-row { display: flex; align-items: center; }
+.mapping-title { overflow-wrap: anywhere; }
+.mapping-name-input { width: 100%; max-width: 48rem; }
+.rename-mapping { flex-shrink: 0; cursor: pointer; color: inherit; opacity: 0; }
+.editor-heading:hover .rename-mapping, .editor-heading:focus-within .rename-mapping { opacity: 1; }
+:host c-form-feedback { display: block; }
+
+.source-target-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; margin-bottom: 2rem; }
+.metadata-grid { display: grid; gap: .5rem; }
+.metadata-grid p { margin: 0; min-height: calc(1.5em + .75rem + 2px); align-items: center; overflow-wrap: anywhere; }
+.metadata-grid p > span { font-weight: 700; flex-shrink: 0; }
+.source-object p { display: flex; gap: .25rem; }
+.definition-section { min-width: 0; max-width: 100%; }
+.definition-section:first-child { flex: 0 1 14rem; }
+.target-definition { flex: 0 1 22rem; }
+.field-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: start; gap: .5rem; }
+.field-row:last-child { margin-bottom: 0; }
+.target-definition.shared-target { flex: 1 1 30rem; }
+.shared-target .field-control { max-width: 15rem; }
+.shared-target .target-name-row { grid-template-columns: 6.5rem minmax(0, 15rem) minmax(0, 1fr); }
+.target-name-info { align-self: center; }
+.shared-target-info { flex: 1 1 20rem; min-width: 0; margin: 0; margin-inline-start: 1.5rem; }
+
+.field-row > .form-label { margin-bottom: 0; padding-top: .375rem; font-weight: 700; }
+.field-row > input, .field-row > select, .field-control { min-width: 0; }
+.source-object + .source-object { margin-top: .75rem; }
+.section-heading { align-items: baseline; flex-wrap: wrap; margin-bottom: .75rem; }
+.rules-table {
+  width: 100%;
+  min-width: 1000px;
+  table-layout: fixed;
+  margin-bottom: 0;
+}
+.rules-table .rules-group-headings > * {
+  padding: 0 .5rem .5rem;
+  border-bottom-width: 0;
+  text-align: left;
+}
+.rules-table .rules-group-headings > :first-child { padding-left: 0; }
+.rules-table col.include-column { width: 84px; }
+.rules-table col.source-name { width: 112px; }
+.rules-table col.nullable-column { width: 84px; }
+.rules-table col.source-type, .rules-table col.target-type { width: 112px; }
+.rules-table col.rule-cell { width: 192px; }
+.rules-table col.target-name { width: 216px; }
+.rules-table th, .rules-table td { vertical-align: middle; }
+// Keep all physical rows of one mapping field in the same standard table stripe.
+.rules-table.table-striped > tbody > tr > * { --cui-table-bg-type: initial; }
+.rules-table.table-striped > tbody.alternate > tr > * { --cui-table-bg-type: var(--cui-table-striped-bg); }
+.rules-table th.source-name, .rules-table th.source-type,
+.rules-table th.target-name, .rules-table th.target-type,
+.rules-table th.rule-cell { text-align: left; }
+.rules-table .source-name { overflow-wrap: anywhere; }
+.rules-table td.target-name { position: relative; }
+.rules-table .include-column { text-align: left; }
+.rules-table .nullable-column { text-align: center; }
+.rules-table .nullable-column input[type="checkbox"] { display: block; margin-inline: auto; }
+.rules-table .type-cell { overflow-wrap: anywhere; }
+.rules-table th.nullable-column { padding-inline: .25rem; overflow-wrap: normal; word-break: normal; }
+.rules-table .text-danger { overflow-wrap: anywhere; }
+.rules-table input:not([type="checkbox"]), .rules-table select { font-size: inherit; }
+.rules-table input:not([type="checkbox"]) { width: 100%; }
+.rules-table select { padding-left: .5rem; padding-right: 1.75rem; }
+.editor-footer { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--cui-border-color, #d8dbe0); }
+.editor-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+@media (hover: none) {
+  .rename-mapping { opacity: 1; }
+}
+@media (max-width: 600px) {
+  .page-heading { flex-direction: column; }
+  .shared-target .target-name-row { grid-template-columns: 6.5rem minmax(0, 1fr); }
+  .target-name-info { grid-column: 2; }
+  .shared-target-info { margin-inline-start: 0; }
+  .mapping-name-area { flex-basis: 100%; }
+}
+.include-all { display: flex; align-items: center; gap: .375rem; }
+.rules-table input[type="checkbox"] { width: 1rem; height: 1rem; margin-top: 0; }
