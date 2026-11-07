@@ -7,7 +7,7 @@
 <div *ngIf="loading" role="status"><c-spinner size="sm"></c-spinner> Loading mappings…</div>
 <c-alert *ngIf="loadError" color="danger" role="alert">
     {{ loadError }} <button cButton color="light" size="sm" (click)="reloadSaved()">Retry</button>
-    <a *ngIf="isCreate" routerLink="/views/mappings">Back to mappings</a>
+    <a *ngIf="isCreate" [routerLink]="adapterMappingsLink || ['/views/mappings']">Back to mappings</a>
 </c-alert>
 <c-alert *ngIf="summaryError" color="warning">The mapping list could not be refreshed. <button cButton color="light" size="sm" (click)="refreshSummaries()">Retry</button></c-alert>
 <c-alert *ngIf="adapterContext && !loading && !loadError && !summaries.length && !detail" color="info">

@@ -195,6 +195,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
     private setBreadcrumbs() {
         this.breadcrumbs.setBreadcrumbs([
             this.adapterContext ? new BreadcrumbItem('Adapters', '/views/adapters') : new BreadcrumbItem('Mappings', '/views/mappings'),
+            ...(this.adapterContext && this.adapterName ? [new BreadcrumbItem(`${this.adapterName} Mappings`, this.adapterMappingsLink)] : []),
             ...(!this.adapterContext && this.detail ? [new BreadcrumbItem(mappingKindLabel(this.detail.kind),
                 ['/views/mappings/kind', this.detail.kind])] : []),
             new BreadcrumbItem(this.pageTitle)
@@ -203,6 +204,10 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
 
     get pageTitle(): string {
         return this.isCreate ? 'Create Mapping' : this.readOnly ? 'Mapping Details' : 'Edit Mapping';
+    }
+
+    get adapterMappingsLink(): (string | number)[] | null {
+        return this.adapterContext && this.adapterId != null ? ['/views/adapters', this.adapterId, 'mappings', 'list'] : null;
     }
 
     get canEdit(): boolean {
@@ -616,7 +621,10 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
         }
         this.refreshCatalog();
         if (created) {
-            this.router.navigate(['/views/mappings', detail.mappingId, 'edit'], {replaceUrl: true});
+            const route = this.adapterContext
+                ? ['/views/adapters', this.adapterId, 'mappings', detail.mappingId]
+                : ['/views/mappings', detail.mappingId, 'edit'];
+            this.router.navigate(route, {replaceUrl: true});
         }
     }
 
@@ -695,7 +703,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
         } else if (this.returnSource) {
             this.returnToSource();
         } else {
-            this.router.navigate([this.adapterContext ? '/views/adapters' : '/views/mappings']);
+            this.router.navigate(this.adapterMappingsLink ?? ['/views/mappings']);
         }
     }
 

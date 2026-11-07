@@ -197,8 +197,12 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
     create() {
         const source = this.createSource;
         if (source && this.canCreate && !this.removing) {
-            this.router.navigate(['/views/mappings/create'], {
-                queryParams: {adapterId: source.adapterId, targetEntityId: source.targetEntityId,
+            const route = this.adapterContext
+                ? ['/views/adapters', this.adapterId, 'mappings', 'create']
+                : ['/views/mappings/create'];
+            this.router.navigate(route, {
+                queryParams: {targetEntityId: source.targetEntityId,
+                    ...(!this.adapterContext ? {adapterId: source.adapterId} : {}),
                     ...(source.sourceAllocationId == null ? {} : {sourceAllocationId: source.sourceAllocationId}),
                     ...(this.embedded ? {existingTargetEntityId: this.targetEntityId, returnTargetEntityId: this.targetEntityId} : {}),
                     ...(this.sourceTargets ? this.mappingQuery() : {})}

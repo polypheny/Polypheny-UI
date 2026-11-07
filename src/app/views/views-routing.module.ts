@@ -195,6 +195,13 @@ const routes: Routes = [
         data: {title: 'Mappings'}
     },
     {
+        path: 'adapters/:adapterId/mappings/create',
+        component: MappingEditorComponent,
+        data: {title: 'Create Mapping', create: true},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    },
+    {
         path: 'adapters/:adapterId/mappings/:mappingId',
         component: MappingEditorComponent,
         data: {title: 'Edit Mapping'},

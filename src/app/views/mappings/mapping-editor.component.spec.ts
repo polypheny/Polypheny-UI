@@ -149,6 +149,49 @@ describe('MappingEditorComponent', () => {
         expect(navigate).toHaveBeenCalledWith(['/views/mappings/source', 7], {queryParams: {sourceNamespace: 'files', sourceTable: 'customers.csv'}});
     });
 
+    it('keeps the adapter sidebar and breadcrumbs when creating and returns to its list on cancel', () => {
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        const breadcrumbs = spyOn(TestBed.inject(BreadcrumbService), 'setBreadcrumbs');
+        const other = {...detail, adapterId: 8, adapterName: 'other_source', mappingId: 32, mappingName: 'Other import'};
+        mappings.getMappings.and.returnValue(of({mappings: [detail, other]}));
+        route.snapshot.data = {create: true};
+        mappings.getDraft.and.returnValue(of({...detail, mappingId: -1, mappingName: 'New mapping', logicalTableName: 'customers_archive'}));
+        route.paramMap.next(convertToParamMap({adapterId: '7'}));
+        route.queryParamMap.next(convertToParamMap({targetEntityId: '50'}));
+        fixture.detectChanges();
+
+        expect(mappings.getDraft).toHaveBeenCalledWith(7, 50);
+        const path = breadcrumbs.calls.mostRecent().args[0];
+        expect(path.map(item => item.name)).toEqual(['Adapters', 'csv_source Mappings', 'Create Mapping']);
+        expect(path[1].routerLink).toEqual(['/views/adapters', 7, 'mappings', 'list']);
+        const groups = sidebar.setNodes.calls.mostRecent().args[0];
+        expect(groups.map(group => group.name)).toEqual(['csv_source']);
+        expect(groups[0].children.map(node => node.name)).toEqual([detail.mappingName]);
+        const name = component.form.get('mappingName');
+        name.setValue(other.mappingName);
+        expect(name.hasError('duplicateMappingName')).toBeTrue();
+        name.setValue('New mapping');
+
+        fixture.nativeElement.querySelector('.editor-actions button').click();
+
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/adapters', 7, 'mappings', 'list']);
+        expect(mappings.create).not.toHaveBeenCalled();
+    });
+
+    it('opens a mapping created from an adapter in that adapter editor', () => {
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        route.snapshot.data = {create: true};
+        mappings.getDraft.and.returnValue(of({...detail, mappingId: -1, mappingName: 'New mapping'}));
+        route.paramMap.next(convertToParamMap({adapterId: '7'}));
+        route.queryParamMap.next(convertToParamMap({targetEntityId: '50'}));
+        fixture.detectChanges();
+
+        mappings.create.and.returnValue(of({...detail, mappingId: 32, mappingName: 'New mapping'}));
+        component.save();
+
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/adapters', 7, 'mappings', 32], {replaceUrl: true});
+    });
+
     it('rejects an incomplete source return destination', () => {
         mappings.getDetail.calls.reset();
         route.queryParamMap.next(convertToParamMap({returnSourceAdapterId: '7'}));
@@ -184,13 +227,13 @@ describe('MappingEditorComponent', () => {
         expect(mappings.create.calls.mostRecent().args[0].targetEntityId).toBe(51);
     });
 
-    it('shows Cancel and Save in the adapter editor and returns to Adapters on cancel', () => {
+    it('shows Cancel and Save and returns to the adapter mapping list on cancel', () => {
         const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
         const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('.editor-actions button'));
         expect(buttons.map(button => button.textContent.trim())).toEqual(['Cancel', 'Save']);
         expect(buttons[0].disabled).toBeFalse();
         buttons[0].click();
-        expect(navigate).toHaveBeenCalledWith(['/views/adapters']);
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/adapters', 7, 'mappings', 'list']);
         expect(mappings.update).not.toHaveBeenCalled();
         component.saving = true;
         fixture.detectChanges();

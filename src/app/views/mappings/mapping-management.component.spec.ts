@@ -86,6 +86,12 @@ describe('MappingManagementComponent', () => {
         expect(navigate).toHaveBeenCalledWith(['/views/adapters', 7, 'mappings', 31]);
         expect(breadcrumbs.calls.mostRecent().args[0].map(item => item.name)).toEqual(['Adapters', 'csv_source Mappings']);
         expect(fixture.nativeElement.querySelector('#drop-mapping')).toBeNull();
+        navigate.calls.reset();
+        component.selectedSource = '7:51';
+        component.create();
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/adapters', 7, 'mappings', 'create'], {
+            queryParams: {targetEntityId: 51}
+        });
     });
 
     it('shows an empty adapter list without redirecting to an editor', () => {
