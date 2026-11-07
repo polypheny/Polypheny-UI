@@ -1,6 +1,6 @@
 <c-row *ngIf="!embedded" [class.mb-5]="sourceTargets || adapterContext">
     <c-col>
-        <h1>{{ adapterContext ? adapterName + ' Mappings' : sourceTargets ? sourceFilter.physicalName + ' (source)' : viewKind ? mappingKindLabel(viewKind) : 'Mappings' }}</h1>
+        <h1>{{ adapterContext ? adapterName + ' Physical to Logical Mappings' : sourceTargets ? sourceFilter.physicalName + ' (source)' : viewKind ? mappingKindLabel(viewKind) : 'Mappings' }}</h1>
         <p *ngIf="!viewKind && !adapterContext">Select a mapping kind to view its mappings, or select a mapping to edit its definition and rules.</p>
     </c-col>
 </c-row>
@@ -14,13 +14,13 @@
     <div class="table-responsive mb-5" *ngIf="visibleMappings.length; else noMappings">
         <table cTable [hover]="true" [striped]="true" class="mapping-list mb-0" aria-label="Mappings">
             <thead>
-            <tr><th>Name</th><th *ngIf="embedded || sourceTargets || adapterContext">Mapping Kind</th><th>Adapter</th><th>Source</th><th>Target</th><th>Data models</th><th class="mapping-drop"><span class="visually-hidden">Drop</span></th></tr>
+            <tr><th>Name</th><th *ngIf="!adapterContext && (embedded || sourceTargets)">Mapping Kind</th><th *ngIf="!adapterContext">Adapter</th><th>Source</th><th>Target</th><th>Data models</th><th class="mapping-drop"><span class="visually-hidden">Drop</span></th></tr>
             </thead>
             <tbody>
             <tr *ngFor="let mapping of visibleMappings">
                 <td><a [routerLink]="mappingLink(mapping)" [queryParams]="mappingQuery()">{{ mapping.mappingName }}</a></td>
-                <td *ngIf="embedded || sourceTargets || adapterContext">{{ mappingKindLabel(mapping.kind) }}</td>
-                <td>{{ mapping.adapterName }}</td>
+                <td *ngIf="!adapterContext && (embedded || sourceTargets)">{{ mappingKindLabel(mapping.kind) }}</td>
+                <td *ngIf="!adapterContext">{{ mapping.adapterName }}</td>
                 <td class="mapping-source">
                     <ng-container *ngIf="mapping.physicalSources?.length; else unavailableSource">
                         <ng-container *ngFor="let source of mapping.physicalSources; let last = last">
@@ -59,7 +59,7 @@
                     <c-alert *ngIf="sourceError" color="danger" role="alert">{{ sourceError }} <button cButton color="light" size="sm" type="button" (click)="refresh()">Retry</button></c-alert>
                     <c-input-group *ngIf="!viewKind || sourceTargets" class="mb-3">
                         <label cInputGroupText for="create-mapping-kind">Kind</label>
-                        <select id="create-mapping-kind" name="kind" cSelect [ngModel]="selectedKind" (ngModelChange)="selectKind($event)" [disabled]="sourceTargets || removing">
+                        <select id="create-mapping-kind" name="kind" cSelect [ngModel]="selectedKind" (ngModelChange)="selectKind($event)" [disabled]="adapterContext || sourceTargets || removing">
                             <option *ngFor="let kind of mappingKinds" [ngValue]="kind">{{ mappingKindLabel(kind) }}</option>
                         </select>
                     </c-input-group>

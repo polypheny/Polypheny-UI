@@ -61,7 +61,8 @@
                             <span id="namespaceNameDrop" cInputGroupText>Name</span>
                             <input type="text"
                                    formControlName="name"
-                                   aria-describedby="namespaceNameDrop"
+                                   aria-labelledby="namespaceNameDrop"
+                                   [attr.aria-describedby]="dropNamespaceError ? 'drop-namespace-error' : null"
                                    cFormControl
                                    placeholder="namespace name"
                                    autocomplete="off"
@@ -69,6 +70,9 @@
                                    [ngClass]="getValidationClass(dropForm.controls['name'].value)">
                             <c-form-feedback valid="false">This namespace does not exist</c-form-feedback>
                         </c-input-group>
+                        <div *ngIf="dropNamespaceError" class="text-danger mb-3" id="drop-namespace-error" role="alert">
+                            {{ dropNamespaceError }}
+                        </div>
                         <c-input-group class="mb-0 justify-content-end">
                             <button color="danger" type="submit"
                                     [ngClass]="{'progress-bar-striped progress-bar-animated': dropSubmitted}"

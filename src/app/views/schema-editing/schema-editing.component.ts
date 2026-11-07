@@ -78,6 +78,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     namespaces: Signal<NamespaceModel[]>;
     createSubmitted = false;
     dropSubmitted = false;
+    dropNamespaceError: string | null = null;
     createNamespaceFeedback = 'Name is invalid';
     private subscriptions = new Subscription();
     private lastExistingSourceRoute: string = null;
@@ -174,6 +175,7 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
             name: new UntypedFormControl('', Validators.required),
             cascade: new UntypedFormControl()
         });
+        this.subscriptions.add(this.dropForm.controls['name'].valueChanges.subscribe(() => this.dropNamespaceError = null));
     }
 
     resetForm(formName: string) {
@@ -216,24 +218,34 @@ export class SchemaEditingComponent implements OnInit, OnDestroy {
     }
 
     dropNamespace() {
-        if (this.canDrop()) {
-            const val = this.dropForm.value;
-            this.dropSubmitted = true;
-            this._crud.createOrDropNamespace(new Namespace(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe({
-                next: (res: RelationalResult) => {
-                    if (res.error) {
-                        this._toast.exception(res);
-                    } else {
-                        this._toast.success('Dropped namespace ' + val.name);
-                    }
-                    this.resetForm('dropForm');
-                }, error: err => {
-                    this._toast.error('An unknown error occurred on the server');
-                }
-            }).add(() => this.dropSubmitted = false);
-        } else {
-            this._toast.warn('This namespace does not exist', 'cannot drop');
+        if (this.dropSubmitted || !this.canDrop()) {
+            return;
         }
+
+        const val = this.dropForm.value;
+        const nameControl = this.dropForm.controls['name'];
+        const showError = (message: string) => {
+            if (nameControl.value === val.name) {
+                this.dropNamespaceError = message;
+            }
+        };
+        this.dropNamespaceError = null;
+        this.dropSubmitted = true;
+        const request = this._crud.createOrDropNamespace(new Namespace(val.name, val.type, this.graphStore).setDrop(true).setCascade(val.cascade)).subscribe({
+            next: (res: RelationalResult) => {
+                if (res.error) {
+                    showError(res.error);
+                    return;
+                }
+                this._toast.success('Dropped namespace ' + val.name);
+                if (nameControl.value === val.name) {
+                    this.resetForm('dropForm');
+                }
+            },
+            error: () => showError('Could not drop the namespace. Try again.')
+        });
+        request.add(() => this.dropSubmitted = false);
+        this.subscriptions.add(request);
     }
 
     canDrop() {

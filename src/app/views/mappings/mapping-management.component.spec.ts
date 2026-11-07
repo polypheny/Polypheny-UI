@@ -67,7 +67,7 @@ describe('MappingManagementComponent', () => {
         await fixture.whenStable();
         expect(mappings.getMappings.calls.mostRecent().args).toEqual([7]);
         expect(mappings.getSources.calls.mostRecent().args).toEqual([7]);
-        expect(fixture.nativeElement.querySelector('h1').textContent).toBe('csv_source Mappings');
+        expect(fixture.nativeElement.querySelector('h1').textContent).toBe('csv_source Physical to Logical Mappings');
         const table: HTMLTableElement = fixture.nativeElement.querySelector('table');
         expect(table.querySelectorAll('tbody tr').length).toBe(2);
         expect(table.querySelector('a').getAttribute('href')).toBe('/views/adapters/7/mappings/31');
@@ -94,7 +94,7 @@ describe('MappingManagementComponent', () => {
         const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
         params.next(convertToParamMap({adapterId: '7'}));
         fixture.detectChanges();
-        expect(fixture.nativeElement.querySelector('h1').textContent).toBe('csv_source Mappings');
+        expect(fixture.nativeElement.querySelector('h1').textContent).toBe('csv_source Physical to Logical Mappings');
         expect(fixture.nativeElement.textContent).toContain('This adapter has no saved mappings.');
         expect(navigate).not.toHaveBeenCalled();
     });

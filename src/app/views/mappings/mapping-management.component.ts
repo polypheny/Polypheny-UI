@@ -107,8 +107,8 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
                     this.loadError = 'The mapping kind is invalid.';
                     return of(null);
                 }
-                if (this.viewKind) {
-                    this.selectKind(this.viewKind);
+                if (this.viewKind || this.adapterContext) {
+                    this.selectKind(this.adapterContext ? 'PHYSICAL_TO_LOGICAL' : this.viewKind);
                 }
                 const value = this.embedded ? null : params.get('adapterId') ?? sourceAdapterId ?? query.get('adapterId');
                 this.adapterId = value == null ? undefined : Number(value);
