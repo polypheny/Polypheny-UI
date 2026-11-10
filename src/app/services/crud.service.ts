@@ -549,24 +549,12 @@ export class CrudService {
         return this._http.get(`${this.httpUrl}/getStores`);
     }
 
-    getAvailableStoresForIndexes(request: IndexModel) {
-        return this._http.post(`${this.httpUrl}/getAvailableStoresForIndexes`, request, this.httpOptions);
-    }
-
     updateAdapterSettings(adapter: { uniqueName: string, settings: Record<string, string> }): Observable<RelationalResult> {
         return this._http.post<RelationalResult>(`${this.httpUrl}/updateAdapterSettings`, adapter);
     }
 
     getSources() {
         return this._http.get(`${this.httpUrl}/getSources`);
-    }
-
-    getAvailableStores() {
-        return this._http.get(`${this.httpUrl}/getAvailableStores`);
-    }
-
-    getAvailableSources() {
-        return this._http.get(`${this.httpUrl}/getAvailableSources`);
     }
 
     createAdapter(adapter: AdapterModel, formdata: FormData) {
