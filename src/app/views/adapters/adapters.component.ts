@@ -286,7 +286,7 @@ export class AdaptersComponent implements OnInit, OnDestroy {
             if (errors.required) {
                 return 'missing unique name';
             } else if (errors.pattern) {
-                return 'invalid unique name: unique name must only contain lower case letters, digits and underscores';
+                return 'invalid unique name: unique name must only contain lower case letters and digits';
             } else if (errors.unique) {
                 return 'name is not unique';
             }
