@@ -79,7 +79,11 @@
                 <!-- table which shows results  -->
                 <ng-container *ngIf="editing !== i">
                     <td *ngFor="let d2 of d1; let j = index" (dblclick)="triggerEditing(i)">
-                        <ng-container [ngSwitch]="removeNull($result().header[j].dataType)" *ngIf="d2">
+                        <details *ngIf="$result().cellErrors?.[i]?.[j] as cellError" class="text-danger">
+                            <summary>Conversion error</summary>
+                            <span class="text-break">{{ cellError }}</span>
+                        </details>
+                        <ng-container [ngSwitch]="removeNull($result().header[j].dataType)" *ngIf="d2 && !$result().cellErrors?.[i]?.[j]">
                             <ng-container *ngSwitchCase="'FILE'">
                                 <a *ngIf="downloadingIthRow !== i" [routerLink]="[]" class="download"
                                    (click)="getFile(d2, i)" download><span class="cil-cloud-download"></span></a>

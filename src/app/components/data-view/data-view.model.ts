@@ -37,6 +37,7 @@ export class CombinedResult {
     query: string;
     queryType: QueryType;
     data: string[][];
+    cellErrors?: RelationalResult['cellErrors'];
     header: FieldDefinition[] | UiColumnDefinition[];
     exception: ResultException;
     error: string;
@@ -54,6 +55,7 @@ export class CombinedResult {
         const res = new CombinedResult();
         res.header = relational.header;
         res.data = relational.data;
+        res.cellErrors = relational.cellErrors;
         res.namespace = relational.namespace;
         res.dataModel = relational.dataModel;
         res.currentPage = relational.currentPage;

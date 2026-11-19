@@ -387,7 +387,7 @@ describe('MappingEditorComponent', () => {
         fixture.detectChanges();
         const rows = fixture.nativeElement.querySelectorAll('.rules-table tbody tr');
         expect(rows[0].querySelector('input[type="checkbox"]').checked).toBeFalse();
-        expect(rows[0].querySelector('.rule-label').textContent).toBe('No rule');
+        expect(rows[0].querySelector('.rule-label').textContent).toBe('Copy source value');
         expect(rows[1].querySelector('input[type="checkbox"]').checked).toBeTrue();
         expect(rows[1].querySelector('.rule-label').textContent).toBe('Unsupported rule (TRANSFORM)');
     });
@@ -954,6 +954,56 @@ describe('MappingEditorComponent', () => {
         expect(component.columns.at(0).get('logicalName').enabled).toBeTrue();
     });
 
+    it('shows the retained conversion disabled when its column is excluded and after reloading', async () => {
+        detail.availableRules.push({type: 'CONVERT_COLUMN', label: 'Convert'});
+        detail.rules[1].type = 'CONVERT_COLUMN';
+        detail.columns[1] = {...detail.columns[1], type: 'DECIMAL', typeDisplay: 'DECIMAL(10, 2)', precision: 10, scale: 2,
+            targetTypeOptions: ['VARCHAR', 'DECIMAL'],
+            physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'name',
+                physicalPosition: 2, typeDisplay: 'DECIMAL(10, 2)', type: 'DECIMAL', precision: 10, scale: 2, nullable: true}]};
+        detail.typeParameters = {DECIMAL: {minPrecision: 1, maxPrecision: 19, defaultPrecision: 19, maxScale: 19, defaultScale: 0}};
+        await component.reloadSaved();
+        fixture.detectChanges();
+        const root: HTMLElement = fixture.nativeElement;
+        const rule = () => root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]');
+        const type = () => root.querySelector<HTMLSelectElement>('[aria-label="Target type for name"]');
+        const include = () => root.querySelector<HTMLInputElement>('[aria-label="Include name"]');
+        expect(rule().value).toBe('CONVERT_COLUMN');
+        expect(rule().disabled).toBeFalse();
+
+        component.columns.at(1).get('targetPrecision').setValue(12);
+        include().click();
+        fixture.detectChanges();
+        expect(rule().selectedOptions[0].text).toBe('Convert');
+        expect(rule().disabled).toBeTrue();
+        expect(type().value).toBe('DECIMAL');
+        expect(type().selectedOptions[0].text).toBe('DECIMAL(12, 2)');
+        expect(type().disabled).toBeTrue();
+
+        const saved = {...detail, revision: 'excluded', rules: [detail.rules[0]], excludedColumnRules: {102: 'CONVERT_COLUMN'},
+            columns: [detail.columns[0], {...detail.columns[1], included: false}]};
+        mappings.update.and.returnValue(of(saved));
+        component.save();
+        expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({logicalColumnId: 102, logicalName: 'name', included: false});
+        mappings.getDetail.and.returnValue(of(saved));
+        await component.reloadSaved();
+        fixture.detectChanges();
+        expect(rule().value).toBe('CONVERT_COLUMN');
+        expect(rule().disabled).toBeTrue();
+        expect(type().selectedOptions[0].text).toBe('DECIMAL(10, 2)');
+
+        include().click();
+        fixture.detectChanges();
+        expect(rule().value).toBe('CONVERT_COLUMN');
+        expect(rule().disabled).toBeFalse();
+        expect(type().value).toBe('DECIMAL');
+        expect(type().disabled).toBeFalse();
+        component.save();
+        expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
+            logicalColumnId: 102, logicalName: 'name', included: true, ruleType: 'CONVERT_COLUMN'
+        });
+    });
+
     it('does not validate or save draft names for excluded fields', () => {
         component.columns.at(0).get('logicalName').setValue('invalid name');
         expect(component.form.invalid).toBeTrue();
@@ -983,17 +1033,15 @@ describe('MappingEditorComponent', () => {
         fixture.detectChanges();
         await fixture.whenStable();
         const root: HTMLElement = fixture.nativeElement;
-        const rule = root.querySelector<HTMLSelectElement>('[aria-label="Rule for id"]');
-        expect(rule.disabled).toBeFalse();
-        expect(rule.value).toBe('DIRECT_COLUMN');
+        const rule = root.querySelector('.rule-label');
         expect(rule.textContent).toContain('Server copy label');
         expect(root.querySelector('[role="tablist"]')).toBeNull();
         expect(root.querySelectorAll('.rules-table').length).toBe(1);
         expect(Array.from(root.querySelectorAll('.rules-group-headings th'), header => header.textContent.trim())).toEqual(['Source Fields', 'Target Fields']);
         expect(root.querySelector<HTMLTableCellElement>('th.include-column').rowSpan).toBe(1);
-        expect(Array.from(root.querySelectorAll('[scope="colgroup"]'), header => (header as HTMLTableCellElement).colSpan)).toEqual([4, 3]);
+        expect(Array.from(root.querySelectorAll('[scope="colgroup"]'), header => (header as HTMLTableCellElement).colSpan)).toEqual([5, 3]);
         expect(Array.from(root.querySelectorAll('.rules-table thead tr:nth-child(2) th'), header => header.textContent.trim())).toEqual([
-            'Inc.', 'Name', 'Type', 'Nullable', 'Rule', 'Name', 'Type', 'Nullable'
+            'Inc.', 'PK', 'Name', 'Type', 'Nullable', 'Rule', 'Name', 'Type', 'Nullable'
         ]);
         expect(root.textContent).not.toContain('Choose the fields to include and edit their target names.');
         expect(root.textContent).not.toContain('Type conversion and nullable editing are not available yet.');
@@ -1003,16 +1051,127 @@ describe('MappingEditorComponent', () => {
         expect(root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]').disabled).toBeTrue();
     });
 
+    it('sends a new target type when Convert is selected and edits nullability independently', () => {
+        spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        route.snapshot.data = {create: true};
+        const draft = {
+            ...detail, mappingId: -1, mappingName: 'Converted import', logicalTableName: 'converted', revision: 'draft',
+            availableRules: [...detail.availableRules, {type: 'CONVERT_COLUMN', label: 'Convert source value'}],
+            columns: [{...detail.columns[0], physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 101,
+                physicalName: 'id', physicalPosition: 1, typeDisplay: 'BIGINT', nullable: false, primary: true}]},
+                {...detail.columns[1], type: 'VARCHAR', targetTypeOptions: ['VARCHAR', 'INTEGER']}]
+        };
+        draft.availableRules[0].label = 'Server copy label';
+        mappings.getDraft.and.returnValue(of(draft));
+        route.paramMap.next(convertToParamMap({}));
+        route.queryParamMap.next(convertToParamMap({adapterId: '7', targetEntityId: '50'}));
+        fixture.detectChanges();
+        const root: HTMLElement = fixture.nativeElement;
+        expect(root.querySelectorAll('.source-key .icon-key').length).toBe(1);
+        expect(root.querySelector('.rules-table tbody .source-key .icon-key').getAttribute('aria-label')).toBe('Primary key');
+        const rule = root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]');
+        const type = root.querySelector<HTMLSelectElement>('[aria-label="Target type for name"]');
+        const nullable = root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]');
+        expect(rule.value).toBe('DIRECT_COLUMN');
+        expect(Array.from(rule.options, option => option.text)).toEqual(['Server copy label', 'Convert source value']);
+        expect(type.disabled).toBeTrue();
+        expect(nullable.disabled).toBeFalse();
+        nullable.click();
+        expect(rule.value).toBe('DIRECT_COLUMN');
+        rule.value = 'CONVERT_COLUMN';
+        rule.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+        expect(type.disabled).toBeFalse();
+        expect(nullable.checked).toBeFalse();
+        type.value = 'INTEGER';
+        type.dispatchEvent(new Event('change'));
+        mappings.create.and.returnValue(of({...draft, mappingId: 32, revision: 'saved'}));
+        component.save();
+        expect(mappings.create.calls.mostRecent().args[0].columns[1]).toEqual({
+            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'INTEGER', targetNullable: false, ruleType: 'CONVERT_COLUMN'
+        });
+    });
+
+    it('restores source type parameters on Copy and keeps a nullability-only edit on reload', () => {
+        detail.availableRules.push({type: 'CONVERT_COLUMN', label: 'Convert'});
+        detail.rules[1].type = 'CONVERT_COLUMN';
+        detail.columns[1] = {...detail.columns[1], type: 'DECIMAL', typeDisplay: 'DECIMAL(10, 2)', precision: 10, scale: 2,
+            targetTypeOptions: ['DECIMAL', 'VARCHAR'],
+            physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'name',
+                physicalPosition: 2, typeDisplay: 'DECIMAL(8) NOT NULL', type: 'DECIMAL', precision: 8, nullable: false}]};
+        detail.typeParameters = {DECIMAL: {minPrecision: 1, maxPrecision: 19, defaultPrecision: 19, maxScale: 19, defaultScale: 0}};
+        route.paramMap.next(convertToParamMap({adapterId: '7', mappingId: '31'}));
+        fixture.detectChanges();
+        const root: HTMLElement = fixture.nativeElement;
+        const rule = root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]');
+        const type = root.querySelector<HTMLSelectElement>('[aria-label="Target type for name"]');
+        const nullable = root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]');
+        expect(rule.value).toBe('CONVERT_COLUMN');
+        expect(type.disabled).toBeFalse();
+        rule.value = 'DIRECT_COLUMN';
+        rule.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+        expect(type.disabled).toBeTrue();
+        expect(nullable.checked).toBeTrue();
+        expect(root.querySelector('#target-precision-102')).toBeNull();
+
+        mappings.update.and.returnValue(of({...detail, revision: 'saved', rules: [detail.rules[0], {type: 'DIRECT_COLUMN', targetLogicalColumnId: 102}],
+            columns: [detail.columns[0],
+            {...detail.columns[1], typeDisplay: 'DECIMAL(8)', precision: 8, scale: null}]}));
+        component.save();
+        expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
+            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'DECIMAL', targetPrecision: 8, targetScale: -2147483648, ruleType: 'DIRECT_COLUMN'
+        });
+        fixture.detectChanges();
+        expect(root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]').value).toBe('DIRECT_COLUMN');
+        expect(root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]').checked).toBeTrue();
+        root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]').click();
+        component.save();
+        expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
+            logicalColumnId: 102, logicalName: 'name', included: true, targetNullable: false, ruleType: 'DIRECT_COLUMN'
+        });
+    });
+
+    it('edits a saved target and verifies type parameters after a lost response', () => {
+        detail.availableRules.push({type: 'CONVERT_COLUMN', label: 'Convert'});
+        detail.columns[1] = {...detail.columns[1], type: 'VARCHAR', precision: 40, targetTypeOptions: ['VARCHAR', 'DECIMAL'],
+            physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'name',
+                physicalPosition: 2, typeDisplay: 'VARCHAR(40)', type: 'VARCHAR', precision: 40, nullable: true}]};
+        detail.typeParameters = {DECIMAL: {minPrecision: 1, maxPrecision: 19, defaultPrecision: 19, maxScale: 19, defaultScale: 0}};
+        route.paramMap.next(convertToParamMap({adapterId: '7', mappingId: '31'}));
+        fixture.detectChanges();
+        const row = component.columns.at(1);
+        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('targetType').setValue('DECIMAL');
+        row.get('targetPrecision').setValue(10);
+        row.get('targetScale').setValue(11);
+        expect(component.canSave).toBeFalse();
+        row.get('targetScale').setValue(2);
+        row.get('targetNullable').setValue(false);
+        mappings.update.and.returnValue(throwError(() => ({status: 0})));
+        mappings.getDetail.and.returnValue(of({...detail, revision: 'saved',
+            columns: [detail.columns[0], {...detail.columns[1], type: 'DECIMAL', precision: 10, scale: 3, nullable: false}]}));
+        component.save();
+        expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
+            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'DECIMAL', targetPrecision: 10, targetScale: 2, targetNullable: false,
+            ruleType: 'CONVERT_COLUMN'
+        });
+        expect(component.saveError.code).toBe('SAVE_UNCONFIRMED');
+    });
+
     it('spans each target over its physical sources when validation wraps', () => {
         detail.columns[0].physicalReferences = [60, 61].map(allocationId => ({
             allocationId, physicalEntityId: 70, physicalColumnId: 101, physicalName: 'source_scores_' + allocationId,
-            physicalPosition: 4, typeDisplay: 'SMALLINT ARRAY(8,2) NOT NULL', nullable: false
+            physicalPosition: 4, typeDisplay: 'SMALLINT ARRAY(8,2) NOT NULL', nullable: false, primary: allocationId === 60
         }));
         component.columns.at(0).get('logicalName').setValue('invalid name');
         fixture.detectChanges();
         const root: HTMLElement = fixture.nativeElement;
         const groups = root.querySelectorAll('.rules-table tbody');
         expect(groups[0].querySelectorAll('tr').length).toBe(2);
+        const keyCells = groups[0].querySelectorAll('.source-key');
+        expect(keyCells[0].querySelector('.icon-key')).not.toBeNull();
+        expect(keyCells[1].querySelector('.icon-key')).toBeNull();
         expect(groups[0].querySelectorAll('.target-name').length).toBe(1);
         expect(groups[0].querySelector<HTMLTableCellElement>('.target-name').rowSpan).toBe(2);
         expect(groups[0].querySelector('c-form-feedback')).not.toBeNull();

@@ -11,7 +11,11 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {MappingSidebarService} from './mapping-sidebar.service';
-import {MappingDetail, MappingDraft, MappingError, MappingSummary, MappingUpdate, mappingKindLabel, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
+import {MappingColumn, MappingDetail, MappingDraft, MappingError, MappingSummary, MappingUpdate, mappingKindLabel, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
+
+const COPY_RULE = 'DIRECT_COLUMN';
+const CONVERT_RULE = 'CONVERT_COLUMN';
+const UNSPECIFIED_SCALE = -2147483648; // AlgDataType.SCALE_NOT_SPECIFIED
 
 @Component({
     selector: 'app-mapping-editor',
@@ -46,6 +50,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
     adapterName = '';
     summaries: MappingSummary[] = [];
     detail: MappingDetail;
+    ruleOptions: MappingDetail['availableRules'] = [];
     form: FormGroup;
     loading = true;
     saving = false;
@@ -361,20 +366,94 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
         return detail.columns.find(column => column.logicalColumnId === columnId).included;
     }
 
-    ruleForColumn(columnId: number) {
-        return this.detail.rules?.find(rule => rule.targetLogicalColumnId === columnId);
-    }
-
     sourceTypeDisplay(typeDisplay: string): string {
         return typeDisplay?.replace(/\s+NOT NULL$/i, '') || '—';
     }
 
-    ruleLabel(columnId: number): string {
-        const rule = this.ruleForColumn(columnId);
-        if (!rule) {
-            return this.detail.rules ? 'No rule' : 'Rule unavailable';
+    private initialRuleType(column: MappingColumn): string {
+        const saved = this.savedRuleType(this.detail, column.logicalColumnId);
+        if (saved) {
+            return saved;
         }
-        return this.detail.availableRules?.find(option => option.type === rule.type)?.label || `Unsupported rule (${rule.type})`;
+        // Older mappings can have an excluded column with a configured type but no remembered rule.
+        const source = column.physicalReferences[0];
+        if (!source?.type || !column.type || column.physicalReferences.length !== 1) {
+            return COPY_RULE;
+        }
+        return source.type === column.type && (source.precision ?? null) === (column.precision ?? null)
+            && (source.scale ?? null) === (column.scale ?? null)
+            && this.sourceTypeDisplay(source.typeDisplay) === this.sourceTypeDisplay(column.typeDisplay) ? COPY_RULE : CONVERT_RULE;
+    }
+
+    private savedRuleType(detail: MappingDetail, columnId: number): string | undefined {
+        return detail.rules?.find(rule => rule.targetLogicalColumnId === columnId)?.type ?? detail.excludedColumnRules?.[columnId];
+    }
+
+    ruleLabel(i: number): string {
+        const row = this.columns.at(i).getRawValue();
+        if (!this.detail.rules) {
+            return 'Rule unavailable';
+        }
+        return this.detail.availableRules?.find(option => option.type === row.ruleType)?.label || `Unsupported rule (${row.ruleType})`;
+    }
+
+    canConfigureTarget(column: MappingColumn): boolean {
+        return this.canEdit && !this.fixedTarget && !!column.targetTypeOptions?.length;
+    }
+
+    canSelectRule(column: MappingColumn): boolean {
+        return this.canConfigureTarget(column) && this.ruleOptions.length === 2;
+    }
+
+    private updateTargetTypeControls(row: AbstractControl, column: MappingColumn) {
+        const enabled = row.get('included').value && this.canSelectRule(column) && row.get('ruleType').value === CONVERT_RULE;
+        for (const name of ['targetType', 'targetPrecision', 'targetScale']) {
+            if (enabled) {
+                row.get(name).enable({emitEvent: false});
+            } else {
+                row.get(name).disable({emitEvent: false});
+            }
+        }
+    }
+
+    typeParameters(i: number) {
+        return this.detail.typeParameters?.[this.columns.at(i).get('targetType').value];
+    }
+
+    targetTypeOptionLabel(column: MappingColumn, i: number, type: string): string {
+        const row = this.columns.at(i);
+        const targetType = row.get('targetType');
+        if (targetType.enabled || targetType.value !== type) {
+            return type;
+        }
+        const source = column.physicalReferences[0];
+        if (row.get('ruleType').value === COPY_RULE && type === source?.type) {
+            return this.sourceTypeDisplay(source.typeDisplay);
+        }
+        const precision = row.get('targetPrecision').value;
+        const scale = row.get('targetScale').value;
+        if (type === column.type && precision === (column.precision ?? null) && scale === (column.scale ?? null) && column.typeDisplay) {
+            return this.sourceTypeDisplay(column.typeDisplay);
+        }
+        const displayPrecision = precision ?? (scale == null ? null : this.typeParameters(i)?.defaultPrecision);
+        if (displayPrecision == null) {
+            return type;
+        }
+        return scale == null ? `${type}(${displayPrecision})` : `${type}(${displayPrecision}, ${scale})`;
+    }
+
+    private validateTypeParameters(row: AbstractControl): ValidationErrors | null {
+        const {targetType, targetPrecision, targetScale} = row.getRawValue();
+        const parameters = this.detail.typeParameters?.[targetType];
+        if (!parameters || row.get('targetPrecision').disabled) {
+            return null;
+        }
+        const precision = targetPrecision ?? parameters.defaultPrecision;
+        const invalidPrecision = targetPrecision != null && (!Number.isInteger(targetPrecision)
+            || targetPrecision < parameters.minPrecision || (parameters.maxPrecision != null && targetPrecision > parameters.maxPrecision));
+        const invalidScale = targetScale != null && (!Number.isInteger(targetScale) || targetScale < 0
+            || parameters.maxScale == null || targetScale > parameters.maxScale || precision == null || targetScale > precision);
+        return invalidPrecision || invalidScale ? {typeParameters: true} : null;
     }
 
     private mappingNameValidator(detail: MappingDetail) {
@@ -487,6 +566,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
         this.fieldSubscriptions.unsubscribe();
         this.fieldSubscriptions = new Subscription();
         this.detail = detail;
+        this.ruleOptions = detail.availableRules?.filter(option => option.type === COPY_RULE || option.type === CONVERT_RULE) ?? [];
         this.adapterId = detail.adapterId;
         this.adapterName = detail.adapterName;
         this.conflict = false;
@@ -500,12 +580,21 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             logicalTableName: new FormControl(detail.logicalTableName, [this.identifierValidator(detail.logicalTableName, detail), this.tableNameValidator(detail)]),
             columns: new FormArray(detail.columns.map(column => {
                 const included = this.isIncluded(detail, column.logicalColumnId);
+                const configure = included && this.canConfigureTarget(column);
+                const ruleType = this.initialRuleType(column);
+                const selectRule = included && this.canSelectRule(column);
+                const convert = selectRule && ruleType === CONVERT_RULE;
                 return new FormGroup({
                     logicalColumnId: new FormControl(column.logicalColumnId),
                     included: new FormControl(included),
                     logicalName: new FormControl({value: column.logicalName, disabled: !included},
-                        [this.identifierValidator(column.logicalName, detail), this.columnNameValidator(detail, column.logicalColumnId)])
-                });
+                        [this.identifierValidator(column.logicalName, detail), this.columnNameValidator(detail, column.logicalColumnId)]),
+                    ruleType: new FormControl({value: ruleType, disabled: !selectRule}),
+                    targetType: new FormControl({value: column.type, disabled: !convert}),
+                    targetNullable: new FormControl({value: column.nullable, disabled: !configure}),
+                    targetPrecision: new FormControl({value: column.precision ?? null, disabled: !convert}),
+                    targetScale: new FormControl({value: column.scale ?? null, disabled: !convert})
+                }, row => this.validateTypeParameters(row));
             }), control => {
                 const rows = (control as FormArray).getRawValue() as MappingDraft['columns'];
                 const errors = {...(rows.some(c => c.included) ? {} : {noIncludedFields: true}), ...this.targetCompatibilityErrors(control as FormArray)};
@@ -521,19 +610,52 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             this.form.get('logicalTableName').updateValueAndValidity({emitEvent: false});
             this.validateColumns();
         }));
-        this.columns.controls.forEach(column => {
+        this.columns.controls.forEach((column, i) => {
+            const original = detail.columns[i];
             const field = 'columns.' + column.get('logicalColumnId').value;
             this.fieldSubscriptions.add(column.get('logicalName').valueChanges.subscribe(() => {
                 this.clearFieldError(field);
                 this.clearFieldError('columns');
                 this.validateColumns();
             }));
+            this.fieldSubscriptions.add(column.get('ruleType').valueChanges.subscribe(ruleType => {
+                if (ruleType === COPY_RULE) {
+                    const source = original.physicalReferences[0]?.type ? original.physicalReferences[0] : original;
+                    column.patchValue({targetType: source.type, targetPrecision: source.precision ?? null,
+                        targetScale: source.scale ?? null}, {emitEvent: false});
+                }
+                this.updateTargetTypeControls(column, original);
+                this.clearFieldError(field);
+            }));
+            this.fieldSubscriptions.add(column.get('targetType').valueChanges.subscribe(type => {
+                const source = original.physicalReferences[0];
+                const baseline = type === original.type ? original : type === source?.type ? source : undefined;
+                const parameters = detail.typeParameters?.[type];
+                column.patchValue({
+                    targetPrecision: baseline ? baseline.precision ?? null : parameters?.defaultPrecision ?? null,
+                    targetScale: baseline ? baseline.scale ?? null : parameters?.defaultScale ?? null
+                }, {emitEvent: false});
+            }));
+            for (const control of ['targetType', 'targetNullable', 'targetPrecision', 'targetScale']) {
+                this.fieldSubscriptions.add(column.get(control).valueChanges.subscribe(() => this.clearFieldError(field)));
+            }
             this.fieldSubscriptions.add(column.get('included').valueChanges.subscribe(included => {
                 if (included && this.canEdit && !this.schemaLocked) {
                     column.get('logicalName').enable({emitEvent: false});
                 } else {
                     column.get('logicalName').disable({emitEvent: false});
                 }
+                if (included && this.canSelectRule(original)) {
+                    column.get('ruleType').enable({emitEvent: false});
+                } else {
+                    column.get('ruleType').disable({emitEvent: false});
+                }
+                if (included && this.canConfigureTarget(original)) {
+                    column.get('targetNullable').enable({emitEvent: false});
+                } else {
+                    column.get('targetNullable').disable({emitEvent: false});
+                }
+                this.updateTargetTypeControls(column, original);
                 this.clearFieldError(field);
                 this.clearFieldError('columns');
                 this.validateColumns();
@@ -557,8 +679,23 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             mappingName: value.mappingName.trim(),
             targetNamespaceId: value.targetNamespaceId,
             logicalTableName: value.logicalTableName.trim(),
-            columns: value.columns.map((c, i) => ({logicalColumnId: c.logicalColumnId, included: c.included,
-                logicalName: c.included ? c.logicalName.trim() : this.detail.columns[i].logicalName}))
+            columns: value.columns.map((c, i) => {
+                const original = this.detail.columns[i];
+                const configure = c.included && this.canConfigureTarget(original);
+                const parameters = this.detail.typeParameters?.[c.targetType];
+                const scale = c.targetScale ?? (c.targetType === original.type && original.scale != null ? UNSPECIFIED_SCALE : null);
+                const typeChanged = c.targetType !== original.type || c.targetPrecision !== (original.precision ?? null)
+                    || c.targetScale !== (original.scale ?? null);
+                return {
+                    logicalColumnId: c.logicalColumnId, included: c.included,
+                    logicalName: c.included ? c.logicalName.trim() : original.logicalName,
+                    ...(c.included && this.canSelectRule(original) ? {ruleType: c.ruleType} : {}),
+                    ...(configure && typeChanged ? {targetType: c.targetType,
+                        ...(parameters ? {targetPrecision: c.targetPrecision ?? -1} : {}),
+                        ...(scale == null ? {} : {targetScale: scale})} : {}),
+                    ...(configure && c.targetNullable !== original.nullable ? {targetNullable: c.targetNullable} : {})
+                };
+            })
         };
     }
 
@@ -643,7 +780,8 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
                     && detail.columns.every(c => {
                         const requested = request.columns.find(r => r.logicalColumnId === c.logicalColumnId);
                         return requested && this.isIncluded(detail, c.logicalColumnId) === requested.included
-                            && this.normalizeName(c.logicalName, detail) === this.normalizeName(requested.logicalName, detail);
+                            && this.normalizeName(c.logicalName, detail) === this.normalizeName(requested.logicalName, detail)
+                            && this.targetSettingsMatch(detail, c, requested, this.detail.columns.find(column => column.logicalColumnId === c.logicalColumnId));
                     }));
                 if (matches) {
                     onSaved(detail);
@@ -668,9 +806,24 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             && actual.length === included.length && actual.every(column => included.some(row => {
                 const source = this.detail.columns.find(field => field.logicalColumnId === row.logicalColumnId);
                 return this.normalizeName(column.logicalName, detail) === this.normalizeName(row.logicalName, detail)
-                    && column.typeDisplay === source.typeDisplay && column.nullable === source.nullable
+                    && this.targetSettingsMatch(detail, column, row, source)
                     && source.physicalReferences.every(reference => column.physicalReferences.some(saved => saved.physicalName === reference.physicalName));
             }));
+    }
+
+    private targetSettingsMatch(detail: MappingDetail, column: MappingColumn, row: MappingDraft['columns'][number], original: MappingColumn): boolean {
+        if (!original || column.nullable !== (row.targetNullable ?? original.nullable)
+            || row.ruleType != null && this.savedRuleType(detail, column.logicalColumnId) !== row.ruleType) {
+            return false;
+        }
+        if (row.targetType == null) {
+            return column.typeDisplay === original.typeDisplay;
+        }
+        const physical = original.physicalReferences[0];
+        const baseline = row.targetType === original.type ? original : row.targetType === physical?.type ? physical : undefined;
+        return column.type === row.targetType
+            && (column.precision ?? null) === (row.targetPrecision === -1 ? null : row.targetPrecision ?? baseline?.precision ?? null)
+            && (column.scale ?? null) === (row.targetScale === UNSPECIFIED_SCALE ? null : row.targetScale ?? baseline?.scale ?? null);
     }
 
     returnToTable() {

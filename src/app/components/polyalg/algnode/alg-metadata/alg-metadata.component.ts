@@ -1,4 +1,4 @@
-import {Component, Input, signal} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {BadgeLevel, MetadataBadge, MetadataConnection, MetadataTableEntry, PlanMetadata} from '../../models/polyalg-plan.model';
 
 @Component({
@@ -17,7 +17,6 @@ export class AlgMetadataComponent {
 }
 
 export class AlgMetadata {
-    height = signal(0);
     table: MetadataTableEntry[];
     badges: MetadataBadge[];
     isAuxiliary: boolean;
@@ -39,7 +38,6 @@ export class AlgMetadata {
                 this.displayTable.push([name + ' (total)', this.round(entry.cumulativeValue, 2).toString()]);
             }
         }
-        this.recomputeHeight();
     }
 
     private round(number: number, d: number) {
@@ -51,14 +49,5 @@ export class AlgMetadata {
         }
         const factor = Math.pow(10, d);
         return Math.round(number * factor) / factor;
-    }
-
-    private recomputeHeight() {
-        let height = 2 * 8; // padding
-        if (this.badges.length > 0) {
-            height += 24;
-        }
-        height += this.displayTable.length * 27;
-        this.height.set(height);
     }
 }

@@ -111,6 +111,9 @@ export class AlgNode extends ClassicPreset.Node {
             this.isMetaVisible.set(true);
         }
         this.width = isReadOnly ? BASE_WIDTH + METADATA_WIDTH + METADATA_COLLAPSE_WIDTH : BASE_WIDTH;
+        if (isReadOnly) {
+            this.height = BASE_HEIGHT;
+        }
 
         const output = new ClassicPreset.Output(SINGLE_SOCKET_PRESETS[decl.model]);
         output.multipleConnections = false;
@@ -152,25 +155,22 @@ export class AlgNode extends ClassicPreset.Node {
     }
 
     recomputeSize() {
-        const oldWidth = this.width;
-        this.width = BASE_WIDTH;
+        const controlsHeight = this.controlHeights.reduce((total, value) => total + value() + 12, 0);
         if (this.isReadOnly) {
-            this.width += METADATA_COLLAPSE_WIDTH;
-            if (this.isMetaVisible()) {
-                this.width += METADATA_WIDTH;
-            }
+            // Refresh the detached view when metadata visibility changes. Layout uses the rendered size.
+            this.isMetaVisible();
+            this.updateArea(this, {x: 0, y: 0});
+            return;
         }
-        const deltaX = this.width - oldWidth;
 
         const oldHeight = this.height;
-        const sum = Object.values(this.controlHeights).reduce((total, value) => total + value() + 12, 0);
-        this.height = BASE_HEIGHT + (this.isMetaVisible() ? Math.max(sum, this.metadata.height()) : sum);
+        this.height = BASE_HEIGHT + controlsHeight;
         let deltaY = 0;
         if (oldHeight) {
             deltaY = this.height - oldHeight;
             deltaY += deltaY > 0 ? 1 : -1; // slight adjustment is required for smooth behavior
         }
-        this.updateArea(this, {x: -deltaX / 2, y: -deltaY});
+        this.updateArea(this, {x: 0, y: -deltaY});
     }
 
     setMultiConnIdx(i: number) {

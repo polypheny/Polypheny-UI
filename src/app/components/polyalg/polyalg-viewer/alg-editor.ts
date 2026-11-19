@@ -111,10 +111,21 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
     const layoutOpts = {
         'elk.direction': 'UP'
     };
+    const arrangeNodes = async () => {
+        try {
+            if (isReadOnly) {
+                readonlyPlugin.disable();
+            }
+            await arrange.layout({options: layoutOpts});
+        } finally {
+            if (isReadOnly) {
+                readonlyPlugin.enable();
+            }
+        }
+    };
 
     const $modifyEvent = new Subject<void>();
-    const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, isReadOnly ? readonlyPlugin : null,
-        () => arrange.layout({applier: undefined, options: layoutOpts}), $modifyEvent);
+    const updateSizeFct = (a: AlgNode, delta: Position) => updateSize(a, delta, area, isReadOnly, $modifyEvent);
 
     render.addPreset(Presets.contextMenu.setup({delay: 100})); // time in ms for context menu to close
     const contextMenu = new ContextMenuPlugin<Schemes>({
@@ -154,9 +165,16 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         updateMultiConnAfterCreate(editor, c.source, c.target);
         await editor.addConnection(c);
     }
-    await arrange.layout({
-        applier: undefined, options: layoutOpts
-    });
+    const renderedNodes = new Map<Element, AlgNode>();
+    if (isReadOnly) {
+        for (const n of nodes) {
+            const element = area.nodeViews.get(n.id).element;
+            renderedNodes.set(element, n);
+            updateRenderedSize(n, element);
+        }
+    }
+    await arrangeNodes();
+    const stopObservingSizes = isReadOnly ? observeNodeSizes(renderedNodes, arrangeNodes) : null;
     if (oldTransform) {
         await area.area.zoom(oldTransform.k, oldTransform.x, oldTransform.y);
     } else {
@@ -187,19 +205,13 @@ export async function createEditor(container: HTMLElement, injector: Injector, r
         return context;
     });
 
-    if (isReadOnly) {
-        readonlyPlugin.enable(); // disable interaction with nodes (control interaction is deactivated separately)
-    }
-
-
     return {
         layout: async () => {
-            await arrange.layout({
-                applier: undefined, options: layoutOpts
-            });
+            await arrangeNodes();
             AreaExtensions.zoomAt(area, editor.getNodes());
         },
         destroy: () => {
+            stopObservingSizes?.();
             area.destroy();
             panningBoundary?.destroy();
         },
@@ -274,22 +286,55 @@ function getContextMenuItems(registry: PolyAlgService, userMode: WritableSignal<
     };
 }
 
+function updateRenderedSize(node: AlgNode, element: HTMLElement): boolean {
+    const {offsetWidth: width, offsetHeight: height} = element;
+    if (!width || !height || (node.width === width && node.height === height)) {
+        return false;
+    }
+    node.width = width;
+    node.height = height;
+    return true;
+}
+
+function observeNodeSizes(nodes: Map<Element, AlgNode>, arrange: () => Promise<void>): () => void {
+    let needsLayout = false;
+    let arranging = false;
+    let stopped = false;
+    const observer = new ResizeObserver(async entries => {
+        for (const {target} of entries) {
+            if (updateRenderedSize(nodes.get(target), target as HTMLElement)) {
+                needsLayout = true;
+            }
+        }
+        if (arranging || !needsLayout) {
+            return;
+        }
+        arranging = true;
+        try {
+            // A node can resize again while ELK is computing or applying the current layout.
+            while (needsLayout && !stopped) {
+                needsLayout = false;
+                await arrange();
+            }
+        } finally {
+            arranging = false;
+        }
+    });
+    nodes.forEach((node, element) => observer.observe(element));
+    return () => {
+        stopped = true;
+        observer.disconnect();
+    };
+}
+
 function updateSize(algNode: AlgNode, {x, y}: Position, area: AreaPlugin<Schemes, AreaExtra>,
-                    readonlyPlugin: ReadonlyPlugin<Schemes> | null,
-                    arrange: () => Promise<any>, $modifyEvent: Subject<void>) {
+                    isReadOnly: boolean, $modifyEvent: Subject<void>) {
     const oldPos = area.nodeViews.get(algNode.id).position;
 
     // update location of sockets
     area.update('node', algNode.id).then(
         () => {
-            const isReadOnly = readonlyPlugin != null;
-            if (isReadOnly) {
-                if (readonlyPlugin.enabled) { // disabled if another node is currently arranging
-                    readonlyPlugin.disable();
-                    arrange().then(() => readonlyPlugin.enable());
-                }
-
-            } else if (x || y) {
+            if (!isReadOnly && (x || y)) {
                 area.translate(algNode.id, {x: oldPos.x + x, y: oldPos.y + y}).then();
                 if (y) {
                     $modifyEvent.next(); // height has changed, so the content has probably also changed (e.g. when list item is deleted)

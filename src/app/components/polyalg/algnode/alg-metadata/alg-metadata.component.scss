@@ -1,3 +1,18 @@
+.metadata-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 0.25rem;
+
+  c-badge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+    line-height: 1.25;
+  }
+}
+
 .meta-table {
   font-size: 0.75rem;
 }

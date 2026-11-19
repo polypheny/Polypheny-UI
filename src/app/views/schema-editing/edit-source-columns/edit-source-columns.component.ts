@@ -334,6 +334,7 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
         this.loading.set(true);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.schemaOnly = true;
         request.refreshTrigger = refreshTrigger;
         this.pendingRefreshTrigger = refreshTrigger;
         if (!this._crud.refreshEntityData(this.webSocket, request)) {
@@ -482,8 +483,8 @@ export class EditSourceColumnsComponent implements OnInit, OnDestroy {
 
         if (refreshTrigger === 'button' || refreshTrigger === 'selection') {
             this._toast.info(refreshTrigger === 'selection'
-                ? 'Automatically refreshed after table selection. No schema changes detected. Data refreshed.'
-                : 'No schema changes detected. Data refreshed.');
+                ? 'Automatically checked the source schema after table selection. No changes detected.'
+                : 'No schema changes detected.');
             return true;
         }
         return false;

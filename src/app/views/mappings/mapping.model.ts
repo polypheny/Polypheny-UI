@@ -65,6 +65,10 @@ export interface MappingColumn {
     logicalName: string;
     logicalPosition: number;
     typeDisplay: string;
+    type?: string;
+    targetTypeOptions?: string[];
+    precision?: number;
+    scale?: number;
     nullable: boolean;
     included: boolean;
     physicalReferences: {
@@ -74,6 +78,10 @@ export interface MappingColumn {
         physicalName: string;
         physicalPosition: number;
         typeDisplay: string;
+        primary?: boolean;
+        type?: string;
+        precision?: number;
+        scale?: number;
         nullable: boolean;
     }[];
 }
@@ -100,10 +108,19 @@ export interface MappingDetail extends MappingSummary {
     columns: MappingColumn[];
     physicalSources: PhysicalSourceReference[];
     rules: MappingRule[];
+    excludedColumnRules?: Record<number, string>;
     validation: MappingValidation;
     availableRules?: {type: string; label: string}[];
+    typeParameters?: Record<string, MappingTypeParameters>;
 }
 
+export interface MappingTypeParameters {
+    minPrecision: number;
+    maxPrecision?: number;
+    defaultPrecision?: number;
+    maxScale?: number;
+    defaultScale?: number;
+}
 export interface AdapterMappings {
     adapterId: number;
     adapterName: string;
@@ -114,7 +131,8 @@ export interface MappingDraft {
     mappingName: string;
     targetNamespaceId?: number;
     logicalTableName: string;
-    columns: { logicalColumnId: number; logicalName: string; included: boolean }[];
+    columns: { logicalColumnId: number; logicalName: string; included: boolean; targetType?: string; targetNullable?: boolean;
+        targetPrecision?: number; targetScale?: number; ruleType?: string }[];
 }
 
 export interface MappingUpdate extends MappingDraft {

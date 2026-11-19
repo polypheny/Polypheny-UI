@@ -96,6 +96,7 @@
                                 <table cTable hover="true" striped="true" class="rules-table" formArrayName="columns" aria-labelledby="mapping-rules-heading">
                                     <colgroup>
                                         <col class="include-column">
+                                        <col class="source-key">
                                         <col class="source-name">
                                         <col class="source-type">
                                         <col class="nullable-column">
@@ -110,12 +111,13 @@
                                     </colgroup>
                                     <thead>
                                         <tr class="rules-group-headings">
-                                            <th scope="colgroup" colspan="4"><h5 class="mb-0">Source Fields</h5></th>
+                                            <th scope="colgroup" colspan="5"><h5 class="mb-0">Source Fields</h5></th>
                                             <td aria-hidden="true"></td>
                                             <th scope="colgroup" colspan="3"><h5 class="mb-0">Target Fields</h5></th>
                                         </tr>
                                         <tr>
                                             <th scope="col" class="include-column"><label class="include-all"><input cFormCheckInput type="checkbox" [checked]="includedCount === detail.columns.length" [indeterminate]="includedCount > 0 && includedCount < detail.columns.length" [disabled]="!canEdit || schemaLocked" (change)="setAllIncluded($event.target.checked)" aria-label="Include all fields"> Inc.</label></th>
+                                            <th scope="col" class="source-key" title="Primary key">PK</th>
                                             <th scope="col" class="source-name">Name</th>
                                             <th scope="col" class="source-type">Type</th>
                                             <th scope="col" class="nullable-column">Nullable</th>
@@ -129,6 +131,9 @@
                                            [class.excluded]="!columns.at(i).get('included').value">
                                         <tr *ngFor="let physical of column.physicalReferences.length ? column.physicalReferences : [null]; let firstSource = first">
                                             <td *ngIf="firstSource" class="include-column" [attr.rowspan]="column.physicalReferences.length || 1"><input cFormCheckInput type="checkbox" formControlName="included" [attr.aria-label]="'Include ' + column.logicalName"></td>
+                                            <td class="source-cell source-key">
+                                                <i *ngIf="physical?.primary" class="icon-key" role="img" aria-label="Primary key" title="Primary key"></i>
+                                            </td>
                                             <td class="source-cell source-name">
                                                 {{ physical?.physicalName || '—' }}
                                                 <small *ngIf="column.physicalReferences.length > 1" class="text-muted d-block">Allocation {{ physical.allocationId }}</small>
@@ -139,12 +144,11 @@
                                                 <ng-template #unknownNullable><span class="text-muted" title="Source nullability is not available">—</span></ng-template>
                                             </td>
                                             <td *ngIf="firstSource" class="rule-cell" [attr.rowspan]="column.physicalReferences.length || 1">
-                                                <select *ngIf="canEdit && detail.availableRules?.length; else savedRule" cSelect
-                                                        [ngModel]="ruleForColumn(column.logicalColumnId)?.type || detail.availableRules[0].type" [ngModelOptions]="{standalone: true}"
-                                                        [disabled]="!columns.at(i).get('included').value" [attr.aria-label]="'Rule for ' + column.logicalName">
-                                                    <option *ngFor="let rule of detail.availableRules" [value]="rule.type">{{ rule.label }}</option>
+                                                <select *ngIf="canSelectRule(column); else ruleDisplay" cSelect
+                                                        formControlName="ruleType" [attr.aria-label]="'Rule for ' + column.logicalName">
+                                                    <option *ngFor="let rule of ruleOptions" [value]="rule.type">{{ rule.label }}</option>
                                                 </select>
-                                                <ng-template #savedRule><span class="rule-label">{{ ruleLabel(column.logicalColumnId) }}</span></ng-template>
+                                                <ng-template #ruleDisplay><span class="rule-label">{{ ruleLabel(i) }}</span></ng-template>
                                             </td>
                                             <td *ngIf="firstSource" class="target-name" [attr.rowspan]="column.physicalReferences.length || 1">
                                                 <label class="visually-hidden" [for]="'column-' + column.logicalColumnId">Target name for {{ column.logicalName }}</label>
@@ -159,8 +163,34 @@
                                                     {{ message }}
                                                 </c-form-feedback>
                                             </td>
-                                            <td *ngIf="firstSource" class="target-type type-cell" [attr.rowspan]="column.physicalReferences.length || 1">{{ targetColumn(i)?.typeDisplay || '—' }}</td>
-                                            <td *ngIf="firstSource" class="nullable-column" [attr.rowspan]="column.physicalReferences.length || 1"><input cFormCheckInput type="checkbox" [checked]="targetColumn(i)?.nullable" disabled [attr.aria-label]="'Nullable ' + column.logicalName"></td>
+                                            <td *ngIf="firstSource" class="target-type type-cell" [attr.rowspan]="column.physicalReferences.length || 1">
+                                                <select *ngIf="canConfigureTarget(column); else targetTypeDisplay" cSelect
+                                                        formControlName="targetType" [attr.aria-label]="'Target type for ' + column.logicalName">
+                                                    <option *ngFor="let type of column.targetTypeOptions" [value]="type">{{ targetTypeOptionLabel(column, i, type) }}</option>
+                                                </select>
+                                                <ng-template #targetTypeDisplay>{{ targetColumn(i)?.typeDisplay || '—' }}</ng-template>
+                                                <ng-container *ngIf="columns.at(i).get('targetType').enabled && typeParameters(i) as parameters">
+                                                    <label [for]="'target-precision-' + column.logicalColumnId">{{ columns.at(i).get('targetType').value === 'DECIMAL' ? 'Precision' : 'Length' }}</label>
+                                                    <input cFormControl type="number" formControlName="targetPrecision" step="1"
+                                                           [id]="'target-precision-' + column.logicalColumnId" [min]="parameters.minPrecision" [max]="parameters.maxPrecision"
+                                                           [attr.placeholder]="parameters.defaultPrecision">
+                                                    <ng-container *ngIf="parameters.maxScale != null">
+                                                        <label [for]="'target-scale-' + column.logicalColumnId">Scale</label>
+                                                        <input cFormControl type="number" formControlName="targetScale" step="1" min="0" [max]="parameters.maxScale"
+                                                               [id]="'target-scale-' + column.logicalColumnId" [attr.placeholder]="parameters.defaultScale">
+                                                    </ng-container>
+                                                    <c-form-feedback [valid]="false" class="d-block" *ngIf="columns.at(i).hasError('typeParameters')">
+                                                        Enter valid type parameters.
+                                                    </c-form-feedback>
+                                                </ng-container>
+                                            </td>
+                                            <td *ngIf="firstSource" class="nullable-column" [attr.rowspan]="column.physicalReferences.length || 1">
+                                                <input *ngIf="canConfigureTarget(column); else targetNullableDisplay" cFormCheckInput type="checkbox"
+                                                       formControlName="targetNullable" [attr.aria-label]="'Nullable ' + column.logicalName">
+                                                <ng-template #targetNullableDisplay>
+                                                    <input cFormCheckInput type="checkbox" [checked]="targetColumn(i)?.nullable" disabled [attr.aria-label]="'Nullable ' + column.logicalName">
+                                                </ng-template>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>

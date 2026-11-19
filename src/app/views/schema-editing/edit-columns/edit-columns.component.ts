@@ -1129,6 +1129,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         this.refreshChangeDescriptions.set([]);
         this.refreshSummaryTrigger.set(null);
         const request = new RefreshRequest(entity.id, namespace.name, 1);
+        request.schemaOnly = true;
         request.refreshTrigger = refreshTrigger;
         request.confirmedDataRefresh = confirmedDataRefresh;
         this.pendingRefreshTrigger = refreshTrigger;

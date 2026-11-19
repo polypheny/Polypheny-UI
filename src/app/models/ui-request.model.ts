@@ -41,6 +41,7 @@ export class EntityRequest extends UIRequest {
  */
 export class RefreshRequest extends UIRequest {
     type = 'RefreshRequest';
+    schemaOnly?: boolean;
 
     constructor(entityId: number, namespace: string, currentPage: number, filter: any = null, sortState: any = null) {
         super();

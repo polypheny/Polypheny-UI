@@ -53,9 +53,9 @@ export class EntityArgComponent implements OnInit {
 }
 
 export class EntityControl extends ArgControl {
-    readonly isAllocation = this.planType === 'ALLOCATION';
-    readonly isPhysical = this.planType === 'PHYSICAL';
-    height = signal((this.name ? 55 : 31) + (this.isAllocation ? 2 * 31 : 0));
+    readonly isPhysical = this.planType === 'PHYSICAL' || this.value.physicalId != null;
+    readonly isAllocation = this.planType === 'ALLOCATION' && !this.isPhysical;
+    height = signal((this.name ? 55 : 31) + (this.isAllocation ? 2 * 31 : this.isPhysical ? 31 : 0));
 
     constructor(param: Parameter, public value: EntityArg, model: OperatorModel, planType: PlanType,
                 isSimpleMode: Signal<boolean>, isReadOnly: boolean) {

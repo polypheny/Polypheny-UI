@@ -56,7 +56,7 @@
 .section-heading { align-items: baseline; flex-wrap: wrap; margin-bottom: .75rem; }
 .rules-table {
   width: 100%;
-  min-width: 1000px;
+  min-width: 1040px;
   table-layout: fixed;
   margin-bottom: 0;
 }
@@ -66,10 +66,12 @@
   text-align: left;
 }
 .rules-table .rules-group-headings > :first-child { padding-left: 0; }
-.rules-table col.include-column { width: 84px; }
+.rules-table col.include-column { width: 48px; }
+.rules-table col.source-key { width: 28px; }
 .rules-table col.source-name { width: 112px; }
-.rules-table col.nullable-column { width: 84px; }
-.rules-table col.source-type, .rules-table col.target-type { width: 112px; }
+.rules-table col.nullable-column { width: 72px; }
+.rules-table col.source-type { width: 112px; }
+.rules-table col.target-type { width: 184px; }
 .rules-table col.rule-cell { width: 192px; }
 .rules-table col.target-name { width: 216px; }
 .rules-table th, .rules-table td { vertical-align: middle; }
@@ -81,7 +83,9 @@
 .rules-table th.rule-cell { text-align: left; }
 .rules-table .source-name { overflow-wrap: anywhere; }
 .rules-table td.target-name { position: relative; }
+.rules-table .include-column, .rules-table .source-key { padding-inline: .25rem; }
 .rules-table .include-column { text-align: left; }
+.rules-table .source-key { text-align: center; }
 .rules-table .nullable-column { text-align: center; }
 .rules-table .nullable-column input[type="checkbox"] { display: block; margin-inline: auto; }
 .rules-table .type-cell { overflow-wrap: anywhere; }
@@ -103,5 +107,5 @@
   .shared-target-info { margin-inline-start: 0; }
   .mapping-name-area { flex-basis: 100%; }
 }
-.include-all { display: flex; align-items: center; gap: .375rem; }
+.include-all { display: flex; align-items: center; gap: .25rem; white-space: nowrap; }
 .rules-table input[type="checkbox"] { width: 1rem; height: 1rem; margin-top: 0; }
