@@ -123,7 +123,7 @@
                     class="text-danger text-center">(no data to show)
                 </td>
                 <td *ngIf="$result().error" [attr.colspan]="$result().header.length+1"
-                    class="text-danger text-center">error while filtering entity
+                    class="text-danger text-center">{{ $result().error }}
                 </td>
             </tr>
             <tr *ngIf="entityConfig().create" id="insertRow">

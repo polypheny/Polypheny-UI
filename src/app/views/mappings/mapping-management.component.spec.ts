@@ -165,7 +165,7 @@ describe('MappingManagementComponent', () => {
     });
 
     it('keeps the source target list available when creation sources cannot be loaded', () => {
-        mappings.getSources.and.returnValue(throwError(() => ({error: {code: 'SOURCE_UNAVAILABLE', message: 'Source unavailable'}})));
+        mappings.getSources.and.returnValue(throwError(() => ({error: {code: 'MISSING', message: 'Source unavailable'}})));
         query.next(convertToParamMap({sourceNamespace: 'files', sourceTable: 'customers.csv'}));
         params.next(convertToParamMap({sourceAdapterId: '7'}));
         fixture.detectChanges();
@@ -405,11 +405,11 @@ describe('MappingManagementComponent', () => {
         component.refresh();
         component.selectedId = 33;
         component.confirmRemoval();
-        mappings.remove.and.returnValue(throwError(() => ({status: 409, error: {code: 'REVISION_CONFLICT', message: 'Reload this mapping'}})));
+        mappings.remove.and.returnValue(throwError(() => ({status: 409, error: {code: 'REVISION', message: 'Reload this mapping'}})));
         component.remove();
         component.remove();
         expect(mappings.remove).toHaveBeenCalledTimes(1);
-        expect(component.removeError.code).toBe('REVISION_CONFLICT');
+        expect(component.removeError.code).toBe('REVISION');
         expect(component.rows.length).toBe(3);
     });
 

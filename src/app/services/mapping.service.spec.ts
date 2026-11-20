@@ -43,10 +43,10 @@ describe('MappingService', () => {
     it('sends inclusion, stable identities and the expected revision on update', () => {
         const draft = {adapterId: 7, mappingId: 31, expectedRevision: 'original', mappingName: 'Customers', logicalTableName: 'customers', columns: [{logicalColumnId: 101, logicalName: 'id', included: false}]};
         service.update(draft).subscribe({error: error => {
-            expect(MappingService.error(error).code).toBe('REVISION_CONFLICT');
+            expect(MappingService.error(error).code).toBe('REVISION');
         }});
         const request = http.expectOne('/api/updateMapping');
         expect(request.request.body).toEqual(draft);
-        request.flush({code: 'REVISION_CONFLICT', message: 'Reload'}, {status: 409, statusText: 'Conflict'});
+        request.flush({code: 'REVISION', message: 'Reload'}, {status: 409, statusText: 'Conflict'});
     });
 });

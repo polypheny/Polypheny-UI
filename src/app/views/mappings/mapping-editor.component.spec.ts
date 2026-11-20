@@ -492,7 +492,7 @@ describe('MappingEditorComponent', () => {
 
     it('shows and clears table and column validation errors inline without a status alert', () => {
         component.form.get('logicalTableName').setValue('draft_table');
-        mappings.update.and.returnValue(throwError(() => ({status: 400, error: {code: 'VALIDATION_FAILED', message: 'Correct fields',
+        mappings.update.and.returnValue(throwError(() => ({status: 400, error: {code: 'VALIDATION', message: 'Correct fields',
             fieldErrors: {logicalTableName: 'An entity with this name already exists in the namespace.', 'columns.101': 'Server column feedback'}}})));
         component.save();
         fixture.detectChanges();
@@ -835,7 +835,7 @@ describe('MappingEditorComponent', () => {
             }
             const save = create ? mappings.create : mappings.update;
             save.and.returnValue(throwError(() => ({status: 400, error: {
-                code: 'VALIDATION_FAILED', message: 'Correct the highlighted mapping fields.',
+                code: 'VALIDATION', message: 'Correct the highlighted mapping fields.',
                 fieldErrors: {mappingName: 'A mapping with this name already exists.'}
             }})));
             component.form.get('mappingName').setValue('Existing name');
@@ -865,12 +865,34 @@ describe('MappingEditorComponent', () => {
 
     it('preserves draft values when another editor changed the mapping', () => {
         component.form.get('mappingName').setValue('My draft');
-        mappings.update.and.returnValue(throwError(() => ({status: 409, error: {code: 'REVISION_CONFLICT', message: 'Reload'}})));
+        mappings.update.and.returnValue(throwError(() => ({status: 409, error: {code: 'REVISION', message: 'Reload'}})));
         component.save();
         expect(component.form.get('mappingName').value).toBe('My draft');
         expect(component.dirty).toBeTrue();
         expect(component.canSave).toBeFalse();
+        expect(component.conflict).toBeTrue();
         expect(toast.success).not.toHaveBeenCalled();
+    });
+
+    it('shows duplicate field errors without treating the draft as a stale revision', () => {
+        component.form.get('mappingName').setValue('Existing name');
+        mappings.update.and.returnValue(throwError(() => ({status: 409, error: {
+            code: 'DUPLICATE', message: 'A mapping with this name already exists.',
+            fieldErrors: {mappingName: 'Choose a unique mapping name.'}
+        }})));
+        component.save();
+        fixture.detectChanges();
+        expect(component.conflict).toBeFalse();
+        expect(component.showSaveError).toBeFalse();
+        expect(fixture.nativeElement.querySelector('#mapping-name-error').textContent).toContain('Choose a unique mapping name.');
+        component.form.get('mappingName').setValue('Unique name');
+        expect(component.canSave).toBeTrue();
+    });
+
+    it('uses field feedback for a missing target namespace', () => {
+        component.saveError = {code: 'MISSING', message: 'Choose an existing target namespace.',
+            fieldErrors: {targetNamespaceId: 'This namespace is no longer available.'}};
+        expect(component.showSaveError).toBeFalse();
     });
 
     it('keeps confirmed saves separate from a catalog refresh failure', () => {

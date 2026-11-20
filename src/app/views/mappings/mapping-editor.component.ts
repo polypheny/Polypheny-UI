@@ -349,7 +349,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
     }
 
     get showSaveError(): boolean {
-        return !!this.saveError && (this.saveError.code !== 'VALIDATION_FAILED' || !Object.keys(this.saveError.fieldErrors || {}).length);
+        return !!this.saveError && !Object.keys(this.saveError.fieldErrors || {}).length;
     }
 
     get includedCount(): number {
@@ -729,7 +729,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
                 } else {
                     this.saving = false;
                     this.saveError = MappingService.error(error);
-                    this.conflict = error.status === 409;
+                    this.conflict = this.saveError.code === 'REVISION';
                     if (this.saveError.fieldErrors?.mappingName) {
                         this.nameBeforeRename = this.detail.mappingName;
                         this.nameEditing = true;
