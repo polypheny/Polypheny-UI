@@ -107,13 +107,14 @@
                                     <colgroup>
                                         <col class="target-name">
                                         <col class="target-type">
+                                        <col class="check-column">
                                         <col class="nullable-column">
                                     </colgroup>
                                     <thead>
                                         <tr class="rules-group-headings">
                                             <th scope="colgroup" colspan="5"><h5 class="mb-0">Source Fields</h5></th>
                                             <td aria-hidden="true"></td>
-                                            <th scope="colgroup" colspan="3"><h5 class="mb-0">Target Fields</h5></th>
+                                            <th scope="colgroup" colspan="4"><h5 class="mb-0">Target Fields</h5></th>
                                         </tr>
                                         <tr>
                                             <th scope="col" class="include-column"><label class="include-all"><input cFormCheckInput type="checkbox" [checked]="includedCount === detail.columns.length" [indeterminate]="includedCount > 0 && includedCount < detail.columns.length" [disabled]="!canEdit || schemaLocked" (change)="setAllIncluded($event.target.checked)" aria-label="Include all fields"> Inc.</label></th>
@@ -124,6 +125,9 @@
                                             <th scope="col" class="rule-cell">Rule</th>
                                             <th scope="col" class="target-name">Name</th>
                                             <th scope="col" class="target-type">Type</th>
+                                            <th scope="col" class="check-column" tabindex="0" container="body" placement="top"
+                                                triggers="mouseenter:mouseleave focusin:focusout"
+                                                tooltip="Conversions are checked against up to 10 source records. Other records may still contain errors.">Check</th>
                                             <th scope="col" class="nullable-column">Nullable</th>
                                         </tr>
                                     </thead>
@@ -182,6 +186,19 @@
                                                     <c-form-feedback [valid]="false" class="d-block" *ngIf="columns.at(i).hasError('typeParameters')">
                                                         Enter valid type parameters.
                                                     </c-form-feedback>
+                                                </ng-container>
+                                            </td>
+                                            <td *ngIf="firstSource" class="check-column" [attr.rowspan]="column.physicalReferences.length || 1" aria-live="polite">
+                                                <ng-container *ngIf="conversionChecks[column.logicalColumnId] as check">
+                                                    <c-spinner *ngIf="check.status === 'checking'" size="sm" role="status" aria-label="Checking data conversion"></c-spinner>
+                                                    <span *ngIf="check.status === 'passed'" class="text-success" role="img" aria-label="No conversion errors found in the sample" [title]="'No conversion errors found in ' + check.result.checkedRecords + ' sampled records'"><i class="fa fa-check" aria-hidden="true"></i></span>
+                                                    <span *ngIf="check.status === 'empty'" class="text-muted" title="The source contains no records to check" aria-label="The source contains no records to check">—</span>
+                                                    <button *ngIf="check.status === 'failed' || check.status === 'unavailable'" type="button" class="conversion-error bg-transparent border-0 p-1"
+                                                            [class.text-danger]="check.status === 'failed'" [class.text-warning]="check.status === 'unavailable'"
+                                                            [attr.aria-label]="(check.status === 'failed' ? 'Conversion error for ' : 'Conversion check unavailable for ') + columns.at(i).get('logicalName').value + ': ' + conversionErrorMessage(check)"
+                                                            [tooltip]="conversionErrorMessage(check)" container="body" placement="top" triggers="mouseenter:mouseleave focusin:focusout">
+                                                        <i class="fa" [class.fa-exclamation-circle]="check.status === 'failed'" [class.fa-exclamation-triangle]="check.status === 'unavailable'" aria-hidden="true"></i>
+                                                    </button>
                                                 </ng-container>
                                             </td>
                                             <td *ngIf="firstSource" class="nullable-column" [attr.rowspan]="column.physicalReferences.length || 1">

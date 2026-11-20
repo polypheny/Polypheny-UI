@@ -1,5 +1,5 @@
 import {NO_ERRORS_SCHEMA, signal} from '@angular/core';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FormModule, TableModule} from '@coreui/angular';
@@ -14,6 +14,7 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {LeftSidebarService} from '../../components/left-sidebar/left-sidebar.service';
 import {DataModel} from '../../models/ui-request.model';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 
 describe('MappingEditorComponent', () => {
     let sidebar: jasmine.SpyObj<LeftSidebarService>;
@@ -42,7 +43,8 @@ describe('MappingEditorComponent', () => {
                 {logicalColumnId: 102, logicalName: 'name', logicalPosition: 2, typeDisplay: 'VARCHAR', nullable: true, physicalReferences: [], included: true}
             ]
         };
-        mappings = jasmine.createSpyObj('MappingService', ['getSummaries', 'getDetail', 'getMapping', 'getSources', 'getDraft', 'getMappings', 'create', 'update']);
+        mappings = jasmine.createSpyObj('MappingService', ['getSummaries', 'getDetail', 'getMapping', 'getSources', 'getDraft', 'getMappings', 'create', 'update', 'validateConversions']);
+        mappings.validateConversions.and.returnValue(of({columns: []}));
         mappings.getSummaries.and.returnValue(of({adapters: [{adapterId: 7, adapterName: 'csv_source', mappings: [detail]}]}));
         mappings.getDetail.and.returnValue(of(detail));
         mappings.getMapping.and.callFake(() => mappings.getDetail(7, 31));
@@ -58,7 +60,7 @@ describe('MappingEditorComponent', () => {
         };
         await TestBed.configureTestingModule({
             declarations: [MappingEditorComponent],
-            imports: [CommonModule, FormsModule, ReactiveFormsModule, FormModule, TableModule, RouterTestingModule],
+            imports: [CommonModule, FormsModule, ReactiveFormsModule, FormModule, TableModule, RouterTestingModule, TooltipModule.forRoot()],
             schemas: [NO_ERRORS_SCHEMA],
             providers: [
                 {provide: MappingService, useValue: mappings}, {provide: CatalogService, useValue: catalog},
@@ -74,6 +76,252 @@ describe('MappingEditorComponent', () => {
     });
 
     afterEach(() => fixture.destroy());
+
+    function loadConversionField() {
+        detail.availableRules = [{type: 'DIRECT_COLUMN', label: 'Copy'}, {type: 'CONVERT_COLUMN', label: 'Convert'}];
+        detail.columns[0] = {...detail.columns[0], type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40,
+            targetTypeOptions: ['VARCHAR', 'INTEGER', 'DECIMAL'], physicalReferences: [{
+                allocationId: 60, physicalEntityId: 70, physicalColumnId: 101, physicalName: 'source_id', physicalPosition: 0,
+                type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40, nullable: true
+            }]};
+        detail.typeParameters = {DECIMAL: {minPrecision: 1, maxPrecision: 64, defaultPrecision: 10, maxScale: 64, defaultScale: 0}};
+        route.paramMap.next(convertToParamMap({adapterId: '7', mappingId: '31'}));
+        fixture.detectChanges();
+    }
+
+    function loadTwoConversionFields() {
+        detail.columns[1] = {...detail.columns[1], type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40,
+            targetTypeOptions: ['VARCHAR', 'INTEGER', 'DECIMAL'], physicalReferences: [{
+                allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'source_name', physicalPosition: 1,
+                type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40, nullable: true
+            }]};
+        detail.rules.forEach(rule => rule.type = 'CONVERT_COLUMN');
+        loadConversionField();
+    }
+
+    it('rechecks and shows a spinner only for the changed Convert field', fakeAsync(() => {
+        mappings.validateConversions.and.callFake(request => of({columns: request.columns.map(column => ({
+            logicalColumnId: column.logicalColumnId, checkedRecords: 10, errors: []
+        }))}));
+        loadTwoConversionFields();
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(2);
+        expect(mappings.validateConversions.calls.allArgs().map(([request]) => request.columns.map(column => column.logicalColumnId))).toEqual([[101], [102]]);
+        const secondCheck = component.conversionChecks[102];
+        const first = component.columns.at(0);
+        first.get('targetType').setValue('INTEGER');
+        fixture.detectChanges();
+        expect(component.conversionChecks[101].status).toBe('checking');
+        expect(component.conversionChecks[102]).toBe(secondCheck);
+        expect(fixture.nativeElement.querySelectorAll('.check-column c-spinner').length).toBe(1);
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(3);
+        expect(mappings.validateConversions.calls.mostRecent().args[0].columns.map(column => column.logicalColumnId)).toEqual([101]);
+        first.get('included').setValue(false);
+        tick(300);
+        expect(component.conversionChecks[101]).toBeUndefined();
+        expect(component.conversionChecks[102]).toBe(secondCheck);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(3);
+        first.get('included').setValue(true);
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(4);
+        first.get('ruleType').setValue('DIRECT_COLUMN');
+        tick(300);
+        expect(component.conversionChecks[101]).toBeUndefined();
+        expect(component.conversionChecks[102]).toBe(secondCheck);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(4);
+    }));
+
+    it('cancels only the changed field request while other checks finish independently', fakeAsync(() => {
+        const firstRequest = new Subject<any>();
+        const secondRequest = new Subject<any>();
+        mappings.validateConversions.and.callFake(request => request.columns[0].logicalColumnId === 101 ? firstRequest : secondRequest);
+        loadTwoConversionFields();
+        tick(300);
+        expect(firstRequest.observers.length).toBe(1);
+        expect(secondRequest.observers.length).toBe(1);
+        component.columns.at(0).get('targetType').setValue('INTEGER');
+        expect(firstRequest.observers.length).toBe(0);
+        expect(secondRequest.observers.length).toBe(1);
+        secondRequest.next({columns: [{logicalColumnId: 102, checkedRecords: 10, errors: []}]});
+        const secondCheck = component.conversionChecks[102];
+        expect(secondCheck.status).toBe('passed');
+        firstRequest.next({columns: [{logicalColumnId: 101, checkedRecords: 10, errors: []}]});
+        expect(component.conversionChecks[101].status).toBe('checking');
+        component.columns.at(0).get('included').setValue(false);
+        tick(300);
+        expect(component.conversionChecks[101]).toBeUndefined();
+        expect(component.conversionChecks[102]).toBe(secondCheck);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(2);
+    }));
+
+    it('debounces conversion settings and shows only the first mapping error on hover', fakeAsync(() => {
+        const errors = [3, 7].map(recordNumber => ({recordNumber,
+            error: {code: 'EXECUTION', message: `Mapping 'Import', column 'id': cannot convert value "bad${recordNumber}" to INTEGER.`}}));
+        mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 10, errors}]}));
+        loadConversionField();
+        const row = component.columns.at(0);
+        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('targetType').setValue('INTEGER');
+        tick(299);
+        expect(mappings.validateConversions).not.toHaveBeenCalled();
+        expect(component.conversionChecks[101].status).toBe('checking');
+        tick(1);
+        fixture.detectChanges();
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        expect(mappings.validateConversions.calls.mostRecent().args[0]).toEqual({adapterId: 7, mappingId: 31,
+            expectedRevision: 'original', columns: [{logicalColumnId: 101, logicalName: 'id', included: true,
+                ruleType: 'CONVERT_COLUMN', targetType: 'INTEGER'}]});
+        const headers = Array.from(fixture.nativeElement.querySelectorAll('thead tr:last-child th')).map((header: HTMLElement) => header.textContent.trim());
+        expect(headers.slice(-3)).toEqual(['Type', 'Check', 'Nullable']);
+        const errorIcon: HTMLButtonElement = fixture.nativeElement.querySelector('.conversion-error');
+        errorIcon.dispatchEvent(new Event('mouseenter'));
+        tick();
+        fixture.detectChanges();
+        const messages = document.body.querySelector('.tooltip-inner').textContent;
+        expect(messages).toContain('Record 3:');
+        expect(messages).toContain('bad3');
+        expect(messages).not.toContain('Record 7:');
+        expect(messages).not.toContain('bad7');
+        expect(component.conversionChecks[101].result.errors.length).toBe(2);
+        errorIcon.click();
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('#conversion-errors-title')).toBeNull();
+        errorIcon.dispatchEvent(new Event('mouseleave'));
+        tick();
+        expect(component.dirty).toBeTrue();
+        expect(mappings.update).not.toHaveBeenCalled();
+    }));
+
+    it('cancels outdated checks, clears excluded fields and rechecks precision and scale', fakeAsync(() => {
+        const stale = new Subject<any>();
+        mappings.validateConversions.and.returnValue(stale);
+        loadConversionField();
+        const row = component.columns.at(0);
+        row.get('ruleType').setValue('CONVERT_COLUMN');
+        tick(300);
+        row.get('targetType').setValue('DECIMAL');
+        expect(stale.observers.length).toBe(0);
+        stale.next({columns: [{logicalColumnId: 101, checkedRecords: 10, errors: []}]});
+        expect(component.conversionChecks[101].status).toBe('checking');
+        mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 4, errors: []}]}));
+        tick(300);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('.check-column .fa-check')).not.toBeNull();
+        for (const [name, value] of [['targetPrecision', 8], ['targetScale', 2]] as const) {
+            const previous = mappings.validateConversions.calls.count();
+            row.get(name).setValue(value);
+            expect(component.conversionChecks[101].status).toBe('checking');
+            tick(300);
+            expect(mappings.validateConversions.calls.count()).toBe(previous + 1);
+            expect(component.conversionChecks[101].status).toBe('passed');
+        }
+        row.get('included').setValue(false);
+        expect(component.conversionChecks[101]).toBeUndefined();
+        tick(300);
+        row.get('included').setValue(true);
+        row.get('targetScale').setValue(9);
+        expect(component.conversionChecks[101]).toBeUndefined();
+        tick(300);
+    }));
+
+    it('distinguishes unavailable and empty checks from successful samples', fakeAsync(() => {
+        mappings.validateConversions.and.returnValue(throwError(() => ({status: 0})));
+        loadConversionField();
+        component.columns.at(0).get('ruleType').setValue('CONVERT_COLUMN');
+        tick(300);
+        fixture.detectChanges();
+        expect(component.conversionChecks[101].status).toBe('unavailable');
+        fixture.nativeElement.querySelector('.conversion-error').dispatchEvent(new Event('focusin'));
+        tick();
+        fixture.detectChanges();
+        expect(document.body.querySelector('.tooltip-inner').textContent).toContain('Cannot reach the server');
+        mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 0, errors: []}]}));
+        component.columns.at(0).get('targetType').setValue('INTEGER');
+        tick(300);
+        fixture.detectChanges();
+        expect(document.body.querySelector('.tooltip-inner')).toBeNull();
+        expect(component.conversionChecks[101].status).toBe('empty');
+        expect(fixture.nativeElement.querySelector('.check-column .fa-check')).toBeNull();
+    }));
+
+    it('stops checking when the backend returns a malformed validation response', fakeAsync(() => {
+        for (const response of [{}, {columns: {}}, {columns: [{logicalColumnId: 101, checkedRecords: 10}]}]) {
+            mappings.validateConversions.and.returnValue(of(response as any));
+            loadConversionField();
+            component.columns.at(0).get('ruleType').setValue('CONVERT_COLUMN');
+            tick(300);
+            fixture.detectChanges();
+            expect(component.conversionChecks[101].status).toBe('unavailable');
+            expect(fixture.nativeElement.querySelector('.check-column c-spinner')).toBeNull();
+            expect(fixture.nativeElement.querySelector('.conversion-error').getAttribute('aria-label')).toContain('did not return a conversion check');
+        }
+    }));
+
+    it('does not restart conversion checks when including or excluding a plain Copy field', fakeAsync(() => {
+        detail.columns[1] = {...detail.columns[1], included: false, type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40,
+            targetTypeOptions: ['VARCHAR'], physicalReferences: [{
+                allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'source_name', physicalPosition: 1,
+                type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40, nullable: false
+            }]};
+        mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 10, errors: []}]}));
+        loadConversionField();
+        component.columns.at(0).get('ruleType').setValue('CONVERT_COLUMN');
+        component.columns.at(0).get('targetType').setValue('INTEGER');
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        const conversionCheck = component.conversionChecks[101];
+        const copy = component.columns.at(1);
+        copy.get('included').setValue(true);
+        expect(component.conversionChecks[102]).toBeUndefined();
+        expect(component.conversionChecks[101]).toBe(conversionCheck);
+        copy.get('targetNullable').setValue(false);
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        expect(component.conversionChecks[102]).toBeUndefined();
+        copy.get('included').setValue(false);
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        expect(component.conversionChecks[101]).toBe(conversionCheck);
+    }));
+
+    it('ignores Copy, nullability changes and field renames in conversion validation', fakeAsync(() => {
+        loadConversionField();
+        const row = component.columns.at(0);
+        tick(300);
+        expect(mappings.validateConversions).not.toHaveBeenCalled();
+        expect(component.conversionChecks[101]).toBeUndefined();
+        row.get('targetNullable').setValue(true);
+        row.get('targetNullable').setValue(false);
+        tick(300);
+        expect(mappings.validateConversions).not.toHaveBeenCalled();
+        const conversionError = {code: 'EXECUTION', message: 'Cannot convert the source value to INTEGER.'};
+        mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 10,
+            errors: [{recordNumber: 2, error: conversionError}]}]}));
+        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('targetType').setValue('INTEGER');
+        expect(component.conversionChecks[101].status).toBe('checking');
+        tick(300);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        expect(mappings.validateConversions.calls.mostRecent().args[0].columns[0].ruleType).toBe('CONVERT_COLUMN');
+        expect(mappings.validateConversions.calls.mostRecent().args[0].columns[0]).not.toEqual(jasmine.objectContaining({targetNullable: jasmine.anything()}));
+        expect(component.conversionChecks[101].status).toBe('failed');
+        const previousCheck = component.conversionChecks[101];
+        for (const nullable of [true, false]) {
+            row.get('targetNullable').setValue(nullable);
+            tick(300);
+            expect(component.conversionChecks[101]).toBe(previousCheck);
+            expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        }
+        row.get('logicalName').setValue('renamed_id');
+        tick(300);
+        expect(component.conversionChecks[101]).toBe(previousCheck);
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+        row.get('ruleType').setValue('DIRECT_COLUMN');
+        tick(300);
+        expect(component.conversionChecks[101]).toBeUndefined();
+        expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
+    }));
 
     it('opens a global mapping by ID without requiring an adapter route', () => {
         const breadcrumbs = spyOn(TestBed.inject(BreadcrumbService), 'setBreadcrumbs');
@@ -1061,9 +1309,9 @@ describe('MappingEditorComponent', () => {
         expect(root.querySelectorAll('.rules-table').length).toBe(1);
         expect(Array.from(root.querySelectorAll('.rules-group-headings th'), header => header.textContent.trim())).toEqual(['Source Fields', 'Target Fields']);
         expect(root.querySelector<HTMLTableCellElement>('th.include-column').rowSpan).toBe(1);
-        expect(Array.from(root.querySelectorAll('[scope="colgroup"]'), header => (header as HTMLTableCellElement).colSpan)).toEqual([5, 3]);
+        expect(Array.from(root.querySelectorAll('[scope="colgroup"]'), header => (header as HTMLTableCellElement).colSpan)).toEqual([5, 4]);
         expect(Array.from(root.querySelectorAll('.rules-table thead tr:nth-child(2) th'), header => header.textContent.trim())).toEqual([
-            'Inc.', 'PK', 'Name', 'Type', 'Nullable', 'Rule', 'Name', 'Type', 'Nullable'
+            'Inc.', 'PK', 'Name', 'Type', 'Nullable', 'Rule', 'Name', 'Type', 'Check', 'Nullable'
         ]);
         expect(root.textContent).not.toContain('Choose the fields to include and edit their target names.');
         expect(root.textContent).not.toContain('Type conversion and nullable editing are not available yet.');

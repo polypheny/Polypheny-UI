@@ -72,8 +72,12 @@
 .rules-table col.nullable-column { width: 72px; }
 .rules-table col.source-type { width: 112px; }
 .rules-table col.target-type { width: 184px; }
-.rules-table col.rule-cell { width: 192px; }
-.rules-table col.target-name { width: 216px; }
+.rules-table col.rule-cell { width: 168px; }
+.rules-table col.target-name { width: 176px; }
+.rules-table col.check-column { width: 64px; }
+.rules-table .check-column { text-align: center; padding-inline: .25rem; }
+.rules-table th.check-column { white-space: nowrap; cursor: pointer; }
+.conversion-error { cursor: pointer; }
 .rules-table th, .rules-table td { vertical-align: middle; }
 // Keep all physical rows of one mapping field in the same standard table stripe.
 .rules-table.table-striped > tbody > tr > * { --cui-table-bg-type: initial; }

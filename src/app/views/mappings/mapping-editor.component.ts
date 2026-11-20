@@ -1,8 +1,8 @@
 import {Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors} from '@angular/forms';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
-import {combineLatest, of, Subject, Subscription} from 'rxjs';
-import {catchError, map, startWith, switchMap} from 'rxjs/operators';
+import {combineLatest, of, Subject, Subscription, timer} from 'rxjs';
+import {catchError, distinctUntilChanged, map, startWith, switchMap} from 'rxjs/operators';
 import {MappingService} from '../../services/mapping.service';
 import {CatalogService} from '../../services/catalog.service';
 import {NamespaceModel} from '../../models/catalog.model';
@@ -11,11 +11,17 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {MappingSidebarService} from './mapping-sidebar.service';
-import {MappingColumn, MappingDetail, MappingDraft, MappingError, MappingSummary, MappingUpdate, mappingKindLabel, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
+import {MappingColumn, MappingColumnCheck, MappingConversionRequest, MappingDetail, MappingDraft, MappingError, MappingSummary, MappingUpdate, mappingKindLabel, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
 
 const COPY_RULE = 'DIRECT_COLUMN';
 const CONVERT_RULE = 'CONVERT_COLUMN';
 const UNSPECIFIED_SCALE = -2147483648; // AlgDataType.SCALE_NOT_SPECIFIED
+
+interface ConversionCheck {
+    status: 'checking' | 'passed' | 'failed' | 'unavailable' | 'empty';
+    result?: MappingColumnCheck;
+    requestError?: MappingError;
+}
 
 @Component({
     selector: 'app-mapping-editor',
@@ -40,6 +46,9 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
     private validationMappings: MappingSummary[] = [];
     private summariesLoading = false;
     private nameBeforeRename = '';
+    private conversionSubscription: Subscription;
+
+    conversionChecks: Record<number, ConversionCheck> = {};
 
     returnTargetEntityId: number;
     private returnSource: PhysicalSourceSelection;
@@ -97,6 +106,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             this.route.paramMap, this.route.queryParamMap || of(convertToParamMap({})), this.reload.pipe(startWith(undefined))
         ]).pipe(
             switchMap(([params, query]) => {
+                this.resetConversionChecks();
                 this.summaryRequest?.unsubscribe();
                 this.loading = true;
                 this.loadError = null;
@@ -563,6 +573,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
     }
 
     private acceptDetail(detail: MappingDetail) {
+        this.resetConversionChecks();
         this.fieldSubscriptions.unsubscribe();
         this.fieldSubscriptions = new Subscription();
         this.detail = detail;
@@ -671,6 +682,74 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
         this.baseline = JSON.stringify(this.draft());
         this.setBreadcrumbs();
         this.setSummaries(this.summaries.map(m => m.mappingId === detail.mappingId ? detail : m));
+        this.watchConversionChecks();
+    }
+
+    private resetConversionChecks() {
+        this.conversionSubscription?.unsubscribe();
+        this.conversionChecks = {};
+    }
+
+    private conversionRequest(i: number): MappingConversionRequest | null {
+        if (!this.canEdit) {
+            return null;
+        }
+        const column = this.draft().columns[i];
+        const original = this.detail.columns[i];
+        const row = this.columns.at(i);
+        if (!column.included || !original.targetTypeOptions?.length || original.physicalReferences.length !== 1
+            || !row.get('targetType').value || row.hasError('typeParameters') || row.get('ruleType').value !== CONVERT_RULE) {
+            return null;
+        }
+        const {targetNullable, ...conversion} = column;
+        return {
+            adapterId: this.adapterId, expectedRevision: this.detail.revision,
+            columns: [{...conversion, logicalName: original.logicalName}],
+            ...(this.isCreate ? {
+                targetEntityId: this.draftSourceEntityId ?? this.detail.targetEntityId,
+                ...(this.existingTargetEntityId == null ? {} : {existingTargetEntityId: this.existingTargetEntityId}),
+                ...(this.draftSourceAllocationId == null ? {} : {sourceAllocationId: this.draftSourceAllocationId})
+            } : {mappingId: this.detail.mappingId})
+        };
+    }
+
+    private watchConversionChecks() {
+        this.conversionSubscription = new Subscription();
+        this.columns.controls.forEach((row, i) => {
+            const columnId = this.detail.columns[i].logicalColumnId;
+            this.conversionSubscription.add(row.valueChanges.pipe(
+                startWith(null),
+                map(() => this.conversionRequest(i)),
+                distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current)),
+                switchMap(request => {
+                    if (!request) {
+                        delete this.conversionChecks[columnId];
+                        return of(null);
+                    }
+                    this.conversionChecks[columnId] = {status: 'checking'};
+                    return timer(300).pipe(
+                        switchMap(() => this.mappings.validateConversions(request)),
+                        map(response => ({response, error: null as MappingError})),
+                        catchError(error => of({response: null, error: MappingService.error(error)}))
+                    );
+                })
+            ).subscribe(outcome => {
+                if (!outcome) {
+                    return;
+                }
+                const result = Array.isArray(outcome.response?.columns)
+                    ? outcome.response.columns.find(check => check.logicalColumnId === columnId) : undefined;
+                this.conversionChecks[columnId] = outcome.error
+                    ? {status: 'unavailable', requestError: outcome.error}
+                    : result && Array.isArray(result.errors) ? {status: result.errors.length ? 'failed' : result.checkedRecords ? 'passed' : 'empty', result}
+                        : {status: 'unavailable', requestError: {code: 'REQUEST_FAILED', message: 'The server did not return a conversion check for this field.'}};
+            }));
+        });
+    }
+
+    conversionErrorMessage(check: ConversionCheck): string {
+        const firstError = check.result?.errors[0];
+        return check.requestError?.message || (firstError ? `Record ${firstError.recordNumber}: ${firstError.error.message}` : '');
     }
 
     private draft(): MappingDraft {
@@ -894,6 +973,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.resetConversionChecks();
         this.answerConfirmation(false);
         this.subscriptions.unsubscribe();
         this.fieldSubscriptions.unsubscribe();

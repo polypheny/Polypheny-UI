@@ -165,3 +165,23 @@ export interface MappingError {
     fieldErrors?: Record<string, string>;
     blockingEntities?: string[];
 }
+
+export interface MappingConversionRequest {
+    adapterId: number;
+    expectedRevision: string;
+    mappingId?: number;
+    targetEntityId?: number;
+    existingTargetEntityId?: number;
+    sourceAllocationId?: number;
+    columns: Omit<MappingDraft['columns'][number], 'targetNullable'>[];
+}
+
+export interface MappingColumnCheck {
+    logicalColumnId: number;
+    checkedRecords: number;
+    errors: {recordNumber: number; error: MappingError}[];
+}
+
+export interface MappingConversionValidation {
+    columns: MappingColumnCheck[];
+}

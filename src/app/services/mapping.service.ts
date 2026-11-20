@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {AdapterMappings, MappingCreate, MappingDetail, MappingError, MappingSource, MappingSummary, MappingUpdate} from '../views/mappings/mapping.model';
+import {AdapterMappings, MappingConversionRequest, MappingConversionValidation, MappingCreate, MappingDetail, MappingError, MappingSource, MappingSummary, MappingUpdate} from '../views/mappings/mapping.model';
 
 @Injectable({providedIn: 'root'})
 export class MappingService {
@@ -47,6 +47,10 @@ export class MappingService {
 
     update(request: MappingUpdate) {
         return this.http.post<MappingDetail>(`${this.baseUrl}/updateMapping`, request);
+    }
+
+    validateConversions(request: MappingConversionRequest) {
+        return this.http.post<MappingConversionValidation>(`${this.baseUrl}/validateMappingConversions`, request);
     }
 
     static error(error: any): MappingError {

@@ -49,4 +49,16 @@ describe('MappingService', () => {
         expect(request.request.body).toEqual(draft);
         request.flush({code: 'REVISION', message: 'Reload'}, {status: 409, statusText: 'Conflict'});
     });
+
+    it('validates unsaved conversions without saving the mapping', () => {
+        const draft = {adapterId: 7, targetEntityId: 50, sourceAllocationId: 60, expectedRevision: 'original',
+            columns: [{logicalColumnId: 101, logicalName: 'amount', included: true, targetType: 'INTEGER', ruleType: 'CONVERT_COLUMN'}]};
+        service.validateConversions(draft).subscribe(response => expect(response.columns[0].errors[0].error.code).toBe('EXECUTION'));
+        const request = http.expectOne('/api/validateMappingConversions');
+        expect(request.request.method).toBe('POST');
+        expect(request.request.body).toEqual(draft);
+        request.flush({columns: [{logicalColumnId: 101, checkedRecords: 10, errors: [
+            {recordNumber: 3, error: {code: 'EXECUTION', message: 'Mapping conversion failed'}}
+        ]}]});
+    });
 });
