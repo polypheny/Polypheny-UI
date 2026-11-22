@@ -159,6 +159,60 @@
         </c-modal-footer>
     </c-modal>
 
+
+    <c-modal [visible]="!!identityTarget" (visibleChange)="!$event && closeIdentitySettings()" [scrollable]="true" alignment="center">
+        <c-modal-header>
+            <h5 cModalTitle>Auto-increment for {{ identityTarget?.column.name }}</h5>
+        </c-modal-header>
+        <c-modal-body *ngIf="identityTarget">
+            <p *ngIf="!identityState && identityBusy" role="status">Loading sequence settings…</p>
+            <button *ngIf="!identityState && !identityBusy" cButton color="light" size="sm"
+                    (click)="loadIdentitySequence()">Retry loading sequence settings</button>
+            <ng-container *ngIf="identityState">
+                <ng-container *ngIf="identityState.identity">
+                    <div class="mb-3">
+                        <span class="me-2" aria-live="polite">Next generated value:
+                            <strong>{{ identityState.nextValue ?? 'Exhausted' }}</strong>
+                        </span>
+                        <button type="button" cButton color="light" size="sm" [disabled]="identityBusy"
+                                (click)="loadIdentitySequence()">Refresh</button>
+                        <label class="d-block mt-2">
+                            New next value
+                            <input cFormControl type="text" inputmode="numeric" [(ngModel)]="identityNextValue">
+                        </label>
+                        <button type="button" cButton color="primary" size="sm" class="mt-2"
+                                [disabled]="identityBusy || !identityIntegerValid(identityNextValue)"
+                                (click)="restartIdentitySequence()">Restart sequence</button>
+                    </div>
+                    <label class="d-block">
+                        Generation mode
+                        <select cSelect sizing="sm" [(ngModel)]="identityMode">
+                            <option value="BY_DEFAULT">By default</option>
+                            <option value="ALWAYS">Always</option>
+                        </select>
+                    </label>
+                    <button type="button" cButton color="light" size="sm" class="mt-2"
+                            [disabled]="identityBusy || identityMode === identityState.identity.mode"
+                            (click)="configureIdentity('SET_MODE')">Save generation mode</button>
+                    <hr>
+                </ng-container>
+                <h6 *ngIf="identityState.identity">Sequence options</h6>
+                <app-identity-options [options]="identityOptions" [showMode]="!identityState.identity"></app-identity-options>
+                <button *ngIf="identityState.identity" type="button" cButton color="light" size="sm" class="mt-2"
+                        [disabled]="identityBusy || !identityOptionsValid(identityOptions, true)"
+                        (click)="configureIdentity('SET_OPTIONS')">Save sequence options</button>
+                <button *ngIf="!identityState.identity" type="button" cButton color="primary" size="sm" class="mt-2"
+                        [disabled]="identityBusy || !identityOptionsValid(identityOptions)"
+                        (click)="configureIdentity('ADD')">Enable auto-increment</button>
+            </ng-container>
+        </c-modal-body>
+        <c-modal-footer>
+            <button *ngIf="identityState?.identity && identityTarget" type="button" cButton color="danger" variant="outline"
+                    [disabled]="identityBusy" (click)="configureIdentity('DROP')">Remove auto-increment</button>
+            <button type="button" cButton color="secondary" (click)="closeIdentitySettings()">Close</button>
+        </c-modal-footer>
+    </c-modal>
+
     <c-row>
         <c-col [hidden]="activeTab() !== 'column'">
             <p *ngIf="oldColumns() && canModifyEntity()">Double click on a row in the table below to edit the table column.</p>
@@ -171,7 +225,7 @@
                     <th>Type</th>
                     <th>Collection</th>
                     <th>Parameters</th>
-                    <th>Default</th>
+                    <th>Default / Auto-increment</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -244,7 +298,10 @@
 
                         </td>
                         <td>
-                            <c-input-group sizing="sm">
+                            <button *ngIf="_catalog.supportsIdentityColumns() && col.identity" cButton type="button" color="light" size="sm"
+                                    [attr.aria-label]="'Auto-increment settings for ' + col.name"
+                                    (click)="openIdentitySettings(col)" (dblclick)="$event.stopPropagation()">Auto-increment settings</button>
+                            <c-input-group *ngIf="!col.identity" sizing="sm">
 
                                 @if (_types.numericTypes().includes( updateColumn.controls['dataType'].value.toLowerCase() ) && updateColumn.controls['collectionsType'].value !== 'ARRAY') {
                                     <input cFormControl type="number" inputmode="decimal" placeholder="default value" formControlName="defaultValue"
@@ -317,7 +374,20 @@
                             <span *ngIf="col.dimension !== -1">dimension: {{ col.dimension }}</span>
                             <span *ngIf="col.cardinality !== -1">cardinality: {{ col.cardinality }}</span>
                         </td>
-                        <td>{{ col.defaultValue }}</td>
+                        <td>
+                            <div *ngIf="col.defaultValue != null">{{ col.defaultValue }}</div>
+                            <ng-container *ngIf="_catalog.supportsIdentityColumns() && canModifyEntity() && entity()?.entityType === EntityType.ENTITY && supportsIdentity(col.dataType, col.collectionsType)">
+                                <button cButton type="button" color="light" size="sm"
+                                        [disabled]="!isIdentityEligible(col)"
+                                        [attr.aria-label]="'Auto-increment settings for ' + col.name"
+                                        (click)="openIdentitySettings(col)" (dblclick)="$event.stopPropagation()">
+                                    {{ col.identity ? 'Auto-increment settings' : 'Set up auto-increment' }}
+                                </button>
+                                <div *ngIf="!isIdentityEligible(col)" class="small text-body-secondary">
+                                    Requires NOT NULL and no column default.
+                                </div>
+                            </ng-container>
+                        </td>
                         <td class="delete" *ngIf="canModifyEntity()">
                             <app-delete-confirm (delete)="dropColumn(col)"></app-delete-confirm>
                         </td>
@@ -334,16 +404,18 @@
                     </td>
                     <td>
                         <input cFormCheckInput type="checkbox" class="" [(ngModel)]="createColumn.nullable"
-                               [checked]="createColumn.nullable" (change)="changeNullable(createColumn)">
+                               [checked]="createColumn.nullable" [disabled]="!!createColumn.identity" (change)="changeNullable(createColumn)">
                     </td>
                     <td>
                         <select cSelect sizing="sm" [(ngModel)]="createColumn.dataType"
-                                (change)="onTypeChange2( createColumn )">
+                                (change)="onTypeChange2( createColumn )"
+                                (ngModelChange)="!supportsIdentity($event, createColumn.collectionsType) && createColumn.setIdentityEnabled(false)">
                             <option *ngFor="let t of types" [value]="t.name">{{ t.name }}</option>
                         </select>
                     </td>
                     <td>
-                        <select cSelect sizing="sm" [(ngModel)]="createColumn.collectionsType">
+                        <select cSelect sizing="sm" [(ngModel)]="createColumn.collectionsType"
+                                (ngModelChange)="$event && createColumn.setIdentityEnabled(false)">
                             <option value="">none</option>
                             <option value="ARRAY">ARRAY</option>
                         </select>
@@ -383,7 +455,13 @@
 
                     </td>
                     <td>
-                        <c-input-group sizing="sm">
+                        <label class="d-block mb-1" *ngIf="_catalog.supportsIdentityColumns() && entity()?.entityType === EntityType.ENTITY && supportsIdentity(createColumn.dataType, createColumn.collectionsType)">
+                            <input cFormCheckInput type="checkbox" [checked]="!!createColumn.identity"
+                                   (change)="createColumn.setIdentityEnabled($any($event.target).checked)">
+                            Auto-increment
+                        </label>
+                        <app-identity-options *ngIf="createColumn.identity" [options]="createColumn.identity"></app-identity-options>
+                        <c-input-group sizing="sm" *ngIf="!createColumn.identity">
                             @if (_types.numericTypes().includes( createColumn.dataType.toLowerCase() ) && createColumn.collectionsType !== 'ARRAY') {
                                 <input cFormControl id="create-default"
                                        type="number" inputmode="decimal" placeholder="default value"

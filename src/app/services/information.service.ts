@@ -72,9 +72,9 @@ export class InformationService {
 
     private startReconnecting() {
         if (this.reconnetor) {
-            clearTimeout(this.reconnetor);
+            window.clearTimeout(this.reconnetor);
         }
-        this.reconnetor = setTimeout(() => {
+        this.reconnetor = window.setTimeout(() => {
             this.initWebSocket();
         }, +this._settings.getSetting('reconnection.timeout'));
     }
@@ -97,7 +97,7 @@ export class InformationService {
 
     manualReconnect() {
         if (this.reconnetor) {
-            clearTimeout(this.reconnetor);
+            window.clearTimeout(this.reconnetor);
         }
         this.initWebSocket();
     }

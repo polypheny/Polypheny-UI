@@ -7,6 +7,7 @@ import {ConsoleComponent} from './querying/console/console.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ComponentsModule} from '../components/components.module';
 import {EditColumnsComponent} from './schema-editing/edit-columns/edit-columns.component';
+import {IdentityOptionsComponent} from './schema-editing/identity-options/identity-options.component';
 import {UmlComponent} from './uml/uml.component';
 import {GraphicalQueryingComponent} from './querying/graphical-querying/graphical-querying.component';
 import {FormGeneratorComponent} from './forms/form-generator/form-generator.component';
@@ -166,6 +167,7 @@ import {NgChartsModule} from 'ng2-charts';
     ],
     declarations: [
         EditColumnsComponent,
+        IdentityOptionsComponent,
         FormGeneratorComponent,
         GraphicalQueryingComponent,
         ConsoleComponent,

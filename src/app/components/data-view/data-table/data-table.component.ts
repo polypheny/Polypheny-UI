@@ -136,6 +136,9 @@ export class DataTableComponent extends DataTemplateComponent implements OnInit 
         if (col.nullable) {
             out += '\nnullable: ' + col.nullable;
         }
+        if (col.identity) {
+            out += col.identity.mode === 'ALWAYS' ? '\nauto-increment: always' : '\nauto-increment: by default';
+        }
         if (col.defaultValue) {
             out += '\ndefaultValue: ' + col.defaultValue;
         }

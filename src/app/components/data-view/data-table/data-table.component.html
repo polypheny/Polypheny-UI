@@ -58,11 +58,15 @@
                 [ngClass]="{'editing': editing === i, 'table-success' : this.userInput[d1] === 'true', 'table' : this.userInput === null, 'table-danger': this.userInput[d1] === 'false', 'table': this.userInput[d1] === '?'}">
                 <ng-container *ngIf="editing === i">
                     <td *ngFor="let d2 of d1; let j = index">
-                        <app-input class="editing" [header]="$result().header[j]"
-                                   [value]="updateValues.get($result().header[j].name)"
-                                   (valueChange)="newUpdateValue($result().header[j].name, $event)"
-                                   (enter)="updateTuple()" [attr.data-before]="d2"
-                                   [attr.data-col]="$result().header[j].name"></app-input>
+                        @if ($result().header[j].identity?.mode === 'ALWAYS') {
+                            {{ d2 }}
+                        } @else {
+                            <app-input class="editing" [header]="$result().header[j]"
+                                       [value]="updateValues.get($result().header[j].name)"
+                                       (valueChange)="newUpdateValue($result().header[j].name, $event)"
+                                       (enter)="updateTuple()" [attr.data-before]="d2"
+                                       [attr.data-col]="$result().header[j].name"></app-input>
+                        }
                     </td>
                     <td *ngIf="entityConfig().update || entityConfig().delete">
                         @if (uploadProgress === -1) {
@@ -124,7 +128,7 @@
             </tr>
             <tr *ngIf="entityConfig().create" id="insertRow">
                 <td *ngFor="let h of $result().header">
-                    <app-input [header]="h" [value]="insertValues.get(h.name)"
+                    <app-input [header]="h" [value]="insertValues.get(h.name)" [insert]="true"
                                (valueChange)="inputChange(h.name, $event)"
                                (enter)="insertTuple()"></app-input>
                 </td>

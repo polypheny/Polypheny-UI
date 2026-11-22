@@ -1,4 +1,4 @@
-import {effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {computed, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
 import {AdapterTemplateModel, AllocationColumnModel, AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, AssetsModel, CatalogState, ColumnModel, ConstraintModel, EntityModel, EntityType, FieldModel, IdEntity, KeyModel, LogicalSnapshotModel, NamespaceModel} from '../models/catalog.model';
@@ -29,6 +29,10 @@ export class CatalogService {
     private assets: AssetsModel;
 
     private snapshot: LogicalSnapshotModel;
+    readonly supportsIdentityColumns = computed(() => {
+        this.listener();
+        return this.snapshot?.supportsIdentityColumns === true;
+    });
     public readonly namespaces: WritableSignal<Map<number, NamespaceModel>> = signal(new Map<number, NamespaceModel>());
     public readonly namespacesNames: WritableSignal<Map<string, NamespaceModel>> = signal(new Map<string, NamespaceModel>());
     public readonly entities: WritableSignal<Map<number, EntityModel>> = signal(new Map<number, EntityModel>());
@@ -86,7 +90,8 @@ export class CatalogService {
 
     private updateSnapshot(snapshot: LogicalSnapshotModel) {
         if (snapshot && (this.snapshot && this.snapshot.id === snapshot.id &&
-            this.snapshot.constraints.length === snapshot.constraints.length)) { // adding a constraint does not always increase the id for some reason
+            this.snapshot.constraints.length === snapshot.constraints.length &&
+            this.snapshot.supportsIdentityColumns === snapshot.supportsIdentityColumns)) { // adding a constraint does not always increase the id for some reason
             return;
         }
 

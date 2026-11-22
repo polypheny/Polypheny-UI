@@ -13,6 +13,7 @@ import {BreadcrumbService} from '../../../components/breadcrumb/breadcrumb.servi
 import {CatalogService} from '../../../services/catalog.service';
 import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {AdapterModel} from '../../adapters/adapter.model';
+import {IdentityOptionsComponent} from '../identity-options/identity-options.component';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -55,6 +56,7 @@ export class EditTablesComponent implements OnInit, OnDestroy {
     readonly addableStores: Signal<AdapterModel[]>;
 
     readonly tables: Signal<Table[]>; //= signal([]);
+    protected readonly supportsIdentity = UiColumnDefinition.supportsIdentity;
 
     counter = 0;
     newColumns = new Map<number, UiColumnDefinition>();
@@ -225,7 +227,16 @@ export class EditTablesComponent implements OnInit, OnDestroy {
             this._toast.warn('Please make sure all column names are valid. The new table was not created.', 'invalid column name', ToastDuration.INFINITE);
             return;
         }
-        const request = new EditTableRequest(this.namespace().id, null, this.newTableName, 'create', Array.from(this.newColumns.values()), this.selectedStore?.id);
+        const columns = Array.from(this.newColumns.values());
+        if (columns.some(column => column.identity) && !this._catalog.supportsIdentityColumns()) {
+            this._toast.warn('The connected database does not support auto-increment.');
+            return;
+        }
+        if (columns.some(column => !IdentityOptionsComponent.isValid(column.identity))) {
+            this._toast.warn('Enter whole numbers and use an increment other than zero.', 'Invalid auto-increment options');
+            return;
+        }
+        const request = new EditTableRequest(this.namespace().id, null, this.newTableName, 'create', columns, this.selectedStore?.id);
         this.creatingTable = true;
         this._crud.createTable(request).subscribe({
             next: (result: RelationalResult) => {

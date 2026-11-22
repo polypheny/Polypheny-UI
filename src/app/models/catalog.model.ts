@@ -53,21 +53,50 @@ export interface FieldModel extends IdEntity {
     entityId: number;
 }
 
+export type IdentityMode = 'ALWAYS' | 'BY_DEFAULT';
+
+export interface IdentityColumnOptions {
+    mode: IdentityMode;
+    start?: string;
+    increment?: string;
+    min?: string;
+    max?: string;
+    cycle: boolean;
+}
+
+export interface IdentitySequenceState {
+    identity?: IdentityColumnOptions;
+    nextValue?: string;
+}
+
+export function isSignedIdentityInteger(value: string): boolean {
+    const text = value?.trim() ?? '';
+    if (!/^[+-]?\d+$/.test(text)) {
+        return false;
+    }
+    const limit = text.startsWith('-') ? '9223372036854775808' : '9223372036854775807';
+    const digits = text.replace(/^[+-]?0*/, '');
+    return digits.length < limit.length || digits.length === limit.length && digits <= limit;
+}
+
 export interface ColumnModel extends FieldModel {
     type: PolyType;
     collectionsType: PolyType;
+    elementsNullable?: boolean;
     nullable: boolean;
     position: number;
     unique: boolean;
     precision: number;
     scale: number;
     defaultValue: string;
+    identity?: IdentityColumnOptions;
     dimension: number;
     cardinality: number;
 }
 
 export interface LogicalSnapshotModel {
     id: number;
+    supportsIdentityColumns?: boolean;
     namespaces: NamespaceModel[];
     entities: EntityModel[];
     fields: FieldModel[];

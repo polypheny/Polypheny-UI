@@ -17,7 +17,7 @@ import {SortState} from '../models/sort-state.model';
 import {HttpEventType} from '@angular/common/http';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
-import {CombinedResult} from '../data-view.model';
+import {CombinedResult, createTupleFormData, createUpdateTupleFormData} from '../data-view.model';
 
 const INITIAL_TYPE = 'BIGINT';
 
@@ -446,20 +446,13 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             this.adjustDocument(Method.ADD);
             return;
         }
-        const formData = new FormData();
-        this.insertValues.forEach((v, k) => {
-            //only values with dirty state will be submitted. Columns that are not nullable are already set dirty
-            if (this.insertDirty.get(k) === true && v !== null) { // null check prevents null being inserted as string "null"
-                let value;
-                if (isNaN(v)) {
-                    value = v;
-                } else {
-                    value = String(v);
-                }
-                formData.append(k, value);
-            }
-        });
-        formData.append('entityId', String(this.entity().id));
+        let formData: FormData;
+        try {
+            formData = createTupleFormData(this.$result().header, this.insertValues, this.insertDirty, this.entity().id);
+        } catch (error) {
+            this._toast.error(error.message);
+            return;
+        }
         this.uploadProgress = 100;//show striped progressbar
         const emitResult = new EventEmitter<RelationalResult>();
 
@@ -541,14 +534,12 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
 
         if (this.$result().header) {
             for (const g of this.$result().header) {
-                //set insertDirty
-                if (!g.nullable && g.dataType !== 'serial' && g.defaultValue === undefined) {
-                    //set dirty if not nullable, so it will be submitted, except if it has autoincrement (dataType 'serial') or a default value
-                    this.insertDirty.set(g.name, true);
-                } else {
-                    this.insertDirty.set(g.name, false);
+                this.insertDirty.set(g.name, !g.identity && !g.nullable && g.dataType !== 'serial' && g.defaultValue === undefined);
+                if (g.identity) {
+                    this.insertValues.set(g.name, '');
+                    continue;
                 }
-                //set insertValues
+
                 if (g.nullable) {
                     this.insertValues.set(g.name, null);
                     continue;
@@ -576,28 +567,13 @@ export abstract class DataTemplateComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const oldValues = new Map<string, string>();//previous values
-        for (let i = 0; i < this.$result().header.length; i++) {
-            oldValues.set(this.$result().header[i].name, this.$result().data[this.editing][i]);
-            i++;
+        const {header, data} = this.$result();
+        const formData = createUpdateTupleFormData(header, data[this.editing], this.updateValues, this.entity().id);
+        if (!formData) {
+            this.stopEditing();
+            return;
         }
-        const formData = new FormData();
-        formData.append('entityId', String(this.entity()?.id));
-        formData.append('oldValues', JSON.stringify(this.mapToObject(oldValues)));
-        for (const [k, v] of this.updateValues) {
-            if (v === undefined) {
-                //don't add undefined file inputs, but if they are null, they need to be added
-                continue;
-            }
-            if (!(v instanceof File)) {
-                //stringify to distinguish between null and 'null'
-                formData.append(k, JSON.stringify(v));
-            } else {
-                formData.append(k, v);
-            }
-        }
-        this.uploadProgress = 100;//show striped progressbar
-        //const req = new UpdateRequest(this.resultSet.table, this.mapToObject(this.updateValues), this.mapToObject(oldValues));
+        this.uploadProgress = 100;
         this._crud.updateTuple(formData).subscribe({
             next: res => {
                 if (res.type && res.type === HttpEventType.UploadProgress) {
