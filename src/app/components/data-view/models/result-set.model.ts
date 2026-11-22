@@ -1,5 +1,5 @@
 import {SortState} from './sort-state.model';
-import {ColumnModel, EntityType} from '../../../models/catalog.model';
+import {ColumnModel, EntityType, IdentityColumnOptions} from '../../../models/catalog.model';
 import {DataModel, Method} from '../../../models/ui-request.model';
 import {Pair} from '../../json/json-editor.component';
 
@@ -12,6 +12,7 @@ export interface FieldDefinition {
     dataType: string;
     nullable: boolean;
     defaultValue: string;
+    identity?: IdentityColumnOptions;
 }
 
 export class Result<D, H extends FieldDefinition | UiColumnDefinition> {
@@ -181,6 +182,8 @@ export class UiColumnDefinition implements FieldDefinition {
     precision: number;
     scale: number;
     defaultValue: any;
+    identity?: IdentityColumnOptions;
+    elementsNullable?: boolean;
     dimension: number;
     cardinality: number;
 
@@ -214,8 +217,20 @@ export class UiColumnDefinition implements FieldDefinition {
         this.as = as;
     }
 
+    static supportsIdentity(dataType: string, collectionsType: string): boolean {
+        return !collectionsType && ['SMALLINT', 'INTEGER', 'BIGINT'].includes(dataType);
+    }
+
+    setIdentityEnabled(enabled: boolean): void {
+        this.identity = enabled ? {mode: 'BY_DEFAULT', cycle: false} : undefined;
+        if (enabled) {
+            this.nullable = false;
+            this.defaultValue = null;
+        }
+    }
+
     static fromModel(column: ColumnModel, primaries: number[]) {
-        return new UiColumnDefinition(
+        const definition = new UiColumnDefinition(
             column.id,
             column.name,
             primaries.includes(column.id),
@@ -227,6 +242,9 @@ export class UiColumnDefinition implements FieldDefinition {
             column.defaultValue,
             column.dimension,
             column.cardinality);
+        definition.identity = column.identity;
+        definition.elementsNullable = column.elementsNullable;
+        return definition;
     }
 }
 

@@ -1,5 +1,13 @@
 <c-input-group>
-    <ng-container [ngSwitch]="header.dataType">
+    <ng-container [ngSwitch]="insert && header.identity ? 'identity' : header.dataType">
+        <ng-container *ngSwitchCase="'identity'">
+            <span cInputGroupText *ngIf="showLabel">{{ header.name }}</span>
+            <span class="form-control form-control-sm text-body-secondary" *ngIf="header.identity.mode === 'ALWAYS'">Auto-generated</span>
+            <input cFormControl sizing="sm" *ngIf="header.identity.mode === 'BY_DEFAULT'" type="text" inputmode="numeric"
+                   [attr.aria-label]="header.name" placeholder="Auto-generated" [value]="value" #identityInput
+                   [class.is-invalid]="identityInput.value.trim() && !isSignedIdentityInteger(identityInput.value)"
+                   (input)="onValueChange(identityInput.value)" (keyup.enter)="enter.emit(true)">
+        </ng-container>
         <!-- multiple cases: from: https://stackoverflow.com/questions/40176061/two-switch-case-values-in-angular2/40177408#40177408 -->
         <ng-container *ngSwitchCase="_types.numericTypes().includes(header.dataType.toLowerCase()) ? header.dataType : ''">
             <!-- use input type text to prevent problems when having current values such as "12." (dot at the end) -->

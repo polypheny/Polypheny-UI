@@ -10,7 +10,7 @@ import {
     ResultException,
     UiColumnDefinition
 } from './models/result-set.model';
-import {EntityType} from '../../models/catalog.model';
+import {EntityType, isSignedIdentityInteger} from '../../models/catalog.model';
 
 export enum Freshness {
     UPDATE = 'UPDATE',
@@ -121,4 +121,58 @@ export class CombinedResult {
                 return CombinedResult.fromRelational(result as RelationalResult);
         }
     }
+}
+
+export function createTupleFormData(
+    header: ReadonlyArray<FieldDefinition | UiColumnDefinition>,
+    values: ReadonlyMap<string, string | number | boolean | File | null>,
+    dirty: ReadonlyMap<string, boolean>,
+    entityId: number
+): FormData {
+    const formData = new FormData();
+    for (const column of header) {
+        const value = values.get(column.name);
+        if (!dirty.get(column.name) || value == null || column.identity?.mode === 'ALWAYS') {
+            continue;
+        }
+        if (column.identity) {
+            const integer = String(value).trim();
+            if (integer === '') {
+                continue;
+            }
+            if (!isSignedIdentityInteger(integer)) {
+                throw new Error(`Enter a signed 64-bit integer for ${column.name}.`);
+            }
+            formData.append(column.name, integer);
+        } else {
+            formData.append(column.name, value instanceof File ? value : String(value));
+        }
+    }
+    formData.append('entityId', String(entityId));
+    return formData;
+}
+
+export function createUpdateTupleFormData(
+    header: ReadonlyArray<FieldDefinition | UiColumnDefinition>,
+    row: readonly string[],
+    values: ReadonlyMap<string, string | number | boolean | File | null>,
+    entityId: number
+): FormData | null {
+    const formData = new FormData();
+    const oldValues = new Map<string, string>();
+    let hasUpdates = false;
+    header.forEach((column, index) => {
+        oldValues.set(column.name, row[index]);
+        const value = values.get(column.name);
+        if (value !== undefined && column.identity?.mode !== 'ALWAYS') {
+            formData.append(column.name, value instanceof File ? value : JSON.stringify(value));
+            hasUpdates = true;
+        }
+    });
+    if (!hasUpdates) {
+        return null;
+    }
+    formData.append('entityId', String(entityId));
+    formData.append('oldValues', JSON.stringify(Object.fromEntries(oldValues)));
+    return formData;
 }

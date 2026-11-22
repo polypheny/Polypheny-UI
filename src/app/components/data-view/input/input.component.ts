@@ -4,6 +4,7 @@ import {DbmsTypesService} from '../../../services/dbms-types.service';
 import * as $ from 'jquery';
 import flatpickr from 'flatpickr';
 import {InputValidation} from '../models/sort-state.model';
+import {isSignedIdentityInteger} from '../../../models/catalog.model';
 
 function getObjectId() {
     // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
@@ -27,11 +28,13 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() header: UiColumnDefinition | FieldDefinition;
     @Input() value: any;
     @Input() showLabel? = false;
+    @Input() insert = false;
     @Output() valueChange = new EventEmitter();
     @Output() enter = new EventEmitter();
     @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
     @ViewChild('flatpickr', {static: false}) flatpickrElement: ElementRef;
     @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
+    protected readonly isSignedIdentityInteger = isSignedIdentityInteger;
     flatpickrObj;
     inputFileName = 'Choose File';
     randomId;
@@ -59,7 +62,10 @@ export class InputComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (this.inputElement !== undefined && changes.value && changes.value.currentValue === null) {
+        if (!changes.value) {
+            return;
+        }
+        if (this.inputElement !== undefined && changes.value.currentValue === null) {
             $(this.inputElement.nativeElement).removeClass('is-valid').removeClass('is-invalid');
         } else if (this._types.isDateTime(this.header.dataType) && (changes.value.currentValue == null || changes.value.currentValue === '') && this.flatpickrObj) {
             this.flatpickrObj.setDate(null);

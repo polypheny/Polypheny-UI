@@ -63,10 +63,15 @@
                         </ng-container>
                     </ng-container>
                     <ng-container *ngIf="i === editing">
-                        <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
-                                   [header]="h" [showLabel]="h.name !== '_data' " [value]="updateValues.get(h.name)"
-                                   (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
-                                   [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
+                        @if ($result()?.dataModel === DataModel.RELATIONAL) {
+                            @if (h.identity?.mode === 'ALWAYS') {
+                                <strong>{{ h.name }}</strong> {{ d1[j] }}
+                            } @else {
+                                <app-input [header]="h" [showLabel]="h.name !== '_data'" [value]="updateValues.get(h.name)"
+                                           (valueChange)="newUpdateValue(h.name, $event)" (enter)="updateTuple()"
+                                           [attr.data-before]="d1[j]" [attr.data-col]="h.name"></app-input>
+                            }
+                        }
                         <app-json-editor (validChange)="setJsonValid($event)"
                                          *ngIf="$result()?.dataModel === DataModel.DOCUMENT"
                                          [json]="updateValues.get(h.name)"
@@ -112,7 +117,7 @@
             <li cListGroupItem *ngFor="let h of $result().header">
                 <app-input *ngIf="$result()?.dataModel === DataModel.RELATIONAL"
                            [header]="h"
-                           [showLabel]="true" [value]="insertValues.get(h.name)"
+                           [showLabel]="true" [value]="insertValues.get(h.name)" [insert]="true"
                            (valueChange)="inputChange(h.name, $event)"
                            (enter)="insertTuple()"></app-input>
                 <app-json-editor (validChange)="setJsonValid($event)"

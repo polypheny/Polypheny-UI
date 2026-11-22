@@ -74,7 +74,7 @@
                 <th>Type</th>
                 <th>Collection</th>
                 <th>Parameters</th>
-                <th>Default</th>
+                <th>Default / Auto-increment</th>
                 <th></th>
             </tr>
             </thead>
@@ -91,16 +91,18 @@
                 </td>
                 <td class="align-middle">
                     <input cFormCheckInput type="checkbox" id="check-nullable-{{col.key}}"
-                           [(ngModel)]="col.value.nullable">
+                           [(ngModel)]="col.value.nullable" [disabled]="!!col.value.identity">
                 </td>
                 <td>
-                    <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType">
+                    <select class="form-control form-control-sm editing" id="udt_name" [(ngModel)]="col.value.dataType"
+                            (ngModelChange)="!supportsIdentity($event, col.value.collectionsType) && col.value.setIdentityEnabled(false)">
                         <option *ngFor="let t of types" [ngValue]="t.name">{{ t.name }}</option>
                     </select>
                 </td>
                 <td>
                     <select name="collection_type" id="collection_type" class="form-control form-control-sm editing"
-                            [(ngModel)]="col.value.collectionsType">
+                            [(ngModel)]="col.value.collectionsType"
+                            (ngModelChange)="$event && col.value.setIdentityEnabled(false)">
                         <option value="">none</option>
                         <option value="ARRAY">ARRAY</option>
                     </select>
@@ -133,7 +135,13 @@
                     </c-input-group>
                 </td>
                 <td>
-                    <c-input-group sizing="sm">
+                    <label class="d-block mb-1" *ngIf="_catalog.supportsIdentityColumns() && supportsIdentity(col.value.dataType, col.value.collectionsType)">
+                        <input cFormCheckInput type="checkbox" [checked]="!!col.value.identity"
+                               (change)="col.value.setIdentityEnabled($any($event.target).checked)">
+                        Auto-increment
+                    </label>
+                    <app-identity-options *ngIf="col.value.identity" [options]="col.value.identity"></app-identity-options>
+                    <c-input-group sizing="sm" *ngIf="!col.value.identity">
                         @if (col.value.dataType) {
                             @if (_types.numericTypes().includes( col.value.dataType.toLowerCase() ) && col.value.collectionsType !== 'ARRAY') {
                                 <input cFormControl [id]="'default'+col.value.name"

@@ -1,20 +1,21 @@
 import {Component, computed, effect, HostListener, inject, Injector, input, Input, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import * as $ from 'jquery';
-import {CrudService} from '../../../services/crud.service';
+import {CrudService, IdentityAction} from '../../../services/crud.service';
 import {FieldType, IndexMethodModel, IndexModel, ModifyPartitionRequest, PartitionFunctionModel, PartitioningRequest, PolyType, RelationalResult, TableConstraint, UiColumnDefinition} from '../../../components/data-view/models/result-set.model';
 import {ToastDuration, ToasterService} from '../../../components/toast-exposer/toaster.service';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ColumnRequest, ConstraintRequest, EditTableRequest, MaterializedRequest, Method, RefreshRequest} from '../../../models/ui-request.model';
 import {DbmsTypesService} from '../../../services/dbms-types.service';
 import {AdapterModel, AdapterType, PlacementType} from '../../adapters/adapter.model';
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {ForeignKey, Uml} from '../../uml/uml.model';
 import {CatalogService} from '../../../services/catalog.service';
-import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, ConstraintType, DeployMode, EntityModel, EntityType, NamespaceModel, TableModel} from '../../../models/catalog.model';
+import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementModel, ConstraintModel, ConstraintType, DeployMode, EntityModel, EntityType, IdentityColumnOptions, IdentityMode, IdentitySequenceState, NamespaceModel, TableModel} from '../../../models/catalog.model';
 import {map} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {ConfigService} from '../../../services/config.service';
 import {WebSocket} from '../../../services/webSocket';
+import {IdentityOptionsComponent} from '../identity-options/identity-options.component';
 
 const INITIAL_TYPE = 'BIGINT';
 const tabs = ['column', 'constraint', 'foreign', 'fresh', 'index', 'placement', 'statistics'] as const;
@@ -101,6 +102,15 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
     editColumn = -1;
     createColumn = new UiColumnDefinition(-1, '', false, true, 'text', '', null, null, null);
     confirm = -1;
+    protected readonly supportsIdentity = UiColumnDefinition.supportsIdentity;
+    protected readonly identityOptionsValid = IdentityOptionsComponent.isValid;
+    protected readonly identityIntegerValid = IdentityOptionsComponent.isInteger;
+    protected identityTarget: {entityId: number; column: UiColumnDefinition};
+    protected identityState: IdentitySequenceState;
+    protected identityOptions: IdentityColumnOptions;
+    protected identityMode: IdentityMode;
+    protected identityNextValue = '';
+    protected identityBusy = false;
     readonly oldColumns: Signal<Map<string, UiColumnDefinition>>;
     updateColumn = new UntypedFormGroup({name: new UntypedFormControl('')});
 
@@ -461,6 +471,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if (!this._types.supportsScale(newColumn.dataType) && newColumn.scale !== null) {
             newColumn.scale = null;
         }
+        newColumn.elementsNullable = oldColumn.elementsNullable;
         const req = new ColumnRequest(this.entity().id, oldColumn, newColumn);
         this._crud.updateColumn(req).subscribe({
             next: (res: RelationalResult) => {
@@ -477,6 +488,85 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                 console.log(err);
             }
         });
+    }
+
+    protected isIdentityEligible(column: UiColumnDefinition): boolean {
+        return !!column.identity || (!column.nullable && column.defaultValue == null);
+    }
+
+    protected openIdentitySettings(column: UiColumnDefinition): void {
+        if (!this._catalog.supportsIdentityColumns() || !this.isIdentityEligible(column)) {
+            return;
+        }
+        this.identityTarget = {entityId: this.entity().id, column};
+        this.identityState = undefined;
+        this.identityNextValue = '';
+        this.loadIdentitySequence();
+    }
+
+    protected closeIdentitySettings(): void {
+        this.identityTarget = undefined;
+        this.identityBusy = false;
+    }
+
+    protected loadIdentitySequence(): void {
+        const target = this.identityTarget;
+        this.identityBusy = true;
+        this.subscriptions.add(this._crud.getIdentitySequence(target.entityId, target.column.id).subscribe({
+            next: state => {
+                if (this.identityTarget !== target) {
+                    return;
+                }
+                this.identityState = state;
+                this.identityOptions = state.identity ? {...state.identity} : {mode: 'BY_DEFAULT', cycle: false};
+                this.identityMode = this.identityOptions.mode;
+                this.identityBusy = false;
+            },
+            error: () => {
+                if (this.identityTarget === target) {
+                    this.identityBusy = false;
+                    this._toast.error('Could not load the auto-increment settings.');
+                }
+            }
+        }));
+    }
+
+    protected configureIdentity(action: IdentityAction): void {
+        const {entityId, column} = this.identityTarget;
+        const options = action === 'SET_MODE' ? {...this.identityOptions, mode: this.identityMode} : this.identityOptions;
+        this.saveIdentityChange(this._crud.configureIdentityColumn(entityId, column.id, action, options));
+    }
+
+    protected restartIdentitySequence(): void {
+        const {entityId, column} = this.identityTarget;
+        this.saveIdentityChange(this._crud.restartIdentitySequence(entityId, column.id, this.identityNextValue.trim()), true);
+    }
+
+    private saveIdentityChange(result: Observable<RelationalResult>, restart = false): void {
+        const target = this.identityTarget;
+        this.identityBusy = true;
+        this.subscriptions.add(result.subscribe({
+            next: response => {
+                if (this.identityTarget !== target) {
+                    return;
+                }
+                this.identityBusy = false;
+                if (response.error) {
+                    this._toast.exception(response, 'Could not update auto-increment');
+                    return;
+                }
+                if (restart) {
+                    this.identityNextValue = '';
+                }
+                this.loadIdentitySequence();
+            },
+            error: error => {
+                if (this.identityTarget === target) {
+                    this.identityBusy = false;
+                    this._toast.error('Could not update auto-increment.', typeof error.error === 'string' ? error.error : null);
+                }
+            }
+        }));
     }
 
     addColumn() {
@@ -501,6 +591,14 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
         if (!this._types.supportsScale(this.createColumn.dataType) && this.createColumn.scale !== null) {
             this.createColumn.scale = null;
         }
+        if (this.createColumn.identity && !this._catalog.supportsIdentityColumns()) {
+            this._toast.warn('The connected database does not support auto-increment.');
+            return;
+        }
+        if (!IdentityOptionsComponent.isValid(this.createColumn.identity)) {
+            this._toast.warn('Enter whole numbers and use an increment other than zero.', 'Invalid auto-increment options');
+            return;
+        }
         const req = new ColumnRequest(this.entity().id, null, this.createColumn);
         this._crud.createColumn(req).subscribe({
             next: (res: RelationalResult) => {
@@ -513,6 +611,7 @@ export class EditColumnsComponent implements OnInit, OnDestroy {
                     this.createColumn.precision = null;
                     this.createColumn.scale = null;
                     this.createColumn.defaultValue = null;
+                    this.createColumn.setIdentityEnabled(false);
                 } else {
                     this._toast.exception(res, null, 'server error', ToastDuration.INFINITE);
                 }

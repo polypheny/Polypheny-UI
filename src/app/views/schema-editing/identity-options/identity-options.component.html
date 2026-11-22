@@ -1,0 +1,29 @@
+<div class="d-grid gap-1" *ngIf="options">
+    <label *ngIf="showMode" class="d-block">
+        Generation mode
+        <select cSelect sizing="sm" [(ngModel)]="options.mode">
+            <option value="BY_DEFAULT">By default</option>
+            <option value="ALWAYS">Always</option>
+        </select>
+    </label>
+    <label class="d-block">
+        Start
+        <input cFormControl sizing="sm" type="text" inputmode="numeric" [placeholder]="showMode ? 'Automatic' : ''" [(ngModel)]="options.start">
+    </label>
+    <label class="d-block">
+        Increment
+        <input cFormControl sizing="sm" type="text" inputmode="numeric" [placeholder]="showMode ? '1' : ''" [(ngModel)]="options.increment">
+    </label>
+    <label class="d-block">
+        Minimum
+        <input cFormControl sizing="sm" type="text" inputmode="numeric" placeholder="Automatic" [(ngModel)]="options.min">
+    </label>
+    <label class="d-block">
+        Maximum
+        <input cFormControl sizing="sm" type="text" inputmode="numeric" placeholder="Automatic" [(ngModel)]="options.max">
+    </label>
+    <label class="d-block">
+        <input cFormCheckInput type="checkbox" [(ngModel)]="options.cycle">
+        Cycle at the sequence bounds
+    </label>
+</div>

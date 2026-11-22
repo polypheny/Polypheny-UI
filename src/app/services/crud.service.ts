@@ -15,6 +15,9 @@ import {PolyAlgRegistry} from '../components/polyalg/models/polyalg-registry';
 import {PlanNode} from '../components/polyalg/models/polyalg-plan.model';
 import {PlanType} from '../models/information-page.model';
 import {map} from 'rxjs/operators';
+import {IdentityColumnOptions, IdentitySequenceState} from '../models/catalog.model';
+
+export type IdentityAction = 'ADD' | 'SET_MODE' | 'SET_OPTIONS' | 'DROP';
 
 export interface SourceRefreshResult {
     success: boolean;
@@ -256,6 +259,18 @@ export class CrudService {
     /**
      * Update a column of a Table
      */
+    getIdentitySequence(entityId: number, columnId: number): Observable<IdentitySequenceState> {
+        return this._http.post<IdentitySequenceState>(`${this.httpUrl}/getIdentitySequence`, {entityId, columnId}, this.httpOptions);
+    }
+
+    configureIdentityColumn(entityId: number, columnId: number, action: IdentityAction, identity?: IdentityColumnOptions): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/configureIdentityColumn`, {entityId, columnId, action, identity}, this.httpOptions);
+    }
+
+    restartIdentitySequence(entityId: number, columnId: number, nextValue: string): Observable<RelationalResult> {
+        return this._http.post<RelationalResult>(`${this.httpUrl}/restartIdentitySequence`, {entityId, columnId, nextValue}, this.httpOptions);
+    }
+
     updateColumn(columnRequest: ColumnRequest) {
         return this._http.post(`${this.httpUrl}/updateColumn`, columnRequest, this.httpOptions);
     }
