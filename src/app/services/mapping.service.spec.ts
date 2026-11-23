@@ -31,12 +31,19 @@ describe('MappingService', () => {
         expect(request.request.body).toEqual({targetEntityId: 50});
         request.flush({mappings: []});
         service.getSources(undefined, 50).subscribe();
-        request = http.expectOne('/api/getMappingSources');
+        request = http.expectOne('/api/getRelMappingSources');
         expect(request.request.body).toEqual({targetEntityId: 50});
         request.flush({sources: []});
         service.getDraft(7, 51, 50, 61).subscribe();
-        request = http.expectOne('/api/getMappingDraft');
+        request = http.expectOne('/api/getRelMappingDraft');
         expect(request.request.body).toEqual({adapterId: 7, targetEntityId: 51, existingTargetEntityId: 50, sourceAllocationId: 61});
+        request.flush({});
+
+        const draft = {adapterId: 7, targetEntityId: 51, expectedRevision: 'original', mappingName: 'Customers',
+            logicalTableName: 'customers', columns: [{logicalColumnId: 101, logicalName: 'id', included: true}]};
+        service.create(draft).subscribe();
+        request = http.expectOne('/api/createRelMapping');
+        expect(request.request.body).toEqual(draft);
         request.flush({});
     });
 
@@ -45,7 +52,7 @@ describe('MappingService', () => {
         service.update(draft).subscribe({error: error => {
             expect(MappingService.error(error).code).toBe('REVISION');
         }});
-        const request = http.expectOne('/api/updateMapping');
+        const request = http.expectOne('/api/updateRelMapping');
         expect(request.request.body).toEqual(draft);
         request.flush({code: 'REVISION', message: 'Reload'}, {status: 409, statusText: 'Conflict'});
     });
@@ -54,7 +61,7 @@ describe('MappingService', () => {
         const draft = {adapterId: 7, targetEntityId: 50, sourceAllocationId: 60, expectedRevision: 'original',
             columns: [{logicalColumnId: 101, logicalName: 'amount', included: true, targetType: 'INTEGER', ruleType: 'CONVERT_COLUMN'}]};
         service.validateConversions(draft).subscribe(response => expect(response.columns[0].errors[0].error.code).toBe('EXECUTION'));
-        const request = http.expectOne('/api/validateMappingConversions');
+        const request = http.expectOne('/api/validateRelMappingConversions');
         expect(request.request.method).toBe('POST');
         expect(request.request.body).toEqual(draft);
         request.flush({columns: [{logicalColumnId: 101, checkedRecords: 10, errors: [

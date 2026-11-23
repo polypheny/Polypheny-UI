@@ -23,18 +23,18 @@ export class MappingService {
     }
 
     getSources(adapterId?: number, targetEntityId?: number) {
-        return this.http.post<{sources: MappingSource[]}>(`${this.baseUrl}/getMappingSources`, {
+        return this.http.post<{sources: MappingSource[]}>(`${this.baseUrl}/getRelMappingSources`, {
             ...(adapterId == null ? {} : {adapterId}), ...(targetEntityId == null ? {} : {targetEntityId})
         });
     }
 
     getDraft(adapterId: number, targetEntityId: number, existingTargetEntityId?: number, sourceAllocationId?: number) {
-        return this.http.post<MappingDetail>(`${this.baseUrl}/getMappingDraft`, {adapterId, targetEntityId,
+        return this.http.post<MappingDetail>(`${this.baseUrl}/getRelMappingDraft`, {adapterId, targetEntityId,
             ...(existingTargetEntityId == null ? {} : {existingTargetEntityId}), ...(sourceAllocationId == null ? {} : {sourceAllocationId})});
     }
 
     create(request: MappingCreate) {
-        return this.http.post<MappingDetail>(`${this.baseUrl}/createMapping`, request);
+        return this.http.post<MappingDetail>(`${this.baseUrl}/createRelMapping`, request);
     }
 
     remove(mappingId: number, expectedRevision: string) {
@@ -46,11 +46,11 @@ export class MappingService {
     }
 
     update(request: MappingUpdate) {
-        return this.http.post<MappingDetail>(`${this.baseUrl}/updateMapping`, request);
+        return this.http.post<MappingDetail>(`${this.baseUrl}/updateRelMapping`, request);
     }
 
     validateConversions(request: MappingConversionRequest) {
-        return this.http.post<MappingConversionValidation>(`${this.baseUrl}/validateMappingConversions`, request);
+        return this.http.post<MappingConversionValidation>(`${this.baseUrl}/validateRelMappingConversions`, request);
     }
 
     static error(error: any): MappingError {
