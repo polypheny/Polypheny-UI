@@ -44,7 +44,7 @@
                 Saved; catalog refresh failed. <button cButton color="light" size="sm" (click)="refreshCatalog()">Retry refresh</button>
             </c-alert>
             <form [formGroup]="form" (ngSubmit)="save()">
-                <fieldset [disabled]="saving" [attr.aria-describedby]="schemaLocked && canEdit ? 'shared-target-info' : null">
+                <fieldset [disabled]="saving" [attr.aria-describedby]="fixedTarget && isCreate ? 'existing-target-info' : (schemaLocked && canEdit ? 'shared-target-info' : null)">
                     <section id="mapping-definition" aria-label="Mapping definition">
                         <div class="source-target-grid">
                             <section class="definition-section" aria-label="Source">
@@ -55,7 +55,7 @@
                                     <p [id]="'source-table-' + i"><span>Table name:</span> {{ source.physicalName }}</p>
                                 </div>
                             </section>
-                            <section class="definition-section target-definition" [class.shared-target]="fixedTarget && isCreate" aria-label="Target">
+                            <section class="definition-section target-definition" aria-label="Target">
                                 <h5 id="mapping-target-heading" class="mb-3">Target Information</h5>
                                 <div class="metadata-grid">
                                     <div class="field-row">
@@ -68,23 +68,23 @@
                                         </div>
                                     </div>
                                     <p id="target-model" class="field-row"><span>Data model:</span> {{ targetModel | titlecase }}</p>
-                                    <div class="field-row target-name-row">
+                                    <div class="field-row">
                                         <label for="table-name" class="form-label">Table name:</label>
                                         <div class="field-control">
-                                            <input id="table-name" cFormControl formControlName="logicalTableName" [class.is-invalid]="fieldError(form.get('logicalTableName'), 'logicalTableName')" [attr.aria-describedby]="fixedTarget && isCreate ? 'table-name-info table-name-error' : 'table-name-error'">
+                                            <input id="table-name" cFormControl formControlName="logicalTableName" [class.is-invalid]="fieldError(form.get('logicalTableName'), 'logicalTableName')" aria-describedby="table-name-error">
                                             <c-form-feedback id="table-name-error" [valid]="false" *ngIf="fieldError(form.get('logicalTableName'), 'logicalTableName') as message">
                                                 {{ message }}
                                             </c-form-feedback>
                                         </div>
-                                        <div *ngIf="fixedTarget && isCreate" id="table-name-info" class="target-name-info text-body-secondary" role="note">
-                                            This mapping uses an existing target table, which cannot be renamed
-                                        </div>
                                     </div>
                                 </div>
                             </section>
+                            <p *ngIf="fixedTarget && isCreate" id="existing-target-info" class="shared-target-info text-body-secondary" role="note">
+                                This mapping uses an existing target table. Its namespace, name, and mapping rules are fixed.
+                            </p>
                             <div *ngIf="schemaLocked && canEdit" class="shared-target-info">
                                 <p id="shared-target-info" class="text-body-secondary mb-2" role="note">
-                                    This mapping uses a target table shared by multiple sources. The target schema and mapping rules cannot be edited. You can still rename this mapping.
+                                    This mapping uses a target table shared by multiple sources. The target information and mapping rules are fixed.
                                 </p>
                                 <a [routerLink]="['/views/schema-editing', detail.namespaceName + '.' + detail.logicalTableName, 'mappings']">View all sources for this target</a>
                             </div>

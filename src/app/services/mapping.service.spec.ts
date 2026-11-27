@@ -59,7 +59,7 @@ describe('MappingService', () => {
 
     it('validates unsaved conversions without saving the mapping', () => {
         const draft = {adapterId: 7, targetEntityId: 50, sourceAllocationId: 60, expectedRevision: 'original',
-            columns: [{logicalColumnId: 101, logicalName: 'amount', included: true, targetType: 'INTEGER', ruleType: 'CONVERT_COLUMN'}]};
+            columns: [{logicalColumnId: 101, logicalName: 'amount', included: true, targetType: 'INTEGER', ruleType: 'REL_CONVERT_COLUMN'}]};
         service.validateConversions(draft).subscribe(response => expect(response.columns[0].errors[0].error.code).toBe('EXECUTION'));
         const request = http.expectOne('/api/validateRelMappingConversions');
         expect(request.request.method).toBe('POST');

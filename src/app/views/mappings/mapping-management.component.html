@@ -46,7 +46,7 @@
             </tbody>
         </table>
     </div>
-    <ng-template #noMappings><p class="text-muted mb-4">{{ embedded ? 'No mappings target this table.' : sourceTargets ? 'No mappings use this physical source.' : adapterContext ? 'This adapter has no saved mappings.' : 'No mappings are registered for this mapping kind.' }}</p></ng-template>
+    <ng-template #noMappings><p class="text-muted mb-4">{{ embedded ? (documentTarget ? 'No mappings target this collection.' : 'No mappings target this table.') : sourceTargets ? 'No mappings use this physical source.' : adapterContext ? 'This adapter has no saved mappings.' : 'No mappings are registered for this mapping kind.' }}</p></ng-template>
 </ng-container>
 
 <c-row *ngIf="!loading && !loadError" class="mb-3">
@@ -55,7 +55,9 @@
             <c-card-header>Create Mapping</c-card-header>
             <c-card-body>
                 <form (ngSubmit)="create()">
-                    <p *ngIf="!canCreate && !sourceTargets" class="text-muted">Creating incoming mappings is currently supported for imported and mapping-backed tables.</p>
+                    <p *ngIf="!canCreate && !sourceTargets" class="text-muted">
+                        {{ documentTarget ? 'Creating incoming mappings requires a mapped, read-only source collection.' : 'Creating incoming mappings is currently supported for imported and mapping-backed tables.' }}
+                    </p>
                     <c-alert *ngIf="sourceError" color="danger" role="alert">{{ sourceError }} <button cButton color="light" size="sm" type="button" (click)="refresh()">Retry</button></c-alert>
                     <c-input-group *ngIf="!viewKind || sourceTargets" class="mb-3">
                         <label cInputGroupText for="create-mapping-kind">Kind</label>
@@ -64,13 +66,21 @@
                         </select>
                     </c-input-group>
                     <c-input-group class="mb-3">
-                        <label cInputGroupText for="create-mapping-source">Source</label>
-                        <select id="create-mapping-source" name="source" cSelect [(ngModel)]="selectedSource" [disabled]="sourceTargets || removing || !filteredSources.length">
-                            <option value="" hidden></option>
-                            <option *ngFor="let source of filteredSources" [value]="sourceKey(source)">{{ source.namespaceName }}.{{ source.logicalTableName }} ({{ source.adapterName }})</option>
+                        <label cInputGroupText for="create-mapping-source-model">Source model</label>
+                        <select id="create-mapping-source-model" name="sourceModel" cSelect [ngModel]="selectedSourceModel"
+                                (ngModelChange)="selectSourceModel($event)" [disabled]="sourceTargets || removing || (adapterContext && dataModels.length <= 1)">
+                            <option *ngFor="let model of dataModels" [ngValue]="model">{{ model | titlecase }}</option>
                         </select>
                     </c-input-group>
-                    <p *ngIf="!sourceError && !filteredSources.length" class="text-muted">No source entities are available for this mapping kind.</p>
+                    <c-input-group class="mb-3">
+                        <label cInputGroupText for="create-mapping-source">Source</label>
+                        <select id="create-mapping-source" name="source" cSelect [(ngModel)]="selectedSource"
+                                [disabled]="sourceTargets || removing || (!embedded && !filteredSources.length)">
+                            <option value="" hidden></option>
+                            <option *ngFor="let source of filteredSources" [value]="sourceKey(source)">{{ creationSourceLabel(source) }}</option>
+                        </select>
+                    </c-input-group>
+                    <p *ngIf="!sourceError && !filteredSources.length" class="text-muted">No source entities are available for this mapping kind and data model.</p>
                     <c-input-group class="mb-0 justify-content-end">
                         <button cButton color="primary" type="submit" [disabled]="!createSource || !canCreate || removing">Create</button>
                     </c-input-group>
@@ -105,8 +115,8 @@
     <c-modal-header><h4 cModalTitle id="drop-mapping-title">Drop mapping?</h4></c-modal-header>
     <c-modal-body>
         <p>Drop <strong>{{ removal?.mappingName }}</strong> for {{ removal?.namespaceName }}.{{ removal?.logicalTableName }}?</p>
-        <p *ngIf="removal?.removesTarget; else keepTarget">The logical target table will be removed. The physical source and its other mappings remain available.</p>
-        <ng-template #keepTarget><p>The target table and its remaining mappings will be preserved.</p></ng-template>
+        <p *ngIf="removal?.removesTarget; else keepTarget">The logical target {{ removalTargetLabel }} will be removed. The physical source and its other mappings remain available.</p>
+        <ng-template #keepTarget><p>The target {{ removalTargetLabel }} and its remaining mappings will be preserved.</p></ng-template>
         <c-alert *ngIf="removeError" color="danger" role="alert">{{ removeError.message }} Close this dialog and refresh the list before trying again.<ul *ngIf="removeError.blockingEntities?.length"><li *ngFor="let entity of removeError.blockingEntities">{{ entity }}</li></ul></c-alert>
     </c-modal-body>
     <c-modal-footer><button cButton color="light" [disabled]="removing" (click)="closeRemoval()">Cancel</button><button cButton color="danger" [disabled]="removing || !!removeError" (click)="remove()"><c-spinner *ngIf="removing" size="sm"></c-spinner> {{ removing ? 'Dropping…' : 'Drop mapping' }}</button></c-modal-footer>

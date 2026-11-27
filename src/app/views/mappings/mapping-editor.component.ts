@@ -11,10 +11,10 @@ import {ToasterService} from '../../components/toast-exposer/toaster.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {MappingSidebarService} from './mapping-sidebar.service';
-import {MappingColumn, MappingColumnCheck, MappingConversionRequest, MappingDetail, MappingDraft, MappingError, MappingSummary, MappingUpdate, mappingKindLabel, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
+import {isDocumentMappingDetail, MappingColumn, MappingColumnCheck, MappingConversionRequest, MappingDetail, MappingDraft, MappingError, MappingSummary, MappingUpdate, mappingDetailLink, mappingKindLabel, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
 
-const COPY_RULE = 'DIRECT_COLUMN';
-const CONVERT_RULE = 'CONVERT_COLUMN';
+const COPY_RULE = 'REL_COPY_COLUMN';
+const CONVERT_RULE = 'REL_CONVERT_COLUMN';
 const UNSPECIFIED_SCALE = -2147483648; // AlgDataType.SCALE_NOT_SPECIFIED
 
 interface ConversionCheck {
@@ -193,9 +193,16 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             })
         ).subscribe(detail => {
             this.loading = false;
-            if (detail) {
-                this.acceptDetail(detail);
+            if (!detail) {
+                return;
             }
+            if (isDocumentMappingDetail(detail)) {
+                this.router.navigate(mappingDetailLink(detail, this.adapterContext ? this.adapterId : undefined), {
+                    queryParams: this.returnQuery, replaceUrl: true
+                });
+                return;
+            }
+            this.acceptDetail(detail);
         }));
     }
 
@@ -852,7 +859,7 @@ export class MappingEditorComponent implements OnInit, OnDestroy {
             : this.mappings.getMapping(request.mappingId);
         this.subscriptions.add(saved.subscribe({
             next: detail => {
-                const matches = detail && detail.mappingName === request.mappingName
+                const matches = detail && !isDocumentMappingDetail(detail) && detail.mappingName === request.mappingName
                     && detail.namespaceId === request.targetNamespaceId
                     && this.normalizeName(detail.logicalTableName, detail) === this.normalizeName(request.logicalTableName, detail)
                     && (this.isCreate ? this.createdColumnsMatch(detail, request) : detail.columns.length === request.columns.length

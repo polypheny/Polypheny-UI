@@ -34,6 +34,14 @@ export interface MappingSummary {
     revision?: string;
 }
 
+export function mappingDetailLink(mapping: Pick<MappingSummary, 'mappingId' | 'targetModel' | 'editable'>, adapterId?: number): (string | number)[] {
+    const base = adapterId == null ? ['/views/mappings'] : ['/views/adapters', adapterId, 'mappings'];
+    if (mapping.targetModel === DataModel.DOCUMENT) {
+        return [...base, 'document', mapping.mappingId];
+    }
+    return [...base, mapping.mappingId, ...(adapterId == null && mapping.editable ? ['edit'] : [])];
+}
+
 export interface PhysicalSourceReference {
     allocationId: number;
     physicalEntityId: number;
@@ -112,6 +120,52 @@ export interface MappingDetail extends MappingSummary {
     validation: MappingValidation;
     availableRules?: {type: string; label: string}[];
     typeParameters?: Record<string, MappingTypeParameters>;
+}
+
+export interface DocumentMappingDetail extends Omit<MappingSummary, 'logicalTableName' | 'removesTarget'> {
+    fixedTargetEntityId?: number;
+    targetModel: DataModel.DOCUMENT;
+    logicalCollectionName: string;
+    namespaceId: number;
+    namespaceCaseSensitive: boolean;
+    sourceAllocationId: number;
+    revision: string;
+    physicalSources: PhysicalSourceReference[];
+    rules: MappingRule[];
+    validation: MappingValidation;
+}
+
+export interface DocumentMappingSourceKey {
+    adapterId: number;
+    sourceEntityId: number;
+    sourceAllocationId: number;
+}
+
+export interface DocumentMappingSource extends DocumentMappingSourceKey {
+    adapterName: string;
+    namespaceName: string;
+    physicalName: string;
+}
+
+export interface DocumentMappingCreate extends DocumentMappingSourceKey {
+    existingTargetEntityId?: number;
+    expectedRevision: string;
+    targetNamespaceId: number;
+    mappingName: string;
+    logicalCollectionName: string;
+}
+
+export interface DocumentMappingUpdate {
+    adapterId: number;
+    mappingId: number;
+    expectedRevision: string;
+    targetNamespaceId: number;
+    mappingName: string;
+    logicalCollectionName: string;
+}
+
+export function isDocumentMappingDetail(detail: MappingDetail | DocumentMappingDetail): detail is DocumentMappingDetail {
+    return detail.targetModel === DataModel.DOCUMENT;
 }
 
 export interface MappingTypeParameters {

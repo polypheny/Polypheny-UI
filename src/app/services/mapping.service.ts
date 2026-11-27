@@ -1,7 +1,8 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {WebuiSettingsService} from './webui-settings.service';
-import {AdapterMappings, MappingConversionRequest, MappingConversionValidation, MappingCreate, MappingDetail, MappingError, MappingSource, MappingSummary, MappingUpdate} from '../views/mappings/mapping.model';
+import {DataModel} from '../models/ui-request.model';
+import {AdapterMappings, DocumentMappingCreate, DocumentMappingDetail, DocumentMappingSource, DocumentMappingSourceKey, DocumentMappingUpdate, MappingConversionRequest, MappingConversionValidation, MappingCreate, MappingDetail, MappingError, MappingSource, MappingSummary, MappingUpdate} from '../views/mappings/mapping.model';
 
 @Injectable({providedIn: 'root'})
 export class MappingService {
@@ -13,13 +14,13 @@ export class MappingService {
     }
 
     getMappings(adapterId?: number, targetEntityId?: number) {
-        return this.http.post<{mappings: MappingSummary[]}>(`${this.baseUrl}/getMappings`, {
+        return this.http.post<{mappings: MappingSummary[]; dataModels?: DataModel[]; adapterSourceModels?: DataModel[]}>(`${this.baseUrl}/getMappings`, {
             ...(adapterId == null ? {} : {adapterId}), ...(targetEntityId == null ? {} : {targetEntityId})
         });
     }
 
     getMapping(mappingId: number) {
-        return this.http.post<MappingDetail>(`${this.baseUrl}/getMapping`, {mappingId});
+        return this.http.post<MappingDetail | DocumentMappingDetail>(`${this.baseUrl}/getMapping`, {mappingId});
     }
 
     getSources(adapterId?: number, targetEntityId?: number) {
@@ -37,12 +38,32 @@ export class MappingService {
         return this.http.post<MappingDetail>(`${this.baseUrl}/createRelMapping`, request);
     }
 
+    getDocumentSources(adapterId?: number, targetEntityId?: number) {
+        return this.http.post<{sources: DocumentMappingSource[]}>(`${this.baseUrl}/getDocumentMappingSources`, {
+            ...(adapterId == null ? {} : {adapterId}), ...(targetEntityId == null ? {} : {targetEntityId})
+        });
+    }
+
+    getDocumentDraft({adapterId, sourceEntityId, sourceAllocationId}: DocumentMappingSourceKey, existingTargetEntityId?: number) {
+        return this.http.post<DocumentMappingDetail>(`${this.baseUrl}/getDocumentMappingDraft`, {
+            adapterId, sourceEntityId, sourceAllocationId, ...(existingTargetEntityId == null ? {} : {existingTargetEntityId})
+        });
+    }
+
+    createDocument(request: DocumentMappingCreate) {
+        return this.http.post<DocumentMappingDetail>(`${this.baseUrl}/createDocumentMapping`, request);
+    }
+
+    updateDocument(request: DocumentMappingUpdate) {
+        return this.http.post<DocumentMappingDetail>(`${this.baseUrl}/updateDocumentMapping`, request);
+    }
+
     remove(mappingId: number, expectedRevision: string) {
         return this.http.post<{removed: boolean}>(`${this.baseUrl}/removeMapping`, {mappingId, expectedRevision});
     }
 
     getDetail(adapterId: number, mappingId: number) {
-        return this.http.post<MappingDetail>(`${this.baseUrl}/getAdapterMapping`, {adapterId, mappingId});
+        return this.http.post<MappingDetail | DocumentMappingDetail>(`${this.baseUrl}/getAdapterMapping`, {adapterId, mappingId});
     }
 
     update(request: MappingUpdate) {

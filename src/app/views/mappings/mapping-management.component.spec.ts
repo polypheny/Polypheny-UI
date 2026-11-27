@@ -17,6 +17,9 @@ import {DataModel} from '../../models/ui-request.model';
 
 describe('MappingManagementComponent', () => {
     const lastSourceMappingReason = 'An imported source table must always have a mapping. Remove the source table or adapter instead.';
+    const dataModels = [DataModel.RELATIONAL, DataModel.DOCUMENT, DataModel.GRAPH];
+    const documentSource = {adapterId: 4, adapterName: 'json1', sourceEntityId: 50, sourceAllocationId: 60,
+        namespaceName: 'json1', physicalName: 'customers'};
     let fixture: any;
     let component: MappingManagementComponent;
     let mappings: jasmine.SpyObj<MappingService>;
@@ -34,10 +37,11 @@ describe('MappingManagementComponent', () => {
         };
         rows = [customer, {...customer, mappingId: 32, mappingName: 'Orders', logicalTableName: 'orders',
             editable: false, readOnlyReason: 'Unsupported adapter', removalBlockedReason: 'Unsupported adapter', targetModel: DataModel.DOCUMENT, kind: 'LOGICAL_TO_LOGICAL'}];
-        mappings = jasmine.createSpyObj('MappingService', ['getMappings', 'getSources', 'remove']);
-        mappings.getMappings.and.returnValue(of({mappings: rows}));
+        mappings = jasmine.createSpyObj('MappingService', ['getMappings', 'getSources', 'getDocumentSources', 'remove']);
+        mappings.getMappings.and.returnValue(of({mappings: rows, dataModels, adapterSourceModels: [DataModel.RELATIONAL]}));
         mappings.getSources.and.returnValue(of({sources: [{adapterId: 7, adapterName: 'csv_source', targetEntityId: 51,
             namespaceName: 'public', logicalTableName: 'unmapped', kind: 'PHYSICAL_TO_LOGICAL'}]}));
+        mappings.getDocumentSources.and.returnValue(of({sources: []}));
         sidebar = jasmine.createSpyObj('LeftSidebarService', ['close', 'open', 'setNodes', 'setTopButtons', 'reset']);
         params = new BehaviorSubject(convertToParamMap({}));
         query = new BehaviorSubject(convertToParamMap({adapterId: '7'}));
@@ -46,7 +50,11 @@ describe('MappingManagementComponent', () => {
             providers: [
                 {provide: MappingService, useValue: mappings},
                 {provide: ActivatedRoute, useValue: {paramMap: params, queryParamMap: query}},
-                {provide: CatalogService, useValue: {listener: signal(null), adapters: signal(new Map([[7, {id: 7, name: 'csv_source'}]])), entities: signal(new Map([[50, {id: 50, name: 'customers', namespaceId: 1, entityType: EntityType.SOURCE, modifiable: false}]])), getSnapshot: () => of(null)}},
+                {provide: CatalogService, useValue: {listener: signal(null), adapters: signal(new Map([[7, {id: 7, name: 'csv_source'}], [4, {id: 4, name: 'json1'}]])),
+                    entities: signal(new Map([
+                        [50, {id: 50, name: 'customers', namespaceId: 1, dataModel: DataModel.RELATIONAL, entityType: EntityType.SOURCE, modifiable: false}],
+                        [56, {id: 56, name: 'archive', namespaceId: 2, dataModel: DataModel.DOCUMENT, entityType: EntityType.SOURCE, modifiable: false}]
+                    ])), getSnapshot: () => of(null)}},
                 {provide: BreadcrumbService, useValue: {setBreadcrumbs: () => {}, hide: () => {}}},
                 {provide: LeftSidebarService, useValue: sidebar},
                 {provide: ToasterService, useValue: {success: () => {}}}
@@ -59,6 +67,13 @@ describe('MappingManagementComponent', () => {
 
     afterEach(() => fixture.destroy());
 
+    function documentMapping(): MappingSummary {
+        return {...rows[0], adapterId: documentSource.adapterId, adapterName: documentSource.adapterName,
+            mappingId: 34, sourceModel: DataModel.DOCUMENT, targetModel: DataModel.DOCUMENT, namespaceName: documentSource.namespaceName,
+            physicalSources: [{allocationId: documentSource.sourceAllocationId, physicalEntityId: 70,
+                namespaceName: documentSource.namespaceName, physicalName: documentSource.physicalName}]};
+    }
+
     it('opens the adapter mapping list with adapter navigation and clickable endpoints', async () => {
         const breadcrumbs = spyOn(TestBed.inject(BreadcrumbService), 'setBreadcrumbs');
         query.next(convertToParamMap({}));
@@ -67,10 +82,17 @@ describe('MappingManagementComponent', () => {
         await fixture.whenStable();
         expect(mappings.getMappings.calls.mostRecent().args).toEqual([7]);
         expect(mappings.getSources.calls.mostRecent().args).toEqual([7]);
+        expect(mappings.getDocumentSources).not.toHaveBeenCalled();
         expect(fixture.nativeElement.querySelector('h1').textContent).toBe('csv_source Physical to Logical Mappings');
+        expect(fixture.nativeElement.textContent).not.toContain('Create document mapping');
+        const model: HTMLSelectElement = fixture.nativeElement.querySelector('#create-mapping-source-model');
+        expect(model.disabled).toBeTrue();
+        expect(Array.from(model.options, option => option.text)).toEqual(['Relational']);
+        expect(model.selectedOptions[0].text).toBe('Relational');
         const table: HTMLTableElement = fixture.nativeElement.querySelector('table');
         expect(table.querySelectorAll('tbody tr').length).toBe(2);
         expect(table.querySelector('a').getAttribute('href')).toBe('/views/adapters/7/mappings/31');
+        expect(table.querySelector('tbody tr:nth-child(2) a').getAttribute('href')).toBe('/views/adapters/7/mappings/document/32');
         expect(table.querySelector('.mapping-source a').getAttribute('href')).toBe('/views/mappings/source/7?sourceNamespace=files&sourceTable=customers.csv');
         expect(table.querySelector('.mapping-target a').getAttribute('href')).toBe('/views/schema-editing/public.customers/mappings');
         const group = sidebar.setNodes.calls.mostRecent().args[0][0];
@@ -94,13 +116,138 @@ describe('MappingManagementComponent', () => {
         });
     });
 
-    it('shows an empty adapter list without redirecting to an editor', () => {
-        mappings.getMappings.and.returnValue(of({mappings: []}));
-        mappings.getSources.and.returnValue(of({sources: []}));
+    it('offers document sources on a document adapter without saved mappings', async () => {
+        mappings.getMappings.and.returnValue(of({mappings: [], dataModels, adapterSourceModels: [DataModel.DOCUMENT]}));
+        mappings.getDocumentSources.and.returnValue(of({sources: [documentSource]}));
         const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
-        params.next(convertToParamMap({adapterId: '7'}));
+        query.next(convertToParamMap({}));
+        mappings.getSources.calls.reset();
+        params.next(convertToParamMap({adapterId: '4'}));
         fixture.detectChanges();
-        expect(fixture.nativeElement.querySelector('h1').textContent).toBe('csv_source Physical to Logical Mappings');
+        await fixture.whenStable();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const model = root.querySelector<HTMLSelectElement>('#create-mapping-source-model');
+        const select = root.querySelector<HTMLSelectElement>('#create-mapping-source');
+        expect(model.disabled).toBeTrue();
+        expect(Array.from(model.options, option => option.text)).toEqual(['Document']);
+        expect(model.selectedOptions[0].text).toBe('Document');
+        expect(mappings.getSources).not.toHaveBeenCalled();
+        expect(mappings.getDocumentSources.calls.mostRecent().args).toEqual([4]);
+        expect(select.options[1].textContent.trim()).toBe('json1.customers (json1)');
+        expect(root.textContent).not.toContain('No source entities are available for this mapping kind and data model.');
+        expect(root.textContent).not.toContain('Create document mapping');
+
+        select.selectedIndex = 1;
+        select.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+        select.closest('form').querySelector<HTMLButtonElement>('button[type="submit"]').click();
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/adapters', 4, 'mappings', 'document', 'create'], {
+            queryParams: {sourceEntityId: 50, sourceAllocationId: 60}
+        });
+    });
+
+    it('lets the user switch between the models declared by a multi-model adapter', async () => {
+        mappings.getMappings.and.returnValue(of({mappings: [], dataModels, adapterSourceModels: [DataModel.RELATIONAL, DataModel.DOCUMENT]}));
+        mappings.getSources.and.returnValue(of({sources: [{adapterId: 4, adapterName: 'json1', targetEntityId: 51,
+            namespaceName: 'public', logicalTableName: 'orders', kind: 'PHYSICAL_TO_LOGICAL'}]}));
+        mappings.getDocumentSources.and.returnValue(of({sources: [documentSource]}));
+        query.next(convertToParamMap({}));
+        params.next(convertToParamMap({adapterId: '4'}));
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const model = root.querySelector<HTMLSelectElement>('#create-mapping-source-model');
+        const source = root.querySelector<HTMLSelectElement>('#create-mapping-source');
+        expect(model.disabled).toBeFalse();
+        expect(Array.from(model.options, option => option.text)).toEqual(['Relational', 'Document']);
+        expect(source.options[1].text).toBe('public.orders (json1)');
+        source.selectedIndex = 1;
+        source.dispatchEvent(new Event('change'));
+        model.selectedIndex = 1;
+        model.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+        expect(component.selectedSource).toBe('');
+        expect(source.options[1].text).toBe('json1.customers (json1)');
+    });
+
+    it('uses the server model options, filters sources and opens document creation from the general or kind list', async () => {
+        const serverModels = [DataModel.DOCUMENT, DataModel.RELATIONAL, DataModel.GRAPH];
+        mappings.getMappings.and.returnValue(of({mappings: [...rows, documentMapping()], dataModels: serverModels}));
+        mappings.getDocumentSources.and.returnValue(of({sources: [documentSource]}));
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        query.next(convertToParamMap({}));
+
+        for (const route of [{}, {kind: 'PHYSICAL_TO_LOGICAL'}]) {
+            params.next(convertToParamMap(route));
+            component.selectSourceModel(DataModel.RELATIONAL);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const root: HTMLElement = fixture.nativeElement;
+            const model = root.querySelector<HTMLSelectElement>('#create-mapping-source-model');
+            const source = root.querySelector<HTMLSelectElement>('#create-mapping-source');
+            expect(Array.from(model.options, option => option.text)).toEqual(['Document', 'Relational', 'Graph']);
+            expect(source.options[1].text).toBe('public.unmapped (csv_source)');
+
+            model.selectedIndex = 0;
+            model.dispatchEvent(new Event('change'));
+            fixture.detectChanges();
+            expect(source.options[1].text).toBe('json1.customers (json1)');
+            source.selectedIndex = 1;
+            source.dispatchEvent(new Event('change'));
+            fixture.detectChanges();
+            source.closest('form').querySelector<HTMLButtonElement>('button[type="submit"]').click();
+            expect(navigate).toHaveBeenCalledOnceWith(['/views/mappings', 'document', 'create'], {
+                queryParams: {sourceEntityId: 50, sourceAllocationId: 60}
+            });
+            navigate.calls.reset();
+
+            model.selectedIndex = 2;
+            model.dispatchEvent(new Event('change'));
+            fixture.detectChanges();
+            expect(component.selectedSource).toBe('');
+            expect(source.closest('form').querySelector<HTMLButtonElement>('button[type="submit"]').disabled).toBeTrue();
+            component.create();
+            expect(navigate).not.toHaveBeenCalled();
+        }
+    });
+
+    it('locks all source fields on a document source list and creates from the selected collection', async () => {
+        mappings.getMappings.and.returnValue(of({mappings: [documentMapping()], dataModels}));
+        mappings.getDocumentSources.and.returnValue(of({sources: [documentSource]}));
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        query.next(convertToParamMap({sourceNamespace: 'json1', sourceTable: 'customers'}));
+        params.next(convertToParamMap({sourceAdapterId: '4'}));
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const root: HTMLElement = fixture.nativeElement;
+        const model = root.querySelector<HTMLSelectElement>('#create-mapping-source-model');
+        const source = root.querySelector<HTMLSelectElement>('#create-mapping-source');
+        expect(model.disabled).toBeTrue();
+        expect(model.selectedOptions[0].text).toBe('Document');
+        expect(source.disabled).toBeTrue();
+        expect(source.selectedOptions[0].text).toBe('json1.customers (json1)');
+        expect(root.textContent).not.toContain('Create document mapping');
+        component.create();
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/mappings', 'document', 'create'], {queryParams: {
+            returnSourceAdapterId: 4, returnSourceNamespace: 'json1', returnSourceTable: 'customers', sourceEntityId: 50, sourceAllocationId: 60
+        }});
+    });
+
+    it('shows the declared model for an adapter with no saved mappings or available sources', async () => {
+        mappings.getMappings.and.returnValue(of({mappings: [], dataModels, adapterSourceModels: [DataModel.DOCUMENT]}));
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        params.next(convertToParamMap({adapterId: '4'}));
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const model: HTMLSelectElement = fixture.nativeElement.querySelector('#create-mapping-source-model');
+        expect(model.disabled).toBeTrue();
+        expect(model.selectedOptions[0].text).toBe('Document');
+        expect(fixture.nativeElement.querySelector('#create-mapping-source').disabled).toBeTrue();
+        expect(fixture.nativeElement.querySelector('h1').textContent).toBe('json1 Physical to Logical Mappings');
         expect(fixture.nativeElement.textContent).toContain('This adapter has no saved mappings.');
         expect(navigate).not.toHaveBeenCalled();
     });
@@ -116,6 +263,7 @@ describe('MappingManagementComponent', () => {
     });
 
     it('lists all targets of one physical source across distinct allocations and preselects it for creation', async () => {
+        const breadcrumbs = spyOn(TestBed.inject(BreadcrumbService), 'setBreadcrumbs');
         const original = rows[0];
         const anotherTarget: MappingSummary = {...original, mappingId: 33, mappingName: 'Customer archive', targetEntityId: 55,
             logicalTableName: 'customers_archive', physicalSources: [{...original.physicalSources[0], allocationId: 61, physicalEntityId: 71}]};
@@ -132,6 +280,9 @@ describe('MappingManagementComponent', () => {
         fixture.detectChanges();
         await fixture.whenStable();
         expect(component.visibleMappings.map(mapping => mapping.mappingId)).toEqual([33, 31]);
+        const trail = breadcrumbs.calls.mostRecent().args[0];
+        expect(trail.map(item => item.name)).toEqual(['Mappings', 'Physical to Logical', 'Targets for csv_source.customers.csv']);
+        expect(trail[1].routerLink).toEqual(['/views/mappings/kind', 'PHYSICAL_TO_LOGICAL']);
         expect(fixture.nativeElement.querySelector('h1').textContent).toBe('customers.csv (source)');
         expect(fixture.nativeElement.querySelectorAll('table tbody tr').length).toBe(2);
         const archiveRow: HTMLTableRowElement = fixture.nativeElement.querySelector('table tbody tr');
@@ -214,7 +365,7 @@ describe('MappingManagementComponent', () => {
         nodes[0].children[0].action(null, null, null);
         expect(navigate).toHaveBeenCalledWith(['/views/mappings', 31, 'edit']);
         nodes[1].children[0].action(null, null, null);
-        expect(navigate).toHaveBeenCalledWith(['/views/mappings', 32]);
+        expect(navigate).toHaveBeenCalledWith(['/views/mappings', 'document', 32]);
     });
 
     it('groups mappings of the same kind together across namespaces and orders groups by mapping kind', () => {
@@ -283,7 +434,7 @@ describe('MappingManagementComponent', () => {
         const table: HTMLTableElement = fixture.nativeElement.querySelector('table');
         expect(table.textContent).toContain('Orders');
         expect(table.textContent).not.toContain('Customer import');
-        expect(table.querySelector('a').getAttribute('href')).toBe('/views/mappings/32');
+        expect(table.querySelector('a').getAttribute('href')).toBe('/views/mappings/document/32');
         expect(fixture.nativeElement.querySelector('#create-mapping-source').disabled).toBeTrue();
     });
 
@@ -333,6 +484,30 @@ describe('MappingManagementComponent', () => {
         expect(mappings.remove).toHaveBeenCalledOnceWith(33, 'second-revision');
         expect(fixture.nativeElement.querySelector('button[aria-label="Drop Second import"]')).toBeNull();
         expect(fixture.nativeElement.querySelector('button[aria-label="Drop Customer import"]')).not.toBeNull();
+    });
+
+    it('drops a document mapping from its adapter list using its current revision', () => {
+        const documentMapping: MappingSummary = {...rows[0], adapterId: 4, adapterName: 'json1',
+            mappingId: 34, mappingName: 'Customer archive', sourceModel: DataModel.DOCUMENT, targetModel: DataModel.DOCUMENT,
+            removable: true, revision: 'document-revision', removalBlockedReason: null};
+        const defaultMapping = {...documentMapping, mappingId: 35, mappingName: 'Customer import', removable: false};
+        mappings.getMappings.and.returnValue(of({mappings: [defaultMapping, documentMapping]}));
+        params.next(convertToParamMap({adapterId: '4'}));
+        fixture.detectChanges();
+
+        const root: HTMLElement = fixture.nativeElement;
+        root.querySelector<HTMLButtonElement>('button[aria-label="Drop Customer archive"]').click();
+        fixture.detectChanges();
+        expect(root.textContent).toContain('The logical target collection will be removed.');
+        expect(mappings.remove).not.toHaveBeenCalled();
+
+        mappings.remove.and.returnValue(of({removed: true}));
+        mappings.getMappings.and.returnValue(of({mappings: [defaultMapping]}));
+        root.querySelector<HTMLButtonElement>('c-modal-footer button:last-child').click();
+        fixture.detectChanges();
+        expect(mappings.remove).toHaveBeenCalledOnceWith(34, 'document-revision');
+        expect(root.querySelector('button[aria-label="Drop Customer archive"]')).toBeNull();
+        expect(root.querySelector('button[aria-label="Drop Customer import"]')).not.toBeNull();
     });
 
     it('shows the triangle only after a blocked attempt, without a message, and resets when permissions reload', () => {
@@ -485,19 +660,20 @@ describe('MappingManagementComponent', () => {
         fixture.detectChanges();
         await fixture.whenStable();
         expect(source.disabled).toBeTrue();
-        expect(root.textContent).toContain('No source entities are available for this mapping kind.');
+        expect(root.textContent).toContain('No source entities are available for this mapping kind and data model.');
     });
 
-    it('embeds the shared list for a target across kinds without changing Schema navigation', () => {
+    it('embeds the shared list for a target with all three selectors enabled', async () => {
         fixture.destroy();
         sidebar.setNodes.calls.reset();
         sidebar.close.calls.reset();
-        mappings.getMappings.and.returnValue(of({mappings: [rows[0], {...rows[1], targetEntityId: 51}]}));
+        mappings.getMappings.and.returnValue(of({mappings: [rows[0], {...rows[1], targetEntityId: 51}], dataModels}));
         const breadcrumbs = spyOn(TestBed.inject(BreadcrumbService), 'setBreadcrumbs');
         fixture = TestBed.createComponent(MappingManagementComponent);
         component = fixture.componentInstance;
         fixture.componentRef.setInput('targetEntityId', 50);
         fixture.detectChanges();
+        await fixture.whenStable();
         expect(mappings.getMappings).toHaveBeenCalledWith(undefined, 50);
         expect(mappings.getSources).toHaveBeenCalledWith(undefined, 50);
         expect(component.visibleMappings.map(mapping => mapping.mappingId)).toEqual([31]);
@@ -505,6 +681,12 @@ describe('MappingManagementComponent', () => {
         expect(fixture.nativeElement.querySelector('table thead').textContent).toContain('Mapping Kind');
         expect(fixture.nativeElement.textContent).not.toContain('Drop Mapping');
         expect(fixture.nativeElement.textContent).not.toContain('Target:');
+        expect(fixture.nativeElement.querySelector('#create-mapping-kind').disabled).toBeFalse();
+        expect(fixture.nativeElement.querySelector('#create-mapping-source-model').disabled).toBeFalse();
+        expect(fixture.nativeElement.querySelector('#create-mapping-source').disabled).toBeFalse();
+        component.selectSourceModel(DataModel.GRAPH);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('#create-mapping-source').disabled).toBeFalse();
         expect(sidebar.setNodes).not.toHaveBeenCalled();
         expect(breadcrumbs).not.toHaveBeenCalled();
         expect(component.mappingQuery()).toEqual({returnTargetEntityId: 50});
@@ -525,6 +707,46 @@ describe('MappingManagementComponent', () => {
         expect(navigate).toHaveBeenCalledWith(['/views/mappings/create'], {queryParams: {
             adapterId: 7, targetEntityId: 51, existingTargetEntityId: 50, returnTargetEntityId: 50
         }});
+    });
+
+    it('lists mappings and lets the user choose a source for an embedded document target', async () => {
+        fixture.destroy();
+        mappings.getSources.calls.reset();
+        const mapping = {...documentMapping(), targetEntityId: 56, logicalTableName: 'archive'};
+        mappings.getMappings.and.returnValue(of({mappings: [mapping, {...documentMapping(), mappingId: 35}, rows[0]], dataModels}));
+        mappings.getDocumentSources.and.returnValue(of({sources: [documentSource]}));
+        fixture = TestBed.createComponent(MappingManagementComponent);
+        component = fixture.componentInstance;
+        fixture.componentRef.setInput('targetEntityId', 56);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(mappings.getMappings).toHaveBeenCalledWith(undefined, 56);
+        expect(mappings.getSources).not.toHaveBeenCalled();
+        expect(mappings.getDocumentSources).toHaveBeenCalledWith(undefined, 56);
+        const table: HTMLTableElement = fixture.nativeElement.querySelector('table');
+        expect(table.querySelectorAll('tbody tr').length).toBe(1);
+        expect(table.querySelector('tbody td a').getAttribute('href')).toBe('/views/mappings/document/34?returnTargetEntityId=56');
+        expect(table.querySelector('.mapping-target').textContent.trim()).toBe('json1.archive');
+        const root: HTMLElement = fixture.nativeElement;
+        expect(root.textContent).toContain('Create Mapping');
+        const model = root.querySelector<HTMLSelectElement>('#create-mapping-source-model');
+        const source = root.querySelector<HTMLSelectElement>('#create-mapping-source');
+        expect(model.selectedOptions[0].text).toBe('Document');
+        expect(source.options[1].text).toBe('json1.customers (json1)');
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        source.selectedIndex = 1;
+        source.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+        source.closest('form').querySelector<HTMLButtonElement>('button[type="submit"]').click();
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/mappings', 'document', 'create'], {
+            queryParams: {existingTargetEntityId: 56, sourceEntityId: 50, sourceAllocationId: 60}
+        });
+
+        mappings.getMappings.and.returnValue(of({mappings: [], dataModels}));
+        component.refresh();
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('No mappings target this collection.');
     });
 
     it('explains that dropping one of several incoming mappings preserves the target', () => {

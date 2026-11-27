@@ -14,7 +14,7 @@ import {AllocationEntityModel, AllocationPartitionModel, AllocationPlacementMode
 import {Router} from '@angular/router';
 import {WebSocket} from '../../../services/webSocket';
 
-const tabs = ['fields', 'placement', 'source-materialization', 'statistics'] as const;
+const tabs = ['fields', 'placement', 'source-materialization', 'statistics', 'mappings'] as const;
 type Tabs = (typeof tabs)[number]; // returns the type of any element in the tabs array
 type SourceMaterializationMode = 'independent' | 'synchronized';
 

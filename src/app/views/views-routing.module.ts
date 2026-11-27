@@ -8,6 +8,8 @@ import {MonitoringComponent} from './monitoring/monitoring.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {QueryingComponent} from './querying/querying.component';
 import {AdaptersComponent} from './adapters/adapters.component';
+import {DocumentMappingCreateComponent} from './mappings/document-mapping-create.component';
+import {DocumentMappingDetailComponent} from './mappings/document-mapping-detail.component';
 import {MappingEditorComponent} from './mappings/mapping-editor.component';
 import {MappingManagementComponent} from './mappings/mapping-management.component';
 import {MappingUnsavedChangesGuard} from './mappings/mapping-unsaved-changes.guard';
@@ -169,6 +171,20 @@ const routes: Routes = [
         data: {title: 'Mappings'}
     },
     {
+        path: 'mappings/document/create',
+        component: DocumentMappingCreateComponent,
+        data: {title: 'Create Document Mapping'},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    },
+    {
+        path: 'mappings/document/:mappingId',
+        component: DocumentMappingDetailComponent,
+        data: {title: 'Document Mapping'},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    },
+    {
         path: 'mappings/:mappingId/edit',
         component: MappingEditorComponent,
         data: {title: 'Edit Mapping'},
@@ -198,6 +214,20 @@ const routes: Routes = [
         path: 'adapters/:adapterId/mappings/create',
         component: MappingEditorComponent,
         data: {title: 'Create Mapping', create: true},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    },
+    {
+        path: 'adapters/:adapterId/mappings/document/create',
+        component: DocumentMappingCreateComponent,
+        data: {title: 'Create Document Mapping'},
+        canDeactivate: [MappingUnsavedChangesGuard],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    },
+    {
+        path: 'adapters/:adapterId/mappings/document/:mappingId',
+        component: DocumentMappingDetailComponent,
+        data: {title: 'Document Mapping'},
         canDeactivate: [MappingUnsavedChangesGuard],
         runGuardsAndResolvers: 'paramsOrQueryParamsChange'
     },

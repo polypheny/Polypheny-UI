@@ -30,8 +30,8 @@ describe('MappingEditorComponent', () => {
         detail = {
             adapterId: 7, adapterName: 'csv_source', mappingId: 31, mappingName: 'Import', targetEntityId: 50,
             kind: 'PHYSICAL_TO_LOGICAL', sourceModel: DataModel.RELATIONAL, targetModel: DataModel.RELATIONAL,
-            availableRules: [{type: 'DIRECT_COLUMN', label: 'Copy source value'}],
-            rules: [{type: 'DIRECT_COLUMN', targetLogicalColumnId: 101}, {type: 'DIRECT_COLUMN', targetLogicalColumnId: 102}],
+            availableRules: [{type: 'REL_COPY_COLUMN', label: 'Copy source value'}],
+            rules: [{type: 'REL_COPY_COLUMN', targetLogicalColumnId: 101}, {type: 'REL_COPY_COLUMN', targetLogicalColumnId: 102}],
             validation: {
                 mappingNameMaxLength: 255, identifierMaxLength: 100, identifierPattern: '[a-zA-Z_][a-zA-Z0-9_]*',
                 mappingNameMessage: 'Enter a mapping name of 1–255 characters.', identifierMessage: 'Enter a valid identifier of up to 100 characters.'
@@ -78,7 +78,7 @@ describe('MappingEditorComponent', () => {
     afterEach(() => fixture.destroy());
 
     function loadConversionField() {
-        detail.availableRules = [{type: 'DIRECT_COLUMN', label: 'Copy'}, {type: 'CONVERT_COLUMN', label: 'Convert'}];
+        detail.availableRules = [{type: 'REL_COPY_COLUMN', label: 'Copy'}, {type: 'REL_CONVERT_COLUMN', label: 'Convert'}];
         detail.columns[0] = {...detail.columns[0], type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40,
             targetTypeOptions: ['VARCHAR', 'INTEGER', 'DECIMAL'], physicalReferences: [{
                 allocationId: 60, physicalEntityId: 70, physicalColumnId: 101, physicalName: 'source_id', physicalPosition: 0,
@@ -95,7 +95,7 @@ describe('MappingEditorComponent', () => {
                 allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'source_name', physicalPosition: 1,
                 type: 'VARCHAR', typeDisplay: 'VARCHAR(40)', precision: 40, nullable: true
             }]};
-        detail.rules.forEach(rule => rule.type = 'CONVERT_COLUMN');
+        detail.rules.forEach(rule => rule.type = 'REL_CONVERT_COLUMN');
         loadConversionField();
     }
 
@@ -125,7 +125,7 @@ describe('MappingEditorComponent', () => {
         first.get('included').setValue(true);
         tick(300);
         expect(mappings.validateConversions).toHaveBeenCalledTimes(4);
-        first.get('ruleType').setValue('DIRECT_COLUMN');
+        first.get('ruleType').setValue('REL_COPY_COLUMN');
         tick(300);
         expect(component.conversionChecks[101]).toBeUndefined();
         expect(component.conversionChecks[102]).toBe(secondCheck);
@@ -161,7 +161,7 @@ describe('MappingEditorComponent', () => {
         mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 10, errors}]}));
         loadConversionField();
         const row = component.columns.at(0);
-        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('ruleType').setValue('REL_CONVERT_COLUMN');
         row.get('targetType').setValue('INTEGER');
         tick(299);
         expect(mappings.validateConversions).not.toHaveBeenCalled();
@@ -171,7 +171,7 @@ describe('MappingEditorComponent', () => {
         expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
         expect(mappings.validateConversions.calls.mostRecent().args[0]).toEqual({adapterId: 7, mappingId: 31,
             expectedRevision: 'original', columns: [{logicalColumnId: 101, logicalName: 'id', included: true,
-                ruleType: 'CONVERT_COLUMN', targetType: 'INTEGER'}]});
+                ruleType: 'REL_CONVERT_COLUMN', targetType: 'INTEGER'}]});
         const headers = Array.from(fixture.nativeElement.querySelectorAll('thead tr:last-child th')).map((header: HTMLElement) => header.textContent.trim());
         expect(headers.slice(-3)).toEqual(['Type', 'Check', 'Nullable']);
         const errorIcon: HTMLButtonElement = fixture.nativeElement.querySelector('.conversion-error');
@@ -198,7 +198,7 @@ describe('MappingEditorComponent', () => {
         mappings.validateConversions.and.returnValue(stale);
         loadConversionField();
         const row = component.columns.at(0);
-        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('ruleType').setValue('REL_CONVERT_COLUMN');
         tick(300);
         row.get('targetType').setValue('DECIMAL');
         expect(stale.observers.length).toBe(0);
@@ -228,7 +228,7 @@ describe('MappingEditorComponent', () => {
     it('distinguishes unavailable and empty checks from successful samples', fakeAsync(() => {
         mappings.validateConversions.and.returnValue(throwError(() => ({status: 0})));
         loadConversionField();
-        component.columns.at(0).get('ruleType').setValue('CONVERT_COLUMN');
+        component.columns.at(0).get('ruleType').setValue('REL_CONVERT_COLUMN');
         tick(300);
         fixture.detectChanges();
         expect(component.conversionChecks[101].status).toBe('unavailable');
@@ -249,7 +249,7 @@ describe('MappingEditorComponent', () => {
         for (const response of [{}, {columns: {}}, {columns: [{logicalColumnId: 101, checkedRecords: 10}]}]) {
             mappings.validateConversions.and.returnValue(of(response as any));
             loadConversionField();
-            component.columns.at(0).get('ruleType').setValue('CONVERT_COLUMN');
+            component.columns.at(0).get('ruleType').setValue('REL_CONVERT_COLUMN');
             tick(300);
             fixture.detectChanges();
             expect(component.conversionChecks[101].status).toBe('unavailable');
@@ -266,7 +266,7 @@ describe('MappingEditorComponent', () => {
             }]};
         mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 10, errors: []}]}));
         loadConversionField();
-        component.columns.at(0).get('ruleType').setValue('CONVERT_COLUMN');
+        component.columns.at(0).get('ruleType').setValue('REL_CONVERT_COLUMN');
         component.columns.at(0).get('targetType').setValue('INTEGER');
         tick(300);
         expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
@@ -298,12 +298,12 @@ describe('MappingEditorComponent', () => {
         const conversionError = {code: 'EXECUTION', message: 'Cannot convert the source value to INTEGER.'};
         mappings.validateConversions.and.returnValue(of({columns: [{logicalColumnId: 101, checkedRecords: 10,
             errors: [{recordNumber: 2, error: conversionError}]}]}));
-        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('ruleType').setValue('REL_CONVERT_COLUMN');
         row.get('targetType').setValue('INTEGER');
         expect(component.conversionChecks[101].status).toBe('checking');
         tick(300);
         expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
-        expect(mappings.validateConversions.calls.mostRecent().args[0].columns[0].ruleType).toBe('CONVERT_COLUMN');
+        expect(mappings.validateConversions.calls.mostRecent().args[0].columns[0].ruleType).toBe('REL_CONVERT_COLUMN');
         expect(mappings.validateConversions.calls.mostRecent().args[0].columns[0]).not.toEqual(jasmine.objectContaining({targetNullable: jasmine.anything()}));
         expect(component.conversionChecks[101].status).toBe('failed');
         const previousCheck = component.conversionChecks[101];
@@ -317,7 +317,7 @@ describe('MappingEditorComponent', () => {
         tick(300);
         expect(component.conversionChecks[101]).toBe(previousCheck);
         expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
-        row.get('ruleType').setValue('DIRECT_COLUMN');
+        row.get('ruleType').setValue('REL_COPY_COLUMN');
         tick(300);
         expect(component.conversionChecks[101]).toBeUndefined();
         expect(mappings.validateConversions).toHaveBeenCalledTimes(1);
@@ -457,8 +457,9 @@ describe('MappingEditorComponent', () => {
         route.queryParamMap.next(convertToParamMap({adapterId: '7', targetEntityId: '51', existingTargetEntityId: '50', returnTargetEntityId: '50'}));
         fixture.detectChanges();
         expect(mappings.getDraft).toHaveBeenCalledWith(7, 51, 50, undefined);
-        expect(fixture.nativeElement.querySelector('#table-name-info').textContent.trim()).toBe(
-            'This mapping uses an existing target table, which cannot be renamed');
+        const notice: HTMLElement = fixture.nativeElement.querySelector('#existing-target-info');
+        expect(notice.textContent.trim()).toBe('This mapping uses an existing target table. Its namespace, name, and mapping rules are fixed.');
+        expect(notice.previousElementSibling).toBe(fixture.nativeElement.querySelector('[aria-label="Target"]'));
         expect(fixture.nativeElement.querySelector('#shared-target-info')).toBeNull();
         expect(component.form.get('targetNamespaceId').disabled).toBeTrue();
         expect(component.form.get('logicalTableName').disabled).toBeTrue();
@@ -508,11 +509,11 @@ describe('MappingEditorComponent', () => {
         route.paramMap.next(convertToParamMap({adapterId: '7', mappingId: '31'}));
         fixture.detectChanges();
         const notice: HTMLElement = fixture.nativeElement.querySelector('#shared-target-info');
-        expect(notice.textContent.trim()).toBe('This mapping uses a target table shared by multiple sources. The target schema and mapping rules cannot be edited. You can still rename this mapping.');
+        expect(notice.textContent.trim()).toBe('This mapping uses a target table shared by multiple sources. The target information and mapping rules are fixed.');
         expect(notice.parentElement.parentElement).toBe(fixture.nativeElement.querySelector('.source-target-grid'));
         expect(notice.parentElement.previousElementSibling).toBe(fixture.nativeElement.querySelector('[aria-label="Target"]'));
         expect(fixture.nativeElement.querySelector('fieldset').getAttribute('aria-describedby')).toBe('shared-target-info');
-        expect(fixture.nativeElement.querySelector('#table-name-info')).toBeNull();
+        expect(fixture.nativeElement.querySelector('#existing-target-info')).toBeNull();
         expect(fixture.nativeElement.querySelector('[aria-label="Rename mapping"]')).not.toBeNull();
         expect(component.columns.disabled).toBeTrue();
         expect(component.form.get('logicalTableName').disabled).toBeTrue();
@@ -606,6 +607,18 @@ describe('MappingEditorComponent', () => {
         expect(component.canSave).toBeTrue();
         component.form.get('mappingName').setValue('Import');
         expect(component.dirty).toBeFalse();
+    });
+
+    it('redirects a document response from a generic mapping URL before creating a column form', () => {
+        const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+        mappings.getMapping.and.returnValue(of({
+            ...detail, targetModel: DataModel.DOCUMENT, logicalCollectionName: 'customers', sourceAllocationId: 60,
+            rules: [{type: 'DOCUMENT_COPY_ENTIRE'}]
+        }));
+        route.paramMap.next(convertToParamMap({mappingId: '31'}));
+
+        expect(navigate).toHaveBeenCalledOnceWith(['/views/mappings', 'document', 31], {queryParams: null, replaceUrl: true});
+        expect(component.form).toBeNull();
     });
 
     it('renders data models without repeating the mapping kind in the editor header', async () => {
@@ -1225,8 +1238,8 @@ describe('MappingEditorComponent', () => {
     });
 
     it('shows the retained conversion disabled when its column is excluded and after reloading', async () => {
-        detail.availableRules.push({type: 'CONVERT_COLUMN', label: 'Convert'});
-        detail.rules[1].type = 'CONVERT_COLUMN';
+        detail.availableRules.push({type: 'REL_CONVERT_COLUMN', label: 'Convert'});
+        detail.rules[1].type = 'REL_CONVERT_COLUMN';
         detail.columns[1] = {...detail.columns[1], type: 'DECIMAL', typeDisplay: 'DECIMAL(10, 2)', precision: 10, scale: 2,
             targetTypeOptions: ['VARCHAR', 'DECIMAL'],
             physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'name',
@@ -1238,7 +1251,7 @@ describe('MappingEditorComponent', () => {
         const rule = () => root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]');
         const type = () => root.querySelector<HTMLSelectElement>('[aria-label="Target type for name"]');
         const include = () => root.querySelector<HTMLInputElement>('[aria-label="Include name"]');
-        expect(rule().value).toBe('CONVERT_COLUMN');
+        expect(rule().value).toBe('REL_CONVERT_COLUMN');
         expect(rule().disabled).toBeFalse();
 
         component.columns.at(1).get('targetPrecision').setValue(12);
@@ -1250,7 +1263,7 @@ describe('MappingEditorComponent', () => {
         expect(type().selectedOptions[0].text).toBe('DECIMAL(12, 2)');
         expect(type().disabled).toBeTrue();
 
-        const saved = {...detail, revision: 'excluded', rules: [detail.rules[0]], excludedColumnRules: {102: 'CONVERT_COLUMN'},
+        const saved = {...detail, revision: 'excluded', rules: [detail.rules[0]], excludedColumnRules: {102: 'REL_CONVERT_COLUMN'},
             columns: [detail.columns[0], {...detail.columns[1], included: false}]};
         mappings.update.and.returnValue(of(saved));
         component.save();
@@ -1258,19 +1271,19 @@ describe('MappingEditorComponent', () => {
         mappings.getDetail.and.returnValue(of(saved));
         await component.reloadSaved();
         fixture.detectChanges();
-        expect(rule().value).toBe('CONVERT_COLUMN');
+        expect(rule().value).toBe('REL_CONVERT_COLUMN');
         expect(rule().disabled).toBeTrue();
         expect(type().selectedOptions[0].text).toBe('DECIMAL(10, 2)');
 
         include().click();
         fixture.detectChanges();
-        expect(rule().value).toBe('CONVERT_COLUMN');
+        expect(rule().value).toBe('REL_CONVERT_COLUMN');
         expect(rule().disabled).toBeFalse();
         expect(type().value).toBe('DECIMAL');
         expect(type().disabled).toBeFalse();
         component.save();
         expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
-            logicalColumnId: 102, logicalName: 'name', included: true, ruleType: 'CONVERT_COLUMN'
+            logicalColumnId: 102, logicalName: 'name', included: true, ruleType: 'REL_CONVERT_COLUMN'
         });
     });
 
@@ -1326,7 +1339,7 @@ describe('MappingEditorComponent', () => {
         route.snapshot.data = {create: true};
         const draft = {
             ...detail, mappingId: -1, mappingName: 'Converted import', logicalTableName: 'converted', revision: 'draft',
-            availableRules: [...detail.availableRules, {type: 'CONVERT_COLUMN', label: 'Convert source value'}],
+            availableRules: [...detail.availableRules, {type: 'REL_CONVERT_COLUMN', label: 'Convert source value'}],
             columns: [{...detail.columns[0], physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 101,
                 physicalName: 'id', physicalPosition: 1, typeDisplay: 'BIGINT', nullable: false, primary: true}]},
                 {...detail.columns[1], type: 'VARCHAR', targetTypeOptions: ['VARCHAR', 'INTEGER']}]
@@ -1342,13 +1355,13 @@ describe('MappingEditorComponent', () => {
         const rule = root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]');
         const type = root.querySelector<HTMLSelectElement>('[aria-label="Target type for name"]');
         const nullable = root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]');
-        expect(rule.value).toBe('DIRECT_COLUMN');
+        expect(rule.value).toBe('REL_COPY_COLUMN');
         expect(Array.from(rule.options, option => option.text)).toEqual(['Server copy label', 'Convert source value']);
         expect(type.disabled).toBeTrue();
         expect(nullable.disabled).toBeFalse();
         nullable.click();
-        expect(rule.value).toBe('DIRECT_COLUMN');
-        rule.value = 'CONVERT_COLUMN';
+        expect(rule.value).toBe('REL_COPY_COLUMN');
+        rule.value = 'REL_CONVERT_COLUMN';
         rule.dispatchEvent(new Event('change'));
         fixture.detectChanges();
         expect(type.disabled).toBeFalse();
@@ -1358,13 +1371,13 @@ describe('MappingEditorComponent', () => {
         mappings.create.and.returnValue(of({...draft, mappingId: 32, revision: 'saved'}));
         component.save();
         expect(mappings.create.calls.mostRecent().args[0].columns[1]).toEqual({
-            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'INTEGER', targetNullable: false, ruleType: 'CONVERT_COLUMN'
+            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'INTEGER', targetNullable: false, ruleType: 'REL_CONVERT_COLUMN'
         });
     });
 
     it('restores source type parameters on Copy and keeps a nullability-only edit on reload', () => {
-        detail.availableRules.push({type: 'CONVERT_COLUMN', label: 'Convert'});
-        detail.rules[1].type = 'CONVERT_COLUMN';
+        detail.availableRules.push({type: 'REL_CONVERT_COLUMN', label: 'Convert'});
+        detail.rules[1].type = 'REL_CONVERT_COLUMN';
         detail.columns[1] = {...detail.columns[1], type: 'DECIMAL', typeDisplay: 'DECIMAL(10, 2)', precision: 10, scale: 2,
             targetTypeOptions: ['DECIMAL', 'VARCHAR'],
             physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'name',
@@ -1376,34 +1389,34 @@ describe('MappingEditorComponent', () => {
         const rule = root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]');
         const type = root.querySelector<HTMLSelectElement>('[aria-label="Target type for name"]');
         const nullable = root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]');
-        expect(rule.value).toBe('CONVERT_COLUMN');
+        expect(rule.value).toBe('REL_CONVERT_COLUMN');
         expect(type.disabled).toBeFalse();
-        rule.value = 'DIRECT_COLUMN';
+        rule.value = 'REL_COPY_COLUMN';
         rule.dispatchEvent(new Event('change'));
         fixture.detectChanges();
         expect(type.disabled).toBeTrue();
         expect(nullable.checked).toBeTrue();
         expect(root.querySelector('#target-precision-102')).toBeNull();
 
-        mappings.update.and.returnValue(of({...detail, revision: 'saved', rules: [detail.rules[0], {type: 'DIRECT_COLUMN', targetLogicalColumnId: 102}],
+        mappings.update.and.returnValue(of({...detail, revision: 'saved', rules: [detail.rules[0], {type: 'REL_COPY_COLUMN', targetLogicalColumnId: 102}],
             columns: [detail.columns[0],
             {...detail.columns[1], typeDisplay: 'DECIMAL(8)', precision: 8, scale: null}]}));
         component.save();
         expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
-            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'DECIMAL', targetPrecision: 8, targetScale: -2147483648, ruleType: 'DIRECT_COLUMN'
+            logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'DECIMAL', targetPrecision: 8, targetScale: -2147483648, ruleType: 'REL_COPY_COLUMN'
         });
         fixture.detectChanges();
-        expect(root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]').value).toBe('DIRECT_COLUMN');
+        expect(root.querySelector<HTMLSelectElement>('[aria-label="Rule for name"]').value).toBe('REL_COPY_COLUMN');
         expect(root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]').checked).toBeTrue();
         root.querySelector<HTMLInputElement>('[aria-label="Nullable name"]').click();
         component.save();
         expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
-            logicalColumnId: 102, logicalName: 'name', included: true, targetNullable: false, ruleType: 'DIRECT_COLUMN'
+            logicalColumnId: 102, logicalName: 'name', included: true, targetNullable: false, ruleType: 'REL_COPY_COLUMN'
         });
     });
 
     it('edits a saved target and verifies type parameters after a lost response', () => {
-        detail.availableRules.push({type: 'CONVERT_COLUMN', label: 'Convert'});
+        detail.availableRules.push({type: 'REL_CONVERT_COLUMN', label: 'Convert'});
         detail.columns[1] = {...detail.columns[1], type: 'VARCHAR', precision: 40, targetTypeOptions: ['VARCHAR', 'DECIMAL'],
             physicalReferences: [{allocationId: 60, physicalEntityId: 70, physicalColumnId: 102, physicalName: 'name',
                 physicalPosition: 2, typeDisplay: 'VARCHAR(40)', type: 'VARCHAR', precision: 40, nullable: true}]};
@@ -1411,7 +1424,7 @@ describe('MappingEditorComponent', () => {
         route.paramMap.next(convertToParamMap({adapterId: '7', mappingId: '31'}));
         fixture.detectChanges();
         const row = component.columns.at(1);
-        row.get('ruleType').setValue('CONVERT_COLUMN');
+        row.get('ruleType').setValue('REL_CONVERT_COLUMN');
         row.get('targetType').setValue('DECIMAL');
         row.get('targetPrecision').setValue(10);
         row.get('targetScale').setValue(11);
@@ -1424,7 +1437,7 @@ describe('MappingEditorComponent', () => {
         component.save();
         expect(mappings.update.calls.mostRecent().args[0].columns[1]).toEqual({
             logicalColumnId: 102, logicalName: 'name', included: true, targetType: 'DECIMAL', targetPrecision: 10, targetScale: 2, targetNullable: false,
-            ruleType: 'CONVERT_COLUMN'
+            ruleType: 'REL_CONVERT_COLUMN'
         });
         expect(component.saveError.code).toBe('SAVE_UNCONFIRMED');
     });

@@ -3,13 +3,16 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, forkJoin, of, Subject, Subscription} from 'rxjs';
 import {catchError, startWith, switchMap} from 'rxjs/operators';
 import {EntityType} from '../../models/catalog.model';
+import {DataModel} from '../../models/ui-request.model';
 import {MappingService} from '../../services/mapping.service';
 import {CatalogService} from '../../services/catalog.service';
 import {BreadcrumbService} from '../../components/breadcrumb/breadcrumb.service';
 import {BreadcrumbItem} from '../../components/breadcrumb/breadcrumb-item';
 import {MappingSidebarService} from './mapping-sidebar.service';
 import {ToasterService} from '../../components/toast-exposer/toaster.service';
-import {MAPPING_KINDS, mappingKindLabel, MappingError, MappingKind, MappingSource, MappingSummary, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
+import {DocumentMappingSource, MAPPING_KINDS, mappingDetailLink, mappingKindLabel, MappingError, MappingKind, MappingSource, MappingSummary, PhysicalSourceSelection, readPhysicalSource, mappingUsesSource} from './mapping.model';
+
+type CreationSource = MappingSource | DocumentMappingSource;
 
 @Component({
     selector: 'app-mapping-management',
@@ -31,11 +34,17 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
 
     get embedded(): boolean { return this.targetEntityId != null; }
     get target() { return this.embedded ? this.catalog.entities().get(this.targetEntityId) : null; }
+    get documentTarget(): boolean { return this.target?.dataModel === DataModel.DOCUMENT; }
     get canCreate(): boolean {
         if (this.sourceFilter) { return !!this.createSource; }
-        return !this.embedded || (this.target?.entityType === EntityType.SOURCE && !this.target.modifiable);
+        return !this.embedded || (this.target?.entityType === EntityType.SOURCE && !this.target.modifiable
+            && (!this.documentTarget || !!this.rows.length));
     }
-    ngOnChanges() { this.selectedSource = ''; this.refresh(); }
+    ngOnChanges() {
+        this.sourceModelSelection = null;
+        this.selectedSource = '';
+        this.refresh();
+    }
 
     adapterContext = false;
 
@@ -58,7 +67,9 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
     }
 
     rows: MappingSummary[] = [];
-    sources: MappingSource[] = [];
+    sources: CreationSource[] = [];
+    dataModels: DataModel[] = [];
+    private sourceModelSelection: DataModel | null = null;
     selectedSource = '';
     selectedKind: MappingKind = 'PHYSICAL_TO_LOGICAL';
     viewKind: MappingKind;
@@ -74,6 +85,10 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
     removing = false;
     removeError: MappingError;
     refreshError = false;
+
+    get removalTargetLabel(): string {
+        return this.removal?.targetModel === DataModel.DOCUMENT ? 'collection' : 'table';
+    }
 
     constructor() {
         effect(() => {
@@ -92,6 +107,7 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
                 this.sourceError = null;
                 this.selectedId = null;
                 this.blockedRemovalId = null;
+                const previousAdapter = this.adapterContext ? this.adapterId : null;
                 this.adapterContext = !this.embedded && params.has('adapterId');
                 const sourceAdapterId = this.embedded ? null : params.get('sourceAdapterId');
                 this.sourceFilter = sourceAdapterId == null ? null
@@ -112,28 +128,52 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
                 }
                 const value = this.embedded ? null : params.get('adapterId') ?? sourceAdapterId ?? query.get('adapterId');
                 this.adapterId = value == null ? undefined : Number(value);
+                if ((this.adapterContext ? this.adapterId : null) !== previousAdapter) {
+                    this.sourceModelSelection = null;
+                }
                 if (value != null && (!/^\d+$/.test(value) || !Number.isSafeInteger(this.adapterId))) {
                     this.loadError = 'The adapter ID is invalid.';
                     return of(null);
                 }
+                const handleSourceError = (error: unknown) => {
+                    this.sourceError = MappingService.error(error).message;
+                    return of({sources: []});
+                };
+                const loadRelationalSources = () => (this.embedded ? this.mappings.getSources(undefined, this.targetEntityId)
+                    : this.mappings.getSources(this.adapterId)).pipe(catchError(handleSourceError));
                 return forkJoin({
                     mappings: this.embedded ? this.mappings.getMappings(undefined, this.targetEntityId) : this.mappings.getMappings(this.adapterId),
-                    sources: (this.embedded ? this.mappings.getSources(undefined, this.targetEntityId) : this.mappings.getSources(this.adapterId)).pipe(catchError(error => {
-                        this.sourceError = MappingService.error(error).message;
-                        return of({sources: []});
-                    }))
-                }).pipe(catchError(error => {
-                    this.loadError = MappingService.error(error).message;
-                    return of(null);
-                }));
+                    relationalSources: this.adapterContext || this.documentTarget ? of(null) : loadRelationalSources()
+                }).pipe(
+                    switchMap(response => {
+                        const adapterModels = response.mappings.adapterSourceModels ?? [];
+                        const hasDocumentSource = this.documentTarget || (this.adapterContext ? adapterModels.includes(DataModel.DOCUMENT)
+                            : !this.embedded && (!this.viewKind || this.viewKind === 'PHYSICAL_TO_LOGICAL')
+                                && response.mappings.mappings.some(mapping => mapping.kind === 'PHYSICAL_TO_LOGICAL'
+                                    && mapping.sourceModel === DataModel.DOCUMENT && (!this.sourceFilter || mappingUsesSource(mapping, this.sourceFilter))));
+                        return forkJoin({
+                            mappings: of(response.mappings),
+                            relationalSources: this.adapterContext && adapterModels.includes(DataModel.RELATIONAL)
+                                ? loadRelationalSources() : of(response.relationalSources),
+                            documentSources: hasDocumentSource ? (this.documentTarget
+                                ? this.mappings.getDocumentSources(undefined, this.targetEntityId)
+                                : this.mappings.getDocumentSources(this.adapterId)).pipe(catchError(handleSourceError)) : of(null)
+                        });
+                    }),
+                    catchError(error => {
+                        this.loadError = MappingService.error(error).message;
+                        return of(null);
+                    })
+                );
             })
         ).subscribe(response => {
             this.loading = false;
+            this.dataModels = (this.adapterContext ? response?.mappings.adapterSourceModels : response?.mappings.dataModels) ?? [];
             this.rows = (response?.mappings.mappings || []).filter(mapping => (!this.embedded || mapping.targetEntityId === this.targetEntityId)
                 && (!this.sourceFilter || mappingUsesSource(mapping, this.sourceFilter)));
-            this.sources = (response?.sources.sources || []).filter(source => !this.sourceFilter
-                || (source.adapterId === this.sourceFilter.adapterId && source.namespaceName === this.sourceFilter.namespaceName
-                    && source.logicalTableName === this.sourceFilter.physicalName));
+            this.sources = [...(response?.relationalSources?.sources ?? []), ...(response?.documentSources?.sources ?? [])]
+                .filter(source => !this.sourceFilter || (source.adapterId === this.sourceFilter.adapterId
+                    && source.namespaceName === this.sourceFilter.namespaceName && this.sourceName(source) === this.sourceFilter.physicalName));
             if (this.sourceTargets) {
                 this.selectedSource = this.filteredSources.length ? this.sourceKey(this.filteredSources[0]) : '';
             } else if (!this.createSource) {
@@ -149,7 +189,9 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
             this.breadcrumbs.setBreadcrumbs(this.adapterContext
                 ? [new BreadcrumbItem('Adapters', '/views/adapters'), new BreadcrumbItem(this.adapterName + ' Mappings')]
                 : this.sourceTargets
-                ? [new BreadcrumbItem('Mappings', '/views/mappings'), new BreadcrumbItem('Targets for ' + this.sourceLabel)]
+                ? [new BreadcrumbItem('Mappings', '/views/mappings'),
+                    new BreadcrumbItem(mappingKindLabel(this.viewKind), ['/views/mappings/kind', this.viewKind]),
+                    new BreadcrumbItem('Targets for ' + this.sourceLabel)]
                 : this.viewKind
                     ? [new BreadcrumbItem('Mappings', '/views/mappings'), new BreadcrumbItem(mappingKindLabel(this.viewKind))]
                     : [new BreadcrumbItem('Mappings')]);
@@ -166,8 +208,7 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
     }
 
     mappingLink(mapping: MappingSummary): (string | number)[] {
-        return this.adapterContext ? ['/views/adapters', this.adapterId, 'mappings', mapping.mappingId]
-            : ['/views/mappings', mapping.mappingId, ...(mapping.editable ? ['edit'] : [])];
+        return mappingDetailLink(mapping, this.adapterContext ? this.adapterId : undefined);
     }
 
     mappingQuery() {
@@ -177,16 +218,48 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
             returnSourceTable: this.sourceFilter.physicalName
         } : null;
     }
-    sourceKey(source: MappingSource): string {
+    sourceKey(source: CreationSource): string {
+        if ('sourceEntityId' in source) {
+            return ['document', source.adapterId, source.sourceEntityId, source.sourceAllocationId].join(':');
+        }
         return [source.adapterId, source.targetEntityId, ...(source.sourceAllocationId == null ? [] : [source.sourceAllocationId])].join(':');
     }
 
-    get createSource(): MappingSource {
+    creationSourceLabel(source: CreationSource): string {
+        return `${source.namespaceName}.${this.sourceName(source)} (${source.adapterName})`;
+    }
+
+    private sourceName(source: CreationSource): string {
+        return 'sourceEntityId' in source ? source.physicalName : source.logicalTableName;
+    }
+
+    private sourceModel(source: CreationSource): DataModel {
+        return 'sourceEntityId' in source ? DataModel.DOCUMENT : DataModel.RELATIONAL;
+    }
+
+    get selectedSourceModel(): DataModel {
+        if (this.sourceTargets) {
+            return this.rows[0]?.sourceModel ?? (this.sources[0] ? this.sourceModel(this.sources[0]) : null);
+        }
+        if (this.adapterContext) {
+            return this.dataModels.includes(this.sourceModelSelection) ? this.sourceModelSelection : this.dataModels[0] ?? null;
+        }
+        return this.sourceModelSelection ?? (this.documentTarget ? DataModel.DOCUMENT : DataModel.RELATIONAL);
+    }
+
+    selectSourceModel(model: DataModel) {
+        this.sourceModelSelection = model;
+        this.selectedSource = '';
+    }
+
+    get createSource(): CreationSource {
         return this.filteredSources.find(source => this.sourceKey(source) === this.selectedSource);
     }
 
-    get filteredSources(): MappingSource[] {
-        return this.sources.filter(source => source.kind === this.selectedKind);
+    get filteredSources(): CreationSource[] {
+        const model = this.selectedSourceModel;
+        return this.sources.filter(source => this.sourceModel(source) === model
+            && ('sourceEntityId' in source ? 'PHYSICAL_TO_LOGICAL' : source.kind) === this.selectedKind);
     }
 
     selectKind(kind: MappingKind) {
@@ -197,6 +270,17 @@ export class MappingManagementComponent implements OnInit, OnDestroy, OnChanges 
     create() {
         const source = this.createSource;
         if (source && this.canCreate && !this.removing) {
+            if ('sourceEntityId' in source) {
+                const route = this.adapterContext ? ['/views/adapters', source.adapterId, 'mappings', 'document', 'create']
+                    : ['/views/mappings', 'document', 'create'];
+                const contextQuery = this.embedded ? {existingTargetEntityId: this.targetEntityId}
+                    : this.sourceTargets ? this.mappingQuery()
+                    : !this.adapterContext && this.adapterId != null ? {adapterId: this.adapterId} : {};
+                this.router.navigate(route, {
+                    queryParams: {...contextQuery, sourceEntityId: source.sourceEntityId, sourceAllocationId: source.sourceAllocationId}
+                });
+                return;
+            }
             const route = this.adapterContext
                 ? ['/views/adapters', this.adapterId, 'mappings', 'create']
                 : ['/views/mappings/create'];

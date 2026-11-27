@@ -1,0 +1,109 @@
+<div class="page-heading"><h1>{{ pageTitle }}</h1></div>
+
+<div *ngIf="loading" role="status"><c-spinner size="sm"></c-spinner> Loading mapping…</div>
+<c-alert *ngIf="loadError" color="danger" role="alert">
+    {{ loadError }}
+    <button cButton color="light" size="sm" type="button" (click)="retry()">Retry</button>
+    <a [routerLink]="backLink" [queryParams]="backQuery">Back to mappings</a>
+</c-alert>
+<c-alert *ngIf="validation.summaryError" color="warning">
+    The mapping list could not be refreshed. <button cButton color="light" size="sm" type="button" (click)="retrySidebar()">Retry</button>
+</c-alert>
+
+<c-card *ngIf="detail as mapping" class="editor">
+    <c-card-header class="editor-heading" [formGroup]="names">
+        <div class="mapping-name-area">
+            <div *ngIf="!nameEditing" class="mapping-title-row">
+                <span class="mapping-title">{{ names.controls.mappingName.value || mapping.mappingName }}</span>
+                <button *ngIf="mapping.editable" type="button" class="rename-mapping bg-transparent border-0 p-0 ms-2"
+                        aria-label="Rename mapping" [disabled]="saving" (click)="startRename()">
+                    <i class="cil-pencil" aria-hidden="true"></i>
+                </button>
+            </div>
+            <c-input-group *ngIf="nameEditing" sizing="sm" class="mapping-name-input">
+                <input cFormControl id="document-mapping-name" formControlName="mappingName" aria-label="Mapping name"
+                       [class.is-invalid]="fieldError('mappingName')" aria-describedby="document-mapping-name-error" [readOnly]="saving"
+                       (keydown.enter)="$event.preventDefault(); finishRename()" (keydown.escape)="cancelRename()">
+                <button cButton color="primary" type="button" size="sm" [disabled]="!canRename" (click)="finishRename()">rename</button>
+            </c-input-group>
+            <c-form-feedback id="document-mapping-name-error" [valid]="false" *ngIf="fieldError('mappingName') as message">{{ message }}</c-form-feedback>
+        </div>
+    </c-card-header>
+    <c-card-body>
+        <c-alert *ngIf="!mapping.editable && mapping.readOnlyReason" color="info">{{ mapping.readOnlyReason }}</c-alert>
+        <c-alert *ngIf="showSaveError" id="document-mapping-save-error" color="danger" role="alert">
+            {{ saveError.message }}
+            <ul *ngIf="saveError.blockingEntities?.length"><li *ngFor="let entity of saveError.blockingEntities">{{ entity }}</li></ul>
+            <button *ngIf="saveError.code === 'REVISION'" cButton color="light" size="sm" type="button" (click)="retry()">Reload saved version</button>
+        </c-alert>
+
+        <form [formGroup]="names" (ngSubmit)="saveNames()">
+            <fieldset [disabled]="saving" [attr.aria-describedby]="mapping.editable && mapping.fixedTargetEntityId != null ? 'document-shared-target-info' : null">
+                <section id="mapping-definition" aria-label="Mapping definition">
+                    <div class="source-target-grid">
+                        <section class="definition-section" aria-labelledby="document-mapping-source">
+                            <h5 id="document-mapping-source" class="mb-3">Source Information</h5>
+                            <div class="metadata-grid source-object" *ngFor="let source of mapping.physicalSources">
+                                <p><span>Namespace:</span> {{ source.namespaceName }}</p>
+                                <p><span>Data model:</span> {{ mapping.sourceModel | titlecase }}</p>
+                                <p><span>Collection name:</span> {{ source.physicalName }}</p>
+                            </div>
+                        </section>
+                        <section class="definition-section target-definition document-target" aria-labelledby="document-mapping-target">
+                            <h5 id="document-mapping-target" class="mb-3">Target Information</h5>
+                            <div class="metadata-grid">
+                                <div class="field-row">
+                                    <label for="document-mapping-namespace" class="form-label">Namespace:</label>
+                                    <div class="field-control">
+                                        <select cSelect id="document-mapping-namespace" formControlName="targetNamespaceId" aria-describedby="document-mapping-detail-namespace-error"
+                                                [class.is-invalid]="fieldError('targetNamespaceId')">
+                                            <option *ngIf="showCurrentNamespaceOption" [ngValue]="mapping.namespaceId">{{ mapping.namespaceName }}</option>
+                                            <ng-container *ngIf="names.controls.targetNamespaceId.enabled">
+                                                <option *ngFor="let namespace of namespaces()" [ngValue]="namespace.id">{{ namespace.name }}</option>
+                                            </ng-container>
+                                        </select>
+                                        <c-form-feedback id="document-mapping-detail-namespace-error" [valid]="false"
+                                                         *ngIf="fieldError('targetNamespaceId') as message">{{ message }}</c-form-feedback>
+                                    </div>
+                                </div>
+                                <p class="field-row"><span>Data model:</span> {{ mapping.targetModel | titlecase }}</p>
+                                <div class="field-row">
+                                    <label for="document-mapping-collection-name" class="form-label">Collection name:</label>
+                                    <div class="field-control">
+                                        <input cFormControl id="document-mapping-collection-name" formControlName="logicalCollectionName"
+                                               [class.is-invalid]="fieldError('logicalCollectionName')" aria-describedby="document-mapping-collection-name-error">
+                                        <c-form-feedback id="document-mapping-collection-name-error" [valid]="false"
+                                                         *ngIf="fieldError('logicalCollectionName') as message">{{ message }}</c-form-feedback>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div *ngIf="mapping.editable && mapping.fixedTargetEntityId != null" class="shared-target-info">
+                            <p id="document-shared-target-info" class="text-body-secondary mb-2" role="note">
+                                This mapping uses a target collection shared by multiple sources. The target information and mapping rules are fixed.
+                            </p>
+                            <a [routerLink]="targetMappingsLink">View all sources for this target</a>
+                        </div>
+                    </div>
+                    <section class="rules-section" aria-labelledby="document-mapping-rules">
+                        <div class="section-heading"><h2 id="document-mapping-rules" class="mb-0">Mapping Rules</h2></div>
+                        <select cSelect id="document-mapping-rule" class="w-auto" aria-label="Mapping rule"
+                                [disabled]="!mapping.editable || mapping.fixedTargetEntityId != null">
+                            <option *ngFor="let rule of mapping.rules" [value]="rule.type">{{ rule.type === 'DOCUMENT_COPY_ENTIRE' ? 'Copy entire document' : rule.type }}</option>
+                        </select>
+                    </section>
+                </section>
+                <div class="editor-footer">
+                    <div class="editor-actions">
+                        <button cButton color="light" type="button" (click)="cancel()">Cancel</button>
+                        <button *ngIf="mapping.editable" cButton color="primary" type="submit" [disabled]="!canSaveNames">
+                            <c-spinner *ngIf="saving" size="sm" aria-label="Saving"></c-spinner> {{ saving ? 'Saving…' : 'Save' }}
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </c-card-body>
+</c-card>
+
+<app-mapping-discard-dialog></app-mapping-discard-dialog>

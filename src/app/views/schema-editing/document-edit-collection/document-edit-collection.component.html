@@ -3,7 +3,7 @@
         <c-col>
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
-                    <h1>{{ entity()?.name }}</h1>
+                    <h1>{{ entity().name }}{{ activeTab() === 'mappings' ? ' (target)' : '' }}</h1>
                     <div *ngIf="synchronizedMaterializedSource()" class="d-inline-block small bg-info-subtle text-info-emphasis border border-info-subtle rounded px-2 py-1">
                         Synchronized Materialization · read-only · source: {{ synchronizedMaterializedSource() }}
                     </div>
@@ -39,6 +39,9 @@
                        (click)="setTab('source-materialization')"
                        role="tab">Materialization</a>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" [ngClass]="{'active': activeTab() === 'mappings'}" (click)="setTab('mappings')" role="tab">Mappings</a>
+                </li>
                 <!--<li class="nav-item" role="presentation">
                     <a class="nav-link"
                        [ngClass]="{'active': activeTab() === 'statistics'}"
@@ -49,6 +52,8 @@
         </c-col>
 
     </c-row>
+
+    <app-mapping-management *ngIf="activeTab() === 'mappings'" [targetEntityId]="entity().id"></app-mapping-management>
 
     <c-modal [visible]="showDataRefreshConfirmModal()"
              (visibleChange)="showDataRefreshConfirmModal.set($event)"
